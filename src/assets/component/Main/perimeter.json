@@ -1,0 +1,42 @@
+[
+    {
+        "es" : "Llegada de vehiculo",
+        "en" : "Vehicle arrival",
+        "timeIniciate": true,
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "client",
+        "_id": 101
+    },
+    {
+        "es" : "Salida de vehículo",
+        "en" : "Vehicle departure",
+        "timeIniciate": true,
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "client",
+        "_id": 100
+    }
+]

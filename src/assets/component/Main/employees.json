@@ -1,0 +1,458 @@
+[
+    {
+        "es" : "Empleados conversando",
+        "en" : "Employees chatting",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 9
+    },
+    {
+        "es" : "Empleado(s) fuera del local",
+        "en" : "Employee outside premises",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 10
+    },
+    {
+        "es" : "Posible posición de descanso",
+        "en" : "Employee in possible resting position",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 11
+    },
+    {
+        "es" : "Reunión de empleados",
+        "en" : "Employees meeting",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 12
+    },
+    {
+        "es" : "Empleado sin actividad",
+        "en" : "Employee without activity",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "Nacionales",
+        "category": "employee",
+        "_id": 13
+    },
+    {
+        "es" : "Empleado de salón en área de host",
+        "en" : "Manin hall employee in host area",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 14
+    },
+    {
+        "es" : "Empleado de salón en área de cocina",
+        "en" : "Manin hall employee in kitchen area",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 15
+    },
+    {
+        "es" : "Empleado de cocina en barra",
+        "en" : "Kitchen employee at bar area",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 16
+    },
+    {
+        "es" : "Empleado sin uniforme",
+        "en" : "Employee without uniform",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 17
+    },
+    {
+        "es" : "Juego entre empleados",
+        "en" : "Games between employees",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 18
+    },
+    {
+        "es" : "Empleado sobre mobiliario",
+        "en" : "Employee on top of furniture",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 19
+    },
+    {
+        "es" : "Empleado sobre refrigerador",
+        "en" : "Employee on top of freezer",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 20
+    },
+    {
+        "es" : "Empleado sobre mesón",
+        "en" : "Employee over kitchen counter",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 21
+    },
+    {
+        "es" : "Empleado sobre estante",
+        "en" : "Employee on top of shelf",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 22
+    },
+    {
+        "es" : "Empleado derrama bebida",
+        "en" : "Employee spills drink",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 23
+    },
+    {
+        "es" : "Derrame de liquido",
+        "en" : "Liquid Spill", 
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 70
+    },
+    {
+        "es" : "Empleado manipula efectivo",
+        "en" : "Employee manipulating cash",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 24
+    },
+    {
+        "es" : "Demostración afectiva entre empleado",
+        "en" : "Affective demonstration between employees",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 25
+    },
+    {
+        "es" : "Empleado en entrenamiento",
+        "en" : "Employee training",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 26
+    },
+    {
+        "es" : "Empleado presenta malestar",
+        "en" : "Employee presents discomfort",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 27
+    },
+    {
+        "es" : "Empleado se lesiona",
+        "en" : "employee is injured",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 28
+    },
+    {
+        "es" : "Empleado recibe primeros auxilios",
+        "en" : "Employee gets first aid",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 29
+    },
+    {
+        "es" : "Uso de celular",
+        "en" : "Phone use",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 30
+    },
+    {
+        "es" : "Empledo usa cigarrillo electrónico",
+        "en" : "Employee uses electronic cigarette",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "employee",
+        "_id": 31
+    }
+]

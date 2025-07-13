@@ -1,0 +1,21 @@
+[
+    {
+        "es": "Falla de conexion con DVR",
+        "en" : "Connection failure with the DVR",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "failed",
+        "_id": 92
+    }
+]

@@ -1,0 +1,4 @@
+.btnSend:disabled{
+    border-color: brown;
+    background-color: rgb(197, 47, 47);
+}

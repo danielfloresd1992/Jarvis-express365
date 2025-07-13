@@ -1,0 +1,12 @@
+.boxDivInput{
+    height: 100vh;
+}
+.box-static {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    position: sticky;
+    top: 200px;
+}

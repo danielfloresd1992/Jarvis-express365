@@ -1,0 +1,116 @@
+[
+    {
+        "es" : "Basura rebosada",
+        "en" : "Overflowing trash can",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "trash",
+        "_id": 71
+    },    
+    {
+        "es" : "Papelera rebosada",
+        "en" : "Overflowing trash can",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "trash",
+        "_id": 72
+    },
+    {
+        "es" : "Basura mal ubicada",
+        "en" : "",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "trash",
+        "_id": 73
+    },
+    {
+        "es" : "Basura acumulada",
+        "en" : "Garbage accumulation",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "trash",
+        "_id": 74
+    },
+    {
+        "es" : "Plato sobre la basura",
+        "en" : "Plate on top of trash can",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "trash",
+        "_id": 75
+    },
+    {
+        "es" : "Basura ubicada en puerta trasera",
+        "en" : "Garbage located at back door",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "trash",
+        "_id": 78
+    }
+]

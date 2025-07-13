@@ -1,0 +1,432 @@
+
+[
+    {
+        "es" : "Empleado consume bebida",
+        "en" : "Employee drinking",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 32
+    },
+    {
+        "es": "Empleado consume alimento",
+        "en" : "Employee eating",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 33
+    },
+    {
+        "es": "Empleado consume restos de plato de cliente",
+        "en" : "Employee eats from client dish leftovers",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "_id": 34,
+        "category": "food"
+    },
+    {
+        "es": "Empleado desecha alimento",
+        "en" : "Employee throws food away",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 35
+    },
+    {
+        "es": "Empleado guarda restos de bebida",
+        "en" : "Employee saves remains of drink",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "_id": 36,
+        "category": "food"
+    },
+    {
+        "es": "Empleado guarda restos de plato de cliente",
+        "en" : "Employee saves client dish leftovers",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 37
+    },
+    {
+        "es": "Empleado guarda pizza quemada",
+        "en" : " Employee saves burned pizza",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "category": "food",
+        "range": "total",
+        "_id": 38
+    },
+    {
+        "es": "Empleado se retira con comida de local",
+        "en" : " Employee leaves with premises food",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "category": "food",
+        "range": "total",
+        "_id": 39
+    },
+    {
+        "es": "Alimento expuesto",
+        "en" : "Exposed food",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "category": "food",
+        "range": "total",
+        "_id": 40
+    },
+    {
+        "es": "Manipulación de alimentos sin guantes",
+        "en" : "Food manipulation without gloves",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 41
+    },
+    {
+        "es": "Manipulación de alimentos en el suelo",
+        "en" : "food handling on the floor",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 42
+    },
+    {
+        "es": "Caída de alimento",
+        "en" : "Food fall",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 43
+    },
+    {
+        "es": "Empleado desecha pizza quemada",
+        "en" : "Employee throws burned pizza away",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 44
+    },
+    {
+        "es": "Empleado derrama bebida",
+        "en" : "Employee spills drink",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 45
+    },
+    {
+        "es": "posible devolución de plato",
+        "en" : "Possible main dish return",
+        "time" : false,
+        "table": true,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Empleado retira plato",
+                    "en" : "Dish Retired"
+                },
+                {
+                    "index": 2,
+                    "es" : "plato en cocina",
+                    "en" : "Dish in Kitchen"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 46
+    },
+    {
+        "es": "posible devolución de postre",
+        "en" : "Possible dessert return",
+        "time" : false,
+        "table": true,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Empleado retira plato",
+                    "en" : "Dish Retired"
+                },
+                {
+                    "index": 2,
+                    "es" : "plato en cocina",
+                    "en" : "Dish in Kitchen"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 47
+    },
+    {
+        "es": "posible devolución de entrada",
+        "en" : "Possible appetizer return",
+        "time" : false,
+        "table": true,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Empleado retira plato",
+                    "en" : "Dish Retired"
+                },
+                {
+                    "index": 2,
+                    "es" : "plato en cocina",
+                    "en" : "Dish in Kitchen"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 48
+    },
+    {
+        "es": "posible devolución de bebida",
+        "en" : "Possible drink return",
+        "time" : false,
+        "table": true,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Empleado retira bebida",
+                    "en" : "Employee Drink Retired"
+                },
+                {
+                    "index": 2,
+                    "es" : "Bebida en barra",
+                    "en" : "Drink in bar"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 49
+    },
+    {
+        "es": "Posible devolución de ensalada",
+        "en" : "Possible salad return",
+        "time" : false,
+        "table": true,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Empleado retira plato",
+                    "en" : "Dish Retired"
+                },
+                {
+                    "index": 2,
+                    "es" : "plato en cocina",
+                    "en" : "Dish in Kitchen"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 50
+    },
+    {
+        "es": "Posible devolución de pedido",
+        "en" : "Possible delivery return",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Cliente entrega pedido",
+                    "en" : "Customer delivers order"
+                },
+                {
+                    "index": 2,
+                    "es" : "Pedido en cocina",
+                    "en" : "Delivery in Kitchen"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 51
+    },
+    {
+        "es": "Posible error de orden",
+        "en" : "Possible order mistake",
+        "time" : false,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "food",
+        "_id": 52
+    }
+]

@@ -1,0 +1,115 @@
+
+[
+    {
+        "es" : "Demora de primera atención",
+        "en" : "First attention delay",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Ocupa",
+                    "en" : "Occupies"
+                },
+                {
+                    "index": 2,
+                    "es" : "Primera atención",
+                    "en" : "First attention"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "delay",
+        "_id": 5
+    },
+    {
+        "es" : "Demora de limpieza",
+        "en" : "Cleaning delay",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 2,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Desocupa",
+                    "en" : "Client leaves the table"
+                },
+                {
+                    "index": 2,
+                    "es" : "Limpieza",
+                    "en" : "Cleaning"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "delay",
+        "_id": 6
+    },
+    {
+        "es" : "Demora de servicio",
+        "en" : "Delay services",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 3,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Toma de orden",
+                    "en" : "Order take"
+                },
+                {
+                    "index": 2,
+                    "es" : "Toma de orden envio",
+                    "en" : "Cleaning"
+                },
+                {
+                    "index": 3,
+                    "es" : "Entrega de servicio",
+                    "en" : "Dish delivery"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "delay",
+        "_id": 7
+    },
+    {
+        "es" : "Demora en preparación de plato",
+        "en" : "Dish preparation delay",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 4,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "Toma de orden",
+                    "en" : "Order take"
+                },
+                {
+                    "index": 2,
+                    "es" : "Listo en tablet",
+                    "en" : "Ready in tablet"
+                },
+                {
+                    "index": 3,
+                    "es" : "Listo en cocina",
+                    "en" : "Ready in kitchen"
+                }
+                ,
+                {
+                    "index": 4,
+                    "es" : "Entrega de plato",
+                    "en" : "Dish delivery"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "delay",
+        "_id": 8
+    }
+]

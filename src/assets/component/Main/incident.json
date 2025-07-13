@@ -1,0 +1,97 @@
+[
+    {
+        "es" : "Incidencia en área de cocina",
+        "en" : "Kitchen incident",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "incident",
+        "_id": 53
+    },
+    {
+        "es" : "Incidencia en área de salón",
+        "en" : "Main hall incident",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "incident",
+        "_id": 54
+    },
+    {
+        "es" : "Incidencia en área de terraza",
+        "en" : "Terrace incident",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "incident",
+        "_id": 55
+    },
+    {
+        "es" : "Incidencia en área de almacén",
+        "en" : "Warehouse incident",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "incident",
+        "_id": 56
+    },
+    {
+        "es" : "Incidencia en área de lavatrastos",
+        "en" : "Dishwasher incident",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "incident",
+        "_id": 57
+    }
+]

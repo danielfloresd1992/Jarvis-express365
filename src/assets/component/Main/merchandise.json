@@ -1,0 +1,154 @@
+[
+    {
+        "es" : "Mercancía mal ubicada",
+        "en" : "Misplaced merchandise",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 64
+    },
+    {
+        "es" : "Caida de mecancía",
+        "en" : "Merchandise drop",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 65
+    },
+    {
+        "es" : "Recepción de mercancía en salón principal",
+        "en" : "Merchandise reception at front door",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 66
+    },
+    {
+        "es" : "Mercancía ubicada en área de pasillo",
+        "en" : "Merchandise located at hallway area",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 67
+    },
+    {
+        "es" : "Cajas mal ubicada",
+        "en" : "misplaced boxes",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 68
+    },
+    {
+        "es" : "Cajas en puerta trasera",
+        "en" : "Boxes located at back door",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 79
+    },
+    {
+        "es" : "Cajas en área de pasillo",
+        "en" : "Boxes located at hallway area",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 80
+    },
+    {
+        "es" : "Manipulación y traslado de mercancía",
+        "en" : "transfer of merchandise",
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "merchandise",
+        "_id": 69
+    }
+]

@@ -1,0 +1,99 @@
+.boxModal-contain{
+   
+}
+
+@keyframes backtrans {
+    0%{
+        background-color: #00000000;
+    }
+    50%{
+        background-color: #0000004b;
+    }
+    100%{
+        background-color: #00000098;
+    }
+    
+}
+
+
+.boxModal-div {
+    position: relative;
+    width: 450px;
+    background-color: rgb(255, 255, 255);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+
+.boxModal-titleContain {
+    width: 100%;
+    background-color: #323232;
+    padding: 0.8rem;
+}
+
+
+.boxModal-title {
+    color: #fff;
+    font-weight: 100;
+}
+
+
+.boxModal-descriptionContain {
+    padding: 2rem;
+}
+
+.boxModal-description {
+    font-size: 1.1rem;
+    color: #505050;
+    text-align: center;
+}
+
+.boxModal-imgContain{
+    position: absolute;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.boxModal-img {
+    filter: opacity(0.1);
+}
+
+.boxModal-btnContain {
+    width: 100%;
+    padding: 0.5rem;
+
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.boxModal-btnClose {
+    width: 100px;
+    justify-content: center;
+    font-weight: 700;
+    color: #767676;
+    border: 1px solid #484848;
+}
+
+
+.boxModal-btnContain {
+    width: 100%;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 200;
+}
+
+
+@media screen and (max-width: 720px) {
+    .boxModal-div {
+        width: 90%;
+    }
+}

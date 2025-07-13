@@ -1,0 +1,1931 @@
+[{
+  "_id": {
+    "$oid": "63ecffede3ce894142fc9d5f"
+  },
+  "es": "Cliente sin ser ubicado por el host",
+  "en": "Client not located by host",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "client"
+},{
+  "_id": {
+    "$oid": "63ecffede3ce894142fc9d60"
+  },
+  "es": "Cliente solicita atención",
+  "en": " Client asks for attention",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "client"
+},{
+  "_id": {
+    "$oid": "63ecffede3ce894142fc9d61"
+  },
+  "es": "Posible reclamo de cliente",
+  "en": "Possible customer complaint",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "client"
+},{
+  "_id": {
+    "$oid": "63ecffede3ce894142fc9d62"
+  },
+  "es": "Cliente de otra franquicia",
+  "en": "Client of another franchise",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "client"
+},{
+  "_id": {
+    "$oid": "63ecfff5e3ce894142fc9d63"
+  },
+  "es": "Demora de primera atención",
+  "en": "First attention delay",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Ocupa",
+        "en": "Occupies"
+      },
+      {
+        "index": 2,
+        "es": "Primera atención",
+        "en": "First attention"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "delay"
+},{
+  "_id": {
+    "$oid": "63ecfff5e3ce894142fc9d64"
+  },
+  "es": "Demora de limpieza",
+  "en": "Cleaning delay",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Desocupa",
+        "en": "Client leaves the table"
+      },
+      {
+        "index": 2,
+        "es": "Limpieza",
+        "en": "Cleaning"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "delay"
+},{
+  "_id": {
+    "$oid": "63ecfff5e3ce894142fc9d65"
+  },
+  "es": "Demora de servicio",
+  "en": "Delay services",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 3,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Toma de orden",
+        "en": ""
+      },
+      {
+        "index": 2,
+        "es": "Toma de envio",
+        "en": "Cleaning"
+      },
+      {
+        "index": 3,
+        "es": "Entrega de servicio",
+        "en": ""
+      }
+    ]
+  },
+  "range": "total",
+  "category": "delay"
+},{
+  "_id": {
+    "$oid": "63ecfff5e3ce894142fc9d66"
+  },
+  "es": "Demora en preparación de plato",
+  "en": "Dish preparation delay",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 4,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Toma de orden",
+        "en": "Order take"
+      },
+      {
+        "index": 2,
+        "es": "Listo en tablet",
+        "en": "Ready in tablet"
+      },
+      {
+        "index": 3,
+        "es": "Listo en cocina",
+        "en": "Ready in kitchen"
+      },
+      {
+        "index": 4,
+        "es": "Entrega de plato",
+        "en": "Dish delivery"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "delay"
+},{
+  "_id": {
+    "$oid": "63ecfffde3ce894142fc9d67"
+  },
+  "es": "Puerta de cava abierta",
+  "en": "Freezer door open",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "door"
+},{
+  "_id": {
+    "$oid": "63ecfffde3ce894142fc9d68"
+  },
+  "es": "Puerta abierta",
+  "en": "Open door",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "door"
+},{
+  "_id": {
+    "$oid": "63ecfffde3ce894142fc9d69"
+  },
+  "es": "Área de host sola",
+  "en": "*Host area alone",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "door"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d6a"
+  },
+  "es": "Empleados conversando",
+  "en": "Employees chatting",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d6b"
+  },
+  "es": "Empleado(s) fuera del local",
+  "en": "Employee outside premises",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d6c"
+  },
+  "es": "Posible posición de descanso",
+  "en": "Employee in possible resting position",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d6d"
+  },
+  "es": "Reunión de emplados",
+  "en": "Employees meeting",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d6e"
+  },
+  "es": "Empleado sin actividad",
+  "en": "Employee without activity",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "Nacionales",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d6f"
+  },
+  "es": "Empleado de salón en área de host",
+  "en": "Manin hall employee in host area",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d70"
+  },
+  "es": "Empleado de salón en área de cocina",
+  "en": "Manin hall employee in kitchen area",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d71"
+  },
+  "es": "Empleado de cocina en barra",
+  "en": "Kitchen employee at bar area",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d72"
+  },
+  "es": "Empleado sin uniforme",
+  "en": "Employee without uniform",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d73"
+  },
+  "es": "Juego entre empleados",
+  "en": "Games between employees",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d74"
+  },
+  "es": "Empleado sobre mobiliario",
+  "en": "Employee on top of furniture",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d75"
+  },
+  "es": "Empleado sobre refrigerador",
+  "en": "Employee on top of freezer",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d76"
+  },
+  "es": "Empleado sobre mesón",
+  "en": "Employee over kitchen counter",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d77"
+  },
+  "es": "Empleado sobre estante",
+  "en": "Employee on top of shelf",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d78"
+  },
+  "es": "Empleado derrama bebida",
+  "en": "Employee spills drink",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d79"
+  },
+  "es": "Derrame de liquido",
+  "en": "Liquid Spill",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d7a"
+  },
+  "es": "Empleado manipula efectivo",
+  "en": "Employee manipulating cash",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d7b"
+  },
+  "es": "Demostración afectiva entre empleado",
+  "en": "Affective demonstration between employees",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d7c"
+  },
+  "es": "Empleado en entrenamiento",
+  "en": "Employee training",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d7d"
+  },
+  "es": "Empleado presenta malestar",
+  "en": "Employee presents discomfort",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d7e"
+  },
+  "es": "Empleado se lesiona",
+  "en": "employee is injured",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d7f"
+  },
+  "es": "Empleado recibe primeros auxilios",
+  "en": "Employee gets first aid",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d80"
+  },
+  "es": "Uso de celular",
+  "en": "Phone use",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0007e3ce894142fc9d81"
+  },
+  "es": "Empledo usa cigarrillo electrónico",
+  "en": "Employee uses electronic cigarette",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "employee"
+},{
+  "_id": {
+    "$oid": "63ed0010e3ce894142fc9d82"
+  },
+  "es": "Falla de conexion con DVR",
+  "en": "Connection failure with the DVR",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "failed"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d83"
+  },
+  "es": "Empleado consume bebida",
+  "en": "Employee drinking",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d84"
+  },
+  "es": "Empleado consume alimento",
+  "en": "Employee eating",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d85"
+  },
+  "es": "Empleado consume restos de plato de cliente",
+  "en": "Employee eats from client dish leftovers",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d86"
+  },
+  "es": "Empleado desecha alimento",
+  "en": "Employee throws food away",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d87"
+  },
+  "es": "Empleado guarda restos de bebida",
+  "en": "Employee saves remains of drink",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d88"
+  },
+  "es": "Empleado guarda restos de plato de cliente",
+  "en": "Employee saves client dish leftovers",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d89"
+  },
+  "es": "Empleado guarda pizza quemada",
+  "en": " Employee saves burned pizza",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "category": "food",
+  "range": "total"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d8a"
+  },
+  "es": "Empleado se retira con comida de local",
+  "en": " Employee leaves with premises food",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "category": "food",
+  "range": "total"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d8b"
+  },
+  "es": "Alimento expuesto",
+  "en": "Exposed food",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "category": "food",
+  "range": "total"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d8c"
+  },
+  "es": "Manipulación de alimentos sin guantes",
+  "en": "Food manipulation without gloves",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d8d"
+  },
+  "es": "Manipulación de alimentos en el suelo",
+  "en": "food handling on the floor",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d8e"
+  },
+  "es": "Caída de alimento",
+  "en": "Food fall",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d8f"
+  },
+  "es": "Empleado desecha pizza quemada",
+  "en": "Employee throws burned pizza away",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d90"
+  },
+  "es": "Empleado derrama bebida",
+  "en": "Employee spills drink",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d91"
+  },
+  "es": "posible devolución de plato",
+  "en": "*Possible main dish return",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Empleado retira plato",
+        "en": "Dish Retired"
+      },
+      {
+        "index": 2,
+        "es": "plato en cocina",
+        "en": "Dish in Kitchen"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d92"
+  },
+  "es": "posible devolución de postre",
+  "en": "Possible dessert return",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Empleado retira plato",
+        "en": "Dish Retired"
+      },
+      {
+        "index": 2,
+        "es": "plato en cocina",
+        "en": "Dish in Kitchen"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d93"
+  },
+  "es": "posible devolución de entrada",
+  "en": "Possible appetizer return",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Empleado retira plato",
+        "en": "Dish Retired"
+      },
+      {
+        "index": 2,
+        "es": "plato en cocina",
+        "en": "Dish in Kitchen"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d94"
+  },
+  "es": "posible devolución de bebida",
+  "en": "Possible drink return",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Empleado retira bebida",
+        "en": "Employee Drink Retired"
+      },
+      {
+        "index": 2,
+        "es": "Bebida en barra",
+        "en": "Drink in bar"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d95"
+  },
+  "es": "Posible devolución de ensalada",
+  "en": "Possible salad return",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Empleado retira plato",
+        "en": "Dish Retired"
+      },
+      {
+        "index": 2,
+        "es": "plato en cocina",
+        "en": "Dish in Kitchen"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d96"
+  },
+  "es": "Posible devolución de pedido",
+  "en": "Possible delivery return",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Cliente entrega pedido",
+        "en": "Customer delivers order"
+      },
+      {
+        "index": 2,
+        "es": "Pedido en cocina",
+        "en": "Delivery in Kitchen"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed001ae3ce894142fc9d97"
+  },
+  "es": "Posible error de orden",
+  "en": "Possible order mistake",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "food"
+},{
+  "_id": {
+    "$oid": "63ed0024e3ce894142fc9d98"
+  },
+  "es": "Incidencia en área de cocina",
+  "en": "Kitchen incident",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "incident"
+},{
+  "_id": {
+    "$oid": "63ed0024e3ce894142fc9d99"
+  },
+  "es": "Incidencia en área de salón",
+  "en": "Main hall incident",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "incident"
+},{
+  "_id": {
+    "$oid": "63ed0024e3ce894142fc9d9a"
+  },
+  "es": "Incidencia en área de terraza",
+  "en": "Terrace incident",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "incident"
+},{
+  "_id": {
+    "$oid": "63ed0024e3ce894142fc9d9b"
+  },
+  "es": "Incidencia en área de almacén",
+  "en": "Warehouse incident",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "incident"
+},{
+  "_id": {
+    "$oid": "63ed0024e3ce894142fc9d9c"
+  },
+  "es": "Incidencia en área de lavatrastos",
+  "en": "Dishwasher incident",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "incident"
+},{
+  "_id": {
+    "$oid": "63ed002de3ce894142fc9d9d"
+  },
+  "es": "Puerta de refrigerador abierta",
+  "en": "Freezer door open",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "localIncident"
+},{
+  "_id": {
+    "$oid": "63ed002de3ce894142fc9d9e"
+  },
+  "es": "Puerta abierta",
+  "en": "Open door",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "localIncident"
+},{
+  "_id": {
+    "$oid": "63ed002de3ce894142fc9d9f"
+  },
+  "es": "área de host sola",
+  "en": "Host area alone",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "localIncident"
+},{
+  "_id": {
+    "$oid": "63ed002de3ce894142fc9da0"
+  },
+  "es": "Papelera rebosada",
+  "en": "Overflowing trash can",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "localIncident"
+},{
+  "_id": {
+    "$oid": "63ed002de3ce894142fc9da1"
+  },
+  "es": "Basura acumulada",
+  "en": "Garbage accumulation",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "localIncident"
+},{
+  "_id": {
+    "$oid": "63ed002de3ce894142fc9da2"
+  },
+  "es": "Basura ubicada en puerta trasera",
+  "en": "Garbage located at back door",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "localIncident"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9da3"
+  },
+  "es": "Mercancía mal ubicada",
+  "en": "Misplaced merchandise",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9da4"
+  },
+  "es": "Caida de mecancía",
+  "en": "Merchandise drop",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9da5"
+  },
+  "es": "Recepción de mercancía en salón principal",
+  "en": "Merchandise reception at front door",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9da6"
+  },
+  "es": "Mercancía ubicada en área de pasillo",
+  "en": "Merchandise located at hallway area",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9da7"
+  },
+  "es": "Cajas mal ubicada",
+  "en": "misplaced boxes",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9da8"
+  },
+  "es": "Cajas en puerta trasera",
+  "en": "Boxes located at back door",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9da9"
+  },
+  "es": "Cajas en área de pasillo",
+  "en": "Boxes located at hallway area",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0039e3ce894142fc9daa"
+  },
+  "es": "Manipulación y traslado de mercancía",
+  "en": "transfer of merchandise",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "merchandise"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9dab"
+  },
+  "es": "Cliente no recibe acompañamiento de valet parking",
+  "en": "Client Doesn't receive accompaniment from valet parking",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "Nacionales",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9dac"
+  },
+  "es": "Incumplimiento de protocolo \nValet parking no abre puerta de cliente\nEnviamos video para su evaluación",
+  "en": "Breach of protocol \nvalet parking dont's open customer door",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "Nacionales",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9dad"
+  },
+  "es": "Cliente solicita cuenta",
+  "en": "Client requests ticket",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 2,
+    "caption": [
+      {
+        "index": 1,
+        "es": "Cliente solicita cuenta",
+        "en": "Client requests ticket"
+      },
+      {
+        "index": 2,
+        "es": "cliente recibe cuenta",
+        "en": "customer receives invoice"
+      }
+    ]
+  },
+  "range": "Nacionales",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9dae"
+  },
+  "es": "Incumplimiento de protocolo \nCliente ocupa Mesa sin ser limpiada correctamente",
+  "en": "Breach of protocol \nClient occupies Table without being cleaned correctly",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9daf"
+  },
+  "es": "Incumplimiento de protocolo \nCliente recibe protocolo de primera atención antes de ocupar mesa",
+  "en": "Breach of protocol \nClient receives first attention protocol before occupying a table",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9db0"
+  },
+  "es": "Incumplimiento de protocolo \nNo se aprecia barrido del área mesa",
+  "en": "Breach of protocol \nNo sweep of the table area can be seen",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9db1"
+  },
+  "es": "Incumplimiento de protocolo \nCliente recibe toma de orden antes de protocolo de primera atención",
+  "en": "Breach of protocol \nClient receives order before first attention protocol",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9db2"
+  },
+  "es": "Incumplimiento de protocolo \nCliente ocupa mesa sin recibir protocolo de primera atención",
+  "en": "Breach of protocol \nClient occupies table without receiving first attention protocol",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9db3"
+  },
+  "es": "Cliente se retira con porta cuentas",
+  "en": "Customer leaves with ticket holder",
+  "time": true,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0042e3ce894142fc9db4"
+  },
+  "es": "protocolo y organización de mesa",
+  "en": "",
+  "time": false,
+  "table": true,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "protocol"
+},{
+  "_id": {
+    "$oid": "63ed0049e3ce894142fc9db5"
+  },
+  "es": "Basura rebosada",
+  "en": "overflowing trash can",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "trash"
+},{
+  "_id": {
+    "$oid": "63ed0049e3ce894142fc9db6"
+  },
+  "es": "Papelera rebosada",
+  "en": "overflowing trash can",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "trash"
+},{
+  "_id": {
+    "$oid": "63ed0049e3ce894142fc9db7"
+  },
+  "es": "Basura mal ubicada",
+  "en": "",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "trash"
+},{
+  "_id": {
+    "$oid": "63ed0049e3ce894142fc9db8"
+  },
+  "es": "Basura acumulada",
+  "en": "Garbage accumulation",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "trash"
+},{
+  "_id": {
+    "$oid": "63ed0049e3ce894142fc9db9"
+  },
+  "es": "Plato sobre la basura",
+  "en": "Plate on top of trash can",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "trash"
+},{
+  "_id": {
+    "$oid": "63ed0049e3ce894142fc9dba"
+  },
+  "es": "Basura ubicada en puerta trasera",
+  "en": "Garbage located at back door",
+  "time": true,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "trash"
+},{
+  "_id": {
+    "$oid": "63ed00dae3ce894142fc9dbc"
+  },
+  "es": "Cliente presenta malestar",
+  "en": "  Client presents discomfort",
+  "time": false,
+  "table": false,
+  "photos": {
+    "length": 1,
+    "caption": [
+      {
+        "index": 1,
+        "es": "null",
+        "en": "null"
+      }
+    ]
+  },
+  "range": "total",
+  "category": "client"
+}]

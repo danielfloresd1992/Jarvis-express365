@@ -1,0 +1,59 @@
+[
+    {
+        "es" : "Puerta de cava abierta",
+        "en" : "Freezer door open",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "door",
+        "_id": 76
+    },    
+    {
+        "es" : "Puerta abierta",
+        "en" : "Open door",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "door",
+        "_id": 77
+    },    
+    {
+        "es" : "Área de host sola",
+        "en" : "*Host area alone",
+        "time" : true,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "door",
+        "_id": 81
+    }
+]

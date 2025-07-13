@@ -1,0 +1,138 @@
+.chat-component {
+    width: 100%;
+    height: 30px;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background-color: #167c00;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 0.1rem;
+    justify-content: flex-start;
+    z-index: 1500;
+}
+.chat-chatContain{
+    position: relative;
+    width: 300px;
+    height: 100%;
+    margin: 0 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+}
+.chat-banner{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    background-color: #22b10f;
+    color: #ffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 250;
+    cursor: pointer;
+}
+
+.chat-boxText {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    height: 440px;
+    background-color: #d1d1d1;
+    z-index: 150;
+    padding: 0 0 30px 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 2px 5px 3px #333;
+}
+
+.chat-await-p{
+    color: #fff
+}
+.textContain-textArea {
+    border: none;
+    width: 90%;
+    min-height: 40px;
+    resize: none;
+    font-size: 1rem;
+    padding: 0.2rem 0.5rem;
+    font-weight: bold;
+    font-family: system-ui;
+    color: #000;
+    background-color: #fff;
+}
+.textContain-textArea:focus,.textContain-textArea:focus-visible{
+    outline: none;
+    border: none;
+}
+.text-chat {
+    width: 100%;
+    height: 380px;
+    background-color: #cbcbcb;
+    border-bottom: 1px solid #000;
+    padding: 0.4rem;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    overflow-y: scroll;
+}
+
+.textContain {
+    width: 100%;
+    max-height: 100px;
+    display: flex;
+    color: #fff;
+    background-color: #fff;
+}
+
+.msm-contain {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.msm-name{
+    color: rgb(102, 102, 102)
+}
+.msm-body {
+    color: rgb(0, 0, 0);
+    margin: 0 0.5rem;
+}
+.myText{
+    align-items: flex-end;
+}
+
+.chat-await{
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.767);
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+.textContain-btn{
+    width: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    cursor: pointer;
+    background-color: unset;
+    border: none
+}
+.textContain-btn:hover{
+    border: none
+}
+.textContain-btn:focus-visible,.textContain-btn:focus{
+    outline: none;
+    border: none
+}
+.textContain-imgBtn {
+    width: 30px;
+    filter: contrast(0.10);
+}

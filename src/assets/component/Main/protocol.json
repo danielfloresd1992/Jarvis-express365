@@ -1,0 +1,209 @@
+[
+    {
+        "es": "Cliente no recibe acompañamiento de valet parking",
+        "en" : "Client Doesn't receive accompaniment from valet parking",
+        "time" : false,
+        "table": false,
+        "timeIniciate": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "Nacionales",
+        "category": "protocol",
+        "_id": 84
+    },
+    {
+        "es" : "Incumplimiento de protocolo Valet parking no abre puerta de cliente",
+        "en" : "Breach of protocol valet parking dont's open customer door",
+        "timeIniciate": true,
+        "time" : false,
+        "table": false,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "Nacionales",
+        "category": "protocol",
+        "description-use": "En la descripción debes colar: Color y Marca del vehiculo junto a la hora de llegada",
+        "_id": 83
+    },
+    {
+        "es" : "Cliente solicita cuenta",
+        "en" : "Customer requests the bill",
+        "especial": {
+            "time": {
+                "timeInitTitle": {
+                    "es": "Hora de solicitud",
+                    "en": "Bill request time"
+                },
+                "timeEndTitle": {
+                    "es": "Cliente recibe cuenta",
+                    "en": "Customer recives the bill"
+                }
+            }
+        },
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "client",
+        "_id": 95
+    },
+    {
+        "es" : "Incumplimiento de protocolo cliente ocupa Mesa sin ser limpiada correctamente",
+        "en" : "Breach of protocol Client occupies Table without being cleaned correctly",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "protocol",
+        "_id": 86
+    },
+    {
+        "es" : "Incumplimiento de protocolo Cliente recibe protocolo de primera atención antes de ocupar mesa",
+        "en" : "Breach of protocol client receives first attention protocol before occupying a table",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "protocol",
+        "_id": 87
+    },
+    {
+        "es" : "Incumplimiento de protocolo No se aprecia barrido del área mesa",
+        "en" : "Breach of protocol No sweep of the table area can be seen",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "protocol",
+        "_id": 88
+    },
+    {
+        "es" : "Incumplimiento de protocolo cliente recibe toma de orden antes de protocolo de primera atención",
+        "en" : "Breach of protocol client receives order before first attention protocol",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "protocol",
+        "_id": 89
+    },
+    {
+        "es" : "Incumplimiento de protocolo cliente ocupa mesa sin recibir protocolo de primera atención",
+        "en" : "Breach of protocol client occupies table without receiving first attention protocol",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "protocol",
+        "_id": 90
+    },
+    {
+        "es" : "Cliente se retira con porta cuentas",
+        "en" : "Customer leaves with ticket holder",
+        "time" : true,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "protocol",
+        "_id": 91
+    },
+    {
+        "es" : "Protocolo y organización de mesa",
+        "en" : "Table organization and protocol",
+        "time" : false,
+        "table": true,
+        "photos" : {
+            "length": 1,
+            "caption": [
+                {
+                    "index": 1,
+                    "es" : "null",
+                    "en" : "null"
+                }
+            ]
+        },
+        "range": "total",
+        "category": "protocol",
+        "_id": 91
+    }
+]
+
+

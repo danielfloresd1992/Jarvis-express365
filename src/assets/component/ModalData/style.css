@@ -1,0 +1,311 @@
+.listComponent {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-around;
+    align-content: flex-start;
+
+}
+
+
+.nav {
+    position: fixed;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+
+.nav-button{
+    background-color: unset;
+    width: 100px;
+}
+
+
+.list,
+.list * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.list {
+  list-style: none;
+  counter-reset: cardCount;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  --cardsGap: 1rem;
+  gap: var(--cardsGap);
+  padding-bottom: var(--cardsGap);
+  transition: max-height 1s ease;
+  max-height: 7000px;
+}
+
+
+.listContaint {
+    min-height: 80vh;
+    width: 45%;
+    margin: 4.5rem 0.5rem 0 0.5rem;
+    background-color: #2a2d3e;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+.header-line {
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.listContaint-title {
+    padding: 0.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-bottom: 1px solid #fff;
+    font-size: 1rem;
+    font-family: inherit;
+    gap: 0.2rem;
+}
+
+
+.header-title{
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+
+.listContaint-title p{
+    pointer-events: none;
+}
+
+
+.listContaint-box {
+    color: rgb(255, 255, 255);
+    overflow: hidden;
+    background-color: #2a2d3e;
+}
+
+
+.close-box{
+    padding: 0;
+    max-height: 0px;
+    overflow: hidden;
+    transition:  1s ease;
+}
+
+
+.list li {
+  counter-increment: cardCount;
+  display: flex;
+  color: white;
+  --labelOffset: 1rem;
+  --arrowClipSize: 1.5rem;
+  margin-top: var(--labelOffset);
+  
+}
+
+.box-traslateLelf{
+    animation: boxTitle .5s linear
+}
+
+@keyframes boxTitle {
+    from{
+        transform: translateX(-50px);
+        filter: opacity(0);
+    }
+    to{
+        transform: translateX(0px);
+        filter: opacity(1);
+    }
+}
+
+
+
+.list li::before {
+  content: counter(cardCount, decimal-leading-zero);
+  background-color: #1e082b;
+  color: #f4f4f4;
+  font-size: 2em;
+  font-weight: 700;
+  transform: translateY(calc(-1 * var(--labelOffset)));
+  margin-right: calc(-1 * var(--labelOffset));
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 0.5em;
+}
+
+
+.list li .content {
+    background-color: #782b78;
+    --inlinePadding: 1em;
+    --boxPadding: 0.5em;
+    display: flex;
+    padding: var(--boxPadding) calc(var(--inlinePadding) + var(--arrowClipSize)) var(--boxPadding) calc(var(--inlinePadding) + var(--labelOffset));
+    gap: 0.25em 1em;
+    clip-path: polygon( 0 0, calc(100% - var(--arrowClipSize)) 0, 100% 50%, calc(100% - var(--arrowClipSize)) 100%, calc(100% - var(--arrowClipSize)) calc(100% + var(--cardsGap)), 0 calc(100% + var(--cardsGap)) );
+    position: relative;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+
+.list li .content::before {
+  content: "";
+  position: absolute;
+  width: var(--labelOffset);
+  height: var(--labelOffset);
+  background: var(--cardColor);
+  left: 0;
+  bottom: 0;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  filter: brightness(0.75);
+}
+
+
+.list li .content::after {
+  content: "";
+  position: absolute;
+  height: var(--cardsGap);
+  width: var(--cardsGap);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent 50%);
+  left: 0;
+  top: 100%;
+}
+
+
+.list li .icon {
+  grid-area: icon;
+  align-self: center;
+  font-size: 2em;
+}
+
+
+.second {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.icon-text {
+    font-size: .8rem;
+    width: 100px;
+    text-align: center;
+}
+
+.icoValidate{
+    width: 35px;
+    height: 35px;
+
+}
+
+
+.validate {
+    filter: opacity(0.4) drop-shadow(0 0 0 rgb(255, 0, 212)) invert(1);
+}
+
+
+.invalidate{
+    filter: opacity(0.4) drop-shadow(0 0 0 rgb(255, 0, 0));
+}
+
+
+.ignore{
+    filter: invert(1);
+}
+
+
+.icon-img {
+  width: 65px;
+  height: 50px;
+  background-color: #1e082b;
+}
+
+
+.list li .content .title {
+    font-size: 1.25em;
+    width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+.list li .content .text {
+    color: mediumturquoise;
+    text-decoration: underline;
+}
+
+
+.textBonusContent {
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+}
+
+
+.text-bonus{
+    font-size: .8rem;
+}
+
+
+.textGreen{
+    color: #00ff00;
+}
+
+
+.text-purple {
+    color: #d437d5;
+}
+
+
+.text-red{
+    color: #ff5612;   
+}
+
+
+.text-bonus-cancel {
+    width: 20px;
+    filter: invert(1);
+}
+
+
+.mainContent{
+    width: 48%;
+    min-height: 95vh;
+    padding-top: 4.5rem;
+}
+
+
+.mainContent-GrafigContain{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem
+}
+
+
+.GrafigContain-textTitle{
+    text-align: center;
+    color: #ffff
+}
+
+
+.grafig{
+    
+}
+
+
+.box-traslateLelf{
+    position: relative;
+}
+
