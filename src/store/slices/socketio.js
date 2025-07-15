@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { socket } from "../../assets/util/IO.JS";
+import { socket } from '../../libs/socket/io.js';
 import io from 'socket.io-client';
 let dataUser = null;
 
@@ -12,10 +12,10 @@ const socketAppManager = io(`wss://${urlSockedAppManager}:${PORT}`, { secure: tr
 
 
 socketAppManager.on('update-user-client-express', userId => {
-    if(dataUser){
+    if (dataUser) {
         dataUser.myId = userId;
         socketAppManager.emit('user-connection', dataUser);
-    } 
+    }
 });
 
 
@@ -38,7 +38,7 @@ export const socketIo = createSlice({
 
             dataUser = {
                 sessionId: `${JSON.parse(sessionStorage.getItem('session'))._id}${JSON.parse(localStorage.getItem('local_appExpress'))[0]._id}`,
-                user:{
+                user: {
                     username: `${JSON.parse(sessionStorage.getItem('session')).name} ${JSON.parse(sessionStorage.getItem('session')).surName}`,
                     userId: JSON.parse(sessionStorage.getItem('session'))._id
                 },
@@ -53,7 +53,7 @@ export const socketIo = createSlice({
 
 
         desconnectIo: (state, action) => {
-            socketAppManager.emit('close-user-connection',  dataUser);
+            socketAppManager.emit('close-user-connection', dataUser);
             dataUser = null;
             socket.on('disconnect', () => {
                 console.log('me cerré')
@@ -72,7 +72,7 @@ export const socketIo = createSlice({
             console.log(action.payload);
             socketAppManager.emit('receive-failure', action.payload);
         },
-        
+
 
         sendReconnection: (state, action) => {
             console.log(action.payload);
@@ -85,12 +85,12 @@ export const socketIo = createSlice({
 
 
 
-export const { 
-    createIo, 
-    desconnectIo, 
-    sendText, 
-    sendFailed, 
-    sendReconnection 
+export const {
+    createIo,
+    desconnectIo,
+    sendText,
+    sendFailed,
+    sendReconnection
 } = socketIo.actions;
 
 export { socketAppManager };
