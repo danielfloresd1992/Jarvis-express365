@@ -1,4 +1,4 @@
-import logo1 from '/logo1.png';
+import logo1 from '../../public/logo1';
 //import logo1 from '../../public/logo/'
 
 
