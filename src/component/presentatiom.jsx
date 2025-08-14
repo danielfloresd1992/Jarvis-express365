@@ -1,5 +1,5 @@
 import logo1 from '../../public/logo1.png';
-
+//import logo1 from '../../public/logo/'
 
 
 export default function Presentation() {
@@ -19,7 +19,7 @@ export default function Presentation() {
         >
 
 
-            <img style={{ width: '50%' }} src={logo1} alt='logo1' />
+            <img style={{ width: '50%' }} src={logo1} alt='/logo1' />
             <div>
                 <p style={{ color: 'rgb(88 88 88)', fontWeight: '600' }}>¡Reporta al instante ya!</p>
             </div>

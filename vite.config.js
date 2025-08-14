@@ -11,11 +11,11 @@ export default defineConfig({
     plugins: [
         react(),
         mkcert(),
-        
+
     ],
     server: {
         host: '0.0.0.0',
         https: true,
-        port: 5174
+        port: 5173
     }
 });

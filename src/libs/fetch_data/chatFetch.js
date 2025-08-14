@@ -16,7 +16,6 @@ export const getMessageForChat = ({ page, limit }) => {
 
 export const setMessageForChat = (body) => {
     return new Promise((resolve, reject) => {
-        console.log(body)
         axiosInstance.post(`${IP}/chat`, body)
             .then(response => resolve(response))
             .catch(error => reject(error));

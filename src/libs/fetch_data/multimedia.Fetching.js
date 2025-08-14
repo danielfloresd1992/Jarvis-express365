@@ -8,7 +8,7 @@ export const sendFile = (file) => {
         const formData = new FormData();
         formData.append('img', file);
         axiosInstance.post(`${IP}/multimedia`, formData)
-        .then(response => resolve(response))
-        .catch(error => reject(error))
-    }); 
+            .then(response => resolve(response))
+            .catch(error => reject(error))
+    });
 }
