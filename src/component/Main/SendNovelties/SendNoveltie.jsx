@@ -175,7 +175,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                     }
 
                     saveNoveltieList.save(title[0].es, data.userData);
-                    alert.request(`Novedad en ${data.localData.name}. por validar`);
+
                     setTitle(title = []);
                     setTable(table = '');
                     setFiles([]);
