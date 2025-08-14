@@ -3,7 +3,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import Compressor from 'compressorjs';
 import { useAlert } from '../../hook/useAlert.jsx';
 //import { TABLET_RULES, checkTime } from '../Main/Delay/tablet/model.js';
-import InputHour from '../inputs/inputHours';
+import InputHour from '../inputs/InputHours.jsx'
+//import InputHour from '../inputs/inputHours';
 import InputBorderBlue from '../inputs/Input.jsx';
 import { returnTimeExceding } from '../../libs/date_time/time.js';
 import axiosInstance from '../../libs/fetch_data/instanceAxios.js';
