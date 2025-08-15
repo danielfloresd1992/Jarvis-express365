@@ -30,7 +30,7 @@ export default function VideoComponent({ awaitWindow, boxModal, getVideo }) {
     const isMountedRef = useRef(false);
 
 
-    const URL = location.hostname === '72.68.60.254' ? 'https://72.68.60.254:65431' : 'https://72.68.60.201:3001';
+    const URL = location.hostname === 'jarvis-express.netlify.app' ? 'https://72.68.60.254:65431' : 'https://72.68.60.201:3001';
 
 
     useEffect(() => {  ///  fetching de concatenación
@@ -50,7 +50,7 @@ export default function VideoComponent({ awaitWindow, boxModal, getVideo }) {
                     renderVideo(response.data, true);
                 })
                 .catch(err => {
-                    conosle.log(err);
+                    console.log(err);
                 })
                 .finally(() => {
                     awaitWindow.close();
