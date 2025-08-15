@@ -47,7 +47,7 @@ export default function boxVideo({ changeEvent, index, awaitWindow, countVideo, 
             const formData = new FormData();
             formData.append('file', video);
             //`/servise/video`
-            const response = await axios.post(`${ location.hostname === 'jarvis-express.netlify.app' ? 'https://72.68.60.254:65431' : 'https://72.68.60.201:3001' } /servise/video`, formData, { responseType: 'blob' })
+            const response = await axios.post(`${ location.hostname === 'jarvis-express.netlify.app' ? 'https://72.68.60.254:65431' : 'https://72.68.60.201:3001' }/servise/video`, formData, { responseType: 'blob' })
 
             if (response.status === 200) {
                 setUrlVideoState(window.URL.createObjectURL(new Blob([response.data])))
