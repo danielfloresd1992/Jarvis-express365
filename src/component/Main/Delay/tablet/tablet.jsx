@@ -97,6 +97,8 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
 
 
+
+
     const sendImgForm = async e => {
         try {
             e.preventDefault();

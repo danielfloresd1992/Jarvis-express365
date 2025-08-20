@@ -6,84 +6,39 @@ import resize from '../../../../../public/ico/resize/resize.svg';
 import moveImg from '../../../../../public/ico/move/move.svg';
 import reply from '../../../../../public/ico/reply/reply.svg';
 import save from '../../../../../public/ico/save/save.svg';
-import { isMobile } from 'react-device-detect';
-
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css'
 
 
 function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
 
-    const activeDraggingRef = useRef(false);
-    const inputZoonRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [position, setPosition] = useState({ x: 0, y: 0 });
 
-    let [resizePosition, setResizePosition] = useState({ x: 0, y: 0 });
-    const [startWidth, setStartWidth] = useState(0);
-    const [startHeight, setStartHeight] = useState(0);
-    const [cut, setVisivilityCut] = useState(false);
+    const [crop, setCrop] = useState();
+    const [completedCrop, setCompletedCrop] = useState(null);
 
-
+    const imagePreviewCanvasRef = useRef(null);
+    const imageRef = useRef();
     const newImg = useRef();
-    const imgTag = useRef();
-    const [isResize, setResize] = useState(false);
 
 
-    useEffect(() => {
-        inputZoonRef.current.value = '70';
-    });
-
-
-    const handleMouseDown = e => {
-        setIsDragging(true);
-        isMobile ? setMousePosition({ x: e.touches[0].clientX, y: e.touches[0].clientY }) : setMousePosition({ x: e.clientX, y: e.clientY });
+    const canvasStyles = {
+        width: Math.round(completedCrop?.width ?? 0),
+        height: Math.round(completedCrop?.height ?? 0),
     };
 
 
-    const handleMouseMove = e => {
-        if (activeDraggingRef.current && isDragging) {
-            const dx = isMobile ? e.touches[0].clientX - mousePosition.x : e.clientX - mousePosition.x;
-            const dy = isMobile ? e.touches[0].clientY - mousePosition.y : e.clientY - mousePosition.y;
-            setPosition({ x: position.x + dx, y: position.y + dy });
-            isMobile ? setMousePosition({ x: e.touches[0].clientX, y: e.touches[0].clientY }) : setMousePosition({ x: e.clientX, y: e.clientY });
-            const transform = `translate(${position.x}px, ${position.y}px)`;
-            imgTag.current.style.transform = transform;
-        }
+
+
+
+    const onImageLoad = (crop, pixelCrop) => {
+        drawImageOnCanvas(imageRef.current, imagePreviewCanvasRef.current, crop);
+        setCompletedCrop(crop);
     };
 
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-    };
-
-
-    const mouseDownResize = e => {
-        setResize(true);
-        isMobile ? setResizePosition({ x: e.touches[0].clientX, y: e.touches[0].clientY }) : setResizePosition({ x: e.clientX, y: e.clientY });
-        setStartWidth(parseInt(getComputedStyle(newImg.current).width));
-        setStartHeight(parseInt(getComputedStyle(newImg.current).height));
-    };
-
-
-    const mouseMoveResize = e => {
-        if (isResize) {
-            const newWidth = isMobile ? startWidth + e.touches[0].clientX - resizePosition.x : startWidth + e.clientX - resizePosition.x;
-            const newHeight = isMobile ? startWidth + e.touches[0].clientY - resizePosition.y : startHeight + e.clientY - resizePosition.y;
-            newImg.current.style.width = `${newWidth}px`;
-            newImg.current.style.height = `${newHeight}px`;
-        }
-    };
-
-
-    const mouseUpResize = () => {
-        setResize(false);
-    };
 
 
     const saveChangue = () => {
-        newImg.current.classList.remove('componentImgEdit-imgContent-move');
-        newImg.current.style.border = 'none';
-        if (cut === true) setVisivilityCut(false);
+
         toPng(newImg.current, { quality: 10 })
             .then(dataUrl => {
                 const file = base64ToFile(dataUrl, 'newImage');
@@ -99,46 +54,17 @@ function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
     };
 
 
+
     return (
         <>
-            <div className='componentImgEdit'>
+            <div className='componentImgEdit' style={{
+                width: '100%'
+            }}>
                 <div className='componentImgEdit-section'>
                     <div className='componentImgEdit-bannerBtn'>
                         <div className='componentImgEdit-BtnContent'>
-                            <button className='componentImgEdit-Btn'
-                                type='button'
-                                onClick={() => {
-                                    newImg.current.classList.toggle('componentImgEdit-imgContent-move');
-                                    if (activeDraggingRef.current) {
-                                        imgTag.current.style.cursor = 'unset';
-                                        activeDraggingRef.current = false
-                                    }
-                                    else {
-                                        imgTag.current.style.cursor = 'move';
-                                        activeDraggingRef.current = true;
-                                    }
 
-                                    if (cut) setVisivilityCut(!cut)
-                                }}
-                            >
-                                <img className='componentImgEdit-btnImg' src={moveImg} alt="" />
-                                <p className='componentImgEdit-BtnText'> move </p>
-                            </button>
-                            <button className='componentImgEdit-Btn'
-                                type='button'
-                                onClick={() => {
-                                    setVisivilityCut(!cut)
-                                    if (activeDraggingRef.current) {
-                                        newImg.current.classList.remove('componentImgEdit-imgContent-move');
-                                        activeDraggingRef.current ? activeDraggingRef.current = false : activeDraggingRef.current = true;
-                                        imgTag.current.style.cursor = 'unset';
-                                    }
-                                }
-                                }
-                            >
-                                <img className='componentImgEdit-btnImg' src={resize} alt="" />
-                                <p className='componentImgEdit-BtnText'> resize </p>
-                            </button>
+
                             <button className='componentImgEdit-Btn'
                                 type='button'
                                 onClick={saveChangue}
@@ -156,63 +82,99 @@ function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
                         </div>
                         <label className='componentImgEdit-label'> Zoom
                             <input type="range" name="Zoom" min="1" max="200"
-                                ref={inputZoonRef}
+
                                 onChange={e => {
-                                    imgTag.current.style.zoom = `${e.target.value}%`;
+
                                 }}
                             />
                         </label>
                     </div>
-                    <div className='componentImgEdit-imgContent' ref={newImg} style={{ touchAction: 'none' }}
-                    >
-                        <img src={img}
-                            ref={imgTag}
-                            draggable={false}
-                            onMouseDown={handleMouseDown}
-                            onMouseMove={handleMouseMove}
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
 
-                            onTouchStart={handleMouseDown}
-                            onTouchMove={handleMouseMove}
-                            onTouchEnd={handleMouseUp}
-                        />
+                    <div className='componentImgEdit-imgContent'>
+                        <div style={{
+                            width: '100%',
+                            height: '50%'
+                        }}>
+                            <ReactCrop
+                                crop={crop}
+                                onChange={setCrop}
+                                onComplete={onImageLoad}
+                            >
+                                <img src={img} ref={imageRef} />
+                            </ReactCrop>
+                        </div>
+                        <div style={{
+                            width: '100%',
+                            height: '50%',
+                            display: 'flex',
+                            justify: 'center',
+                            alignItems: 'center',
+                            flexDirection: 'column',
+                            gap: '1rem'
+                        }}>
+                            <p style={{
+                                color: 'black'
+                            }}>Resultado</p>
 
-                        {
-                            cut ?
-                                (
-                                    <div className='componentImgEdit-pointerResize'
-                                        onMouseDown={mouseDownResize}
-                                        onMouseMove={mouseMoveResize}
-                                        onMouseUp={mouseUpResize}
-                                        onMouseLeave={mouseUpResize}
+                            <div style={{
+                                width: '400px',
+                                height: '300px',
+                                backgroundColor: '#000000'
+                            }}
+                                ref={newImg}
+                            >
+                                <div style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    <canvas ref={imagePreviewCanvasRef} style={canvasStyles}></canvas>
+                                </div>
+                            </div>
 
-                                        onTouchStart={mouseDownResize}
-                                        onTouchMove={mouseMoveResize}
-                                        onTouchEnd={mouseUpResize}
-                                    >
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                        <div className="Box-DecorationResize"></div>
-                                    </div>
-                                )
-                                :
-                                (
-                                    null
-                                )
-                        }
-                    </div>
+                        </div>
+
+                    </div >
                 </div>
-            </div>
+            </div >
         </>
     )
 }
 
 
 export { EditorImg };
+
+
+export function drawImageOnCanvas(image, canvas, crop) {
+    if (!crop || !canvas || !image) {
+        return;
+    }
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const ctx = canvas.getContext('2d');
+    // refer https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio
+    const pixelRatio = window.devicePixelRatio;
+
+    canvas.width = crop.width * pixelRatio * scaleX;
+    canvas.height = crop.height * pixelRatio * scaleY;
+
+    // refer https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setTransform
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    ctx.imageSmoothingQuality = 'high';
+
+    // refer https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+    ctx.drawImage(
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width * scaleX,
+        crop.height * scaleY
+    );
+}

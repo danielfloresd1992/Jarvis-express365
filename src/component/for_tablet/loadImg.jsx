@@ -41,19 +41,12 @@ export default function LoadFileForm({ awaitWindow, boxModal, reset }) {
 
     const compressAndReadUrlImage = file => {
         return new Promise((resolve, reject) => {
-            new Compressor(file, {
-                cuality: .7,
-                maxWidth: 500,
-                maxHeight: 400,
-                success: (compressedResult) => {
-                    const fileReader = new FileReader();
-                    fileReader.readAsDataURL(compressedResult);
-                    fileReader.onload = e => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = e => {
+                resolve({ file: file, dataUrl: e.target.result })
+            };
 
-                        resolve({ file: compressedResult, dataUrl: e.target.result })
-                    };
-                }
-            });
         });
     };
 

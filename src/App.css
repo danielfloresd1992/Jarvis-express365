@@ -1,19 +1,18 @@
-
-
 @font-face {
     font-family: 'DancingScript';
     src: url('../public/font/Dancing_Script/Dancing_Script/DancingScript-VariableFont_wght.ttf');
 }
+
 @font-face {
     font-family: 'title';
     src: url('../public/font/Lobster/Lobster-Regular.ttf');
 }
 
-:root{
+:root {
     --background-dark: rgb(255, 255, 255);
     --background-ligth: #414141;
     --background-uiComponent: #8b8b8b;
-}   
+}
 
 
 
@@ -84,7 +83,8 @@
    */
 }
 
-.Typewriter__wrapper, .Typewriter__cursor{
+.Typewriter__wrapper,
+.Typewriter__cursor {
     position: relative;
     color: #ffc1d5;
     font-weight: 100;
@@ -94,39 +94,39 @@
     text-shadow: 2px 2px 5px #c10000;
 }
 
-.Typewriter__cursor{
+.Typewriter__cursor {
     color: #fff
 }
 
-@keyframes textNeon{
-    from{
+@keyframes textNeon {
+    from {
         text-shadow:
-            0 0 0px rgba(0,178,255,1),
-            0 0 0px rgba(0,178,255,1),
-            0 0 0px rgba(0,178,255,1),
-            0 0 0px rgba(38,104,127,1),
-            0 0 0px rgba(38,104,127,1),
-            0 0 0px rgba(38,104,127,1),
-            0 0 0px rgba(38,104,127,1),
-            0 0 0px rgba(38,104,127,1),
+            0 0 0px rgba(0, 178, 255, 1),
+            0 0 0px rgba(0, 178, 255, 1),
+            0 0 0px rgba(0, 178, 255, 1),
+            0 0 0px rgba(38, 104, 127, 1),
+            0 0 0px rgba(38, 104, 127, 1),
+            0 0 0px rgba(38, 104, 127, 1),
+            0 0 0px rgba(38, 104, 127, 1),
+            0 0 0px rgba(38, 104, 127, 1),
             0 0 0px rgb(127, 38, 123),
             0 0 0px rgb(127, 38, 123),
             0 0 0px rgb(127, 38, 123),
             0 0 0px rgb(127, 38, 123);
         color: #505050;
     }
-   
-    to{
-        
+
+    to {
+
         text-shadow:
-            0 0 5px rgba(0,178,255,1),
-            0 0 10px rgba(0,178,255,1),
-            0 0 20px rgba(0,178,255,1),
-            0 0 40px rgba(38,104,127,1),
-            0 0 40px rgba(38,104,127,1),
-            0 0 40px rgba(38,104,127,1),
-            0 0 80px rgba(38,104,127,1),
-            0 0 80px rgba(38,104,127,1),
+            0 0 5px rgba(0, 178, 255, 1),
+            0 0 10px rgba(0, 178, 255, 1),
+            0 0 20px rgba(0, 178, 255, 1),
+            0 0 40px rgba(38, 104, 127, 1),
+            0 0 40px rgba(38, 104, 127, 1),
+            0 0 40px rgba(38, 104, 127, 1),
+            0 0 80px rgba(38, 104, 127, 1),
+            0 0 80px rgba(38, 104, 127, 1),
             0 0 100px rgb(127, 38, 123),
             0 0 100px rgb(127, 38, 123),
             0 0 100px rgb(127, 38, 123),
@@ -191,7 +191,8 @@
 }
 
 
-.form-input:focus, .form-input:focus-visible{
+.form-input:focus,
+.form-input:focus-visible {
     outline: none;
 }
 
@@ -200,7 +201,7 @@
     border-bottom: 1px solid #000000;
 }
 
-select > option{
+select>option {
     color: #fff
 }
 
@@ -232,7 +233,8 @@ select > option{
 }
 
 
-.form-input-btnPass:focus,.form-input-btnPass:focus-visible{
+.form-input-btnPass:focus,
+.form-input-btnPass:focus-visible {
     outline: none;
 }
 
@@ -246,7 +248,7 @@ select > option{
 }
 
 
-.form-textError{
+.form-textError {
     color: #f00;
     font-weight: 600;
     font-family: monospace;
@@ -264,7 +266,7 @@ select > option{
 }
 
 
-.form-btn:hover{
+.form-btn:hover {
     border: 2px solid var(#00dd0b);
 }
 
@@ -282,26 +284,28 @@ select > option{
     gap: 1rem;
 }
 
-.component-error-h1{
-    color : #686868;
+.component-error-h1 {
+    color: #686868;
     animation: textError 1s ease-in infinite;
 }
 
-.component-error-p{
+.component-error-p {
     font-size: 1.1rem;
     text-align: center;
     color: #ffff
 }
 
-@keyframes  textError{
-    0%{
-        color : #686868
+@keyframes textError {
+    0% {
+        color: #686868
     }
-    50%{
-        color : #ff0000
+
+    50% {
+        color: #ff0000
     }
-    100%{
-        color : #686868
+
+    100% {
+        color: #686868
     }
 }
 
@@ -350,8 +354,9 @@ select > option{
 }
 
 
-.local-input-select:focus,.local-input-select:focus-visible{
-    outline: solid 2px  #24d601;
+.local-input-select:focus,
+.local-input-select:focus-visible {
+    outline: solid 2px #24d601;
 }
 
 
@@ -377,14 +382,14 @@ select > option{
 }
 
 
-.local-btn-closeWindow:hover{
+.local-btn-closeWindow:hover {
     box-shadow: 0 0 5px rgb(46, 199, 0),
-    0 0 5px rgb(63, 199, 0),
-    0 0 5px rgb(33, 199, 0),
-    0 0 20px rgb(1, 247, 13),
-    0 0 20px rgb(1, 247, 13),
-    0 0 20px rgb(1, 122, 11),
-    0 0 20px rgb(1, 150, 13);
+        0 0 5px rgb(63, 199, 0),
+        0 0 5px rgb(33, 199, 0),
+        0 0 20px rgb(1, 247, 13),
+        0 0 20px rgb(1, 247, 13),
+        0 0 20px rgb(1, 122, 11),
+        0 0 20px rgb(1, 150, 13);
 }
 
 
@@ -396,7 +401,7 @@ select > option{
 
 
 /*next component*/
-.local-select{
+.local-select {
     position: absolute;
     min-height: 100vh;
     width: 100%;
@@ -412,7 +417,8 @@ select > option{
 }
 
 /*    await    */
-.spinner, .spinner:after{
+.spinner,
+.spinner:after {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -434,12 +440,14 @@ select > option{
 }
 
 
-@keyframes spinner-loading{
-  0% {
-      transform: rotate(0deg)
-  } to {
-      transform: rotate(1turn)
-  }
+@keyframes spinner-loading {
+    0% {
+        transform: rotate(0deg)
+    }
+
+    to {
+        transform: rotate(1turn)
+    }
 }
 
 
@@ -474,12 +482,13 @@ select > option{
 }
 
 
-.NavComponent-btnOpenSidebar:focus, .NavComponent-btnOpenSidebar:focus-visible{
+.NavComponent-btnOpenSidebar:focus,
+.NavComponent-btnOpenSidebar:focus-visible {
     outline: none;
 }
 
 
-.NavComponent-btnOpenSidebar_img{
+.NavComponent-btnOpenSidebar_img {
     width: 30px;
 }
 
@@ -510,28 +519,29 @@ select > option{
 }
 
 
-.NavComponent-li:hover{
+.NavComponent-li:hover {
     outline: solid 2px #646cff;
     animation: boxSquare .5s ease;
 }
 
 
 @keyframes boxSquare {
-    from{
+    from {
         border-radius: 20px;
     }
-    to{
+
+    to {
         border-radius: 0px;
     }
 }
 
 
-.NavComponent-a{
+.NavComponent-a {
     display: flex;
     align-items: center;
     height: 100%;
     width: 100%;
-    text-decoration: none;   
+    text-decoration: none;
     color: #fff;
     cursor: pointer;
 }
@@ -561,30 +571,32 @@ select > option{
 }
 
 
-.close{
+.close {
     transform: translateY(-1000%);
     animation: closeList 1S ease;
     filter: opacity(0);
 }
 
 
-@keyframes openList{
-    from{
+@keyframes openList {
+    from {
         transform: translateY(-100px);
         filter: opacity(0);
     }
-    to{
+
+    to {
         transform: translateY(0px);
         filter: opacity(1);
     }
 }
 
-@keyframes closeList{
-    from{
+@keyframes closeList {
+    from {
         transform: translateY(0px);
         filter: opacity(1);
     }
-    to{
+
+    to {
         transform: translateY(-100px);
         filter: opacity(0);
     }
@@ -632,7 +644,7 @@ select > option{
 }
 
 
-.closeSidebar{
+.closeSidebar {
     transform: translateX(-100%);
 }
 
@@ -661,7 +673,8 @@ select > option{
 }
 
 
-.asideComponent-btnAction:focus, .asideComponent-btnAction:focus-visible{
+.asideComponent-btnAction:focus,
+.asideComponent-btnAction:focus-visible {
     outline: none;
 }
 
@@ -676,7 +689,7 @@ select > option{
 }
 
 
-.boxManager-btn{
+.boxManager-btn {
     border: none;
     padding: 0;
     width: 30px;
@@ -689,13 +702,13 @@ select > option{
 }
 
 
-.img-btn{
+.img-btn {
     filter: invert();
     width: 25px;
 }
 
 
-hr{
+hr {
     width: 100%
 }
 
@@ -759,8 +772,9 @@ hr{
     font-weight: 500;
 }
 
-.speed-input:focus,.speed-input:focus-visible{
-    outline:none;
+.speed-input:focus,
+.speed-input:focus-visible {
+    outline: none;
 }
 
 .speed-btn {
@@ -775,8 +789,9 @@ hr{
     cursor: default;
 }
 
-.speed-btn:focus,.speed-btn:focus-visible{
-    outline:none;
+.speed-btn:focus,
+.speed-btn:focus-visible {
+    outline: none;
 }
 
 .speed-btnImg {
@@ -811,7 +826,7 @@ hr{
     padding: 0.2rem;
 }
 
-.speed-title:hover{
+.speed-title:hover {
     cursor: pointer;
     color: #f9f9f9;
     background-color: rgb(13 7 32);
@@ -872,7 +887,7 @@ hr{
 }
 
 
-.box-imgComponenContent-alternative{
+.box-imgComponenContent-alternative {
     background-color: #fff;
     align-items: center;
     width: unset !important;
@@ -890,20 +905,20 @@ hr{
 }
 
 
-.box-imgContain-video{
+.box-imgContain-video {
     position: relative;
     width: 310px;
     height: 180px;
     background-color: transparent;
-   
+
 }
 
 
-.ondrop{
-   overflow: hidden;
+.ondrop {
+    overflow: hidden;
 }
 
-.ondrop::after{
+.ondrop::after {
     transform: translateY(100%);
     content: 'Soltar';
     color: #fff;
@@ -914,15 +929,16 @@ hr{
     height: 100%;
     background-color: #6a176dea;
     display: flex;
-    justify-content: center; /* Alineación horizontal */
-    align-items: center; 
-    animation: add 1s ;
+    justify-content: center;
+    /* Alineación horizontal */
+    align-items: center;
+    animation: add 1s;
     transition: 1s;
     transform: translateY(0);
 }
 
 
-.btn{
+.btn {
     background-color: transparent;
     color: #fff;
     font-size: 1.5rem;
@@ -932,16 +948,17 @@ hr{
     border: 1px solid #ba22bd
 }
 
-.btn:disabled{
+.btn:disabled {
     border: 1px solid #585858;
 }
 
 
 @keyframes add {
-    from{
+    from {
         transform: translateY(100%);
     }
-    to{
+
+    to {
         transform: translateY(0);
     }
 }
@@ -952,6 +969,7 @@ hr{
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
 }
+
 .box-imgContain-video::-webkit-media-controls-play-button {
     /* Estilos para el botón de reproducción */
     width: 20px;
@@ -1017,20 +1035,20 @@ hr{
 }
 
 
-.secondBtn{
+.secondBtn {
     right: 75px;
-    
+
 }
 
 
-.box-deleteimgIco{
+.box-deleteimgIco {
     width: 95%;
     height: 95%;
     filter: invert();
 }
 
 
-.cut{
+.cut {
     width: 100%;
     height: 100%;
     filter: none;
@@ -1043,13 +1061,13 @@ hr{
 }
 
 
-.box-img-alternative{
+.box-img-alternative {
     border: none;
     max-height: unset;
 }
 
 
-.active-drop{
+.active-drop {
     background-color: rgb(111, 0, 121);
     filter: blur(1px) contrast(1.4);
 }
@@ -1126,7 +1144,7 @@ hr{
     color: #fff
 }
 
-.box-inputTex > option{
+.box-inputTex>option {
     background-color: #343434;
     color: #fff
 }
@@ -1137,7 +1155,8 @@ hr{
 
 
 
-.box-inputText:focus, .box-inputText:focus-visible{
+.box-inputText:focus,
+.box-inputText:focus-visible {
     border: 2px solid #fff;
     outline: none;
 }
@@ -1162,12 +1181,12 @@ hr{
 }
 
 
-.toBorder{
+.toBorder {
     border: 1px solid rgb(254, 111, 6);
 }
 
 
-.boxTextSend{
+.boxTextSend {
     border: 2px solid #002aa1;
     color: #fff;
     background-image: linear-gradient(12deg, #e74444, #ffa707);
@@ -1183,22 +1202,22 @@ hr{
 }
 
 
-.btnSend:disabled{
+.btnSend:disabled {
     border: 3px solid #ff0000bd;
     transition: all .2s ease-in;
     background-color: #6a2121c7;
 }
 
 
-.btnSend:disabled:hover{
+.btnSend:disabled:hover {
     border: 3px solid #ff0000bd;
     transition: all .2s ease-in;
     background-color: #6a2121c7;
 }
 
 
-.btnSend:hover{
-    border: 3px solid #00a000 ;
+.btnSend:hover {
+    border: 3px solid #00a000;
     background-color: #6eff6e;
     color: #fff
 }
@@ -1211,13 +1230,14 @@ hr{
 }
 
 
-.box-textArea:focus, .box-textArea:focus-visible{
+.box-textArea:focus,
+.box-textArea:focus-visible {
     outline: none;
-    box-shadow: 0 0 30px rgb(81, 0, 128), 0 0 30px rgb(0, 66, 128) ;
+    box-shadow: 0 0 30px rgb(81, 0, 128), 0 0 30px rgb(0, 66, 128);
 }
 
 
-.textIncident{
+.textIncident {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1225,7 +1245,7 @@ hr{
 }
 
 
-.textIncident-label{
+.textIncident-label {
     width: 50%;
     display: flex;
     flex-direction: column;
@@ -1233,7 +1253,7 @@ hr{
     color: #fff
 }
 
-.textIncident-select{
+.textIncident-select {
     width: 100%;
     text-align: left;
 }
@@ -1327,7 +1347,7 @@ hr{
     overflow-x: scroll;
     overscroll-behavior-x: contain;
     scroll-snap-type: x proximity;
-    
+
 }
 
 
@@ -1343,14 +1363,14 @@ hr{
 }
 
 
-.boxManager-textContain{
+.boxManager-textContain {
     width: 100%;
     height: 20%;
     padding: 1rem;
 }
 
 
-.boxManager-subTitle{
+.boxManager-subTitle {
     color: #fff;
     text-align: center;
     font-family: 'Lobster';
@@ -1367,7 +1387,7 @@ hr{
 }
 
 
-.boxManager-textDescription{
+.boxManager-textDescription {
     color: #fff;
     font-size: .8rem;
     text-align: center;
@@ -1377,10 +1397,10 @@ hr{
 /*    imgEditComponent    */
 
 
-.componentImgEdit{
+.componentImgEdit {
     top: 0;
     right: 0;
-    position: fixed;    
+    position: fixed;
     width: 80%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.562);
@@ -1434,13 +1454,14 @@ hr{
 }
 
 
-.componentImgEdit-Btn:focus, .componentImgEdit-Btn:focus-visible{
+.componentImgEdit-Btn:focus,
+.componentImgEdit-Btn:focus-visible {
     outline: none;
     border: none;
 }
 
 
-.componentImgEdit-Btn:hover{
+.componentImgEdit-Btn:hover {
     border: none;
     outline: none;
 }
@@ -1495,7 +1516,7 @@ hr{
     width: 80%;
     height: 80%;
     position: absolute;
-    
+
 }
 
 
@@ -1508,22 +1529,28 @@ hr{
 
 
 .componentImgEdit-pointerResize {
+    resize: both;
+    overflow: auto;
+    border: 5px dashed rgb(52, 152, 219);
+    top: 0;
     position: absolute;
-    bottom: 0px;
-    right: 0px;
-    height: 100%;
-    width: 100%;
-    background-color: #008cff33;
+    top: 0px;
+    left: 0px;
+    height: 50%;
+    width: 50%;
+
     cursor: pointer;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
+    cursor: move;
+    resize: none;
 }
 
 
 .Box-DecorationResize {
     border: 1px solid #0264b3e0;
-    cursor: nwse-resize;
+
 }
 
 /*************************************/
@@ -1534,18 +1561,18 @@ hr{
         /* animation: textNeon 2s steps(1) infinite; */
     }
 
-    .componentLogin-form{
+    .componentLogin-form {
         width: 94%;
     }
 
-    .Typewriter__wrapper{
+    .Typewriter__wrapper {
         font-size: 1.1rem;
     }
 
 
     /*   home    */
 
-    .local-title{
+    .local-title {
         font-size: 2rem;
     }
 
@@ -1553,10 +1580,10 @@ hr{
     /*   aside bar   */
 
 
-    
 
 
-    .NavComponent-user{
+
+    .NavComponent-user {
         display: none;
     }
 
@@ -1569,7 +1596,7 @@ hr{
     }
 
 
-    .closeSidebar{
+    .closeSidebar {
         transform: translateX(-100%);
     }
 
@@ -1577,14 +1604,12 @@ hr{
     /*    main component    */
 
 
-    .mainComponent{
+    .mainComponent {
         width: 100%;
     }
 
-    
-    .box-img{
-      
-    }
+
+    .box-img {}
 
 
     .box-imgContain {
@@ -1592,12 +1617,12 @@ hr{
     }
 
 
-    .box-inputContain{
+    .box-inputContain {
         width: 100%;
     }
 
 
-    .box-inputCamera{
+    .box-inputCamera {
         position: absolute;
         width: 100%;
         height: 100%;
@@ -1613,12 +1638,12 @@ hr{
 
 
 
-    .speed-btn{
+    .speed-btn {
         width: 40px;
     }
 
 
-    .resultContain{
+    .resultContain {
         color: #000;
         display: flex;
         flex-direction: column;
@@ -1629,9 +1654,9 @@ hr{
     input[type="text"]::placeholder {
         color: rgb(199, 199, 199);
         font-style: italic;
-      }
+    }
 
-    .box-imgComponenContent{
+    .box-imgComponenContent {
         width: 100%;
     }
 
@@ -1645,23 +1670,23 @@ hr{
         width: 100%;
     }
 
-   
-    .box-imgContain{
+
+    .box-imgContain {
         width: 100%;
     }
 
 
-    .box-div-imputContain{
+    .box-div-imputContain {
         width: 100%;
     }
 
 
-    .box-label{
+    .box-label {
         width: 100%;
     }
 
 
-    .box-inputText{
+    .box-inputText {
         width: 100%;
         z-index: 10;
     }
@@ -1676,7 +1701,7 @@ hr{
     }
 
 
-    .box-text{
+    .box-text {
         width: 125px;
         font-size: .7rem;
         height: 28px;
@@ -1688,7 +1713,7 @@ hr{
         animation: unset;
     }
 
-    .box-send{
+    .box-send {
         justify-content: flex-start;
         flex-direction: column;
         align-items: flex-start;
@@ -1696,7 +1721,7 @@ hr{
     }
 
 
-    .btnSend{
+    .btnSend {
         width: 100%;
     }
 
@@ -1705,12 +1730,12 @@ hr{
     /*   text Incident   */
 
 
-    .textIncident{
+    .textIncident {
         gap: .8rem
     }
 
 
-    .textIncident-btnText{
+    .textIncident-btnText {
         font-weight: 700;
         width: 150px;
         text-align: center;
@@ -1733,7 +1758,8 @@ hr{
         background-color: rgba(0, 0, 0, 0.562);
         z-index: 90;
     }
-    .componentImgEdit-section{
+
+    .componentImgEdit-section {
         width: 100%;
         height: 85%;
     }
@@ -1763,24 +1789,24 @@ hr{
 
 
 @media screen and (max-width: 1180px) {
-    
+
     /*    managerComponent    */
 
     .componentmanager-boxContain {
         grid-template-columns: 1fr 1fr;
-    
+
     }
 }
 
 
 
 @media screen and (max-width: 620px) {
-    
+
     /*    managerComponent    */
 
     .componentmanager-boxContain {
         grid-template-columns: 1fr;
-    
+
     }
 }
 
@@ -1789,32 +1815,34 @@ hr{
     width: 10px;
     height: 10px;
 }
-  
-  /* Estilos para la pista de la barra de desplazamiento */
+
+/* Estilos para la pista de la barra de desplazamiento */
 .scroll::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
-  
-  /* Estilos para el pulgar de la barra de desplazamiento */
+
+/* Estilos para el pulgar de la barra de desplazamiento */
 .scroll::-webkit-scrollbar-thumb {
     background: #888;
 }
-  
-  /* Estilos para los botones de la barra de desplazamiento */
+
+/* Estilos para los botones de la barra de desplazamiento */
 .scroll::-webkit-scrollbar-button {
     background: #ccc;
 }
-  
-  /* Estilos para la esquina de la barra de desplazamiento */
+
+/* Estilos para la esquina de la barra de desplazamiento */
 .scroll::-webkit-scrollbar-corner {
     background: #f1f1f1;
 }
 
 
 @keyframes spinner {
-    to {transform: rotate(360deg);}
-  }
-   
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .spinner:before {
     content: '';
     box-sizing: border-box;
@@ -1831,24 +1859,24 @@ hr{
     border-right-color: #0dd;
     border-bottom-color: #f90;
     animation: spinner .6s linear infinite;
-  }
+}
 
 
 
 
-.pixel { 
-    width: 20px; 
-    height: 20px; 
-    float: left; 
-} 
+.pixel {
+    width: 20px;
+    height: 20px;
+    float: left;
+}
 
-.color1 { 
+.color1 {
     background-color: #343434;
     height: 100%;
     position: relative;
-} 
+}
 
-.color1::after{
+.color1::after {
     content: none;
     width: 30px;
     height: 50%;
@@ -1858,35 +1886,36 @@ hr{
     bottom: 0;
 }
 
-.color2 { 
+.color2 {
     background-color: #4c4c4c;
     height: 100%;
-} 
+}
 
-.color3 { 
+.color3 {
     background-color: #898989;
     height: 100%;
-} 
+}
 
-.color4 { 
+.color4 {
     background-color: #d1d1d1;
     height: 100%;
 }
 
 
 
-.intermittence{
+.intermittence {
     border: 2px solid #727272;
     animation: intermittence 2s infinite;
-    transition: animation cubic-bezier(1, 0, 0, 1); 
+    transition: animation cubic-bezier(1, 0, 0, 1);
 }
 
 
 @keyframes intermittence {
-    from{
+    from {
         border: 2x solid #ffffff
-    }   
-    to{
+    }
+
+    to {
         border: 2px solid #ffee00
     }
 }
