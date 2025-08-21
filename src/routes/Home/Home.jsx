@@ -9,7 +9,7 @@ import { Main } from '../../component/Main/Main.jsx';
 import Chat from '../../component/chat/Chat.jsx';
 import { Await } from '../../component/Main/awaitComponent/AwaitComponent.jsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { createIo } from '../../store/slices/socketio.js';
+import { createIo, socketAppManager } from '../../store/slices/socketio.js';
 
 
 
@@ -35,6 +35,27 @@ export default function Home() {
     let [render, setRender] = useState(JSON.parse(localStorage.getItem('local_appExpress')));
     let [renderValue, setRenderValue] = useState(String);
     let [openSideBar, setOpenSideBar] = useState(false);
+
+
+    useEffect(() => {
+        let key = true;
+
+        const resetSocket = (event) => {
+            if (key) {
+                if (event.client === 'express') window.location.reload();
+                if (event.client === 'all') window.location.reload();
+            }
+        };
+
+        socketAppManager.on('reset_client', resetSocket);
+
+        return () => {
+            key = false;
+            socketAppManager.off('reset_clien', resetSocket);
+        }
+    }, []);
+
+
 
 
 

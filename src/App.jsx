@@ -47,7 +47,7 @@ function App() {
                 <Routes>
                     <Route path={'/'} element={<LoginUser />} />
                     <Route element={<ProtectedRoutes />} />
-                    <Route path={'/home'} element={<Home />} />
+
 
 
                     {/* Ruta con carga perezosa */}
