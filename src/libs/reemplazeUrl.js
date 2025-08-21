@@ -7,7 +7,7 @@ export default function reemplazeUrl(url) {
         let dns = '';
         const hostname = window.location.hostname;
 
-        if (hostname === '72.68.60.254') {
+        if (hostname === 'jarvis-express.netlify.app') {
             dns = `https://72.68.60.254${url.split('https://amazona365.ddns.net')[1]}`;
         }
         else if (hostname === '72.68.60.201') {
