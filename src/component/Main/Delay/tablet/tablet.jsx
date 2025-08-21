@@ -63,7 +63,19 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
     //PARA EL TEXTO DEL MENU
 
 
-
+    console.log(assemble_text({
+        localName: local?.name,
+        dish: dish,
+        ticket: tiket,
+        table: table,
+        takeOrder: time1,
+        readtTable: time2,
+        readyKichen: time3,
+        delayPreparationTable: delayPreparationTable,
+        timeTotalDelay: timeTotalDelay,
+        timeDelaySubtraction: timeDelaySubtraction,
+        correspondingTimes: correspondingTimesState
+    }, local?.lang))
 
 
     useEffect(() => {
@@ -282,7 +294,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                         <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
                     </label>
 
-                    <button className='btnSend' disabled={!(timeDelaySubtraction.approval)} >Enviar</button>
+                    <button className='btnSend' disabled={!(timeDelaySubtraction.ignore) && !(timeDelaySubtraction.approval)} >Enviar</button>
 
                 </div>
             </form>
@@ -300,13 +312,12 @@ function assemble_text({ localName, dish, ticket, table, takeOrder, readtTable, 
     const headerText = lang === 'es' ? `_*Demora en preparación de ${dish?.nameDishe}*_\n` : `_*${dish?.nameDishe} preparation delay*_\n`;
     const ticketText = ticket !== '' ? lang === 'es' ? `Ticket: #${ticket}\n` : `Ticket: #${ticket}\n` : '';
     const tableText = table !== '' ? lang === 'es' ? `Mesa: ${table}\n` : `Table: ${table}\n` : '';
-    const takeOrderText = lang === 'es' ? `Tomalan de orden: ${takeOrder}\n` : `Orden Take: ${takeOrder}\n`;
+    const takeOrderText = lang === 'es' ? `Toma de orden: ${takeOrder}\n` : `Orden Take: ${takeOrder}\n`;
     const readtTableText = lang === 'es' ? `Listo en tablet: ${readtTable}\n` : `Ready in tablet: ${readtTable}\n`;
     const readyKichenText = lang === 'es' ? `Listo en cocina: ${readyKichen}\n` : `Ready in kitchen: ${readyKichen}\n`;
     const delayPreparationTableText = lang === 'es' ? `Demora en preparación: ${delayPreparationTable}\n` : `delay in preparation: ${delayPreparationTable}\n`;
-    const timeTotalText = lang === 'es' ? `Tiempo total: ${timeTotalDelay}\n` : `Total time: ${timeTotalDelay}\n`;
-
-    const TIME_DELAY_SUBTRACTION_MENU = dish?.showDelaySubtraction ? `${lang === 'es' ? 'tiempo que excede' : 'Exceeded time'}: ${timeDelaySubtraction.timeExceeding}` : ''
+    const TIME_DELAY_SUBTRACTION_MENU = dish?.showDelaySubtraction ? `${lang === 'es' ? 'tiempo que excede' : `${dish?.nameDishe} in preparation`}: ${timeDelaySubtraction.timeExceeding}\n` : ''
+    const timeTotalText = lang === 'es' ? `Tiempo total: ${timeTotalDelay}` : `Total time: ${timeTotalDelay}`;
 
     const corresponding = correspondingTimes ?
         lang === 'es' ?
@@ -316,5 +327,5 @@ function assemble_text({ localName, dish, ticket, table, takeOrder, readtTable, 
         ''
 
 
-    return `${localNameText}${headerText}${ticketText}${tableText}${takeOrderText}${readtTableText}${readyKichenText}${delayPreparationTableText}${timeTotalText}${TIME_DELAY_SUBTRACTION_MENU}${corresponding}`;
+    return `${localNameText}${headerText}${ticketText}${tableText}${takeOrderText}${readtTableText}${readyKichenText}${delayPreparationTableText}${TIME_DELAY_SUBTRACTION_MENU}${timeTotalText}${corresponding}`;
 }   

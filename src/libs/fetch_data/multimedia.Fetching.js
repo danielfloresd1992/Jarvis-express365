@@ -2,7 +2,6 @@ import axiosInstance from './instanceAxios';
 import IP from './dataFetch';
 
 
-
 export const sendFile = (file) => {
     return new Promise((resolve, reject) => {
         const formData = new FormData();

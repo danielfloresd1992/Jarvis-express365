@@ -3,12 +3,13 @@ import { socket } from '../../libs/socket/io.js';
 import io from 'socket.io-client';
 let dataUser = null;
 
+const SockedAppManager = import.meta.env.VITE_SOCKET_JARVIS_URL;
 
 
-const urlSockedAppManager = window.location.hostname === '72.68.60.201' ? '72.68.60.201' : 'amazona365.ddns.net'
-const PORT = window.location.hostname === '72.68.60.201' ? 3007 : 455;
+const urlSockedAppManager = window.location.hostname === '72.68.60.201' ? '72.68.60.201:3007' : SockedAppManager;
 
-const socketAppManager = io(`wss://${urlSockedAppManager}:${PORT}`, { secure: true, rejectUnauthorized: false });
+
+const socketAppManager = io(`wss://${urlSockedAppManager}`, { secure: true, rejectUnauthorized: false });
 
 
 socketAppManager.on('update-user-client-express', userId => {

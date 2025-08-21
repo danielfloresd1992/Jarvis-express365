@@ -1,7 +1,10 @@
 import io from 'socket.io-client';
 
 
-let socket = io('https://amazona365.ddns.net:3000');
+
+const SockedAppManager = import.meta.env.VITE_SOCKET_AVA_URL;
+
+let socket = io(SockedAppManager);
 
 
 socket.on('connect', socked => {

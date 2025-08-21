@@ -14,7 +14,7 @@ import { sendFile } from '../../../libs/fetch_data/multimedia.Fetching.js';
 
 
 
-function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, config }) {
+function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, config, redimention = { w: 500, h: 480 } }) {
 
     let imgBackground;
     isMobile ? imgBackground = camera : imgBackground = dropImg;
@@ -78,8 +78,8 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
 
         new Compressor(file, {
             cuality: 0.7,
-            width: 500,
-            height: 480,
+            width: redimention.w,
+            height: redimention.h,
             success: (compressedResult) => {
                 const fileReader = new FileReader();
                 fileReader.readAsDataURL(compressedResult);
@@ -139,30 +139,17 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
                 </div>
 
                 {
-                    isMobile ?
-                        (
-                            <>
-                                <input className="box-inputCamera" type="file" accept="image/*,capture=camera"
-                                    onChange={e => { e.preventDefault(); readtImg(e.target.files[0]) }}
+                    isMobile && <>
+                        <input className="box-inputCamera" type="file" accept="image/*,capture=camera"
+                            onChange={e => { e.preventDefault(); readtImg(e.target.files[0]) }}
 
-                                />
-                            </>
-                        )
-                        :
-                        (
-                            null
-                        )
+                        />
+                    </>
+
                 }
             </div>
             {
-                visivility ?
-                    (
-                        <EditorImg img={srcImg} deleteImg={deleteSrc} createNewImg={readtImg} closeWindow={visivilityEditImg} />
-                    )
-                    :
-                    (
-                        null
-                    )
+                visivility && <EditorImg img={srcImg} deleteImg={deleteSrc} createNewImg={readtImg} closeWindow={visivilityEditImg} />
             }
 
         </>

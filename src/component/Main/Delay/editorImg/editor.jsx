@@ -5,37 +5,30 @@ import './style.css';
 import resize from '../../../../../public/ico/resize/resize.svg';
 import moveImg from '../../../../../public/ico/move/move.svg';
 import reply from '../../../../../public/ico/reply/reply.svg';
+
 import save from '../../../../../public/ico/save/save.svg';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css'
+
+import Cropper from 'react-cropper';
+import 'cropperjs/dist/cropper.css';
+
 
 
 function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
 
 
-    const [crop, setCrop] = useState();
-    const [completedCrop, setCompletedCrop] = useState(null);
 
-    const imagePreviewCanvasRef = useRef(null);
-    const imageRef = useRef();
+    const cropperRef = useRef(null);
     const newImg = useRef();
 
 
-    const canvasStyles = {
-        width: Math.round(completedCrop?.width ?? 0),
-        height: Math.round(completedCrop?.height ?? 0),
-    };
-
-
-
-
-
-    const onImageLoad = (crop, pixelCrop) => {
-        drawImageOnCanvas(imageRef.current, imagePreviewCanvasRef.current, crop);
-        setCompletedCrop(crop);
-    };
-
-
+    /*
+    
+        const onImageLoad = (crop, pixelCrop) => {
+            drawImageOnCanvas(imageRef.current, imagePreviewCanvasRef.current, crop);
+            setCompletedCrop(crop);
+        };
+    
+    */
 
     const saveChangue = () => {
 
@@ -58,7 +51,8 @@ function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
     return (
         <>
             <div className='componentImgEdit' style={{
-                width: '100%'
+                width: '100%',
+                height: '100%'
             }}>
                 <div className='componentImgEdit-section'>
                     <div className='componentImgEdit-bannerBtn'>
@@ -90,19 +84,25 @@ function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
                         </label>
                     </div>
 
-                    <div className='componentImgEdit-imgContent'>
-                        <div style={{
-                            width: '100%',
-                            height: '50%'
-                        }}>
-                            <ReactCrop
-                                crop={crop}
-                                onChange={setCrop}
-                                onComplete={onImageLoad}
-                            >
-                                <img src={img} ref={imageRef} />
-                            </ReactCrop>
-                        </div>
+                    <div className='componentImgEdit-imgContent' style={{
+                        height: '85%'
+                    }}
+                    >
+                        <Cropper
+                            style={{ height: 400, width: "100%" }}
+                            initialAspectRatio={1}
+                            preview=".img-preview"
+                            src={img}
+                            ref={cropperRef}
+                            viewMode={1}
+                            guides={true}
+                            minCropBoxHeight={10}
+                            minCropBoxWidth={10}
+                            background={false}
+                            responsive={true}
+                            checkOrientation={false}
+                        />
+
                         <div style={{
                             width: '100%',
                             height: '50%',
@@ -112,32 +112,36 @@ function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
                             flexDirection: 'column',
                             gap: '1rem'
                         }}>
-                            <p style={{
-                                color: 'black'
-                            }}>Resultado</p>
 
                             <div style={{
-                                width: '400px',
-                                height: '300px',
-                                backgroundColor: '#000000'
-                            }}
-                                ref={newImg}
-                            >
-                                <div style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
-                                    <canvas ref={imagePreviewCanvasRef} style={canvasStyles}></canvas>
-                                </div>
-                            </div>
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                width: '100%',
+                                height: '100%'
+                            }}>
 
+                            </div>
+                            <div ref={newImg} style={{
+                                width: '50%',
+                                backgroundColor: '#000000',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                position: 'relative'
+                            }}
+                            >
+                                <div
+                                    className='img-preview'
+                                    style={{ width: '100%', float: 'left', height: '300px', overflow: 'hidden' }}
+                                />
+                            </div>
+                            <img src='/RBG-Logo-AMAZONAS 365-Original.png' alt='logo' />
                         </div>
 
-                    </div >
-                </div>
+
+                    </div>
+                </div >
             </div >
         </>
     )
@@ -151,7 +155,6 @@ export function drawImageOnCanvas(image, canvas, crop) {
     if (!crop || !canvas || !image) {
         return;
     }
-
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     const ctx = canvas.getContext('2d');

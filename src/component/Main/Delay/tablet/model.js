@@ -13,11 +13,13 @@ function checkTime(rule, timeTotalResult) {
     const resultData = {
         approval: false,
         error: null,
+        ignore: true,
         timeExceeding: '00:00:00'
     };
 
-    if (!rule) return resultData;
+    if (!rule || !rule?.timeLimit) return resultData;
 
+    resultData.ignore = false;
 
     const calendar = new Date();
     const hour = calendar.getHours();
