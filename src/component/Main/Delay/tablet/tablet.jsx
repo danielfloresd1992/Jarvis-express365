@@ -71,6 +71,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
         takeOrder: time1,
         readtTable: time2,
         readyKichen: time3,
+        delivery: time4,
         delayPreparationTable: delayPreparationTable,
         timeTotalDelay: timeTotalDelay,
         timeDelaySubtraction: timeDelaySubtraction,
@@ -113,6 +114,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                 takeOrder: time1,
                 readtTable: time2,
                 readyKichen: time3,
+                delivery: time4,
                 delayPreparationTable: delayPreparationTable,
                 timeTotalDelay: timeTotalDelay,
                 timeDelaySubtraction: timeDelaySubtraction,
@@ -306,7 +308,7 @@ export { TabletDelay }
 
 
 
-function assemble_text({ localName, dish, ticket, table, takeOrder, readtTable, delayPreparationTable, readyKichen, timeTotalDelay, timeDelaySubtraction, correspondingTimes }, lang) {
+function assemble_text({ localName, dish, ticket, table, takeOrder, readtTable, delayPreparationTable, readyKichen, delivery, timeTotalDelay, timeDelaySubtraction, correspondingTimes }, lang) {
 
     const localNameText = `*${localName}*\n`;
     const headerText = lang === 'es' ? `_*Demora en preparación de ${dish?.nameDishe}*_\n` : `_*${dish?.nameDishe} preparation delay*_\n`;
@@ -315,9 +317,10 @@ function assemble_text({ localName, dish, ticket, table, takeOrder, readtTable, 
     const takeOrderText = lang === 'es' ? `Toma de orden: ${takeOrder}\n` : `Orden Take: ${takeOrder}\n`;
     const readtTableText = lang === 'es' ? `Listo en tablet: ${readtTable}\n` : `Ready in tablet: ${readtTable}\n`;
     const readyKichenText = lang === 'es' ? `Listo en cocina: ${readyKichen}\n` : `Ready in kitchen: ${readyKichen}\n`;
-    const delayPreparationTableText = lang === 'es' ? `Demora en preparación: ${delayPreparationTable}\n` : `delay in preparation: ${delayPreparationTable}\n`;
-    const TIME_DELAY_SUBTRACTION_MENU = dish?.showDelaySubtraction ? `${lang === 'es' ? 'tiempo que excede' : `${dish?.nameDishe} in preparation`}: ${timeDelaySubtraction.timeExceeding}\n` : ''
-    const timeTotalText = lang === 'es' ? `Tiempo total: ${timeTotalDelay}` : `Total time: ${timeTotalDelay}`;
+    const deliveryDushText = lang === 'es' ? `Entrega de ${dish?.nameDishe}: ${delivery}\n` : `${dish?.nameDishe} delivery: ${delivery}\n`;
+    const TIME_DELAY_SUBTRACTION_MENU = ''//dish?.showDelaySubtraction ? `${lang === 'es' ? 'tiempo que excede' : `${dish?.nameDishe} in preparation`}: ${timeDelaySubtraction.timeExceeding}\n` : ''
+    const delayPreparationTableText = lang === 'es' ? `Demora en preparación: ${delayPreparationTable}\n` : `delay in preparation: ${timeDelaySubtraction.timeExceeding}\n`;
+    const timeTotalText = lang === 'es' ? `Tiempo total: ${timeTotalDelay}` : ``;
 
     const corresponding = correspondingTimes ?
         lang === 'es' ?
@@ -327,5 +330,5 @@ function assemble_text({ localName, dish, ticket, table, takeOrder, readtTable, 
         ''
 
 
-    return `${localNameText}${headerText}${ticketText}${tableText}${takeOrderText}${readtTableText}${readyKichenText}${delayPreparationTableText}${TIME_DELAY_SUBTRACTION_MENU}${timeTotalText}${corresponding}`;
+    return `${localNameText}${headerText}${ticketText}${tableText}${takeOrderText}${readtTableText}${readyKichenText}${deliveryDushText}${delayPreparationTableText}${TIME_DELAY_SUBTRACTION_MENU}${timeTotalText}${corresponding}`;
 }   
