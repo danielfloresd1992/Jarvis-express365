@@ -72,11 +72,11 @@ export function TikekInput({ onChangeEvent, value }) {
                     <label className='box-label' style={{ color: '#fff' }} > Número de Ticket
                         <input
                             className='box-inputText'
-                            type="text"
                             id="inicio"
                             value={value}
                             required
                             onChange={e => onChangeEvent(e.target.value)}
+                            type='number'
                         />
                     </label>
                     :
