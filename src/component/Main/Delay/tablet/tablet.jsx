@@ -63,21 +63,6 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
     //PARA EL TEXTO DEL MENU
 
 
-    console.log(assemble_text({
-        localName: local?.name,
-        dish: dish,
-        ticket: tiket,
-        table: table,
-        takeOrder: time1,
-        readtTable: time2,
-        readyKichen: time3,
-        delivery: time4,
-        delayPreparationTable: delayPreparationTable,
-        timeTotalDelay: timeTotalDelay,
-        timeDelaySubtraction: timeDelaySubtraction,
-        correspondingTimes: correspondingTimesState
-    }, local?.lang))
-
 
     useEffect(() => {
         isMobile ? null : setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
@@ -320,7 +305,7 @@ function assemble_text({ localName, dish, ticket, table, takeOrder, readtTable, 
     const deliveryDushText = lang === 'es' ? `Entrega de ${dish?.nameDishe}: ${delivery}\n` : `${dish?.nameDishe} delivery: ${delivery}\n`;
     const TIME_DELAY_SUBTRACTION_MENU = ''//dish?.showDelaySubtraction ? `${lang === 'es' ? 'tiempo que excede' : `${dish?.nameDishe} in preparation`}: ${timeDelaySubtraction.timeExceeding}\n` : ''
     const delayPreparationTableText = lang === 'es' ? `Demora en preparación: ${delayPreparationTable}\n` : `delay in preparation: ${timeDelaySubtraction.timeExceeding}\n`;
-    const timeTotalText = lang === 'es' ? `Tiempo total: ${timeTotalDelay}` : ``;
+    const timeTotalText = lang === 'es' ? `Tiempo total: ${timeTotalDelay}` : localName === 'Mister Mizner' ? `Total time: ${timeTotalDelay}` : '';
 
     const corresponding = correspondingTimes ?
         lang === 'es' ?
