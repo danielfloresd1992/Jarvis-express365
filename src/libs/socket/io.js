@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 
 
-let socket = io('https://72.68.60.254:3000');
+let socket = io('https://amazona365.ddns.net:3000');
 
 
 socket.on('connect', socked => {

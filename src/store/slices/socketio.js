@@ -5,7 +5,7 @@ let dataUser = null;
 
 
 
-const urlSockedAppManager = window.location.hostname === '72.68.60.201' ? '72.68.60.201' : '72.68.60.254'
+const urlSockedAppManager = window.location.hostname === '72.68.60.201' ? '72.68.60.201' : 'amazona365.ddns.net'
 const PORT = window.location.hostname === '72.68.60.201' ? 3007 : 455;
 
 const socketAppManager = io(`wss://${urlSockedAppManager}:${PORT}`, { secure: true, rejectUnauthorized: false });

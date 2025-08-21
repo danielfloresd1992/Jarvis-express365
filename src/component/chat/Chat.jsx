@@ -29,11 +29,12 @@ function Chat() {
     }, [])
 
 
+
     useEffect(() => {
         let key = true;
-
         const recibeData = message => {
             if (key) {
+                console.log(message);
                 setChatState([message, ...chatState]);
                 setWindowState(true);
             }
@@ -45,6 +46,7 @@ function Chat() {
             key = false;
         }
     }, [chatState]);
+
 
 
 
