@@ -17,10 +17,14 @@ import DishInputSelet from '../../../keysInputs/dishInput.jsx';
 import { returnTimeExceding } from '../../../../libs/date_time/time.js';
 import { TableInput } from '../../../keysInputs/tableNumber.jsx';
 
+import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
+
+
 
 
 
 function Servises({ awaitWindow, boxModal, reset, title }) {
+
 
     const users = useSelector(state => state.users);
     const seletedEstableshment = useSelector(state => state.establishment);
@@ -42,7 +46,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
 
 
-    const timeTotal = returnTimeExceding(time1, time2);
+    const timeTotal = returnTimeExceding(time2, time1);
 
 
 
@@ -71,26 +75,29 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
 
+
     const sendImg = async e => {
         try {
             e.preventDefault();
             awaitWindow.open('Enviando novedad');
 
-            if (local.franchise === 'Mister01') {
-                if (!dish) return boxModal.open({ title: 'Error', description: 'Seleccione el tipo de plato' });
-            }
+
+            if (!dish) return boxModal.open({ title: 'Error', description: 'Seleccione el tipo de plato' });
+
 
             let text;
             let descriptionMenu;
             const caption = [];
 
+
+
             const data = useDataUser(user.current, seletedEstableshment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
 
             if (data.LANG === 'es') {
-                text = `*${data.localData.name}*\n_*Demora de ${dish !== '' ? dish.toLowerCase() : 'servicio'}*_${table ? `\nMesa: ${table}` : ''}\n${local.alertLength === 'extended' ? `Toma de orden: ${time1}\nEntrega de servicio: ${time3}\nDemora total en servicio: ${timeTotal}` : `Demora en servicio: ${timeTotal}`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                text = `*${data.localData.name}*\n_*Demora de ${dish !== '' ? dish.nameDishe : 'servicio'}*_${table ? `\nMesa: ${table}` : ''}\n${seletedEstableshment.alertLength === 'extended' ? `Toma de orden: ${time1}\nEntrega de servicio: ${time2}\nDemora total en servicio: ${timeTotal}` : `Demora en servicio: ${timeTotal}`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
             }
             else {
-                text = `*${data.localData.name}*\n_*${dish} preparation delay*_${table ? `\ntable ${table}` : ''}\nOrder take: ${time1}\n${dish.toLowerCase()} delivery: ${time3}\ntotal time: ${timeTotal}\n${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+                text = `*${data.localData.name}*\n_*${dish.nameDishe} preparation delay*_${table ? `\ntable ${table}` : ''}\nOrder take: ${time1}\n${dish.nameDishe} delivery: ${time2}\ntotal time: ${timeTotal}\n${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
             }
 
             const dataForRequest = {};
@@ -118,9 +125,9 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
             });
 
 
-            dataForRequest.title = `Demora de servicio ${dish !== 'servicio' ? `: ${dish.toLowerCase()}` : ''}`;
+            dataForRequest.title = `Demora de servicio ${dish !== 'servicio' ? `: ${dish.nameDishe}` : ''}`;
             dataForRequest.table = table;
-            dataForRequest.nameDish = dish;
+            dataForRequest.nameDish = dish.nameDishe;
             dataForRequest.userName = data.userData.userName;
             dataForRequest.userId = data.userData.userId;
             dataForRequest.localName = data.localData.name;
@@ -168,12 +175,13 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
 
+    console.log(seletedEstableshment.dishes);
 
 
 
     return (
         <>
-            <form className='box-send' onSubmit={e => sendImg(e)}>
+            <form className='box-send' onSubmit={e => sendImg(e)} style={{ position: 'relative' }}>
                 <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>{title.es}</h2>
 
 
@@ -212,7 +220,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
                         <label className='box-label' htmlFor=""> Toma de orden
                             <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                                onChange={e => setTime1(e.target)}
+                                onChange={e => setTime1(e.target.value)}
                             />
                         </label>
 
@@ -220,7 +228,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
                         <label htmlFor="" className='box-label'> Entrega de servicio
                             <input className='box-inputText' type="text" id="entrega plato" pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" value={time2} required
-                                onChange={e => setTime2(e.target)}
+                                onChange={e => setTime2(e.target.value)}
                             />
                         </label>
 
@@ -232,6 +240,9 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                     </div>
                 </div>
 
+                <ErrorWithoutMenu
+                    arr={seletedEstableshment?.dishes}
+                />
             </form>
         </>
     );

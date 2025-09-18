@@ -17,14 +17,16 @@ import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { TableInput, TikekInput } from '../../../keysInputs/tableNumber.jsx';
 import DishInputSelet from '../../../keysInputs/dishInput.jsx'
 import PrintErrorDish from '../../../print_error/PrintErrorDishTime.jsx';
+import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
+
+
 
 
 
 function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
+
     const seletedEstableshment = useSelector(state => state.establishment);
-    const users = useSelector(state => state.users);
-    const locals = useSelector(state => state.locals);
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
     const config = {
         hiddenBoxText: true,
@@ -179,7 +181,9 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
     return (
         <>
-            <form className='box-send' onSubmit={e => sendImgForm(e)}>
+            <form className='box-send' onSubmit={e => sendImgForm(e)} style={{
+                position: 'relative'
+            }}>
                 <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>Demora de tablet</h2>
 
 
@@ -198,6 +202,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                 <div className='box-inputContain box-div-imputContain'
                     style={{
                         gap: '2rem',
+                        position: 'relative'
                     }}
                 >
 
@@ -284,12 +289,17 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                     <button className='btnSend' disabled={!(timeDelaySubtraction.ignore) && !(timeDelaySubtraction.approval)} >Enviar</button>
 
                 </div>
+                <ErrorWithoutMenu
+                    arr={seletedEstableshment?.dishes}
+                />
             </form>
         </>
     );
 }
 
 export { TabletDelay }
+
+
 
 
 
