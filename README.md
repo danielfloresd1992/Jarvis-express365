@@ -1,7 +1,7 @@
 <p align="center">
   <img src="public/logo1.png" alt="Logo Empresa" width="120"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="public/file.jpg" alt="Logo Jarvis Express 365" width="120"/>
+  
 </p>
 
 <h1 style="color:#001f4d;">Jarvis Express 365</h1>
