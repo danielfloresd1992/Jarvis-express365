@@ -17,6 +17,8 @@ import DishInputSelet from '../../../keysInputs/dishInput.jsx';
 import { returnTimeExceding } from '../../../../libs/date_time/time.js';
 import { TableInput } from '../../../keysInputs/tableNumber.jsx';
 
+
+import FormLayaut from '@/component/layaut/form_layaut';
 import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
 
 
@@ -26,7 +28,6 @@ import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
 function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
-    const users = useSelector(state => state.users);
     const seletedEstableshment = useSelector(state => state.establishment);
 
 
@@ -64,14 +65,6 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
         setFiles(newFile);
 
     };
-
-
-    const setUser = id => {
-        const userFill = users.filter(item => id === item._id);
-        user.current = userFill[0];
-    };
-
-
 
 
 
@@ -175,76 +168,71 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
 
-    console.log(seletedEstableshment.dishes);
 
 
 
     return (
-        <>
-            <form className='box-send' onSubmit={e => sendImg(e)} style={{ position: 'relative' }}>
-                <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>{title.es}</h2>
+        <FormLayaut title={title.es} event={e => sendImg(e)} >
+
+
+            <div className='box-imgComponenContent' ref={htmlAdapterRef} style={{ zoom: ((window.innerWidth / 1350) - 0.1).toString() }}>
+                {
+                    title.photos.caption.map((iteration, index) => (
+                        <>
+                            <ImgBoxImg data={iteration} boxModal={boxModal} setImg={(file) => pushImg(file, index)} deleteImg={() => deleteImg(index)} key={iteration.index} language={local?.lang} />
+                        </>
+                    ))
+
+                }
+            </div>
+
+            <div className='box-div-imputContain'>
+                <div className='box-inputContain box-static'>
+
+
+                    <TableInput
+                        value={table}
+                        onChangeEvent={(value) => setNumberTable(value)}
+                    />
 
 
 
-                <div className='box-imgComponenContent' ref={htmlAdapterRef} style={{ zoom: ((window.innerWidth / 1350) - 0.1).toString() }}>
-                    {
-                        title.photos.caption.map((iteration, index) => (
-                            <>
-                                <ImgBoxImg data={iteration} boxModal={boxModal} setImg={(file) => pushImg(file, index)} deleteImg={() => deleteImg(index)} key={iteration.index} language={local?.lang} />
-                            </>
-                        ))
 
-                    }
-                </div>
-
-                <div className='box-div-imputContain'>
-                    <div className='box-inputContain box-static'>
+                    <DishInputSelet
+                        value={dish}
+                        onChangeEvent={(dish) => setDish(dish)}
+                        dishes={seletedEstableshment?.dishes}
+                    />
 
 
-                        <TableInput
-                            value={table}
-                            onChangeEvent={(value) => setNumberTable(value)}
+
+
+                    <label className='box-label' htmlFor=""> Toma de orden
+                        <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
+                            onChange={e => setTime1(e.target.value)}
                         />
+                    </label>
 
 
 
-
-                        <DishInputSelet
-                            value={dish}
-                            onChangeEvent={(dish) => setDish(dish)}
-                            dishes={seletedEstableshment?.dishes}
+                    <label htmlFor="" className='box-label'> Entrega de servicio
+                        <input className='box-inputText' type="text" id="entrega plato" pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" value={time2} required
+                            onChange={e => setTime2(e.target.value)}
                         />
+                    </label>
 
+                    <p className='box-textHourResult'>Tiempo total: <span>{timeTotal}</span></p>
+                    <label className='box-label' htmlFor=""> Nota
+                        <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
+                    </label>
 
-
-
-                        <label className='box-label' htmlFor=""> Toma de orden
-                            <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                                onChange={e => setTime1(e.target.value)}
-                            />
-                        </label>
-
-
-
-                        <label htmlFor="" className='box-label'> Entrega de servicio
-                            <input className='box-inputText' type="text" id="entrega plato" pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" value={time2} required
-                                onChange={e => setTime2(e.target.value)}
-                            />
-                        </label>
-
-                        <p className='box-textHourResult'>Tiempo total: <span>{timeTotal}</span></p>
-                        <label className='box-label' htmlFor=""> Nota
-                            <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
-                        </label>
-                        <button className='btnSend' >Enviar</button>
-                    </div>
                 </div>
+            </div>
 
-                <ErrorWithoutMenu
-                    arr={seletedEstableshment?.dishes}
-                />
-            </form>
-        </>
+            <ErrorWithoutMenu
+                arr={seletedEstableshment?.dishes}
+            />
+        </FormLayaut>
     );
 }
 
