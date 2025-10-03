@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="public/logo-empresa.png" alt="Logo Empresa" width="120"/>
+  <img src="public/logo1.png" alt="Logo Empresa" width="120"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="public/logo-app.png" alt="Logo Jarvis Express 365" width="120"/>
+  <img src="public/file.jpg" alt="Logo Jarvis Express 365" width="120"/>
 </p>
 
-# Jarvis Express 365
+<h1 style="color:#001f4d;">Jarvis Express 365</h1>
 
 **Jarvis Express 365** es una aplicación web desarrollada con **React** y **Vite**, diseñada como un sistema de reporte de novedades y gestión de incidencias para restaurantes y franquicias.
 
-## Características principales
+<h2 style="color:#001f4d;">Características principales</h2>
 
 - Registro y envío de reportes sobre diferentes tipos de eventos:
   - Demoras
