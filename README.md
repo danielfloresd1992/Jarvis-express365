@@ -1,5 +1,8 @@
-<p align="center">
-  <img src="public/logo1.PNG" alt="Logo Empresa" width="100"/>
+<p width="100">
+    <div width="100">
+        <img src="public/logo1.PNG" alt="Logo Empresa" width="100"/>
+    </div>
+ 
   &nbsp;&nbsp;&nbsp;
 </p>
 
