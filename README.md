@@ -2,8 +2,6 @@
     <div width="100">
         <img src="public/logo1.PNG" alt="Logo Empresa" width="100"/>
     </div>
- 
-  &nbsp;&nbsp;&nbsp;
 </p>
 
 <h1 style="color:#001f4d;">Jarvis Express 365</h1>
