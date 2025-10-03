@@ -1,8 +1,4 @@
-
-
-<img src="public/logo1.PNG" alt="Logo Empresa" width="100"/>
-
-
+<img src="public/logo1.PNG" alt="Logo Empresa" width="100" height="100" style="position:absolute; top:0; left:0;"/>
 
 <h1 style="color:#001f4d;">Jarvis Express 365</h1>
 

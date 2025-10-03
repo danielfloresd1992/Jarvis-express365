@@ -3,7 +3,7 @@ import NavBar from '../../component/Navbar/NavBar.jsx';
 import InboxImg from '../../component/inbox/images_inbox.jsx';
 import AsideBar from '../../component/AsideBar/AsideBar.jsx';
 import { useEffect, useState, useCallback } from 'react';
-import axiosInstance from '../../libs/fetch_data/instanceAxios.js';
+import axiosInstance from '@/libs/fetch_data/instanceAxios';
 import { isMobile, isTablet } from 'react-device-detect';
 import { Main } from '../../component/Main/Main.jsx';
 import Chat from '../../component/chat/Chat.jsx';
