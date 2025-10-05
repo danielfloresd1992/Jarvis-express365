@@ -19,7 +19,7 @@ import DishInputSelet from '../../../keysInputs/dishInput.jsx'
 import PrintErrorDish from '../../../print_error/PrintErrorDishTime.jsx';
 import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
 
-
+import FormLayaut from '@/component/layaut/form_layaut';
 
 
 
@@ -180,120 +180,114 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
 
     return (
-        <>
-            <form className='box-send' onSubmit={e => sendImgForm(e)} style={{
-                position: 'relative'
-            }}>
-                <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>Demora de tablet</h2>
+        <FormLayaut title='Demora de tablet' event={e => sendImgForm(e)} >
+
+
+            <div className='box-imgComponenContent' ref={htmlAdapterRef}>
+                {
+                    noveltyConfig.photos.caption.map(iteration => (
+                        <ImgBoxImg data={iteration} boxModal={boxModal} setImg={pushImg} deleteImg={deleteImg} key={iteration.index} language={local?.lang} config={config} />
+
+                    ))
+                }
+            </div>
 
 
 
-                <div className='box-imgComponenContent' ref={htmlAdapterRef}>
-                    {
-                        noveltyConfig.photos.caption.map(iteration => (
-                            <ImgBoxImg data={iteration} boxModal={boxModal} setImg={pushImg} deleteImg={deleteImg} key={iteration.index} language={local?.lang} config={config} />
+            <div className='box-inputContain box-div-imputContain'
+                style={{
+                    gap: '2rem',
+                    position: 'relative'
+                }}
+            >
 
-                        ))
-                    }
-                </div>
-
-
-
-                <div className='box-inputContain box-div-imputContain'
-                    style={{
-                        gap: '2rem',
-                        position: 'relative'
-                    }}
-                >
-
-                    <TikekInput
-                        value={tiket}
-                        onChangeEvent={(value) => setTiket(value)}
-                    />
-
-                    <TableInput
-                        value={table}
-                        onChangeEvent={(value) => setNumberTable(value)}
-                    />
-
-                    <DishInputSelet
-                        value={dish}
-                        onChangeEvent={(dish) => setDish(dish)}
-                        dishes={seletedEstableshment?.dishes}
-                    />
-
-                    <label className='box-label' htmlFor=""> Toma de orden
-                        <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => setTime1(e.target.value)}
-                        />
-                    </label>
-
-
-                    <label className='box-label' htmlFor=""> Listo en tablet
-                        <input className='box-inputText' type="text" id="Listo-tablet" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => setTime2(e.target.value)}
-                        />
-                    </label>
-
-
-                    <label htmlFor="" className='box-label'> Listo en cocina
-                        <input className='box-inputText' type="text" id="listo-cocina" value={time3} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => setTime3(e.target.value)}
-                        />
-                    </label>
-
-
-
-                    <label htmlFor="" className='box-label'> Entrega de plato
-                        <input className='box-inputText' type="text" id="entrega plato" value={time4} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => setTime4(e.target.value)}
-                        />
-                    </label>
-
-                    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1rem 0', gap: '.5rem' }}>
-                        <p className='box-textHourResult'>Tiempo total en cocina: <span>{delayPreparationInKichen}</span></p>
-                        <p className='box-textHourResult'>Tiempo total en tablet: <span>{delayPreparationTable}</span></p>
-                        <p className='box-textHourResult'>Tiempo total en entrega de plato: <span>{timeTotalDelay}</span></p>
-
-                        <p className='box-textHourResult'>Tiempo excedido: {timeDelaySubtraction.timeExceeding}</p>
-                        {
-                            !(timeDelaySubtraction.approval) && timeDelaySubtraction.timeExceeding !== '00:00:00' ?
-                                <PrintErrorDish dish={dish} />
-                                :
-                                null
-                        }
-                    </div>
-
-
-                    <label htmlFor="" className='box-label' style={{ textAlign: 'center' }}>¿estuvo dentro de los tiempos correspondientes?
-                        <br />
-                        <p style={{ textAlign: 'center' }}>('no fue marcada en pantalla')</p>
-                        <input className='box-inputText' type="checkbox" value={correspondingTimesState}
-                            onChange={e => setCorrespondingTimesState(e.target.checked)}
-                        />
-                    </label>
-                    {
-                        correspondingTimesState ?
-                            <h1 style={{ color: '#000' }}>Si</h1>
-                            :
-                            <h1 style={{ color: '#000' }}>No</h1>
-                    }
-
-
-
-                    <br />
-                    <label className='box-label' htmlFor="">Nota
-                        <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
-                    </label>
-
-                    <button className='btnSend' disabled={!(timeDelaySubtraction.ignore) && !(timeDelaySubtraction.approval)} >Enviar</button>
-
-                </div>
-                <ErrorWithoutMenu
-                    arr={seletedEstableshment?.dishes}
+                <TikekInput
+                    value={tiket}
+                    onChangeEvent={(value) => setTiket(value)}
                 />
-            </form>
-        </>
+
+                <TableInput
+                    value={table}
+                    onChangeEvent={(value) => setNumberTable(value)}
+                />
+
+                <DishInputSelet
+                    value={dish}
+                    onChangeEvent={(dish) => setDish(dish)}
+                    dishes={seletedEstableshment?.dishes}
+                />
+
+                <label className='box-label' htmlFor=""> Toma de orden
+                    <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+                        onChange={e => setTime1(e.target.value)}
+                    />
+                </label>
+
+
+                <label className='box-label' htmlFor=""> Listo en tablet
+                    <input className='box-inputText' type="text" id="Listo-tablet" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+                        onChange={e => setTime2(e.target.value)}
+                    />
+                </label>
+
+
+                <label htmlFor="" className='box-label'> Listo en cocina
+                    <input className='box-inputText' type="text" id="listo-cocina" value={time3} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+                        onChange={e => setTime3(e.target.value)}
+                    />
+                </label>
+
+
+
+                <label htmlFor="" className='box-label'> Entrega de plato
+                    <input className='box-inputText' type="text" id="entrega plato" value={time4} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+                        onChange={e => setTime4(e.target.value)}
+                    />
+                </label>
+
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1rem 0', gap: '.5rem' }}>
+                    <p className='box-textHourResult'>Tiempo total en cocina: <span>{delayPreparationInKichen}</span></p>
+                    <p className='box-textHourResult'>Tiempo total en tablet: <span>{delayPreparationTable}</span></p>
+                    <p className='box-textHourResult'>Tiempo total en entrega de plato: <span>{timeTotalDelay}</span></p>
+
+                    <p className='box-textHourResult'>Tiempo excedido: {timeDelaySubtraction.timeExceeding}</p>
+                    {
+                        !(timeDelaySubtraction.approval) && timeDelaySubtraction.timeExceeding !== '00:00:00' ?
+                            <PrintErrorDish dish={dish} />
+                            :
+                            null
+                    }
+                </div>
+
+
+                <label htmlFor="" className='box-label' style={{ textAlign: 'center' }}>¿estuvo dentro de los tiempos correspondientes?
+                    <br />
+                    <p style={{ textAlign: 'center' }}>('no fue marcada en pantalla')</p>
+                    <input className='box-inputText' type="checkbox" value={correspondingTimesState}
+                        onChange={e => setCorrespondingTimesState(e.target.checked)}
+                    />
+                </label>
+                {
+                    correspondingTimesState ?
+                        <h1 style={{ color: '#000' }}>Si</h1>
+                        :
+                        <h1 style={{ color: '#000' }}>No</h1>
+                }
+
+
+
+                <br />
+
+                <label className='box-label' htmlFor="">Nota
+                    <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
+                </label>
+
+            </div>
+            <ErrorWithoutMenu
+                arr={seletedEstableshment?.dishes}
+            />
+
+        </FormLayaut>
     );
 }
 

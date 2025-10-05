@@ -16,6 +16,7 @@ import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
 
 
 
+
 export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
 
 

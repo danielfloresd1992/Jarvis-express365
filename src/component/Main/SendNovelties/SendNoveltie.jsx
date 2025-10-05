@@ -21,7 +21,7 @@ import { saveVideo } from '../../../libs/fetch_data/noveltyFecth.js';
 import calculateTime from '../../../libs/date_time/calculate_time.js';
 import { sendFile } from '../../../libs/fetch_data/multimedia.Fetching.js';
 import { blobToFile } from '../../../libs/script/64toFile.js';
-
+import FormLayaut from '@/component/layaut/form_layaut';
 
 
 
@@ -258,12 +258,12 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
 
     return (
-
-        <form
-            className='box-send'
-            onSubmit={e => handlerSubmit(e)}
-            style={{ minHeight: '100%', width: '100%', alignContent: 'center' }}
+        <FormLayaut
+            title={title[0] ? title[0].es : ''}
+            hiddenBtn={title?.length === 0}
+            event={e => handlerSubmit(e)}
         >
+
             <div
                 className='productionContain-headerContain'
                 style={{ justifyContent: 'center', flexDirection: 'column', margin: '0 auto' }}
@@ -656,16 +656,13 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     onChange={e => setDescription(description = e.target.value)}>
                                 </textarea>
                             </label>
-                            <button
-                                className='btnSend'
-                                disabled={title.length === 0}
-                            >Enviar</button>
+
                         </div>
                     </>
                     :
                     null
             }
-        </form>
+        </FormLayaut>
     );
 }
 

@@ -16,6 +16,10 @@ import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 
 
+import FormLayaut from '@/component/layaut/form_layaut';
+
+
+
 
 function Divclear({ awaitWindow, boxModal, reset, title }) {
 
@@ -254,121 +258,118 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
         )
     }
 
+
+
     return (
-        <>
-            <form className='box-send' onSubmit={e => sendImg(e)}
-                style={{
-                    alignContent: 'center'
-                }}
-            >
-                <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>{title.es}</h2>
-                {
-                    isMobile ?
-                        (
-                            <>
-                                <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '80' }} >
-                                    <Search array={users} config={{ placeholder: 'Nombre del operador', key: ['name', 'userName'] }} callback={(element, reset) => { return <p onClick={e => { setUser(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name} ${element.surName}`} </p> }} />
-                                </div>
-                            </>
-                        )
-                        :
-                        (
-                            null
-                        )
-                }
-                {
-                    isMobile ?
-                        (
-                            <>
-                                <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '40' }} >
-                                    <Search array={locals} config={{ placeholder: 'Nombre del local', key: ['name'] }} callback={(element, reset) => { return <p onClick={e => { fillLocal(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name}`} </p> }} />
-                                </div>
-                            </>
-                        )
-                        :
-                        (
-                            null
-                        )
+        <FormLayaut title={title.es} event={e => sendImg(e)} >
 
-                }
-                {
-                    isMobile ?
-                        (
-                            local?.name !== undefined ?
-                                (
-                                    catBoxImg()
-                                )
-                                :
-                                (
-                                    null
-                                )
-                        )
-                        :
-                        (
-                            catBoxImg()
-                        )
-                }
+            {
+                isMobile ?
+                    (
+                        <>
+                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '80' }} >
+                                <Search array={users} config={{ placeholder: 'Nombre del operador', key: ['name', 'userName'] }} callback={(element, reset) => { return <p onClick={e => { setUser(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name} ${element.surName}`} </p> }} />
+                            </div>
+                        </>
+                    )
+                    :
+                    (
+                        null
+                    )
+            }
+            {
+                isMobile ?
+                    (
+                        <>
+                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '40' }} >
+                                <Search array={locals} config={{ placeholder: 'Nombre del local', key: ['name'] }} callback={(element, reset) => { return <p onClick={e => { fillLocal(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name}`} </p> }} />
+                            </div>
+                        </>
+                    )
+                    :
+                    (
+                        null
+                    )
 
-
-                <div className='box-inputContain box-div-imputContain'>
-                    <label className='box-label' htmlFor=""> Número de mesa
-                        <input className='box-inputText' type="text" id="table" value={table} required
-                            onChange={e => {
-                                setNumberTable(table = e.target.value);
-                            }}
-                        />
-                    </label>
-
-                    <label className='box-label' htmlFor=""> Tiempo de desocupa
-                        <input className='box-inputText' type="text" id="desocupa" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => recepHour(e.target)}
-                        />
-                    </label>
-                    <label htmlFor="" className='box-label'>¿Mesa sin limpiar aún?
-                        <input className='box-inputText' type="checkbox" value={hasFinishedState}
-                            onChange={e => setHasFinishedState(state => state = !state)}
-                        />
-                    </label>
-
-                    {
-                        hasFinishedState ?
-                            <>
-                                <label htmlFor="" className='box-label'> Timpo de limpieza
-                                    <input className='box-inputText' type="text" id="limpieza" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                                        onChange={e => recepHour(e.target)}
-                                    />
-                                </label>
-                                <p className='box-textHourResult'>Tiempo total: <span>{textResult}</span></p>
-                            </>
-                            :
-                            <>
-                                <label htmlFor="" className='box-label' style={{ color: '#fff' }}>Hora actual sin limpiar
-                                    <input className='box-inputText' type="text" id="limpieza" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                                        onChange={e => recepHour(e.target)}
-                                    />
-                                </label>
-                                <p className='box-textHourResult'>Tiempo sin ser limpiada aún: {returnTimeExceding(time2, time1)}</p>
-                            </>
-                    }
-
-                    {
-                        local?.name && local.franchise === 'Mister01' ?
+            }
+            {
+                isMobile ?
+                    (
+                        local?.name !== undefined ?
                             (
-                                <p className='box-textHourResult' style={{ color: '#fff' }}>Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING.current)}</span></p>
+                                catBoxImg()
                             )
                             :
                             (
                                 null
                             )
-                    }
-                    <label className='box-label' htmlFor=""> Nota
-                        <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
-                    </label>
-                    <button className='btnSend' disabled={table === '' || timeTotal === '' ? true : false}>Enviar</button>
-                </div>
-            </form>
-        </>
+                    )
+                    :
+                    (
+                        catBoxImg()
+                    )
+            }
+
+
+            <div className='box-inputContain box-div-imputContain'>
+                <label className='box-label' htmlFor=""> Número de mesa
+                    <input className='box-inputText' type="text" id="table" value={table} required
+                        onChange={e => {
+                            setNumberTable(table = e.target.value);
+                        }}
+                    />
+                </label>
+
+                <label className='box-label' htmlFor=""> Tiempo de desocupa
+                    <input className='box-inputText' type="text" id="desocupa" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+                        onChange={e => recepHour(e.target)}
+                    />
+                </label>
+                <label htmlFor="" className='box-label'>¿Mesa sin limpiar aún?
+                    <input className='box-inputText' type="checkbox" value={hasFinishedState}
+                        onChange={e => setHasFinishedState(state => state = !state)}
+                    />
+                </label>
+
+                {
+                    hasFinishedState ?
+                        <>
+                            <label htmlFor="" className='box-label'> Timpo de limpieza
+                                <input className='box-inputText' type="text" id="limpieza" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+                                    onChange={e => recepHour(e.target)}
+                                />
+                            </label>
+                            <p className='box-textHourResult'>Tiempo total: <span>{textResult}</span></p>
+                        </>
+                        :
+                        <>
+                            <label htmlFor="" className='box-label' style={{ color: '#fff' }}>Hora actual sin limpiar
+                                <input className='box-inputText' type="text" id="limpieza" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
+                                    onChange={e => recepHour(e.target)}
+                                />
+                            </label>
+                            <p className='box-textHourResult'>Tiempo sin ser limpiada aún: {returnTimeExceding(time2, time1)}</p>
+                        </>
+                }
+
+                {
+                    local?.name && local.franchise === 'Mister01' ?
+                        (
+                            <p className='box-textHourResult' style={{ color: '#fff' }}>Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING.current)}</span></p>
+                        )
+                        :
+                        (
+                            null
+                        )
+                }
+                <label className='box-label' htmlFor=""> Nota
+                    <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
+                </label>
+
+            </div>
+        </FormLayaut >
     );
 }
+
 
 export { Divclear }

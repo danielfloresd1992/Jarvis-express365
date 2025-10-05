@@ -20,6 +20,8 @@ import { saveVideo } from '../../../../libs/fetch_data/noveltyFecth.js';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 
+import FormLayaut from '@/component/layaut/form_layaut';
+
 
 
 
@@ -449,7 +451,6 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
                         <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
                     </label>
 
-                    <button className='btnSend' disabled={table === '' || timeTotal === '' ? true : false}>Enviar</button>
                 </div>
             </div>
         );
@@ -458,69 +459,67 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
 
     return (
-        <>
-            <form className='box-send' onSubmit={e => sendImg(e)} style={{ alignContent: 'center' }}>
-                <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>{title.es}</h2>
-                {
-                    isMobile ?
-                        (
-                            <>
-                                <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '80' }} >
-                                    <Search array={users} config={{ placeholder: 'Nombre del operador', key: ['name', 'userName'] }} callback={(element, reset) => { return <p onClick={e => { setUser(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name} ${element.surName}`} </p> }} />
-                                </div>
-                            </>
-                        )
-                        :
-                        (
-                            null
-                        )
-                }
-                {
-                    isMobile ?
-                        (
-                            <>
-                                <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '40' }} >
-                                    <Search array={locals} config={{ placeholder: 'Nombre del local', key: ['name'] }} callback={(element, reset) => { return <p onClick={e => { fillLocal(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name}`} </p> }} />
-                                </div>
-                            </>
-                        )
-                        :
-                        (
-                            null
-                        )
+        <FormLayaut title={title.es} event={e => sendImg(e)} >
 
-                }
-                {
-                    isMobile ?
-                        (
-                            local?.name !== undefined ?
-                                (
-                                    catBoxImg()
-                                )
-                                :
-                                (
-                                    null
-                                )
+            {
+                isMobile ?
+                    (
+                        <>
+                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '80' }} >
+                                <Search array={users} config={{ placeholder: 'Nombre del operador', key: ['name', 'userName'] }} callback={(element, reset) => { return <p onClick={e => { setUser(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name} ${element.surName}`} </p> }} />
+                            </div>
+                        </>
+                    )
+                    :
+                    (
+                        null
+                    )
+            }
+            {
+                isMobile ?
+                    (
+                        <>
+                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '40' }} >
+                                <Search array={locals} config={{ placeholder: 'Nombre del local', key: ['name'] }} callback={(element, reset) => { return <p onClick={e => { fillLocal(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name}`} </p> }} />
+                            </div>
+                        </>
+                    )
+                    :
+                    (
+                        null
+                    )
 
-                        )
-                        :
-                        (
-                            catBoxImg()
-                        )
-                }
+            }
+            {
+                isMobile ?
+                    (
+                        local?.name !== undefined ?
+                            (
+                                catBoxImg()
+                            )
+                            :
+                            (
+                                null
+                            )
 
-                {
-                    local?.name !== undefined ?
-                        (
-                            returnForm(local)
-                        )
-                        :
-                        (
-                            null
-                        )
-                }
-            </form>
-        </>
+                    )
+                    :
+                    (
+                        catBoxImg()
+                    )
+            }
+
+            {
+                local?.name !== undefined ?
+                    (
+                        returnForm(local)
+                    )
+                    :
+                    (
+                        null
+                    )
+            }
+        </FormLayaut>
     );
 }
 

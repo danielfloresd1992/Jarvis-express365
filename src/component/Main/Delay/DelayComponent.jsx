@@ -5,7 +5,7 @@ import food from '../../../../public/ico/food.svg';
 import tablet from '../../../../public/ico/tablet/tablet.svg';
 import touchTablet from '../../../../public/ico/icons8-panel-táctil-100.png';
 import tiketIco from '../../../../public/ico/icons8-boleto-100.png'
-import { useState } from 'react';
+import { useState, createElement } from 'react';
 import { DivAttention } from './first_attention/Div_first_attention.jsx';
 import { DelayDish } from './delayDish/DelayDish.jsx';
 import { Divclear } from './clean/DivClear.jsx';
@@ -44,60 +44,20 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
         render('');
     };
 
+
+
     return (
         <>
-            <div className='textIncident' style={{ width: '100%' }}>
-                <div className='textIncident-btnContain'>
-                    <button className='textIncident-btn' id='primera atención' onClick={e => setTitle(title = e.currentTarget.id)} >
-                        <img src={book} alt="" className='textIncident-btnImg' />
-                    </button>
-                    <span className='textIncident-btnText'>Demora de primera atención</span>
-                </div>
-
-                <div className='textIncident-btnContain'>
-                    <button className='textIncident-btn' id='limpieza' onClick={e => setTitle(title = e.currentTarget.id)}>
-                        <img src={serviseSvg} alt="" className='textIncident-btnImg' />
-                    </button>
-                    <span className='textIncident-btnText'>Demora de limpieza</span>
-                </div>
-
-                <div className='textIncident-btnContain' >
-                    <button className='textIncident-btn' id='servicio' onClick={e => setTitle(title = e.currentTarget.id)}>
-                        <img src={food} alt="" className='textIncident-btnImg' />
-                    </button>
-                    <span className='textIncident-btnText'>Demora de servicio</span>
-                </div>
-
-                <div className='textIncident-btnContain' >
-                    <button className='textIncident-btn' id='plato' onClick={e => setTitle(title = e.currentTarget.id)}>
-                        <img src={plate} alt="" className='textIncident-btnImg' />
-                    </button>
-                    <span className='textIncident-btnText'>Demora en entrega de plato</span>
-                </div>
-
-                <div className='textIncident-btnContain' >
-                    <button className='textIncident-btn' id='tablet' onClick={e => setTitle(title = e.currentTarget.id)}>
-                        <img src={tablet} alt="" className='textIncident-btnImg' />
-                    </button>
-                    <span className='textIncident-btnText'>Demora de tablet</span>
-                </div>
-
-                <div className='textIncident-btnContain' >
-                    <button className='textIncident-btn' id='tablet-touch' onClick={e => setTitle(title = e.currentTarget.id)}>
-                        <img src={touchTablet} alt="" className='textIncident-btnImg' />
-                    </button>
-                    <span className='textIncident-btnText'>Marcada en pantalla antes de estar listo</span>
-                </div>
-
-
-                <div className='textIncident-btnContain' >
-                    <button className='textIncident-btn' id='tablet-tiket' onClick={e => setTitle(title = e.currentTarget.id)}>
-                        <img src={tiketIco} alt="" className='' />
-                    </button>
-                    <span className='textIncident-btnText'>Error de tiket en toasd</span>
-                </div>
+            <div className='w-full flex justify-evenly content-center p-4 items-start gap-[1rem] flex-wrap'>
+                <BottonSelection title='Demora de primera atención' ico={book} id='primera atención' event={setTitle} />
+                <BottonSelection title='Demora de limpieza' ico={serviseSvg} id='limpieza' event={setTitle} />
+                <BottonSelection title='Demora de servicio' ico={food} id='servicio' event={setTitle} />
+                <BottonSelection title='Demora en entrega de plato' ico={plate} id='plato' event={setTitle} />
+                <BottonSelection title='Demora de tablet' ico={tablet} id='tablet' event={setTitle} />
+                <BottonSelection title='Marcada en pantalla antes de estar listo' ico={touchTablet} id='tablet-touch' event={setTitle} />
+                <BottonSelection title='Error de tiket en toasd' ico={tiketIco} id='tablet-tiket' event={setTitle} />
+                <BottonSelection title='Plato no comandado' ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={setTitle} />
             </div>
-
             {
                 render(title)
             }
@@ -105,4 +65,29 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
     );
 }
 
+
+
+function BottonSelection({ title, ico, id, event }) {
+
+
+
+    return (
+        <div className='shrink-0 flex flex-col justify-center items-center gap-[.5rem] w-[100px]' >
+            <button className='bg-[transparent] w-[100%]' id={id} onClick={e => event(e.currentTarget.id)}>
+                <img src={ico} alt={ico} className='w-[100%]' />
+            </button>
+            <b className='text-[black] text-center text-[.8rem]'>{title}</b>
+        </div>
+    );
+}
+
+
+
+
+
+
+
 export { Delay };
+
+
+

@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { isDesktop, isTablet } from 'react-device-detect';
 import { RenderDefault } from './Default/Default.jsx';
 import { SendNoveltie } from './SendNovelties/SendNoveltie.jsx';
-import { SendVideo } from './sendVideo/sendVideo.jsx';
 import { Delay } from './Delay/DelayComponent.jsx';
 import { Production } from './production/Producction.jsx';
 import { PickUp } from './pickUp/PickUp.jsx';
@@ -43,7 +42,7 @@ function Main({ value, selectNovelty, awaitWindow, boxModal, menu }){
             case 'imagen-2': return(<Production awaitWindow={ awaitWindow } boxModal={ boxModal } reset={ selectNovelty } key='imagen-2' title={ menu.filter(menu => menu.es === 'Empleado realiza producción' )[0]}/>);
             case 'imagen-3': return(<Delay titlesJson={ menu.filter(menu => menu.category === 'delay') } awaitWindow={ awaitWindow } boxModal={ boxModal } reset={ selectNovelty } key='imagen-3' />);
             case 'imagen-4': return(<PickUp awaitWindow={ awaitWindow } boxModal={ boxModal } title={ menu.filter(menu => menu.es === 'Servicio Pick Up' )[0] } reset={ selectNovelty } key='imagen-4' />)
-            case 'video-2': return(<SendVideo titlesJson={ menu.filter(menu => menu.category !== 'delay') } awaitWindow={ awaitWindow } boxModal={ boxModal } reset={ selectNovelty } key='video-2' />);
+    
             case 'imagen-pizza': return(<Pizza awaitWindow={ awaitWindow } boxModal={ boxModal } title={ menu.filter(menu => menu.es === 'Estándares de calidad' )[0] } reset={ selectNovelty } key='imagen-4' />)
             //info
             case 'show-manager': return( <ShowManager key='show-manager' /> );

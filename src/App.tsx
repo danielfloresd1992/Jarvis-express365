@@ -5,7 +5,8 @@ import "./App.css";
 import { LoginUser } from './component/form/Form.jsx';
 import { ProtectedRoutes } from './component/ProtetedRouters.jsx';
 
-const Home = lazy(() => import('./routes/Home/Home.jsx'));
+const Home = lazy(() => import('@/routes/Home/Home'));
+
 import ModalData from './component/ModalData/ModalData.jsx';
 
 
@@ -27,7 +28,6 @@ const NotFount: FC = () => (
         <p><b>Not fount</b></p>
     </div>
 );
-
 
 
 

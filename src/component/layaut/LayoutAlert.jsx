@@ -1,4 +1,4 @@
-export default function LayautAlert({ eventForm, titleMenu, children }) {
+export default function LayautAlert({ eventForm, titleMenu, hiddenBtn = false, children }) {
     return (
         <form className='box-send' onSubmit={e => {
             e.preventDefault();
