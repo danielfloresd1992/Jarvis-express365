@@ -5,7 +5,7 @@ import useAdapterResize from '../../../../hook/adapter_resize.jsx'
 import { useImgAlternative } from '../../../../hook/useImgAlternative.jsx';
 import { useAlert } from '../../../../hook/useAlert.jsx';
 import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
-import returnTimeExceding from '../../../../libs/date_time/calculate_time.js';
+import { returnTimeExceding } from '@/libs/date_time/time';
 
 import VideoComponent from '../../sendVideo/videoComponent.jsx';
 import { saveVideo } from '../../../../libs//fetch_data/noveltyFecth.js';
@@ -18,7 +18,10 @@ import { sendFile } from '../../../../libs//fetch_data/multimedia.Fetching.js';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
 
+import { TableInput, TikekInput } from '@/component/keysInputs/tableNumber';
+import DishInputSelet from '@/component/keysInputs/dishInput.jsx'
 
+import { checkTime } from '../tablet/model.js';
 
 
 
@@ -31,22 +34,33 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
     const [isRequieredVideoState, setIsRequieredVideo] = useState(true)
     const [videoState, setVideoState] = useState(null);
     const keySubmit = useRef(true);
-    const dish = useRef('');
+
     const seletedEstableshment = useSelector(state => state.establishment);
     const user = useSelector(state => state.user);
-
+    const [dish, setDish] = useState('');
+    let [table, setNumberTable] = useState('');
+    let [tiket, setTiket] = useState('');
     const alert = useAlert();
     const saveNoveltie = useSaveNoveltie();
 
 
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
 
-    let [time1, setTime1] = useState('');
-    let [time2, setTime2] = useState('');
-    let [time3, setTime3] = useState('');
-    let [time4, setTime4] = useState('');
-    let [table, setNumberTable] = useState('');
+    let [time1, setTime1] = useState(''); //TOMA DE ORDEN
+    let [time2, setTime2] = useState(''); //LISTO EN TABLET
+    let [time3, setTime3] = useState(''); //LISTO EN COCINA
+    let [time4, setTime4] = useState(''); //ENTREGA DE PLATO
 
+
+    //LISTO DESDE TABLET
+    const delayPreparationTable = returnTimeExceding(time2, time1);
+    //LISTO DESDE COCINA
+    const delayPreparationInKichen = returnTimeExceding(time3, time1);
+    // TOTAL HASTA LA ENTREGA
+    const timeTotalDelay = returnTimeExceding(time4, time1);
+    //CALCULO PARA VALIDAR TIEMPO
+    //const timeDelaySubtraction = checkTime(dish, delayPreparationTable);
+    //PARA EL TEXTO DEL MENU
 
 
     const handlerSubmit = async e => {
@@ -81,7 +95,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
 
 
                 if (seletedEstableshment.lang === 'es') {
-                    text = `*${seletedEstableshment.name}*\n_*Demora en preparación de ${dish.current}*_\nMesa: ${table}\nTome de orden: ${time1}\nListo en tablet: ${time3}\nListo en cocina: ${time2}\nEntrega de ${dish.current}: ${time4}\nTiempo en preparación en Toast: ${returnTimeExceding(time1, time3)}\nNota: La orden fue sacada de pantalla antes de estar lista en cocina. Tiempo real de preparación: ${returnTimeExceding(time1, time2)}`;
+                    text = `*${seletedEstableshment.name}*\n_*Demora en preparación de ${dish.current}*_\nMesa: ${table}${tiket ?? `Ticket: #${tiket}`}\nTome de orden: ${time1}\nListo en tablet: ${time2}\nListo en cocina: ${time2}\nEntrega de ${dish}: ${time4}\nTiempo en preparación en Toast: ${returnTimeExceding(time1, time3)}\nNota: La orden fue sacada de pantalla antes de estar lista en cocina. Tiempo real de preparación: ${delayPreparationInKichen}`;
                 }
                 else {
                     if (seletedEstableshment.name === 'Mister Boca Ratón') {
@@ -107,7 +121,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                 dataForRequest.timePeriod = {
                     tomaOrden: time1,
                     listoTablet: time3,
-                    listoCocina: time2,
+                    listoCocina: time3,
                     entregaPlato: time4
                 };
 
@@ -130,6 +144,9 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
             keySubmit.current = true;
         }
     };
+
+
+
 
 
 
@@ -197,81 +214,26 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
 
 
 
+                <TikekInput
+                    value={tiket}
+                    onChangeEvent={(value) => setTiket(value)}
+                />
 
-                <label className='box-label' htmlFor=""> Número de mesa
-                    <input className='box-inputText' type="text" id="table" value={table} required
-                        onChange={e => {
-                            setNumberTable(table = e.target.value);
-                        }}
-                    />
-                </label>
+                <TableInput
+                    value={table}
+                    onChangeEvent={(value) => setNumberTable(value)}
+                />
 
-
-                <label htmlFor="" className='box-label'>Tipo de plato
-                    <select
-                        className='box-inputText'
-                        onChange={e => { dish.current = e.target.value }}
-                        required
-                        defaultValue={null}
-                    >
-                        <option value={null} selected disabled={true}>--Selecione--</option>
-                        {
-                            seletedEstableshment.dishes.length > 0 ?
-                                seletedEstableshment.dishes.map(items => (
-                                    <option key={items._id} value={items.nameDishe} style={{ color: '#000', backgroundColor: '#fff' }}>{items.nameDishe}</option>
-
-                                ))
-                                :
-                                <>
-                                    {
-                                        localData.dishMenu.dishEvaluation === 'completo' ?
-                                            (
-                                                <option value={local.dishMenu.dessert}>
-                                                    {
-                                                        localData.dishMenu.dessert
-                                                    }
-                                                </option>
-                                            )
-                                            :
-                                            (
-                                                null
-                                            )
-                                    }
-                                    {
-                                        localData.name === 'Bocas Brickell' || localData.name === 'Dando la Brasa' ?
-                                            (
-                                                <>
-                                                    <option value='Drink'>Drink</option>
-                                                    <option value='Drink bar'>Drink bar</option>
-                                                    <option value='Cafe'>Cafe</option>
-                                                    <option value='Uber Eats'>Uber Eats</option>
-                                                    <option value='Grup hub'>Grup hub</option>
-                                                    <option value='Door Dash'>Door Dash</option>
-                                                    <option value='Postmates'>Postmates</option>
-                                                    <option value='Take Out'>Take Out</option>
-                                                </>
-                                            )
-                                            :
-                                            (
-                                                null
-                                            )
-                                    }
-                                    {
-                                        localData.name === 'Mister Turtle Creek' || localData.name === 'Mister Boca Ratón' ?
-                                            (
-                                                <option value='Dessert'>Dessert</option>
-                                            )
-                                            :
-                                            (
-                                                null
-                                            )
-                                    }
-                                </>
-                        }
+                <DishInputSelet
+                    value={dish.current}
+                    onChangeEvent={(dish) => {
+                        setDish(dish.nameDishe);
+                    }}
+                    dishes={seletedEstableshment?.dishes}
+                />
 
 
-                    </select>
-                </label>
+
 
                 <label className='box-label' htmlFor=""> Toma de orden
                     <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
@@ -280,18 +242,20 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                 </label>
 
 
-                <label htmlFor="" className='box-label'> Listo en cocina
-                    <input className='box-inputText' type="text" id="listo-cocina" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+                <label className='box-label' htmlFor=""> Listo en tablet
+                    <input className='box-inputText' type="text" id="Listo-tablet" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
                         onChange={e => setTime2(e.target.value)}
                     />
                 </label>
 
 
-                <label className='box-label' htmlFor=""> Listo en tablet
-                    <input className='box-inputText' type="text" id="Listo-tablet" value={time3} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
+
+                <label htmlFor="" className='box-label'> Listo en cocina
+                    <input className='box-inputText' type="text" id="listo-cocina" value={time3} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
                         onChange={e => setTime3(e.target.value)}
                     />
                 </label>
+
 
 
                 <label htmlFor="" className='box-label'> Entrega de plato
@@ -301,10 +265,11 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                 </label>
 
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1rem 0' }}>
-                    <p className='box-textHourResult'>Tiempo total en cocina: <span>{time1 && time2 ? returnTimeExceding(time1, time2) : ''}</span></p>
-                    <p className='box-textHourResult'>Tiempo total en tablet: <span>{time1 && time3 ? returnTimeExceding(time1, time3) : ''}</span></p>
-                    <p className='box-textHourResult'>Tiempo total en entrega de plato: <span>{time1 && time4 ? returnTimeExceding(time1, time4) : ''}</span></p>
+                    <p className='box-textHourResult'>Tiempo total en cocina: <span>{delayPreparationInKichen}</span></p>
+                    <p className='box-textHourResult'>Tiempo total en tablet: <span>{delayPreparationTable}</span></p>
+                    <p className='box-textHourResult'>Tiempo total en entrega de plato: <span>{timeTotalDelay}</span></p>
                 </div>
+
 
                 <button className='btnSend'>Enviar</button>
 

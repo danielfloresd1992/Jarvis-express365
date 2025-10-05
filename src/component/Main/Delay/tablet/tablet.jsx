@@ -5,7 +5,7 @@ import { isMobile } from 'react-device-detect';
 import { useSelector } from 'react-redux';
 import { useAlert } from '../../../../hook/useAlert';
 import { Search } from '../../search/searchComponent.jsx';
-import { returnTimeExceding } from '../../../../libs/date_time/time';
+import { returnTimeExceding } from '@/libs/date_time/time';
 import { useDataUser } from '../../../../hook/useTextMenu.jsx';
 import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
 import { ImgBoxImg } from '../../imgBoxComponent/ImgBox';
@@ -45,12 +45,14 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
     let [files, setFiles] = useState([null]);
     let [table, setNumberTable] = useState('');
 
-    let [time1, setTime1] = useState('');
-    let [time2, setTime2] = useState('');
-    let [time3, setTime3] = useState('');
-    let [time4, setTime4] = useState('');
+    let [time1, setTime1] = useState(''); //TOMA DE ORDEN
+    let [time2, setTime2] = useState(''); //LISTO EN TABLET
+    let [time3, setTime3] = useState(''); //LISTO EN COCINA
+    let [time4, setTime4] = useState(''); //ENTREGA DE PLATO
 
-    const [correspondingTimesState, setCorrespondingTimesState] = useState(false);
+
+
+    const [correspondingTimesState, setCorrespondingTimesState] = useState(false); //PARA SABER SI ESTUVO DENTRO DE LOS TIEMPOS CORRESPONDIENTES
     let [description, setDescription] = useState('');
 
 
@@ -238,16 +240,16 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                 </label>
 
 
-
                 <label htmlFor="" className='box-label'> Entrega de plato
                     <input className='box-inputText' type="text" id="entrega plato" value={time4} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
                         onChange={e => setTime4(e.target.value)}
                     />
                 </label>
 
+
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1rem 0', gap: '.5rem' }}>
-                    <p className='box-textHourResult'>Tiempo total en cocina: <span>{delayPreparationInKichen}</span></p>
                     <p className='box-textHourResult'>Tiempo total en tablet: <span>{delayPreparationTable}</span></p>
+                    <p className='box-textHourResult'>Tiempo total en cocina: <span>{delayPreparationInKichen}</span></p>
                     <p className='box-textHourResult'>Tiempo total en entrega de plato: <span>{timeTotalDelay}</span></p>
 
                     <p className='box-textHourResult'>Tiempo excedido: {timeDelaySubtraction.timeExceeding}</p>

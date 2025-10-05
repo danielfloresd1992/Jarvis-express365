@@ -1,6 +1,6 @@
-
-export default function calculateTime(time1, time2){
-    if(!time1 && !time2) return '';
+/////deprecated calculate time between two hours
+export default function calculateTime(time1, time2) {
+    if (!time1 && !time2) return '';
     let hourTotal = time2.split(':')[0] - time1.split(':')[0];
     let minuteTotal = time2.split(':')[1] - time1.split(':')[1];
     let secondTotal = time2.split(':')[2] - time1.split(':')[2];
