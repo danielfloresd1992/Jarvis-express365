@@ -75,7 +75,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                     if (items === null) throw new Error('Complete todas las imagenes del formulario');
                 });
 
-                if (dish.current === '') throw new Error('Selecione el tipo de plato');
+                if (dish === '') throw new Error('Selecione el tipo de plato');
 
                 if (isRequieredVideoState && !videoState) throw new Error('Complete el video de la alerta, o desactive el video');
 
@@ -95,7 +95,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
 
 
                 if (seletedEstableshment.lang === 'es') {
-                    text = `*${seletedEstableshment.name}*\n_*Demora en preparación de ${dish.current}*_\nMesa: ${table}${tiket ?? `Ticket: #${tiket}`}\nTome de orden: ${time1}\nListo en tablet: ${time2}\nListo en cocina: ${time2}\nEntrega de ${dish}: ${time4}\nTiempo en preparación en Toast: ${returnTimeExceding(time1, time3)}\nNota: La orden fue sacada de pantalla antes de estar lista en cocina. Tiempo real de preparación: ${delayPreparationInKichen}`;
+                    text = `*${seletedEstableshment.name}*\n_*Demora en preparación de ${dish}*_\nMesa: ${table}${tiket ?? `Ticket: #${tiket}`}\nTome de orden: ${time1}\nListo en tablet: ${time2}\nListo en cocina: ${time2}\nEntrega de ${dish}: ${time4}\nTiempo en preparación en Toast: ${returnTimeExceding(time1, time3)}\nNota: La orden fue sacada de pantalla antes de estar lista en cocina. Tiempo real de preparación: ${delayPreparationInKichen}`;
                 }
                 else {
                     if (seletedEstableshment.name === 'Mister Boca Ratón') {
@@ -107,14 +107,14 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                     }
                 }
 
-                dataForRequest.title = `Demora de ${dish.current} "marcada en pantalla antes de tiempo"`;
+                dataForRequest.title = `Demora de ${dish} "marcada en pantalla antes de tiempo"`;
                 dataForRequest.table = table;
-                dataForRequest.nameDish = dish.current;
+                dataForRequest.nameDish = dish;
                 dataForRequest.userName = `${user.name} ${user.surName}`;
                 dataForRequest.userId = user._id;
                 dataForRequest.localName = seletedEstableshment.name;
                 dataForRequest.localId = seletedEstableshment._id;
-                dataForRequest.description = `Demora en preparación de ${dish.current}, tiempo total: ${calculateTime(time1, time2)}`;
+                dataForRequest.description = `Demora en preparación de ${dish}, tiempo total: ${calculateTime(time1, time2)}`;
                 dataForRequest.menu = text;
                 dataForRequest.alertId = title[0]._id;
                 dataForRequest.rulesForBonus = title[0].rulesForBonus;
