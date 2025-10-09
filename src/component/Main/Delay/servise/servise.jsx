@@ -48,7 +48,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
     const timeTotal = returnTimeExceding(time2, time1);
-
+    const NONE_TABLE = dish?.requiresTableNumber === false;
 
 
 
@@ -67,6 +67,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
     };
 
 
+    console.log(seletedEstableshment);
 
 
     const sendImg = async e => {
@@ -78,7 +79,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
             if (!dish) return boxModal.open({ title: 'Error', description: 'Seleccione el tipo de plato' });
 
 
-            let text;
+
             let descriptionMenu;
             const caption = [];
 
@@ -86,12 +87,17 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
             const data = useDataUser(user.current, seletedEstableshment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
 
-            if (data.LANG === 'es') {
-                text = `*${data.localData.name}*\n_*Demora de ${dish !== '' ? dish.nameDishe : 'servicio'}*_${table ? `\nMesa: ${table}` : ''}\n${seletedEstableshment.alertLength === 'extended' ? `Toma de orden: ${time1}\nEntrega de servicio: ${time2}\nDemora total en servicio: ${timeTotal}` : `Demora en servicio: ${timeTotal}`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
-            }
-            else {
-                text = `*${data.localData.name}*\n_*${dish.nameDishe} preparation delay*_${table ? `\ntable ${table}` : ''}\nOrder take: ${time1}\n${dish.nameDishe} delivery: ${time2}\ntotal time: ${timeTotal}\n${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
-            }
+            const text = textAssembly({
+                establishmentName: data.localData.name,
+                dish: dish || { nameDishe: 'servicio' },
+                table: NONE_TABLE ? null : table,
+                alertLength: seletedEstableshment.alertLength ,
+                time1,
+                time2,
+                timeTotal,
+                note: description,
+                lang: data.LANG
+            })
 
             const dataForRequest = {};
 
@@ -119,7 +125,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
             dataForRequest.title = `Demora de servicio ${dish !== 'servicio' ? `: ${dish.nameDishe}` : ''}`;
-            dataForRequest.table = table;
+            dataForRequest.table = NONE_TABLE ? null : table;
             dataForRequest.nameDish = dish.nameDishe;
             dataForRequest.userName = data.userData.userName;
             dataForRequest.userId = data.userData.userId;
@@ -170,7 +176,6 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
 
-
     return (
         <FormLayaut title={title.es} event={e => sendImg(e)} >
 
@@ -192,6 +197,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                     <TableInput
                         value={table}
                         onChangeEvent={(value) => setNumberTable(value)}
+                        disabled={dish?.requiresTableNumber === false}
                     />
 
 
@@ -236,3 +242,21 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 }
 
 export { Servises }
+
+
+const textAssembly = ({ establishmentName, dish, table, alertLength, time1, time2, timeTotal, note, lang }) => {
+
+
+    const headTitle = lang === 'es' ? `*${establishmentName}*\n` : `*${establishmentName}*\n`;
+    const title = lang === 'es' ? `_*Demora de ${dish !== '' ? dish.nameDishe : 'servicio'}*_` : `_*${dish.nameDishe} preparation delay*_`;
+    const tableText = table ? lang === 'es' ? `\nMesa: ${table}` : `\ntable ${table}` : '';
+
+    const orderTake = alertLength === 'extended' ? lang === 'es' ? `\nToma de orden: ${time1}\nEntrega de servicio: ${time2}\nDemora total en servicio: ${timeTotal}` : `\nOrder take: ${time1}\n${dish.nameDishe} delivery: ${time2}\ntotal time: ${timeTotal}` : lang === 'es' ? `\nDemora en servicio: ${timeTotal}` : `\ntotal time: ${timeTotal}`;
+
+
+
+    const noteText = note !== '' ? lang === 'es' ? `\nNota: ${note.toLowerCase()}` : `\nNote: ${note.toLowerCase()}` : '';
+
+
+    return headTitle + title + tableText + orderTake + noteText;
+}

@@ -78,7 +78,6 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
 
                                 <button className='asideComponent-btnAction' onClick={e => { selectNovelty(e.target.id) }} id="imagen-1" >Novedades<img src={image} className="img-btn" /></button>
                                 <button className='asideComponent-btnAction' onClick={e => { selectNovelty(e.target.id) }} id="imagen-3" >Demoras<img src={rolej} className="img-btn" /></button>
-                                <button className='asideComponent-btnAction' onClick={e => { selectNovelty(e.target.id) }} id="imagen-4" >PickUp<img src={shopping} className="img-btn" /></button>
 
                                 {
                                     isMobile ?

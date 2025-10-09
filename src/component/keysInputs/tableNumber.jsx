@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
 
-export function TableInput({ onChangeEvent, value }) {
+export function TableInput({ onChangeEvent, disabled, value }) {
 
 
     const [tableNeeded, setTableNeeded] = useState(true);
 
+
+    if (disabled) return null;
 
     return (
         <div style={{
