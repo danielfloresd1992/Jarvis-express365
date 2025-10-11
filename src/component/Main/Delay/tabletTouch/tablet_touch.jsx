@@ -95,7 +95,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
 
 
                 if (seletedEstableshment.lang === 'es') {
-                    text = `*${seletedEstableshment.name}*\n_*Demora en preparación de ${dish}*_\nMesa: ${table}${tiket ?? `Ticket: #${tiket}`}\nTome de orden: ${time1}\nListo en tablet: ${time2}\nListo en cocina: ${time2}\nEntrega de ${dish}: ${time4}\nTiempo en preparación en Toast: ${returnTimeExceding(time1, time3)}\nNota: La orden fue sacada de pantalla antes de estar lista en cocina. Tiempo real de preparación: ${delayPreparationInKichen}`;
+                    text = `*${seletedEstableshment.name}*\n_*Demora en preparación de ${dish}*_\nMesa: ${table}${tiket ?? `Ticket: #${tiket}`}\nTome de orden: ${time1}\nListo en tablet: ${time2}\nListo en cocina: ${time3}\nEntrega de ${dish}: ${time4}\nTiempo en preparación en Toast: ${delayPreparationTable}\nNota: La orden fue sacada de pantalla antes de estar lista en cocina. Tiempo real de preparación: ${delayPreparationInKichen}`;
                 }
                 else {
                     if (seletedEstableshment.name === 'Mister Boca Ratón') {
