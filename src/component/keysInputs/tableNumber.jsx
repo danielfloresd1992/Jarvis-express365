@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
 
 
 export function TableInput({ onChangeEvent, disabled, value }) {
@@ -53,6 +54,24 @@ export function TikekInput({ onChangeEvent, value }) {
 
 
     const [tableNeeded, setTableNeeded] = useState(true);
+    const inputRef = useRef(null);
+
+
+
+    useEffect(() => {
+        const preventScrollEvent = (e) => {
+            e.preventDefault();
+        };
+
+        if(inputRef.current) inputRef.current.addEventListener('wheel', preventScrollEvent, {passive: false})
+        
+
+
+        return () => {
+            if(inputRef.current) inputRef.current.removeEventListener('wheel', preventScrollEvent);
+        }
+    }, [inputRef]);
+
 
 
     return (
@@ -79,6 +98,7 @@ export function TikekInput({ onChangeEvent, value }) {
                             required
                             onChange={e => onChangeEvent(e.target.value)}
                             type='number'
+                            ref={inputRef}
                         />
                     </label>
                     :
