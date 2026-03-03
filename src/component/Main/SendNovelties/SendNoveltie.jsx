@@ -120,7 +120,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                     }
 
                 });
-                console.log(files)
+                
 
                 if (title[0].photos.caption.length > 1) {
                     const html = await useImgAlternative(htmlAdapterRef.current, async (htmlForImg) => {

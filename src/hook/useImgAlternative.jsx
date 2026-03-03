@@ -30,9 +30,9 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
             if (altEl) {
                 altEl.style.display = 'flex';
                 altEl.style.height = '30px';
-                altEl.style.padding = '0.5rem 0.8rem';
-                altEl.style.fontSize = '.8rem';
-                altEl.style.width = 'auto';
+      
+
+    
             }
             if (areaEl) {
                 areaEl.style.width = '100%';
@@ -54,6 +54,7 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
             }
         });
 
+
         if(typeof callback === 'function') callback(htmlForImg);
 
         toBlob(htmlForImg)  // change to blob
@@ -74,7 +75,7 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
             .finally(() => {
                 htmlForImg.remove();
             });
-            
+
     });
 }
 
