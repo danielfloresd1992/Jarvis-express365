@@ -20,12 +20,13 @@ const NotFount: FC = () => (
             justifyContent: 'center',
             alignItems: 'center',
             flexDirection: 'column',
-            color: '#fff',
-            backgroundColor: '#3b0035'
+            gap: '0.5rem',
+            background: 'linear-gradient(135deg, #f0f5ea 0%, #e7efdc 40%, #dde7cc 100%)',
+            fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif"
         }}
     >
-        <h1 style={{ color: '#fff' }}>404</h1>
-        <p><b>Not fount</b></p>
+        <h1 style={{ color: '#2d5a00', fontSize: '4rem', fontWeight: 800, margin: 0 }}>404</h1>
+        <p style={{ color: '#475569', fontSize: '1.1rem' }}><b>Página no encontrada</b></p>
     </div>
 );
 

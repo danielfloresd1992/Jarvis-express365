@@ -6,7 +6,7 @@ let dataUser = null;
 const SockedAppManager = import.meta.env.VITE_SOCKET_JARVIS_URL;
 
 
-const urlSockedAppManager = window.location.hostname === '72.68.60.201' ? '72.68.60.201:3007' : SockedAppManager;
+const urlSockedAppManager = SockedAppManager;
 
 
 const socketAppManager = io(`wss://${urlSockedAppManager}`, { secure: true, rejectUnauthorized: false });

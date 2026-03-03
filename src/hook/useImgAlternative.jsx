@@ -18,22 +18,32 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
 
             element.style.maxHeight = 'unset';
             element.style.display = 'none';
-            element.querySelector('.box-text').classList.add('text-alternative');
-            element.querySelector('.box-img').classList.add('box-img-alternative');
-            if (element.querySelector('.box-deleteimg')) element.querySelector('.box-deleteimg').style.display = 'none';
-            element.querySelector('.text-alternative').style.display = 'flex';
-            element.querySelector('.text-alternative').style.height = '30px';
-            element.querySelector('.text-alternative').style.padding = '0.5rem 0.8rem';
-            element.querySelector('.text-alternative').style.fontSize = '.8rem';
-            element.querySelector('.text-alternative').style.width = 'auto';
-            element.querySelector('.box-imgContain').style.width = '100%';
-            element.querySelector('.box-imgContain').style.height = '100%';
+            const labelEl = element.querySelector('.dropzone__label') || element.querySelector('.box-text');
+            const imgEl = element.querySelector('.dropzone__img') || element.querySelector('.box-img');
+            const deleteEl = element.querySelector('.dropzone__action-btn--delete') || element.querySelector('.box-deleteimg');
+            const areaEl = element.querySelector('.dropzone__area') || element.querySelector('.box-imgContain');
+
+            if (labelEl) labelEl.classList.add('text-alternative');
+            if (imgEl) imgEl.classList.add('box-img-alternative');
+            if (deleteEl) deleteEl.style.display = 'none';
+            const altEl = element.querySelector('.text-alternative');
+            if (altEl) {
+                altEl.style.display = 'flex';
+                altEl.style.height = '30px';
+                altEl.style.padding = '0.5rem 0.8rem';
+                altEl.style.fontSize = '.8rem';
+                altEl.style.width = 'auto';
+            }
+            if (areaEl) {
+                areaEl.style.width = '100%';
+                areaEl.style.height = '100%';
+            }
             element.style.height = '300px';
             element.style.width = '550px';
 
             if (imageCounting === 1) {
                 if (index === 0) element.style.display = 'block';
-                element.querySelector('.box-text').style.display = 'none';
+                if (labelEl) labelEl.style.display = 'none';
             }
             else if (imageCounting === 2) {
                 if (index === 0 || index === arr.length - 1) element.style.display = 'block';

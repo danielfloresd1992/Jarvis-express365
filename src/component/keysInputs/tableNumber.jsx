@@ -18,7 +18,7 @@ export function TableInput({ onChangeEvent, disabled, value }) {
             gap: '.5rem'
         }}>
             <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                <p style={{ color: '#fff' }}>¿no se necesita numero de mesa?</p>
+                <p>¿no se necesita numero de mesa?</p>
                 <input type='checkbox'
                     checked={tableNeeded}
                     onChange={e => {
@@ -30,7 +30,7 @@ export function TableInput({ onChangeEvent, disabled, value }) {
 
             {
                 tableNeeded ?
-                    <label className='box-label' style={{ color: '#fff' }} > Número de mesa
+                    <label className='box-label' > Número de mesa
                         <input
                             className='box-inputText'
                             type="text"
@@ -78,7 +78,7 @@ export function TikekInput({ onChangeEvent, value }) {
 
         <>
             <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                <p style={{ color: '#fff' }}>¿no se necesita numero de Ticket?</p>
+                <p>¿no se necesita numero de Ticket?</p>
                 <input type='checkbox'
                     checked={tableNeeded}
                     onChange={e => {
@@ -90,7 +90,7 @@ export function TikekInput({ onChangeEvent, value }) {
 
             {
                 tableNeeded ?
-                    <label className='box-label' style={{ color: '#fff' }} > Número de Ticket
+                    <label className='box-label' > Número de Ticket
                         <input
                             className='box-inputText'
                             id="inicio"

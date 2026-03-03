@@ -15,6 +15,7 @@ function ImgComponent({ saveImg, data, deleteFile, boxModal }) {
 
 
     let [img, setImg] = useState([]);
+    let [isDragging, setIsDragging] = useState(false);
 
 
     const recibImg = async (file) => {
@@ -59,33 +60,38 @@ function ImgComponent({ saveImg, data, deleteFile, boxModal }) {
         setImg(img = []);
     };
 
+    const hasImage = img.length > 0;
+    const label = data[JSON.parse(localStorage.getItem('local_appExpress'))[0].lang];
 
     return (
-        <div className='box-div'>
-            <div className='box-imgContain'
-                onDragLeave={e => e.preventDefault()}
-                onDragEnter={e => e.preventDefault()}
+        <div className={`dropzone${hasImage ? ' dropzone--has-image' : ''}${isDragging ? ' dropzone--dragging' : ''}`}>
+            <div className='dropzone__area'
+                onDragLeave={e => { e.preventDefault(); setIsDragging(false); }}
+                onDragEnter={e => { e.preventDefault(); setIsDragging(true); }}
                 onDragOver={e => e.preventDefault()}
-                onDrop={e => { e.preventDefault(); recibImg(e.dataTransfer.files[0]) }}
+                onDrop={e => { e.preventDefault(); setIsDragging(false); recibImg(e.dataTransfer.files[0]) }}
             >
-                <div className="box-imgDiv" >
-                    <button className="box-deleteimg" type='button' onClick={deleteImg}>X</button>
-                    <img className='box-img' src={img.length > 0 ? img[1] : imgBackground} />
+                <div className="dropzone__img-wrap">
+                    <button className="dropzone__action-btn dropzone__action-btn--delete" type='button' onClick={deleteImg}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                    {!hasImage && (
+                        <div className="dropzone__placeholder">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                            <span>{isMobile ? 'Toca para capturar' : 'Arrastra una imagen aquí'}</span>
+                        </div>
+                    )}
+                    <img className={`dropzone__img${hasImage ? '' : ' dropzone__img--hidden'}`} src={hasImage ? img[1] : imgBackground} draggable={false} />
                 </div>
-                <p className='box-text'>{data[JSON.parse(localStorage.getItem('local_appExpress'))[0].lang]}</p>
+                <p className='dropzone__label'>{label}</p>
             </div>
-            {
-                isMobile ?
-                    (
-                        <>
-                            <input className="box-inputCamera" type="file" accept="image/*,capture=camera" onChange={e => { e.preventDefault(); recibImg(e.target.files[0]) }} />
-                        </>
-                    )
-                    :
-                    (
-                        null
-                    )
-            }
+            {isMobile && (
+                <input className="dropzone__file-input" type="file" accept="image/*,capture=camera" onChange={e => { e.preventDefault(); recibImg(e.target.files[0]) }} />
+            )}
         </div>
     );
 }

@@ -1,58 +1,67 @@
+/* ============================================
+   INPUT COMPONENTS — Clean Style
+   ============================================ */
 
-option{
-    color: black;
+option {
+    color: var(--slate-800, #1e293b);
 }
-
-
 
 .__label {
     width: 100%;
     display: flex;
     flex-direction: column;
-    color: #ffffff;
+    color: var(--slate-700, #334155);
     font-weight: 600;
-    gap: 1rem;
-  }
-  
-  .__input {
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.__input {
     width: 100%;
-    background-color: #ffffff;
-    color: #0f5673;
-    border: 1px solid #23adbb;
-    border-radius: 5px;
-    padding: 0.5rem;
-    font-size: 1rem;
-  }
-  
-  
-  .__input:disabled {
-    border: 1px solid #acafaf;
-    color: #585858;
-  }
-  
-  .__input:focus,
-  .__input:focus-visible {
+    background-color: #fff;
+    color: var(--slate-800, #1e293b);
+    border: 1.5px solid var(--slate-300, #cbd5e1);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.__input:hover {
+    border-color: var(--slate-400, #94a3b8);
+}
+
+.__input:focus,
+.__input:focus-visible {
     outline: none;
-  }
-  
-  input[type="checkbox"]+label:before {
+    border-color: var(--green-600, #4e8300);
+    box-shadow: 0 0 0 3px rgba(78, 131, 0, 0.1);
+}
+
+.__input:disabled {
+    border: 1px solid var(--slate-200, #e2e8f0);
+    color: var(--slate-400, #94a3b8);
+    background-color: var(--slate-50, #f8fafc);
+    cursor: not-allowed;
+}
+
+input[type="checkbox"]+label:before {
     content: "";
     display: inline-block;
-    width: 25px;
-    height: 25px;
-    border: 2px solid #888;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--slate-300, #cbd5e1);
+    border-radius: 4px;
     position: absolute;
     left: 0;
     transition: all 0.3s ease-in-out;
-  }
-  
-  /* Estilizamos el checkbox cuando está marcado */
-  input[type="checkbox"]:checked+label:before {
-    background-color: #0f0;
-  }
+}
 
+input[type="checkbox"]:checked+label:before {
+    background-color: var(--green-600, #4e8300);
+    border-color: var(--green-600, #4e8300);
+}
 
-
-.__width-complete{
+.__width-complete {
     width: 100%;
 }

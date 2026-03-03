@@ -1,3 +1,7 @@
+/* ============================================
+   PRODUCTION — Clean Desktop Style
+   ============================================ */
+
 .productionContain {
     position: relative;
     width: 100%;
@@ -6,11 +10,10 @@
     gap: 1rem;
     flex-direction: row-reverse;
     flex-wrap: wrap;
-    background-color: var(--background-ligth);
+    background-color: var(--slate-50, #f8fafc);
     padding: 1.5rem;
     justify-content: center;
 }
-
 
 .productionContain-headerContain {
     width: 100%;
@@ -29,7 +32,8 @@
     flex-direction: column;
     align-items: flex-start;
     flex-wrap: wrap;
-    color: '#fff'
+    color: var(--slate-700, #334155);
+    font-weight: 500;
 }
 
 .production-imgContain {
@@ -40,38 +44,44 @@
     flex-wrap: wrap;
     gap: 1rem;
     padding: 1rem;
-    background-color: #2a2d3e;
+    background-color: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--slate-200, #e2e8f0);
 }
 
 .production-img {
     position: relative;
     width: 48%;
     height: 300px;
-    background-color: azure;
+    background-color: var(--slate-50, #f8fafc);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.img{
+.img {
     width: 100%;
-    height: 100%
+    height: 100%;
+    object-fit: cover;
 }
 
-.production-select{
+.production-select {
     position: absolute;
     bottom: 0;
     right: 0;
     width: 150px;
     height: 40px;
-    border: 2px solid rgb(110, 9, 150);
+    border: none;
     text-align: center;
-    background-color: rgb(24, 7, 41);
+    background-color: var(--green-700, #3a6b00);
     color: #fff;
-    font-size: 1.2rem
-    
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px 0 8px 0;
+    cursor: pointer;
 }
 
-
 @media screen and (max-width: 720px) {
-    .productionContain-headerContain{
+    .productionContain-headerContain {
         width: 100%;
     }
 }

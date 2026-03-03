@@ -130,6 +130,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                     const newFile = blobToFile(html);
 
                     const resultImg = await sendFile(newFile);
+                    console.log(resultImg);
                     dataForRequest.imageToShare = resultImg.data.url;
                 }
                 else {
@@ -378,7 +379,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
                                         {
                                             tableNeeded ?
-                                                <label className='box-label' style={{ color: '#fff' }} > Número de mesa
+                                                <label className='box-label' > Número de mesa
                                                     <input
                                                         className='box-inputText'
                                                         type="text"
@@ -401,7 +402,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                             {
                                 title[0].amountOfSomething ?
                                     <>
-                                        <label className='box-label' style={{ color: '#fff' }} >Cantidad total
+                                        <label className='box-label' >Cantidad total
                                             <input
                                                 className='box-inputText'
                                                 type="number"
@@ -421,7 +422,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Tiempo de la novedad</h2>
-                                            <label className='box-label' style={{ color: '#fff' }} > Inició
+                                            <label className='box-label' > Inició
                                                 <input
                                                     className='box-inputText'
                                                     type="text" id="inicio"
@@ -432,7 +433,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                                 />
                                             </label>
 
-                                            <label className='box-label' style={{ color: '#fff' }} > Finalizó
+                                            <label className='box-label' > Finalizó
                                                 <input
                                                     className='box-inputText'
                                                     type="text"
@@ -445,7 +446,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                             </label>
 
 
-                                            <p className='box-textHourResult' style={{ color: '#fff' }} >Tiempo total: <span>{calculateTime(time1, time2)}</span></p>
+                                            <p className='box-textHourResult' >Tiempo total: <span>{calculateTime(time1, time2)}</span></p>
                                         </>
                                     )
                                     :
@@ -458,7 +459,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Tiempo de la novedad</h2>
-                                            <label className='box-label' style={{ color: '#fff' }} > {title[0].especial?.time?.timeUnique ? title[0].especial?.time?.timeUnique[LANG] : 'Hora'}
+                                            <label className='box-label' > {title[0].especial?.time?.timeUnique ? title[0].especial?.time?.timeUnique[LANG] : 'Hora'}
                                                 <input
                                                     className='box-inputText'
                                                     type="text"
@@ -492,7 +493,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Descripción de la persona</h2>
-                                            <label className='box-label' style={{ color: '#fff' }} > Genero
+                                            <label className='box-label' > Genero
                                                 <select
                                                     className='box-inputText'
                                                     style={
@@ -513,7 +514,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                                 </select>
                                             </label>
                                             <label
-                                                className='box-label' style={{ color: '#fff' }} > Tipo de prenda de la persona
+                                                className='box-label' > Tipo de prenda de la persona
                                                 <select
                                                     className='box-inputText'
                                                     style={
@@ -536,7 +537,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                                 </select>
                                             </label>
                                             <label
-                                                className='box-label' style={{ color: '#fff' }} > Color la prenda
+                                                className='box-label' > Color la prenda
                                                 <select
                                                     className='box-inputText'
                                                     style={
@@ -578,7 +579,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Área de la incidencia</h2>
-                                            <label className='box-label' style={{ color: '#fff' }} > Área
+                                            <label className='box-label' > Área
                                                 <select
                                                     className='box-inputText'
                                                     style={
@@ -644,7 +645,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     :
                                     null
                             }
-                            <label className='box-label' style={{ color: '#fff' }} htmlFor=""> Nota
+                            <label className='box-label' htmlFor=""> Nota
                                 <textarea
                                     className='box-textArea'
                                     spellCheck="true"

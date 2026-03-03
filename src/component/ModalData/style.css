@@ -1,11 +1,13 @@
+/* ============================================
+   MODAL DATA / LIST — Clean Desktop Style
+   ============================================ */
+
 .listComponent {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-around;
     align-content: flex-start;
-
 }
-
 
 .nav {
     position: fixed;
@@ -13,44 +15,41 @@
     flex-direction: row-reverse;
 }
 
-
-.nav-button{
+.nav-button {
     background-color: unset;
     width: 100px;
 }
 
-
 .list,
 .list * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-
 
 .list {
-  list-style: none;
-  counter-reset: cardCount;
-  font-family: sans-serif;
-  display: flex;
-  flex-direction: column;
-  --cardsGap: 1rem;
-  gap: var(--cardsGap);
-  padding-bottom: var(--cardsGap);
-  transition: max-height 1s ease;
-  max-height: 7000px;
+    list-style: none;
+    counter-reset: cardCount;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    --cardsGap: 0.75rem;
+    gap: var(--cardsGap);
+    padding-bottom: var(--cardsGap);
+    transition: max-height 1s ease;
+    max-height: 7000px;
 }
-
 
 .listContaint {
     min-height: 80vh;
     width: 45%;
     margin: 4.5rem 0.5rem 0 0.5rem;
-    background-color: #2a2d3e;
-    border-radius: 10px;
+    background-color: #fff;
+    border-radius: 14px;
     overflow: hidden;
+    border: 1px solid var(--slate-200, #e2e8f0);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
-
 
 .header-line {
     pointer-events: none;
@@ -58,136 +57,128 @@
     justify-content: space-between;
 }
 
-
 .listContaint-title {
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
     text-align: center;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border-bottom: 1px solid #fff;
-    font-size: 1rem;
+    border-bottom: 1px solid var(--slate-200, #e2e8f0);
+    font-size: 0.95rem;
     font-family: inherit;
     gap: 0.2rem;
+    background-color: var(--slate-50, #f8fafc);
 }
 
-
-.header-title{
-    font-weight: 600;
-    font-size: 1.1rem;
+.header-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--slate-800, #1e293b);
 }
 
-
-.listContaint-title p{
+.listContaint-title p {
     pointer-events: none;
+    color: var(--slate-500, #64748b);
 }
-
 
 .listContaint-box {
-    color: rgb(255, 255, 255);
+    color: var(--slate-800, #1e293b);
     overflow: hidden;
-    background-color: #2a2d3e;
+    background-color: #fff;
 }
 
-
-.close-box{
+.close-box {
     padding: 0;
     max-height: 0px;
     overflow: hidden;
-    transition:  1s ease;
+    transition: 1s ease;
 }
-
 
 .list li {
-  counter-increment: cardCount;
-  display: flex;
-  color: white;
-  --labelOffset: 1rem;
-  --arrowClipSize: 1.5rem;
-  margin-top: var(--labelOffset);
-  
+    counter-increment: cardCount;
+    display: flex;
+    color: var(--slate-800, #1e293b);
+    --labelOffset: 0.75rem;
+    --arrowClipSize: 1rem;
+    margin-top: var(--labelOffset);
 }
 
-.box-traslateLelf{
-    animation: boxTitle .5s linear
+.box-traslateLelf {
+    animation: boxTitle .5s linear;
 }
 
 @keyframes boxTitle {
-    from{
-        transform: translateX(-50px);
+    from {
+        transform: translateX(-30px);
         filter: opacity(0);
     }
-    to{
+
+    to {
         transform: translateX(0px);
         filter: opacity(1);
     }
 }
 
-
-
 .list li::before {
-  content: counter(cardCount, decimal-leading-zero);
-  background-color: #1e082b;
-  color: #f4f4f4;
-  font-size: 2em;
-  font-weight: 700;
-  transform: translateY(calc(-1 * var(--labelOffset)));
-  margin-right: calc(-1 * var(--labelOffset));
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-inline: 0.5em;
+    content: counter(cardCount, decimal-leading-zero);
+    background-color: var(--green-700, #3a6b00);
+    color: #fff;
+    font-size: 1.8em;
+    font-weight: 700;
+    transform: translateY(calc(-1 * var(--labelOffset)));
+    margin-right: calc(-1 * var(--labelOffset));
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-inline: 0.5em;
+    border-radius: 8px 0 0 8px;
 }
 
-
 .list li .content {
-    background-color: #782b78;
+    background-color: var(--slate-100, #f1f5f9);
     --inlinePadding: 1em;
     --boxPadding: 0.5em;
     display: flex;
     padding: var(--boxPadding) calc(var(--inlinePadding) + var(--arrowClipSize)) var(--boxPadding) calc(var(--inlinePadding) + var(--labelOffset));
     gap: 0.25em 1em;
-    clip-path: polygon( 0 0, calc(100% - var(--arrowClipSize)) 0, 100% 50%, calc(100% - var(--arrowClipSize)) 100%, calc(100% - var(--arrowClipSize)) calc(100% + var(--cardsGap)), 0 calc(100% + var(--cardsGap)) );
+    clip-path: polygon(0 0, calc(100% - var(--arrowClipSize)) 0, 100% 50%, calc(100% - var(--arrowClipSize)) 100%, calc(100% - var(--arrowClipSize)) calc(100% + var(--cardsGap)), 0 calc(100% + var(--cardsGap)));
     position: relative;
     flex-direction: row;
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
+    border-radius: 0 8px 8px 0;
 }
-
 
 .list li .content::before {
-  content: "";
-  position: absolute;
-  width: var(--labelOffset);
-  height: var(--labelOffset);
-  background: var(--cardColor);
-  left: 0;
-  bottom: 0;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-  filter: brightness(0.75);
+    content: "";
+    position: absolute;
+    width: var(--labelOffset);
+    height: var(--labelOffset);
+    background: var(--cardColor);
+    left: 0;
+    bottom: 0;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    filter: brightness(0.9);
 }
-
 
 .list li .content::after {
-  content: "";
-  position: absolute;
-  height: var(--cardsGap);
-  width: var(--cardsGap);
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent 50%);
-  left: 0;
-  top: 100%;
+    content: "";
+    position: absolute;
+    height: var(--cardsGap);
+    width: var(--cardsGap);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent 50%);
+    left: 0;
+    top: 100%;
 }
-
 
 .list li .icon {
-  grid-area: icon;
-  align-self: center;
-  font-size: 2em;
+    grid-area: icon;
+    align-self: center;
+    font-size: 2em;
 }
-
 
 .second {
     display: flex;
@@ -195,56 +186,51 @@
     align-items: center;
 }
 
-
 .icon-text {
-    font-size: .8rem;
+    font-size: .75rem;
     width: 100px;
     text-align: center;
+    color: var(--slate-500, #64748b);
 }
 
-.icoValidate{
+.icoValidate {
     width: 35px;
     height: 35px;
-
 }
-
 
 .validate {
-    filter: opacity(0.4) drop-shadow(0 0 0 rgb(255, 0, 212)) invert(1);
+    filter: opacity(0.5) drop-shadow(0 0 0 var(--green-600));
 }
 
-
-.invalidate{
-    filter: opacity(0.4) drop-shadow(0 0 0 rgb(255, 0, 0));
+.invalidate {
+    filter: opacity(0.4) drop-shadow(0 0 0 rgb(239, 68, 68));
 }
 
-
-.ignore{
-    filter: invert(1);
+.ignore {
+    filter: opacity(0.3);
 }
-
 
 .icon-img {
-  width: 65px;
-  height: 50px;
-  background-color: #1e082b;
+    width: 65px;
+    height: 50px;
+    background-color: var(--green-800, #2d5a00);
+    border-radius: 6px;
 }
 
-
 .list li .content .title {
-    font-size: 1.25em;
+    font-size: 1.15em;
+    font-weight: 600;
     width: 200px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    color: var(--slate-800, #1e293b);
 }
-
 
 .list li .content .text {
-    color: mediumturquoise;
+    color: var(--green-600, #4e8300);
     text-decoration: underline;
 }
-
 
 .textBonusContent {
     padding: 0;
@@ -252,60 +238,47 @@
     gap: 1rem;
 }
 
-
-.text-bonus{
+.text-bonus {
     font-size: .8rem;
+    color: var(--slate-600, #475569);
 }
 
-
-.textGreen{
-    color: #00ff00;
+.textGreen {
+    color: var(--green-600, #4e8300);
 }
-
 
 .text-purple {
-    color: #d437d5;
+    color: #7c3aed;
 }
 
-
-.text-red{
-    color: #ff5612;   
+.text-red {
+    color: #ef4444;
 }
-
 
 .text-bonus-cancel {
     width: 20px;
-    filter: invert(1);
+    opacity: 0.5;
 }
 
-
-.mainContent{
+.mainContent {
     width: 48%;
     min-height: 95vh;
     padding-top: 4.5rem;
 }
 
-
-.mainContent-GrafigContain{
+.mainContent-GrafigContain {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem
+    gap: 1rem;
 }
 
-
-.GrafigContain-textTitle{
+.GrafigContain-textTitle {
     text-align: center;
-    color: #ffff
+    color: var(--slate-800, #1e293b);
+    font-weight: 600;
 }
 
-
-.grafig{
-    
-}
-
-
-.box-traslateLelf{
+.box-traslateLelf {
     position: relative;
 }
-

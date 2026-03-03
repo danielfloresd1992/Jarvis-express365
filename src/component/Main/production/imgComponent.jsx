@@ -36,26 +36,33 @@ function ImgComponent({ modal, text, idTarget, changeFile, file }) {
 
 
 
+    const [isDragging, setIsDragging] = useState(false);
+    const hasImage = !!img;
+
     return (
         <>
-            <div className='box-div' >
-                <div className='box-imgContain'>
-                    <div className="box-imgDiv" >
-                        <img src={img ? img : srcDefault} alt="" className='box-img'
-                            onDragLeave={e => e.preventDefault()}
-                            onDragEnter={e => e.preventDefault()}
-                            onDragOver={e => e.preventDefault()}
-                            onDrop={async e => {
-                                e.preventDefault();
-                                onChange(e.dataTransfer.files[0]);
-                            }}
-                        />
+            <div className={`dropzone${hasImage ? ' dropzone--has-image' : ''}${isDragging ? ' dropzone--dragging' : ''}`}>
+                <div className='dropzone__area'
+                    onDragLeave={e => { e.preventDefault(); setIsDragging(false); }}
+                    onDragEnter={e => { e.preventDefault(); setIsDragging(true); }}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => { e.preventDefault(); setIsDragging(false); onChange(e.dataTransfer.files[0]); }}
+                >
+                    <div className="dropzone__img-wrap">
+                        {!hasImage && (
+                            <div className="dropzone__placeholder">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                <span>Arrastra una imagen aquí</span>
+                            </div>
+                        )}
+                        <img className={`dropzone__img${hasImage ? '' : ' dropzone__img--hidden'}`} src={img ? img : srcDefault} alt="" draggable={false} />
                     </div>
-                    <select required={true} id={idTarget} className='box-text' value={selectValue} onChange={e => { setSelectValue(e.target.value); text(e.target) }}
-                        style={{
-                            fontStyle: '1rem',
-                            padding: '.4rem 0.1rem'
-                        }}
+                    <select required={true} id={idTarget} className='dropzone__label' value={selectValue} onChange={e => { setSelectValue(e.target.value); text(e.target) }}
+                        style={{ cursor: 'pointer' }}
                     >
                         <option value={null}>Seleccione</option>
                         <option value="Corta">Corta</option>

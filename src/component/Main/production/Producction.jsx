@@ -109,14 +109,16 @@ function Production({ awaitWindow, boxModal, reset, title }) {
             htmlAdapterRef.current.style.height = 'unset';
             Array.from(htmlAdapterRef.current.children).forEach(element => {
                 element.style.maxHeight = 'unset';
-                console.log(element)
-                element.querySelector('.box-text').classList.add('text-alternative');
-                element.querySelector('.box-img').classList.add('box-img-alternative');
-                if (element.querySelector('.box-deleteimg')) element.querySelector('.box-deleteimg').style.display = 'none';
+                const labelEl = element.querySelector('.dropzone__label') || element.querySelector('.box-text');
+                const imgEl = element.querySelector('.dropzone__img') || element.querySelector('.box-img');
+                const deleteEl = element.querySelector('.dropzone__action-btn--delete') || element.querySelector('.box-deleteimg');
+                const areaEl = element.querySelector('.dropzone__area') || element.querySelector('.box-imgContain');
+                if (labelEl) labelEl.classList.add('text-alternative');
+                if (imgEl) imgEl.classList.add('box-img-alternative');
+                if (deleteEl) deleteEl.style.display = 'none';
                 element.style.width = '500px';
                 element.style.height = '270px';
-                element.querySelector('.box-imgContain').style.width = '500px';
-                element.querySelector('.box-imgContain').style.height = '270px';
+                if (areaEl) { areaEl.style.width = '500px'; areaEl.style.height = '270px'; }
             });
 
             htmlAdapterRef.current.style.backgroundColor = '#fff';
@@ -190,7 +192,7 @@ function Production({ awaitWindow, boxModal, reset, title }) {
             <form className='productionContain' onSubmit={handdlerSubmit}>
 
                 <div className='productionContain-headerContain'>
-                    <label htmlFor="count-img" className='box-label productionContain-label' style={{ color: '#fff' }}>Numero de Imagen
+                    <label htmlFor="count-img" className='box-label productionContain-label'>Numero de Imagen
                         <input type="number" id='count-img' className='box-inputText' value={count} min={3} max={4} onChange={e => recibCount(count = e.target.value)} />
                     </label>
                 </div>

@@ -21,6 +21,7 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
 
     let [visivility, setVisivility] = useState(false);
     let [srcImg, setSrcImg] = useState(null);
+    let [isDragging, setIsDragging] = useState(false);
     const imgCanvas = useRef(null);
     const btnDelete = useRef(null);
     const btnEdit = useRef(null);
@@ -103,55 +104,51 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
         setVisivility(!visivility);
     }
 
+    const label = language === 'es' ? data.es : data.en;
 
     return (
         <>
-            <div className='box-div' ref={imgCanvas} >
-                <div className='box-imgContain'
-                    onDragLeave={e => e.preventDefault()}
-                    onDragEnter={e => e.preventDefault()}
+            <div className={`dropzone${srcImg ? ' dropzone--has-image' : ''}${isDragging ? ' dropzone--dragging' : ''}`} ref={imgCanvas}>
+                <div className='dropzone__area'
+                    onDragLeave={e => { e.preventDefault(); setIsDragging(false); }}
+                    onDragEnter={e => { e.preventDefault(); setIsDragging(true); }}
                     onDragOver={e => e.preventDefault()}
-                    onDrop={e => { e.preventDefault(); const { items } = e.dataTransfer; readtImg(e.dataTransfer.files[0]); }}
+                    onDrop={e => { e.preventDefault(); setIsDragging(false); const { items } = e.dataTransfer; readtImg(e.dataTransfer.files[0]); }}
                 >
-                    <div className="box-imgDiv" >
-                        <button className="box-deleteimg" type='button' onClick={deleteSrc} ref={btnDelete} >
-                            <img className='box-deleteimgIco' src={trash} />
+                    <div className="dropzone__img-wrap">
+                        <button className="dropzone__action-btn dropzone__action-btn--delete" type='button' onClick={deleteSrc} ref={btnDelete}>
+                            <img style={{ width: '16px', height: '16px', filter: 'invert()' }} src={trash} alt="delete" />
                         </button>
-                        {
-                            config?.edit ?
-                                (
-                                    <button className="box-deleteimg secondBtn" type='button' ref={btnEdit} onClick={() => { srcImg !== null ? setVisivility(!visivility) : boxModal.open({ title: 'Aviso', description: 'Selecione una imagen' }) }}  >
-                                        <img className='box-deleteimgIco  cut' src={icoEdit} />
-                                    </button>
-                                )
-                                :
-                                (
-                                    null
-                                )
-                        }
-                        <img className={'box-img'} src={srcImg ? srcImg : imgBackground} ref={img} draggable={false} />
+                        {config?.edit && (
+                            <button className="dropzone__action-btn dropzone__action-btn--edit" type='button' ref={btnEdit}
+                                onClick={() => { srcImg !== null ? setVisivility(!visivility) : boxModal.open({ title: 'Aviso', description: 'Selecione una imagen' }) }}>
+                                <img style={{ width: '16px', height: '16px' }} src={icoEdit} alt="edit" />
+                            </button>
+                        )}
+                        {!srcImg && (
+                            <div className="dropzone__placeholder">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                <span>{isMobile ? 'Toca para capturar' : 'Arrastra una imagen aquí'}</span>
+                            </div>
+                        )}
+                        <img className={`dropzone__img${srcImg ? '' : ' dropzone__img--hidden'}`} src={srcImg ? srcImg : imgBackground} ref={img} draggable={false} />
                     </div>
-                    <p className='box-text' ref={boxText} style={config?.hiddenBoxText ? { display: 'none' } : { display: 'block' }} >
-                        {
-                            language === 'es' ? data.es : data.en
-                        }
+                    <p className='dropzone__label' ref={boxText} style={config?.hiddenBoxText ? { display: 'none' } : {}}>
+                        {label}
                     </p>
                 </div>
 
-                {
-                    isMobile && <>
-                        <input className="box-inputCamera" type="file" accept="image/*,capture=camera"
-                            onChange={e => { e.preventDefault(); readtImg(e.target.files[0]) }}
-
-                        />
-                    </>
-
-                }
+                {isMobile && (
+                    <input className="dropzone__file-input" type="file" accept="image/*,capture=camera"
+                        onChange={e => { e.preventDefault(); readtImg(e.target.files[0]) }}
+                    />
+                )}
             </div>
-            {
-                visivility && <EditorImg img={srcImg} deleteImg={deleteSrc} createNewImg={readtImg} closeWindow={visivilityEditImg} />
-            }
-
+            {visivility && <EditorImg img={srcImg} deleteImg={deleteSrc} createNewImg={readtImg} closeWindow={visivilityEditImg} />}
         </>
     );
 }

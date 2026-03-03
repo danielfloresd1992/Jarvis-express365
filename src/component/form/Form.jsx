@@ -4,18 +4,15 @@ import visivility from '../../../public/ico/visibility/visibility.svg';
 import { useEffect, useState } from 'react';
 import axiosInstance from '../../libs/fetch_data/instanceAxios.js';
 import { useForm } from 'react-hook-form';
-import Typewriter from 'typewriter-effect';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../store/slices/user.js';
 import URL from '../../libs/fetch_data/api_conexion.js';
 
-
 import Presentation from '../../component/presentatiom.jsx'
 
 
 function LoginUser() {
-
 
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
     const [iSvisivility, setVisivility] = useState(true);
@@ -51,7 +48,6 @@ function LoginUser() {
                 console.log(err)
                 if (err?.response?.data) {
                     setError(err?.response?.data?.error ?? 'error');
-
                 }
             });
     };
@@ -59,42 +55,92 @@ function LoginUser() {
 
     return (
         <>
-            <div className='component-error' style={errMicroservises.boolean ? { display: 'flex' } : { display: 'none' }}>
-                <h1 className='component-error-h1'>
-                    {errMicroservises.textTitle}
-                </h1>
-                <p className='component-error-p'>
-                    {errMicroservises.textDescription}
-                </p>
-            </div>
-            <div className='componentLogin'>
-                <div className='componentLogin-presentation'>
+            {/* Error overlay */}
+            {errMicroservises.boolean && (
+                <div className='auth-error-overlay'>
+                    <h1 className='auth-error-overlay__title'>
+                        {errMicroservises.textTitle}
+                    </h1>
+                    <p className='auth-error-overlay__text'>
+                        {errMicroservises.textDescription}
+                    </p>
+                </div>
+            )}
+
+            <div className='auth-page'>
+                {/* Brand / Presentation section */}
+                <div className='auth-page__brand'>
                     <Presentation />
                 </div>
-                <div className='componentLogin-formContent'>
-                    <form className='componentLogin-form' onSubmit={handleSubmit(loggin)} >
-                        <label className='form-label' htmlFor="" > Usuario
-                            <input className='form-input input-theme' type="text" required {...register("user")} />
-                        </label>
-                        <label className='form-label' htmlFor=""> Contraseña
-                            <div className='form-inputContent input-theme'>
-                                <input className='form-input sort' type={iSvisivility ? 'password' : 'text'} required name="" id="" {...register("password")} />
-                                <button className='form-input-btnPass' onClick={() => { setVisivility(!iSvisivility) }} type='button'>
-                                    <img className='form-input-imgPass' src={iSvisivility ? visivilityOff.toString() : visivility.toString()} alt="" />
-                                </button>
+
+                {/* Form section */}
+                <div className='auth-page__form-side'>
+                    <div className='auth-card'>
+                        <div className='auth-card__header'>
+                            <img className='auth-card__logo-mobile' src='/logo1.png' alt='Logo' />
+                            <h2 className='auth-card__title'>Bienvenido</h2>
+                            <p className='auth-card__subtitle'>Inicia sesión para continuar</p>
+                        </div>
+
+                        <form className='auth-form' onSubmit={handleSubmit(loggin)}>
+                            <div className='auth-input-group'>
+                                <label className='auth-input-label'>Usuario</label>
+                                <div className='auth-input-wrapper'>
+                                    <svg className='auth-input-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                    <input
+                                        className='auth-input'
+                                        type="text"
+                                        placeholder="Ingresa tu usuario"
+                                        required
+                                        {...register("user")}
+                                    />
+                                </div>
                             </div>
-                        </label>
 
-                        <span className='form-textError' >{textError}</span>
+                            <div className='auth-input-group'>
+                                <label className='auth-input-label'>Contraseña</label>
+                                <div className='auth-input-wrapper'>
+                                    <svg className='auth-input-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                    <input
+                                        className='auth-input'
+                                        type={iSvisivility ? 'password' : 'text'}
+                                        placeholder="Ingresa tu contraseña"
+                                        required
+                                        {...register("password")}
+                                    />
+                                    <button
+                                        className='auth-input-toggle'
+                                        onClick={() => setVisivility(!iSvisivility)}
+                                        type='button'
+                                    >
+                                        <img
+                                            className='auth-input-toggle__img'
+                                            src={iSvisivility ? visivilityOff.toString() : visivility.toString()}
+                                            alt=""
+                                        />
+                                    </button>
+                                </div>
+                            </div>
 
-                        <button className='form-btn' type='submit'>Iniciar session</button>
-                    </form>
+                            {textError && (
+                                <span className='auth-form__error'>{textError}</span>
+                            )}
+
+                            <button className='auth-btn auth-btn--primary' type='submit'>
+                                Iniciar sesión
+                            </button>
+                        </form>
+                    </div>
                 </div>
-
-            </div >
+            </div>
         </>
     )
-
 }
 
 

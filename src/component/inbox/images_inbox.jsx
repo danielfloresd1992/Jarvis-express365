@@ -16,6 +16,7 @@ export default function InboxImg() {
     const [listImgState, setListImgState] = useState([]);
     const userState = useSelector(state => state.user);
     const [localState, setLocalState] = useState(JSON.parse(localStorage.getItem('local_appExpress'))[0]);
+    const [collapsed, setCollapsed] = useState(true);
 
 
     useEffect(() => {
@@ -38,7 +39,10 @@ export default function InboxImg() {
         let key = true;
 
         const handdlerData = data => {
-            if (data.idEstablishment === localState._id) setListImgState([{ ...data, isAnimate: true }, ...listImgState]);
+            if (data.idEstablishment === localState._id) {
+                setListImgState([{ ...data, isAnimate: true }, ...listImgState]);
+                setCollapsed(false);
+            }
         }
 
         socketAppManager.on('fileLoader', handdlerData);
@@ -67,32 +71,54 @@ export default function InboxImg() {
 
     const renderImages = (listImgState) => { return listImgState.map(item => (<BoxImg key={item._id} {...item} deleteImg={deleteItems} />)) };
 
-
+    const count = listImgState.length;
 
     return (
-        <div
-            style={{
-                position: 'fixed',
-                right: '0',
-                width: '300px',
-                height: '100vh',
-                backgroundColor: '#fff',
-                padding: '4rem 0.5rem',
+        <>
+            {/* Toggle tab — always visible */}
+            <button
+                className="inbox-toggle"
+                onClick={() => setCollapsed(!collapsed)}
+                title="Bandeja multimedia"
+            >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="M21 3H3a2 2 0 00-2 2v14a2 2 0 002 2h18a2 2 0 002-2V5a2 2 0 00-2-2zM8.5 10a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm12.5 9H3l5-6.5 3 3.5 4-5 6.5 8z" />
+                </svg>
+                {count > 0 && <span className="inbox-toggle__badge">{count}</span>}
+            </button>
 
-            }}
-        >
-            <div style={{ height: '50px' }}>
-                <p style={{ color: '#000', textAlign: 'center' }} >Bandeja de entrada multimedia</p>
-                <hr />
-            </div>
-
-            <div style={{ height: 'calc(100% - 25px)', backgroundColor: '#ddd', position: 'relative' }}>
-                <div style={{ height: '100%', width: '100%', overflowY: 'scroll', display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>
-                    {
-                        renderImages(listImgState)
-                    }
+            {/* Panel */}
+            <aside className={`inbox-panel ${collapsed ? 'inbox-panel--collapsed' : 'inbox-panel--open'}`}>
+                <div className="inbox-panel__header">
+                    <h3 className="inbox-panel__title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                            <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z" />
+                        </svg>
+                        Bandeja multimedia
+                    </h3>
+                    {count > 0 && <span className="inbox-panel__count">{count}</span>}
+                    <button className="inbox-panel__close" onClick={() => setCollapsed(true)}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
                 </div>
-            </div>
-        </div>
+
+                <div className="inbox-panel__body">
+                    {listImgState.length > 0 ? (
+                        renderImages(listImgState)
+                    ) : (
+                        <div className="inbox-panel__empty">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3 }}>
+                                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                                <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z" />
+                            </svg>
+                            <p>Sin archivos nuevos</p>
+                        </div>
+                    )}
+                </div>
+            </aside>
+        </>
     )
 }

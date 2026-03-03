@@ -105,7 +105,7 @@ export default function CarsSelect({ changueInput, lang, imagenCompare }) {
             <>
                 <span className='box-label'>Ímagenes de referencia</span>
                 {
-                    car.title ? <p style={{ color: '#fff' }}>{car.title}</p> : null
+                    car.title ? <p>{car.title}</p> : null
                 }
                 {
                     car.img.map(img => (

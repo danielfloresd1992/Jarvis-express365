@@ -1,69 +1,82 @@
-:root {
-    --colour1: #970068;
-    --colour2: #1c0c5a;
-    --speed: 4s;
-}
+/* ═══ Default Welcome View ═══ */
 
-.componentDefault {
+.default-welcome {
     width: 100%;
     height: 100%;
+    min-height: 60vh;
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
+    padding: 2rem;
 }
 
-.componentDefault-titleContain {
-    color: rgb(223, 223, 223)
+.default-welcome__icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(78, 131, 0, 0.08) 0%, rgba(163, 200, 83, 0.12) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
 }
 
-.componentDefault-animationContain {}
+.default-welcome__icon {
+    width: 40px;
+    height: 40px;
+    color: var(--green-600, #4e8300);
+}
 
-.componentDefault-titleH1 {
+.default-welcome__title {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--slate-900, #1e293b);
+    margin: 0;
+    letter-spacing: -0.3px;
     text-align: center;
 }
 
-
-@keyframes slide {
-    from {
-        background-position-x: 0;
-    }
-
-    to {
-        background-position-x: 113px;
-    }
+.default-welcome__subtitle {
+    font-size: 0.9rem;
+    color: var(--slate-500, #64748b);
+    margin: 0;
+    max-width: 320px;
+    text-align: center;
+    line-height: 1.5;
 }
 
-.container {
-    height: 100%;
+.default-welcome__hints {
     display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-
 }
 
-.bar {
-    min-height: 100px;
+.default-welcome__hint {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--slate-200, #e2e8f0);
     border-radius: 10px;
-    width: calc(113px * 4);
+    color: var(--slate-600, #475569);
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
 
-    @media only screen and (max-width: 450px) {
-        width: calc(113px * 3);
-    }
+.default-welcome__hint:hover {
+    border-color: var(--green-600, #4e8300);
+    background: rgba(78, 131, 0, 0.04);
+    color: var(--green-800, #2d5a00);
+}
 
-    @media only screen and (max-width: 350px) {
-        width: calc(113px * 2);
-    }
-
-    box-shadow: 0px 10px 13px -6px rgb(0, 0, 0);
-    background-color: var(--colour2);
-    background-image: repeating-linear-gradient(45deg,
-        transparent,
-        transparent 40px,
-        var(--colour1) 40px,
-        var(--colour1) 80px);
-
-    animation: slide var(--speed) linear infinite;
-    will-change: background-position;
+.default-welcome__hint svg {
+    color: var(--green-600, #4e8300);
+    flex-shrink: 0;
 }

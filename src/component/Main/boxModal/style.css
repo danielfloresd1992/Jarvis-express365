@@ -1,59 +1,61 @@
-.boxModal-contain{
-   
-}
+/* ============================================
+   BOX MODAL — Clean Desktop Style
+   ============================================ */
+
+.boxModal-contain {}
 
 @keyframes backtrans {
-    0%{
-        background-color: #00000000;
+    0% {
+        background-color: rgba(0, 0, 0, 0);
     }
-    50%{
-        background-color: #0000004b;
-    }
-    100%{
-        background-color: #00000098;
-    }
-    
-}
 
+    50% {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    100% {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+}
 
 .boxModal-div {
     position: relative;
     width: 450px;
-    background-color: rgb(255, 255, 255);
+    background-color: #fff;
     min-height: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    border-radius: 8px;
+    border-radius: 16px;
     overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
-
 
 .boxModal-titleContain {
     width: 100%;
-    background-color: #323232;
-    padding: 0.8rem;
+    background-color: var(--green-700, #3a6b00);
+    padding: 1rem 1.2rem;
 }
-
 
 .boxModal-title {
     color: #fff;
-    font-weight: 100;
+    font-weight: 600;
+    font-size: 1rem;
 }
-
 
 .boxModal-descriptionContain {
     padding: 2rem;
 }
 
 .boxModal-description {
-    font-size: 1.1rem;
-    color: #505050;
+    font-size: 1.05rem;
+    color: var(--slate-600, #475569);
     text-align: center;
+    line-height: 1.5;
 }
 
-.boxModal-imgContain{
+.boxModal-imgContain {
     position: absolute;
     height: 100%;
     display: flex;
@@ -62,35 +64,35 @@
 }
 
 .boxModal-img {
-    filter: opacity(0.1);
+    filter: opacity(0.06);
 }
 
 .boxModal-btnContain {
     width: 100%;
-    padding: 0.5rem;
-
+    padding: 0.75rem 1rem;
     display: flex;
     justify-content: flex-end;
+    z-index: 200;
+    border-top: 1px solid var(--slate-100, #f1f5f9);
 }
-
 
 .boxModal-btnClose {
     width: 100px;
     justify-content: center;
-    font-weight: 700;
-    color: #767676;
-    border: 1px solid #484848;
+    font-weight: 600;
+    color: var(--slate-500, #64748b);
+    border: 1px solid var(--slate-300, #cbd5e1);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-
-.boxModal-btnContain {
-    width: 100%;
-    padding: 0.5rem;
-    display: flex;
-    justify-content: flex-end;
-    z-index: 200;
+.boxModal-btnClose:hover {
+    border-color: var(--green-600, #4e8300);
+    color: var(--green-700, #3a6b00);
 }
-
 
 @media screen and (max-width: 720px) {
     .boxModal-div {

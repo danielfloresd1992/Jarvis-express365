@@ -1,3 +1,7 @@
+/* ============================================
+   AWAIT / LOADING OVERLAY — Clean Style
+   ============================================ */
+
 .awaitContain {
     position: fixed;
     width: 100%;
@@ -7,47 +11,51 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    background-color: #000000a8;
+    background-color: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(6px);
     align-items: center;
     justify-content: center;
-    animation: backtrans .5s ease-in-out;
+    animation: backtrans .4s ease-in-out;
     z-index: 10000;
 }
 
 @keyframes backtrans {
-    0%{
-        background-color: #00000000;
+    0% {
+        background-color: rgba(255, 255, 255, 0);
     }
-    50%{
-        background-color: #0000004b;
+
+    50% {
+        background-color: rgba(255, 255, 255, 0.5);
     }
-    100%{
-        background-color: #000000a8;
+
+    100% {
+        background-color: rgba(255, 255, 255, 0.88);
     }
-    
 }
 
-.hidden{
-    display:none
+.hidden {
+    display: none;
 }
 
 .textAwait {
-    font-size: 2rem;
-    color: #ff14c2;
-    text-shadow: 0 0 10px #0e71aa, 0 0 15px #ff14c2;
-    animation: textNeon .5s step-start;
+    font-size: 1.4rem;
+    color: var(--green-700, #3a6b00);
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.3px;
+    animation: textFade .6s ease;
 }
 
-@keyframes textNeon{
-    0%{
-        text-shadow: 0 0 0px #0e71aa, 0 0 0px #ff14c2;
+@keyframes textFade {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
     }
-    50%{
-        text-shadow: 0 0 5px #0e71aa, 0 0 7px #ff14c2;
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
-    100%{
-        text-shadow: 0 0 10px #0e71aa, 0 0 15px #ff14c2;
-    }   
 }
 
 .lds-roller {
@@ -69,9 +77,9 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #0ad5ba;
+    background: var(--green-600, #4e8300);
     margin: -4px 0 0 -4px;
-    box-shadow: 0 0 10px #00e7ff, 0 0 15px #00e7ff;
+    box-shadow: 0 0 8px rgba(78, 131, 0, 0.3);
 }
 
 .lds-roller div:nth-child(1) {

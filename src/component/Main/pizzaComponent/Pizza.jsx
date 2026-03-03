@@ -194,13 +194,7 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
 
                             <select
                                 className='box-inputText'
-                                style={
-                                    {
-                                        textAlign: 'left',
-                                        backgroundColor: '#000',
-                                        color: '#fff'
-                                    }
-                                }
+                                style={{ textAlign: 'left' }}
                                 valueDefauld='Selecione'
                                 required
                                 onChange={e => menuRef.current.type = e.target.value}

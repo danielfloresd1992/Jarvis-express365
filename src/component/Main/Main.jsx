@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { isDesktop, isTablet } from 'react-device-detect';
+import { isTablet } from 'react-device-detect';
 import { RenderDefault } from './Default/Default.jsx';
 import { SendNoveltie } from './SendNovelties/SendNoveltie.jsx';
 import { Delay } from './Delay/DelayComponent.jsx';
@@ -54,13 +54,9 @@ function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
 
     return (
-        <>
-            <main className="mainComponent" style={{ width: isDesktop || isTablet ? 'calc(100% - 300px)' : '100%', left: '0', position: 'relative' }}>
-                {
-                    render(value)
-                }
-            </main>
-        </>
+        <main className="main-content">
+            {render(value)}
+        </main>
     );
 }
 

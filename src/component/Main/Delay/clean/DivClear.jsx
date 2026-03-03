@@ -343,7 +343,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
                         </>
                         :
                         <>
-                            <label htmlFor="" className='box-label' style={{ color: '#fff' }}>Hora actual sin limpiar
+                            <label htmlFor="" className='box-label'>Hora actual sin limpiar
                                 <input className='box-inputText' type="text" id="limpieza" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
                                     onChange={e => recepHour(e.target)}
                                 />
@@ -355,7 +355,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
                 {
                     local?.name && local.franchise === 'Mister01' ?
                         (
-                            <p className='box-textHourResult' style={{ color: '#fff' }}>Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING.current)}</span></p>
+                            <p className='box-textHourResult'>Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING.current)}</span></p>
                         )
                         :
                         (
