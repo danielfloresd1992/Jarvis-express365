@@ -1111,12 +1111,15 @@
 }
 
 .inbox-panel__body {
+    flex-direction: row;
     flex: 1;
-    overflow-y: auto;
+    gap: 0.6rem;
     padding: 0.75rem;
     display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
+    overflow-y: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 .inbox-panel__empty {
@@ -1907,7 +1910,7 @@ hr {
     background-image: linear-gradient(90deg, #29c50c, #4e8300 45%, #6b7f47);
     font-weight: 500;
     padding: 0 1rem;
-    width: 40%;
+    min-width: 25%;
     position: absolute;
     bottom: 0;
     border-radius: 0px 10px 0px 10px;
