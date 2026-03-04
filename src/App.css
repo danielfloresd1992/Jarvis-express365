@@ -1907,7 +1907,7 @@ hr {
     height: 40px;
     color: #fff;
     font-size: 1.2rem;
-    background-image: linear-gradient(90deg, #29c50c, #4e8300 45%, #6b7f47);
+    background-image: linear-gradient(90deg, #29c50c, #4f8300e0 45%, #6b7f477a);
     font-weight: 500;
     padding: 0 1rem;
     min-width: 25%;
