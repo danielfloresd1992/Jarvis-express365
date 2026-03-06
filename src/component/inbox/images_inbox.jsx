@@ -77,25 +77,23 @@ export default function InboxImg() {
         <>
             {/* Toggle tab — always visible */}
             <button
-                className="inbox-toggle"
+                className="inbox-toggle z-[1001]"
                 onClick={() => setCollapsed(!collapsed)}
-                title="Bandeja multimedia"
+                title='Bandeja de imagenes del Toast POS'
             >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                    <path d="M21 3H3a2 2 0 00-2 2v14a2 2 0 002 2h18a2 2 0 002-2V5a2 2 0 00-2-2zM8.5 10a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm12.5 9H3l5-6.5 3 3.5 4-5 6.5 8z" />
-                </svg>
+                <img className='w-[20px]' src='/ico/icons8-imagen-50.png' alt='ico-image-box' />
                 {count > 0 && <span className="inbox-toggle__badge">{count}</span>}
             </button>
 
             {/* Panel */}
-            <aside className={`inbox-panel ${collapsed ? 'inbox-panel--collapsed' : 'inbox-panel--open'}`}>
+            <aside className={`inbox-panel ${collapsed ? 'inbox-panel--collapsed' : 'inbox-panel--open'} z-[1000]`}>
                 <div className="inbox-panel__header">
                     <h3 className="inbox-panel__title">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
                             <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z" />
                         </svg>
-                        Bandeja multimedia
+                        Toast POS
                     </h3>
                     {count > 0 && <span className="inbox-panel__count">{count}</span>}
                     <button className="inbox-panel__close" onClick={() => setCollapsed(true)}>

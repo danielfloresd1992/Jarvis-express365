@@ -7,8 +7,8 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
         const originalElement = elementHtml;
         originalElement.style.zoom = 'normal';
         const replicElement = originalElement.querySelector('#forImg-canvas02');
-        if(replicElement) replicElement.remove();
-   
+        if (replicElement) replicElement.remove();
+
         const htmlForImg = originalElement.cloneNode(true);
         htmlForImg.id = 'forImg-canvas02';
         originalElement.appendChild(htmlForImg);
@@ -30,9 +30,9 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
             if (altEl) {
                 altEl.style.display = 'flex';
                 altEl.style.height = '30px';
-      
 
-    
+
+
             }
             if (areaEl) {
                 areaEl.style.width = '100%';
@@ -47,7 +47,7 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
             }
             else if (imageCounting === 2) {
                 if (index === 0 || index === arr.length - 1) element.style.display = 'block';
-                
+
             }
             else if (imageCounting === 4) {
                 element.style.display = 'block';
@@ -55,17 +55,17 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
         });
 
 
-        if(typeof callback === 'function') callback(htmlForImg);
+        if (typeof callback === 'function') callback(htmlForImg);
 
         toBlob(htmlForImg)  // change to blob
             .then(dataUrl => {
-                if (false){
+                if (false) {
                     const a = document.createElement('a');
                     a.href = dataUrl;
                     a.download = 'amage.png';
                     a.click();
                 }
-             
+
                 //const file = base64ToFile(dataUrl, 'Demora primera atención'); // legace
                 resolve(dataUrl);
             })
