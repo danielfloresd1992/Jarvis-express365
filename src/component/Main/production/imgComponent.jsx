@@ -41,7 +41,7 @@ function ImgComponent({ modal, text, idTarget, changeFile, file }) {
 
     return (
         <>
-            <div className={`dropzone${hasImage ? ' dropzone--has-image' : ''}${isDragging ? ' dropzone--dragging' : ''}`}>
+            <div className={`dropzone${hasImage ? ' dropzone--has-image' : ''}${isDragging ? ' dropzone--dragging' : ''} active-drop-rever-animation`}>
                 <div className='dropzone__area'
                     onDragLeave={e => { e.preventDefault(); setIsDragging(false); }}
                     onDragEnter={e => { e.preventDefault(); setIsDragging(true); }}

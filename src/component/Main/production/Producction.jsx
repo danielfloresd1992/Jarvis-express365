@@ -125,6 +125,8 @@ function Production({ awaitWindow, boxModal, reset, title }) {
             htmlAdapterRef.current.style.height = 'fit-content';
             htmlAdapterRef.current.style.justifyItems = 'center';
             htmlAdapterRef.current.style.zoom = 'inherit';
+
+
             if (htmlAdapterRef.current.children.length === 3) {
                 htmlAdapterRef.current.style.display = 'grid';
                 htmlAdapterRef.current.style.gridTemplateColumns = '1fr 1fr'
@@ -137,10 +139,8 @@ function Production({ awaitWindow, boxModal, reset, title }) {
                 htmlAdapterRef.current.style.gridTemplateColumns = '1fr 1fr'
             }
 
-
             const text = `*${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}*\nEmpleado realiza producción: ${verb1}, ${verb2}, ${verb3} ${verb4 !== '' ? ` y ${verb4}` : ''}`;
             const urlImg = await toBlob(htmlAdapterRef.current, { quality: 0.1 })
-
             const responseUrl = await sendFile(blobToFile(urlImg));
             dataForRequest.imageToShare = responseUrl.data.url;
 
@@ -151,6 +151,7 @@ function Production({ awaitWindow, boxModal, reset, title }) {
                     dataForRequest.imageUrl.push({ url: file.url, caption: file.caption });
                 }
             });
+
 
 
             dataForRequest.title = 'Empleado realiza producción';

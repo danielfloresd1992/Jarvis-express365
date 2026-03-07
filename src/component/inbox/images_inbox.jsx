@@ -118,5 +118,5 @@ export default function InboxImg() {
                 </div>
             </aside>
         </>
-    )
+    );
 }
