@@ -1,8 +1,8 @@
-export default function reemplazeUrl(url) {
+export default function reemplazeUrl(url, jump_Straight = false) {
     try {
-        console.log(url)
         if (!url) return null;
         if (url.indexOf('https://amazona365.ddns.net') < 0) return url;
+        if (jump_Straight) return url;
 
         let dns = '';
         const hostname = window.location.hostname;

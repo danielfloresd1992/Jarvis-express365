@@ -15,23 +15,12 @@ import { confirmAuthentication } from '../../libs/fetch_data/authFetch.js';
 
 function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
 
-    const dispatch = useDispatch();
+
     const navigate = useNavigate();
     const [openList, setOpenList] = useState(false);
     const userSelet = useSelector(state => state.user);
+    const dispatch = useDispatch();
 
-
-    useEffect(() => {
-        if (!userSelet) {
-            confirmAuthentication()
-                .then(response => {
-                    dispatch(setUser(response.data));
-                })
-                .catch(error => {
-                    console.log(error);
-                })
-        }
-    }, []);
 
 
     useEffect(() => {
@@ -52,7 +41,7 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
         socket.on('close-session-express', closeSession);
         socket.on('reset-session-express', resetApp);
 
-        if (JSON.parse(sessionStorage.getItem('session'))) dispatch(setUser(JSON.parse(window.sessionStorage.getItem('session'))))
+
 
         return () => {
             socket.off('close-session-express', closeSession);
@@ -61,8 +50,9 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
     }, []);
 
 
+
     const closeSesscion = () => {
-        axios.get(`${URL}/user/logout`)
+        axios.get(`${URL}/auth/logout`)
             .then(response => {
                 if (response.status === 200) {
                     dispatch(setUser({}));
@@ -136,7 +126,11 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
                     </>
                 )}
                 <li>
-                    <button className='nav-bar__action-btn nav-bar__action-btn--logout' onClick={closeSesscion} title="Cerrar sesión">
+                    <button className='nav-bar__action-btn nav-bar__action-btn--logout' onClick={closeSesscion} title="Cerrar sesión"
+                        style={{
+                            display: 'none'
+                        }}
+                    >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                             <polyline points="16 17 21 12 16 7" />

@@ -25,6 +25,7 @@ import { arrayBufferToBase64 } from '../../libs/script/toBase64.js';
 export default function Home() {
 
     const selectEstablishment = useSelector(state => state.establishment);
+    const userSelector = useSelector(state => state.user);
     const dispatch = useDispatch();
     const localSelector = useSelector(state => state.locals);
     let [local, setLocal] = useState([]);
@@ -56,6 +57,33 @@ export default function Home() {
     }, []);
 
 
+
+    const emitUserData = () => {
+        const dataUser = {
+            sessionId: `${userSelector._id}`,
+            user: {
+                username: `${userSelector.name} ${userSelector.surName}`,
+                userId: userSelector._id,
+                userImg: userSelector?.img ? userSelector?.img : null
+            },
+            localInfo: {
+                localname: selectEstablishment.name,
+                localId: selectEstablishment._id
+            }
+        };
+
+
+        socketAppManager.emit('user-data', dataUser);
+    };
+
+
+
+    useEffect(() => {
+
+        if (userSelector && selectEstablishment) emitUserData();
+
+
+    }, [userSelector, selectEstablishment]);
 
 
 

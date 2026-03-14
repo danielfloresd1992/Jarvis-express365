@@ -1,10 +1,11 @@
 import './index.css';
 import { lazy, Suspense, FC } from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { LoginUser } from './component/form/Form.jsx';
+import { LoginUser } from './routes/form/Form.jsx';
 import { ProtectedRoutes } from './component/ProtetedRouters.jsx';
-
+import AppInitializer from './component/AppInitializer.jsx';
+import LoadingPage from './component/loanding/loadingPage.jsx';
 const Home = lazy(() => import('@/routes/Home/Home'));
 
 import ModalData from './component/ModalData/ModalData.jsx';
@@ -34,25 +35,41 @@ const NotFount: FC = () => (
 
 const App: FC = () => {
     return (
-        <BrowserRouter>
-            <div className="App">
-                <Routes>
-                    <Route path={'/'} element={<LoginUser />} />
-                    <Route element={<ProtectedRoutes />} />
-                    <Route
-                        path={'/home'}
-                        element={
-                            <Suspense fallback={<div>Cargando...</div>}>
-                                <Home />
-                            </Suspense>
+        <HashRouter>
+            <AppInitializer>
+                <div className="App">
+                    <Routes>
+
+                        <Route path={'/'} element={<LoginUser />} />
+
+
+                        <Route
+                            path={'/home'}
+                            element={
+                                <ProtectedRoutes>
+                                    <Suspense fallback={<LoadingPage />}>
+                                        <Home />
+                                    </Suspense>
+                                </ProtectedRoutes>
+                            }
+                        />
+
+                        <Route path={'/ModalData'} element={
+                            <ProtectedRoutes>
+                                <ModalData />
+                            </ProtectedRoutes>
                         }
-                    />
-                    <Route path={'/ModalData'} element={<ModalData />} />
-                    <Route path="*" element={<NotFount />} />
-                </Routes>
-            </div>
-        </BrowserRouter>
+                        />
+
+
+                        <Route path="*" element={<NotFount />} />
+                    </Routes>
+                </div>
+            </AppInitializer>
+        </HashRouter>
     );
 };
+
+
 
 export default App;

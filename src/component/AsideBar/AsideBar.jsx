@@ -19,7 +19,7 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
 
 
     const closeSesscion = () => {
-        axiosInstance.get(`${URL}/user/logout`)
+        axiosInstance.get(`${URL}/auth/logout`)
             .then(response => {
                 if (response.status === 200) {
                     dispatch(setUser(null));
@@ -36,6 +36,7 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
                 console.log(err);
             });
     };
+
 
 
     const menuItems = [

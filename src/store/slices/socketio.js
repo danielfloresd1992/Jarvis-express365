@@ -36,7 +36,7 @@ export const socketIo = createSlice({
     initialState: {},
     reducers: {
         createIo: (state, action) => {
-
+            /*
             dataUser = {
                 sessionId: `${JSON.parse(sessionStorage.getItem('session'))._id}${JSON.parse(localStorage.getItem('local_appExpress'))[0]._id}`,
                 user: {
@@ -49,6 +49,7 @@ export const socketIo = createSlice({
                 }
             };
             socketAppManager.emit('user-connection', dataUser);
+            */
             // socket.emit('client-connection', `_*Inicio de sesión*_ 🌐\n*${JSON.parse(sessionStorage.getItem('session')).name} ${JSON.parse(sessionStorage.getItem('session')).surName} en ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}*`);
         },
 
@@ -64,15 +65,8 @@ export const socketIo = createSlice({
         },
 
 
-        sendText: (state, action) => {
-            socket.emit('chat', action.payload);
-        },
 
 
-        sendFailed: (state, action) => {
-            console.log(action.payload);
-            socketAppManager.emit('receive-failure', action.payload);
-        },
 
 
         sendReconnection: (state, action) => {

@@ -1,16 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-function ProtectedRoutes(){
 
-    
-    const session = sessionStorage.getItem('session'); 
-    
-    if(session){
-        return <Outlet/>
-    } 
-    else{ 
-        return <Navigate to='/'/>
-    }      
-    
+
+
+export function ProtectedRoutes({ children }) {
+
+    const userSelector = useSelector((state) => state.user);
+
+    if (!userSelector) return <Navigate to='/' />
+    return children;
 };                        
-export { ProtectedRoutes };
