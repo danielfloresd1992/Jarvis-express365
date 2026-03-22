@@ -105,6 +105,8 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
     }
 
     const label = language === 'es' ? data.es : data.en;
+    console.log(language)
+    console.log(label)
 
     return (
         <>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import { useSelector } from 'react-redux';
 import { useAlert } from '../../../../hook/useAlert';
@@ -16,7 +16,7 @@ import DishInputSelet from '../../../keysInputs/dishInput.jsx';
 
 import { returnTimeExceding } from '../../../../libs/date_time/time.js';
 import { TableInput } from '../../../keysInputs/tableNumber.jsx';
-
+import { isMobile } from 'react-device-detect';
 
 import FormLayaut from '@/component/layaut/form_layaut';
 import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
@@ -67,7 +67,11 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
     };
 
 
-    console.log(seletedEstableshment);
+    useEffect(() => {
+        if (!isMobile) {
+            setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
+        }
+    }, []);
 
 
     const sendImg = async e => {
@@ -91,7 +95,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                 establishmentName: data.localData.name,
                 dish: dish || { nameDishe: 'servicio' },
                 table: NONE_TABLE ? null : table,
-                alertLength: seletedEstableshment.alertLength ,
+                alertLength: seletedEstableshment.alertLength,
                 time1,
                 time2,
                 timeTotal,
@@ -181,11 +185,12 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
             <div className='box-imgComponenContent' ref={htmlAdapterRef} style={{ zoom: ((window.innerWidth / 1350) - 0.1).toString() }}>
                 {
-                    title.photos.caption.map((iteration, index) => (
-                        <>
-                            <ImgBoxImg data={iteration} boxModal={boxModal} setImg={(file) => pushImg(file, index)} deleteImg={() => deleteImg(index)} key={iteration.index} language={local?.lang} />
-                        </>
-                    ))
+                    title.photos.caption.map((iteration, index) => {
+
+                        console.log(iteration);
+
+                        return <ImgBoxImg data={iteration} boxModal={boxModal} setImg={(file) => pushImg(file, index)} deleteImg={() => deleteImg(index)} key={iteration.index} language={local?.lang} />
+                    })
 
                 }
             </div>
