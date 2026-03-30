@@ -15,8 +15,18 @@ export default function InboxImg() {
     const [errorState, setErrorState] = useState(null);
     const [listImgState, setListImgState] = useState([]);
     const userState = useSelector(state => state.user);
-    const [localState, setLocalState] = useState(JSON.parse(localStorage.getItem('local_appExpress'))[0]);
+
+    const [localState, setLocalState] = useState(null);
+
     const [collapsed, setCollapsed] = useState(true);
+
+
+
+    useEffect(() => {
+        if (JSON.parse(localStorage.getItem('local_appExpress'))) {
+            setLocalState(JSON.parse(localStorage.getItem('local_appExpress'))[0]);
+        }
+    }, [])
 
 
     useEffect(() => {
@@ -81,7 +91,7 @@ export default function InboxImg() {
                 onClick={() => setCollapsed(!collapsed)}
                 title='Bandeja de imagenes del Toast POS'
             >
-                <img className='w-[20px]' src='/ico/icons8-imagen-50.png' alt='ico-image-box' />
+                <img className='max-w-none w-[40px]' src='/ico/icons8-imagen-50.png' alt='ico-image-box' />
                 {count > 0 && <span className="inbox-toggle__badge">{count}</span>}
             </button>
 

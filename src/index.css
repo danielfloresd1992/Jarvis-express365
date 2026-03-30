@@ -1,8 +1,31 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+@theme {
+    /* Green palette */
+    --color-green-900: #1a4a00;
+    --color-green-800: #2d5a00;
+    --color-green-700: #3a6c00;
+    --color-green-600: #4e8300;
+    --color-green-500: #5d9a10;
+    --color-green-400: #82c91e;
+    --color-green-300: #a3c853;
+    --color-green-100: #e7efdc;
+    --color-green-50:  #f0f5ea;
 
+    /* Slate palette */
+    --color-slate-900: #1e293b;
+    --color-slate-700: #334155;
+    --color-slate-600: #475569;
+    --color-slate-500: #64748b;
+    --color-slate-400: #94a3b8;
+    --color-slate-200: #e2e8f0;
+    --color-slate-100: #f1f5f9;
+
+    /* Custom fonts */
+    --font-sans:    'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    --font-title:   'title';
+    --font-dancing: 'DancingScript';
+}
 
 :root {
     font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
@@ -26,10 +49,12 @@
     src: url('../public/font/Lobster/Lobster-Regular.ttf');
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+@layer base {
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 }
 
 a {
@@ -99,4 +124,35 @@ button {
 button:focus,
 button:focus-visible {
     outline: none;
+}
+
+/* ── Notification animations ── */
+@keyframes notif-slide-in {
+    from { opacity: 0; transform: translateX(40px) scale(0.93) rotateY(-4deg); }
+    to   { opacity: 1; transform: translateX(0)    scale(1)    rotateY(0deg);  }
+}
+@keyframes notif-pulse-dot {
+    0%, 100% { opacity: 1;   transform: scale(1);    box-shadow: 0 0 0 0 currentColor; }
+    50%      { opacity: 0.7; transform: scale(1.2);  box-shadow: 0 0 6px 2px currentColor; }
+}
+@keyframes notif-glow-green {
+    0%, 100% { filter: drop-shadow(0 0 3px #10b981); }
+    50%      { filter: drop-shadow(0 0 8px #10b981) drop-shadow(0 0 14px #10b98155); }
+}
+@keyframes notif-badge-pop {
+    0%   { transform: scale(0.6) translateY(-4px); opacity: 0; }
+    70%  { transform: scale(1.1) translateY(1px);  opacity: 1; }
+    100% { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+.notif-enter {
+    animation: notif-slide-in 0.42s cubic-bezier(0.34, 1.5, 0.64, 1) both;
+}
+.notif-dot {
+    animation: notif-pulse-dot 2s ease-in-out infinite;
+}
+.notif-icon-active {
+    animation: notif-glow-green 2.2s ease-in-out infinite;
+}
+.notif-badge {
+    animation: notif-badge-pop 0.45s cubic-bezier(0.34, 1.6, 0.64, 1) 0.2s both;
 }

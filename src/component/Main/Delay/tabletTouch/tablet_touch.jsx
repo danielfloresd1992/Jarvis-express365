@@ -129,7 +129,6 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                 const response = await setNovelty(dataForRequest);
 
                 saveNoveltie.save(`Demora de tablet - mesa ${table}`, user.surName);
-                alert.request(`demora de tablet en ${seletedEstableshment.name}. por validar`);
                 boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
                 reset();
             }

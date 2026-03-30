@@ -148,7 +148,6 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                     console.log(response);
                     if (response.status === 200) {
                         saveNoveltie.save(`Demora de tablet - mesa ${table}`, data.userData);
-                        alert.request(`demora de tablet en ${data.localData.name}. por validar`);
                         setNumberTable('');
                         setFiles(files => files = []);
                         setTime1(time1 = '');

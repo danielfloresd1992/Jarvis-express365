@@ -181,7 +181,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 });
             }
 
-            console.log(title);
+      
 
             dataForRequest.title = hasFinishedState ? 'Demora de primera atención' : 'Mesa no recibe protocolo de PA1 aún (aviso)';
             dataForRequest.table = table;
@@ -207,7 +207,6 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de primera atención - mesa ${table}`, data.userData);
-                alert.request(`Novedad en ${data.localData.name}. por validar`);
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');

@@ -163,7 +163,6 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de limpieza - mesa ${table}`, data.userData);
-                alert.request(`Novedad en ${data.localData.name}. por validar`);
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');

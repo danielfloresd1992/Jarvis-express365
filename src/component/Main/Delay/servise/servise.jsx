@@ -152,7 +152,6 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de servicio`, data.userData);
-                alert.request(`Novedad en ${data.localData.name}. por validar`);
                 setNumberTable(table = '');
                 setTime1(time1 = '');
                 setTime2(time2 = '');

@@ -9,7 +9,7 @@ const SockedAppManager = import.meta.env.VITE_SOCKET_JARVIS_URL;
 const urlSockedAppManager = SockedAppManager;
 
 
-const socketAppManager = io(`wss://${urlSockedAppManager}`, { secure: true, rejectUnauthorized: false });
+const socketAppManager = io(urlSockedAppManager, { secure: true, rejectUnauthorized: false });
 
 
 socketAppManager.on('update-user-client-express', userId => {

@@ -16,6 +16,8 @@ import { createIo, socketAppManager } from '../../store/slices/socketio.js';
 import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
 import { BoxModal } from '../../component/Main/boxModal/BoxModal.jsx';
+import Notifications from '../../component/notifications/notifications.jsx'
+
 import URL from '../../libs/fetch_data/api_conexion.js';
 import { getEstablishmentByIdFull } from '../../libs/fetch_data/establishmentFetching.js';
 import { arrayBufferToBase64 } from '../../libs/script/toBase64.js';
@@ -94,6 +96,7 @@ export default function Home() {
 
 
     const enter = () => {
+        if (!JSON.parse(localStorage.getItem('local_appExpress'))) return null;
         if (window.location.host !== 'localhost') {
             dispatch(createIo());
         }
@@ -205,6 +208,7 @@ export default function Home() {
                             <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} />
                             <InboxImg />
                             <Chat key='chats' />
+                            <Notifications />
                             <Await config={openAwaitWindow} close={configAwait.close} />
                             <BoxModal config={openModal} close={configBoxModal.close} />
                         </div>

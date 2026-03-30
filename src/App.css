@@ -1,9 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-
-
 @font-face {
     font-family: 'DancingScript';
     src: url('../public/font/Dancing_Script/Dancing_Script/DancingScript-VariableFont_wght.ttf');
@@ -846,12 +840,12 @@
     height: calc(100vh - 52px);
     background: #fff;
     border-right: 1px solid #e5e7eb;
-    z-index: 950;
+    z-index: 850;
     display: flex;
     flex-direction: column;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
-    padding-bottom: 2.5rem;
+    display: flex;
 }
 
 .sidebar--open {
@@ -916,6 +910,12 @@
     font-size: 0.82rem;
     font-weight: 500;
     font-family: inherit;
+   
+}
+
+.sidebar__btn_highlighted {
+    background: var(--green-100);
+    color: var(--green-700);
 }
 
 .sidebar__btn:hover {
@@ -963,11 +963,11 @@
 }
 
 .sidebar__footer {
-    padding: 0.75rem;
+    padding: 0.75rem 0.75rem 2.5rem 0.75rem;
     border-top: 1px solid #f3f4f6;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: .5rem;
     flex-shrink: 0;
 }
 
@@ -986,7 +986,7 @@
     flex-direction: column;
     position: relative;
     gap: 1.5rem;
-    background: #f3f4f6;
+    background: #e4e4e4;
 
 }
 
@@ -1000,7 +1000,7 @@
     z-index: 1001;
     width: 46px;
     height: 46px;
-    border-radius: 50%;
+    border-radius: 10%;
     border: none;
     background: var(--green-600, #4e8300);
     color: #fff;

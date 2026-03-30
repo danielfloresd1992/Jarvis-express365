@@ -1,4 +1,5 @@
 import { isMobile, isTablet } from 'react-device-detect';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { memo } from 'react';
 import { useDispatch } from 'react-redux';
@@ -13,6 +14,7 @@ import URL from '../../libs/fetch_data/api_conexion.js';
 function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSidebar }) {
 
     let isLocalVisivility = localMonitoring[0] ? true : false;
+    const userSelet = useSelector(state => state.user);
     const { deleteListNoveltie } = useSaveNoveltie();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -58,10 +60,10 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
 
     return (
         <>
-            {/* Overlay for mobile */}
+            {/* Overlay for mobile 'sidebar--open' */}
             {openBoleanSidebar && <div className='sidebar-overlay' onClick={() => selectNovelty('')} />}
 
-            <aside className={`sidebar ${openBoleanSidebar ? 'sidebar--open' : 'sidebar--closed'}`}>
+            <aside className={`sidebar ${openBoleanSidebar ? 'sidebar--closed' : 'sidebar--closed'}`}>
                 {/* Local name header */}
                 <div className='sidebar__header'>
                     {!isMobile || isTablet ? (
@@ -131,14 +133,41 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
 
                 {/* Footer actions */}
                 <div className='sidebar__footer'>
-                    <button className='sidebar__btn sidebar__btn--ghost' onClick={clearLocal} id='change-local'>
+
+
+                    <div className='w-full'>
+                        <div className='w-full flex justify-start items-center gap-4 p-0'>
+                            {userSelet?.img ? (
+                                <img className='w-[40px] h-[50px] object-cover' src={userSelet.img} alt='avatar' />
+                            ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                            )}
+                            <div>
+                                <p className='font-bold text-[#363a6e] text-[.9rem]'>{userSelet?.name} {userSelet?.surName}</p>
+                                {
+                                    userSelet?.jobInformation?.position && (
+                                        <p className='font-medium text-[#525252] text-[.8rem]'>{userSelet?.jobInformation?.position}</p>
+                                    )
+                                }
+                                <span>
+
+                                </span>
+                            </div>
+                           
+                        </div>
+                    </div>
+
+                    <button className='sidebar__btn sidebar__btn_highlighted sidebar__btn--ghost' onClick={clearLocal} id='change-local'>
                         <svg className='sidebar__btn-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         <span className='sidebar__btn-text'>Cambiar establecimiento</span>
                     </button>
 
-                    <button className='sidebar__btn sidebar__btn--danger' onClick={closeSesscion} id='logout'>
+                    <button className='sidebar__btn sidebar__btn_highlighted sidebar__btn--danger' onClick={closeSesscion} id='logout'>
                         <svg className='sidebar__btn-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
                             <polyline points="16 17 21 12 16 7" />

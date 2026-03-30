@@ -23,7 +23,7 @@ export default function BoxImg({ date, idEstablishment, submittedByUser, path, u
     useEffect(() => {
         const fetchImage = async () => {
             try {
-                const response = await axiosInstance.get(reemplazeUrl(url, false), { responseType: 'blob' });
+                const response = await axiosInstance.get(url, { responseType: 'blob' });
                 const blob = response.data;
                 const file = new File([blob], 'image.jpg', { type: blob.type });
                 setFileState(file);

@@ -86,19 +86,7 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
                 </div>
             </div>
 
-            <div className='nav-bar__center'>
-                <span className='nav-bar__user'>
-                    {userSelet?.img ? (
-                        <img className='nav-bar__avatar' src={userSelet.img} alt='avatar' />
-                    ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                        </svg>
-                    )}
-                    {userSelet?.name} {userSelet?.surName}
-                </span>
-            </div>
+            
 
             <ul className='nav-bar__actions'>
                 {!isMobile && (

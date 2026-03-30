@@ -121,7 +121,6 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de tablet - mesa ${table}`, data.userData);
-                alert.request(`demora de tablet en ${data.localData.name}. por validar`);
                 setNumberTable('');
                 setTiket('');
                 setFiles(files => files = []);

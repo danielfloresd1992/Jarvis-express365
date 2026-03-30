@@ -170,7 +170,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
             const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
             if (response.status === 200) {
                 saveNoveltie.save(`Demora entrega de plato - mesa ${table}`, data.userData);
-                alert.request(`Novedad en ${data.localData.name}. por validar`);
+                
                 setNumberTable(table = '');
                 setFiles(files = []);
                 setTime1(time1 = '');
