@@ -6,6 +6,9 @@ import AlertUpdateCard from './templates/AlertUpdateCard';
 import { requestNotificationPermission, notifyAlertUpdate } from '../../libs/osNotification';
 import { socketAppManager } from '../../store/slices/socketio';
 import { v4 as uuidv4 } from 'uuid';
+import { isMobile } from 'react-device-detect';
+
+
 
 
 export default function Notifications() {
@@ -18,41 +21,29 @@ export default function Notifications() {
 
     useEffect(() => {
         requestNotificationPermission()
-    }, [])
+    }, []);
+
+
+
+
+    const pushData = (data) => {
+        const userShare = data?.doc?.sharedByUser?.user?.id;
+        if (user?._id === userShare?._id) {
+            dispatch(pushNotifications({
+                type: 'alertUpdate',
+                data: data?.doc,
+                id: data?.doc?._id
+            }))
+            notifyAlertUpdate(data?.doc)
+        }
+    };
 
 
 
 
     useEffect(() => {
         let subcript = true;
-
-
-        {/*
-
-        
-         data.forEach(items => {
-            dispatch(pushNotifications({
-                type: 'alertUpdate',
-                data: items,
-                id: uuidv4()
-            }))
-            notifyAlertUpdate(items)
-        });
-         
-        */}
-
-        const pushData = (data) => {
-            if(user?._id === data?.user?.idUser && subcript){
-                dispatch(pushNotifications({
-                    type: 'alertUpdate',
-                    data: data?.doc,
-                    id: data?.doc?._id
-                }))
-                notifyAlertUpdate(data?.doc)
-            }
-        }
-
-        socketAppManager.on('document_updated', pushData);
+        !isMobile && subcript && socketAppManager.on('document_updated', pushData);
 
         return () => {
             subcript = false;
@@ -60,8 +51,6 @@ export default function Notifications() {
         }
     }, [user]);
 
-
-    console.log(user)
 
 
 
@@ -76,7 +65,7 @@ export default function Notifications() {
                 })
             }
         </div>
-    )
+    );
 }
 
 
@@ -87,20 +76,20 @@ function CardNotifications({ id, children }) {
 
     const dispatch = useDispatch();
 
-
     useEffect(() => {
-        const timeDelete = 180000;
+        const timeDelete = 100000;
         const timeOut = setTimeout(() => {
             dispatch(deleteNotifications(id));
         }, timeDelete);
 
-        return () =>  clearTimeout(timeOut);
+        return () => clearTimeout(timeOut);
     }, []);
 
 
 
     return (
         <div className='notif-enter w-[300px] h-[162px] overflow-hidden rounded-xl border border-slate-200'
+            onDoubleClick={() => dispatch(deleteNotifications(id))}
             style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
             {children}
         </div>
