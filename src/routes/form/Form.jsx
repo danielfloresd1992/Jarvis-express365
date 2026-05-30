@@ -73,25 +73,98 @@ function LoginUser() {
                     <Presentation />
                 </div>
 
-                {/* Centered overlay: branding + form */}
-                <div className='auth-page__form-side'>
+                {/* Remix-style two-column shell */}
+                <div className='auth-shell'>
 
-                    {/* Logo + title above the card */}
-                    <div className='auth-overlay-brand'>
-                        <div className='auth-overlay-brand__rings'>
-                            <div className='auth-overlay-ring auth-overlay-ring--1' />
-                            <div className='auth-overlay-ring auth-overlay-ring--2' />
-                            <img className='auth-overlay-brand__logo' src='/logo1.PNG' alt='Jarvis 365' />
-                            <div className='auth-overlay-brand__logo-glow' />
+                    {/* ── LEFT: Hero ── */}
+                    <section className='auth-hero'>
+                        {/* Eyebrow badge */}
+                        <div className='auth-hero__eyebrow'>
+                            <span className='auth-hero__eyebrow-dot' />
+                            SISTEMA DE ALERTAS EN TIEMPO REAL
                         </div>
-                        <h1 className='auth-overlay-brand__title'>
-                            <span className='auth-overlay-brand__jarvis'>JARVIS</span>
-                            <span className='auth-overlay-brand__sep'>⚙</span>
-                            <span className='auth-overlay-brand__num'>365</span>
-                        </h1>
-                        <p className='auth-overlay-brand__tagline'>HERRAMIENTAS AL ALCANCE DE TU MANO</p>
-                    </div>
 
+                        {/* Brand mark */}
+                        <div className='auth-hero__brand'>
+                            <img className='auth-hero__logo' src='/logo1.PNG' alt='Jarvis 365' />
+                            <span className='auth-hero__brand-text'>
+                                <span className='auth-hero__brand-jarvis'>JARVIS</span>
+                                <span className='auth-hero__brand-num'>365</span>
+                            </span>
+                        </div>
+
+                        {/* Huge headline */}
+                        <h1 className='auth-hero__title'>
+                            Reporta al instante.
+                            <br />
+                            <span className='auth-hero__title-accent'>Resuelve sin demoras.</span>
+                        </h1>
+
+                        <p className='auth-hero__subtitle'>
+                            La plataforma que centraliza las incidencias de tus locales —
+                            multimedia, monitoreo y notificaciones en tiempo real, todo en un solo lugar.
+                        </p>
+
+                        {/* Feature list */}
+                        <ul className='auth-hero__features'>
+                            <li className='auth-hero__feature'>
+                                <span className='auth-hero__feature-ico'>
+                                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                                        <polyline points='13 2 3 14 12 14 11 22 21 10 12 10 13 2' />
+                                    </svg>
+                                </span>
+                                <span className='auth-hero__feature-text'>
+                                    <b>Alertas instantáneas</b>
+                                    Notificaciones del sistema en cuanto ocurre una incidencia.
+                                </span>
+                            </li>
+                            <li className='auth-hero__feature'>
+                                <span className='auth-hero__feature-ico'>
+                                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                                        <path d='M23 6l-9.5 9.5-5-5L1 18' />
+                                        <polyline points='17 6 23 6 23 12' />
+                                    </svg>
+                                </span>
+                                <span className='auth-hero__feature-text'>
+                                    <b>Monitoreo en vivo</b>
+                                    Visualiza el rendimiento de cada local en tiempo real.
+                                </span>
+                            </li>
+                            <li className='auth-hero__feature'>
+                                <span className='auth-hero__feature-ico'>
+                                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                                        <rect x='3' y='3' width='18' height='18' rx='2' ry='2' />
+                                        <circle cx='8.5' cy='8.5' r='1.5' />
+                                        <polyline points='21 15 16 10 5 21' />
+                                    </svg>
+                                </span>
+                                <span className='auth-hero__feature-text'>
+                                    <b>Soporte multimedia</b>
+                                    Adjunta imágenes y videos a cada reporte sin fricción.
+                                </span>
+                            </li>
+                        </ul>
+
+                        {/* Stats strip */}
+                        <div className='auth-hero__stats'>
+                            <div className='auth-hero__stat'>
+                                <span className='auth-hero__stat-num'>24/7</span>
+                                <span className='auth-hero__stat-lbl'>Disponible</span>
+                            </div>
+                            <div className='auth-hero__stat-sep' />
+                            <div className='auth-hero__stat'>
+                                <span className='auth-hero__stat-num'>&lt;15ms</span>
+                                <span className='auth-hero__stat-lbl'>Latencia</span>
+                            </div>
+                            <div className='auth-hero__stat-sep' />
+                            <div className='auth-hero__stat'>
+                                <span className='auth-hero__stat-num'>99.8%</span>
+                                <span className='auth-hero__stat-lbl'>Uptime</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ── RIGHT: Login card ── */}
                     <div className='auth-card'>
                         <div className='auth-card__header'>
                             <h2 className='auth-card__title'>Bienvenido</h2>
