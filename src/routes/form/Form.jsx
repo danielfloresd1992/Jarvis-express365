@@ -68,16 +68,32 @@ function LoginUser() {
             )}
 
             <div className='auth-page'>
-                {/* Brand / Presentation section */}
+                {/* Full-screen animated background */}
                 <div className='auth-page__brand'>
                     <Presentation />
                 </div>
 
-                {/* Form section */}
+                {/* Centered overlay: branding + form */}
                 <div className='auth-page__form-side'>
+
+                    {/* Logo + title above the card */}
+                    <div className='auth-overlay-brand'>
+                        <div className='auth-overlay-brand__rings'>
+                            <div className='auth-overlay-ring auth-overlay-ring--1' />
+                            <div className='auth-overlay-ring auth-overlay-ring--2' />
+                            <img className='auth-overlay-brand__logo' src='/logo1.PNG' alt='Jarvis 365' />
+                            <div className='auth-overlay-brand__logo-glow' />
+                        </div>
+                        <h1 className='auth-overlay-brand__title'>
+                            <span className='auth-overlay-brand__jarvis'>JARVIS</span>
+                            <span className='auth-overlay-brand__sep'>⚙</span>
+                            <span className='auth-overlay-brand__num'>365</span>
+                        </h1>
+                        <p className='auth-overlay-brand__tagline'>HERRAMIENTAS AL ALCANCE DE TU MANO</p>
+                    </div>
+
                     <div className='auth-card'>
                         <div className='auth-card__header'>
-                            <img className='auth-card__logo-mobile' src='/logo1.png' alt='Logo' />
                             <h2 className='auth-card__title'>Bienvenido</h2>
                             <p className='auth-card__subtitle'>Inicia sesión para continuar</p>
                         </div>

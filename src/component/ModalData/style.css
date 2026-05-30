@@ -1,5 +1,5 @@
 /* ============================================
-   MODAL DATA / LIST — Clean Desktop Style
+   MODAL DATA / LIST — Futuristic Dark Theme
    ============================================ */
 
 .listComponent {
@@ -7,19 +7,45 @@
     align-items: flex-start;
     justify-content: space-around;
     align-content: flex-start;
+    background: radial-gradient(ellipse at 50% 20%, #041828 0%, #020d1c 45%, #010810 100%);
+    min-height: 100vh;
 }
 
+/* ── Nav back button ── */
 .nav {
     position: fixed;
     display: flex;
     flex-direction: row-reverse;
+    z-index: 100;
 }
 
 .nav-button {
-    background-color: unset;
-    width: 100px;
+    background: rgba(1, 10, 24, 0.78);
+    border: 1px solid rgba(0, 185, 255, 0.32);
+    color: rgba(0, 185, 255, 0.88);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.45rem 1.1rem;
+    border-radius: 8px;
+    width: auto;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+    box-shadow: 0 0 10px rgba(0,185,255,0.1);
 }
 
+.nav-button:hover {
+    background: rgba(0, 185, 255, 0.1);
+    border-color: rgba(0, 185, 255, 0.6);
+    box-shadow: 0 0 20px rgba(0,185,255,0.28), 0 0 40px rgba(0,185,255,0.1);
+    color: #00b9ff;
+    transform: translateY(-1px);
+}
+
+/* ── List reset ── */
 .list,
 .list * {
     margin: 0;
@@ -40,17 +66,24 @@
     max-height: 7000px;
 }
 
+/* ── Card container ── */
 .listContaint {
     min-height: 80vh;
     width: 45%;
     margin: 4.5rem 0.5rem 0 0.5rem;
-    background-color: #fff;
+    background: rgba(4, 14, 28, 0.9);
     border-radius: 14px;
     overflow: hidden;
-    border: 1px solid var(--slate-200, #e2e8f0);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 185, 255, 0.18);
+    box-shadow:
+        0 4px 30px rgba(0, 5, 30, 0.7),
+        0 0 0 1px rgba(0, 185, 255, 0.05) inset,
+        0 0 40px rgba(0, 80, 200, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
+/* ── Card header ── */
 .header-line {
     pointer-events: none;
     display: flex;
@@ -64,30 +97,36 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border-bottom: 1px solid var(--slate-200, #e2e8f0);
+    border-bottom: 1px solid rgba(0, 185, 255, 0.18);
     font-size: 0.95rem;
     font-family: inherit;
     gap: 0.2rem;
-    background-color: var(--slate-50, #f8fafc);
+    background: linear-gradient(135deg, rgba(3,14,30,0.97) 0%, rgba(5,20,44,0.93) 100%);
+    transition: background 0.2s ease;
+}
+
+.listContaint-title:hover {
+    background: linear-gradient(135deg, rgba(4,18,36,0.98) 0%, rgba(6,24,50,0.95) 100%);
 }
 
 .header-title {
     font-weight: 700;
     font-size: 1.05rem;
-    color: var(--slate-800, #1e293b);
+    color: rgba(200, 240, 255, 0.95);
 }
 
 .listContaint-title p {
     pointer-events: none;
-    color: var(--slate-500, #64748b);
+    color: rgba(0, 185, 255, 0.5);
 }
 
 .listContaint-box {
-    color: var(--slate-800, #1e293b);
+    color: rgba(200, 240, 255, 0.9);
     overflow: hidden;
-    background-color: #fff;
+    background: transparent;
 }
 
+/* ── Collapse animation ── */
 .close-box {
     padding: 0;
     max-height: 0px;
@@ -95,10 +134,11 @@
     transition: 1s ease;
 }
 
+/* ── List items ── */
 .list li {
     counter-increment: cardCount;
     display: flex;
-    color: var(--slate-800, #1e293b);
+    color: rgba(200, 240, 255, 0.9);
     --labelOffset: 0.75rem;
     --arrowClipSize: 1rem;
     margin-top: var(--labelOffset);
@@ -106,24 +146,19 @@
 
 .box-traslateLelf {
     animation: boxTitle .5s linear;
+    position: relative;
 }
 
 @keyframes boxTitle {
-    from {
-        transform: translateX(-30px);
-        filter: opacity(0);
-    }
-
-    to {
-        transform: translateX(0px);
-        filter: opacity(1);
-    }
+    from { transform: translateX(-30px); filter: opacity(0); }
+    to   { transform: translateX(0px);  filter: opacity(1); }
 }
 
+/* Counter badge — futuristic cyan */
 .list li::before {
     content: counter(cardCount, decimal-leading-zero);
-    background-color: var(--green-700, #3a6b00);
-    color: #fff;
+    background: linear-gradient(135deg, #006ea0 0%, #004878 100%);
+    color: rgba(200, 248, 255, 0.97);
     font-size: 1.8em;
     font-weight: 700;
     transform: translateY(calc(-1 * var(--labelOffset)));
@@ -134,10 +169,13 @@
     align-items: center;
     padding-inline: 0.5em;
     border-radius: 8px 0 0 8px;
+    box-shadow: 0 0 12px rgba(0,185,255,0.35), inset 0 1px 0 rgba(0,200,255,0.2);
+    text-shadow: 0 0 8px rgba(0,185,255,0.6);
 }
 
+/* Item content card */
 .list li .content {
-    background-color: var(--slate-100, #f1f5f9);
+    background: rgba(6, 18, 38, 0.85);
     --inlinePadding: 1em;
     --boxPadding: 0.5em;
     display: flex;
@@ -150,6 +188,13 @@
     justify-content: space-between;
     flex-wrap: wrap;
     border-radius: 0 8px 8px 0;
+    border-left: 2px solid rgba(0, 185, 255, 0.18);
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.list li .content:hover {
+    background: rgba(0, 185, 255, 0.06);
+    border-left-color: rgba(0, 185, 255, 0.45);
 }
 
 .list li .content::before {
@@ -169,11 +214,12 @@
     position: absolute;
     height: var(--cardsGap);
     width: var(--cardsGap);
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent 50%);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.12), transparent 50%);
     left: 0;
     top: 100%;
 }
 
+/* ── Icons ── */
 .list li .icon {
     grid-area: icon;
     align-self: center;
@@ -190,7 +236,7 @@
     font-size: .75rem;
     width: 100px;
     text-align: center;
-    color: var(--slate-500, #64748b);
+    color: rgba(0, 185, 255, 0.45);
 }
 
 .icoValidate {
@@ -199,24 +245,26 @@
 }
 
 .validate {
-    filter: opacity(0.5) drop-shadow(0 0 0 var(--green-600));
+    filter: opacity(0.7) drop-shadow(0 0 4px rgba(57,255,20,0.6));
 }
 
 .invalidate {
-    filter: opacity(0.4) drop-shadow(0 0 0 rgb(239, 68, 68));
+    filter: opacity(0.6) drop-shadow(0 0 4px rgba(239,68,68,0.6));
 }
 
 .ignore {
-    filter: opacity(0.3);
+    filter: opacity(0.3) grayscale(1);
 }
 
 .icon-img {
     width: 65px;
     height: 50px;
-    background-color: var(--green-800, #2d5a00);
+    background: rgba(0, 185, 255, 0.15);
+    border: 1px solid rgba(0,185,255,0.2);
     border-radius: 6px;
 }
 
+/* ── Text ── */
 .list li .content .title {
     font-size: 1.15em;
     font-weight: 600;
@@ -224,12 +272,14 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: var(--slate-800, #1e293b);
+    color: rgba(210, 242, 255, 0.96);
 }
 
 .list li .content .text {
-    color: var(--green-600, #4e8300);
-    text-decoration: underline;
+    color: #00b9ff;
+    text-decoration: none;
+    opacity: 0.78;
+    font-size: 0.88em;
 }
 
 .textBonusContent {
@@ -240,26 +290,31 @@
 
 .text-bonus {
     font-size: .8rem;
-    color: var(--slate-600, #475569);
+    color: rgba(0, 185, 255, 0.45);
 }
 
 .textGreen {
-    color: var(--green-600, #4e8300);
+    color: #39ff14;
+    text-shadow: 0 0 5px rgba(57,255,20,0.4);
 }
 
 .text-purple {
-    color: #7c3aed;
+    color: #00b9ff;
+    text-shadow: 0 0 5px rgba(0,185,255,0.4);
 }
 
 .text-red {
-    color: #ef4444;
+    color: #ff4d4d;
+    text-shadow: 0 0 4px rgba(255,77,77,0.35);
 }
 
 .text-bonus-cancel {
     width: 20px;
-    opacity: 0.5;
+    opacity: 0.55;
+    filter: drop-shadow(0 0 3px rgba(255,77,77,0.4));
 }
 
+/* ── Chart section ── */
 .mainContent {
     width: 48%;
     min-height: 95vh;
@@ -271,14 +326,23 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    background: rgba(4, 14, 28, 0.75);
+    border: 1px solid rgba(0, 185, 255, 0.14);
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(8px);
 }
 
 .GrafigContain-textTitle {
     text-align: center;
-    color: var(--slate-800, #1e293b);
-    font-weight: 600;
-}
-
-.box-traslateLelf {
-    position: relative;
+    color: rgba(0, 185, 255, 0.75);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(0,185,255,0.15);
+    padding-bottom: 0.5rem;
+    width: 100%;
+    text-shadow: 0 0 8px rgba(0,185,255,0.3);
 }

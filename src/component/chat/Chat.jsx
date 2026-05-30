@@ -1,5 +1,4 @@
 import './style.css';
-import icoSend from '../../../public/ico/send/send.svg';
 import { isDesktop } from 'react-device-detect';
 import axios from 'axios';
 import { useEffect, useState, useCallback, useRef } from 'react';
@@ -73,25 +72,20 @@ function Chat() {
         }; // Convertir la fecha a un formato legible 
         const readableDate = newDate.toLocaleDateString('es-ES', options);
 
+        const isMe = message.submittedByUser?.userId === userSeled?._id;
+
         return (
-            <>
-
-                <div key={message._id} className={message.submittedByUser?.userId === userSeled?._id ? 'msm-contain myText' : 'msm-contain'}>
-                    <div style={{ width: '100%', lineHeight: 'normal' }}>
-                        <p className="msm-name">{message?.submittedByUser?.name.toLowerCase()}</p>
-                        {
-                            message.establishment ?
-                                <p className='msm-name' style={{ fontSize: '.8rem' }}>{message?.establishment?.name ? message?.establishment?.name.toLowerCase() : null}</p>
-                                :
-                                null
-                        }
-                    </div>
-
-                    <p className='msm-body'>{message.message}</p>
-                    <p style={{ fontSize: '.7rem', color: '#000' }}>{readableDate}</p>
-                </div>
-
-            </>
+            <div key={message._id} className={isMe ? 'msm-contain myText' : 'msm-contain'}>
+                {/* Nombre — sólo en mensajes ajenos */}
+                {!isMe && (
+                    <p className="msm-name">
+                        {message?.submittedByUser?.name?.toLowerCase()}
+                        {message?.establishment?.name ? ` · ${message.establishment.name.toLowerCase()}` : ''}
+                    </p>
+                )}
+                <p className='msm-body'>{message.message}</p>
+                <p className='msm-time'>{readableDate}</p>
+            </div>
         );
     };
 
@@ -134,34 +128,57 @@ function Chat() {
                     {
                         userSeled?._id !== '65a9620cf47d628f65772149' ?
                             <div className='chat-chatContain' style={{ overflow: hiddenWindowState ? 'inherit' : 'hidden' }}>
+
                                 <div className='chat-boxText'>
-                                    <div className='text-chat'>
-                                        {
-                                            chatState.length > 0 ?
-                                                <>
-                                                    {
-                                                        chatState.map(data => (
-                                                            printText(data)
-                                                        ))
-                                                    }
-                                                    <button onClick={() => getChat(refPaginate.current + 1)}>Cargar chat</button>
-                                                </>
-                                                :
-                                                <div className='chat-await'>
-                                                    <p className='chat-await-p'>...esperando</p>
-                                                </div>
-                                        }
-
+                                    {/* ── Header estilo WhatsApp ── */}
+                                    <div className='chat-boxText-header'>
+                                        <div className='chat-header-avatar'>💬</div>
+                                        <div className='chat-header-info'>
+                                            <p className='chat-header-name'>Chat Jarvis</p>
+                                            <p className='chat-header-status'>en línea</p>
+                                        </div>
                                     </div>
-                                    <form className='textContain' onSubmit={handdlerSubmit}>
-                                        <input className='textContain-textArea' type='text' disabled={userSeled?._id === '65a9620cf47d628f65772149'} ref={inputRef} />
 
-                                        <button className='textContain-btn'>
-                                            <img className='textContain-imgBtn' src={icoSend} />
+                                    {/* ── Mensajes ── */}
+                                    <div className='text-chat'>
+                                        {chatState.length > 0 ? (
+                                            <>
+                                                {chatState.map(data => printText(data))}
+                                                <button
+                                                    className='chat-load-more'
+                                                    onClick={() => getChat(refPaginate.current + 1)}
+                                                >
+                                                    Ver mensajes anteriores
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <div className='chat-await'>
+                                                <p className='chat-await-p'>Sin mensajes aún…</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* ── Input ── */}
+                                    <form className='textContain' onSubmit={handdlerSubmit}>
+                                        <input
+                                            className='textContain-textArea'
+                                            type='text'
+                                            placeholder='Escribe un mensaje…'
+                                            disabled={userSeled?._id === '65a9620cf47d628f65772149'}
+                                            ref={inputRef}
+                                        />
+                                        <button className='textContain-btn' type='submit' title='Enviar'>
+                                            {/* Ícono send SVG inline */}
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                                            </svg>
                                         </button>
                                     </form>
                                 </div>
-                                <div className='chat-banner' onClick={() => setWindowState(!hiddenWindowState)}>Chat Jarvis activo</div>
+
+                                <div className='chat-banner' onClick={() => setWindowState(!hiddenWindowState)}>
+                                    Chat Jarvis activo
+                                </div>
                             </div>
                             :
                             null

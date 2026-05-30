@@ -221,41 +221,36 @@ export default function FormTablet({ awaitWindow, boxModal, reset, title }) {
                             width: '100%'
                         }}
                     >
-                        <div
-                            style={{
-                                position: 'relative',
-                                width: '100%',
-                                minHeight: '60px',
-                                border: '2px solid rgb(205, 5, 231)',
-                                padding: '1rem',
-                                borderRadius: '5px',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '1rem'
-                            }}
-                        >
+                        <div className="tablet-img-container">
+                            {/* Imagen preview */}
                             <img
-                                style={{
-                                    width: '100%',
-                                    height: '100%'
-                                }}
+                                className="tablet-img-preview"
                                 src={fileState.dataUrl}
-
+                                alt="preview"
                             />
+
+                            {/* Botón eliminar — posicionado fuera del borde superior-derecho */}
                             <button
-                                onClick={() => {
-                                    setStateFile(null);
-                                }}
-                                style={{
-                                    position: 'absolute',
-                                    top: '15px',
-                                    right: '15px',
-                                    color: '#000'
-                                }}
+                                type="button"
+                                className="tablet-delete-btn"
+                                onClick={() => setStateFile(null)}
+                                title="Eliminar imagen"
                             >
-                                <img style={{ width: '100%', height: '100%' }} src="/ico/delete/delete.svg" alt="" />
+                                {/* Ícono papelera SVG inline */}
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    strokeWidth="2.3"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                    <path d="M10 11v6" />
+                                    <path d="M14 11v6" />
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                </svg>
                             </button>
                         </div>
                         <div
@@ -419,35 +414,33 @@ export default function FormTablet({ awaitWindow, boxModal, reset, title }) {
                         >Enviar</button>
                     </form>
                     :
-                    <div
-                        style={{
-                            position: 'relative',
-                            width: '300px',
-                            height: '60px',
-                            border: '2px solid #cd05e7',
-                            borderRadius: '5px',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '1rem'
-                        }}
-                    >
-                        <label htmlFor="fileInput" style={{ ...{ color: '#000' }, ...styleNeverPointer }}>Selecionar una imagen</label>
-
-                        <img style={styleNeverPointer} src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAADL0lEQVR4nO2ZQWxMURSGHxVRNGlTtagiqVIrsRNSykJ3FsReGqwIq6YsLGhSxLqRiJWNBEUECRYVbJCU2KhESCWDhFY1tJGGT87M/+SazHTm9b2Z98r8ySTv3HvPved/555z7zvjeRVUUMH/BWANcBUYJ/n4ClwBWnKRGGX2YeQvMkC/Om4Cy7yEA2gCbsnmy26HucrQ5M0SAMtl85jbmIY3y0C23RUi/6pHgDqgE7gODAHf9LPna+qrC7tOyYgA1cBRC7wiUuYX4AiwIFFEgEbgqWPoHWAf0Aos0m+t2u46456YbiKIkCHxTuq2fdqK0NmssUi3MVYiZLaT74kBoFbtS4Ee4JkTI4PACaBBY2qB+9J9PNNtRkRELCYMLx0Suwvc1ezg3eUkhldq746FCBkj/MBuc0j8UptlqHYnRrYqkxl+AjulY2P8BBA4m0VBpNMPbGc7+Z7omkavW2PsJSxR2z217YmDiL1xw17JPb4nJM8HTgPvgRRw0trUd0Njj0veL7k/DiL+3m6V/Fxyu+RTOeKjV33bJA9KttRsGIqDiL+NarLkxZLNC4aNwCY9p9RXI3k8l1xuIpNSSadN4CHwIN98OeQ/45XGDRNxEBkSmepiFphufp0plslex0FkJbCu2AUKzQ9sB9YXzSAqIkEXiHp+HxUiYT0CvAA+AgdLsY5Xrq2VhT7gbRhixEjEPVfyEUu5N4FEEglIrDeJRLIPzEfWVoBYqqxE7EoOnAfOAM0zmU8fWQNB7YmMCHAsazvY12BHWA8TgkjgkqnuSD+AKeAwcEFzTJaDCLAiV8nUSvSoMNwU4JpiGAbmAnOUeSg1ETJ139sadsntWK0SfTFIB6kMf6O2PskumamIk0UufAJWZSu3yDP+NssHN/tscbaSS6YLOFBCImPAxbB1sVw31wktcM6IRDBnGtFYGGzhjmzPhJirQfOMRmtlmcmQKSvhnitxkzkLVAXUr1JNmDAxVgoyVtCuL1JvnmIMZcOFpbe2sFF2X/ogo0aUxZrzjK23MqpqwIbvwAYvKbB/h+WRIBi2i6OXRAA79L+I1Xdz4bOdTcChfFWZCirw4sNviiYNppSbEGsAAAAASUVORK5CYII=' alt="Upload Icon" />
+                    <div className="tablet-upload-trigger">
+                        {/* Ícono imagen */}
+                        <svg
+                            className="tablet-upload-trigger-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <label
+                            htmlFor="fileInput"
+                            className="tablet-upload-trigger-label"
+                        >
+                            Seleccionar imagen
+                        </label>
                         <input
                             onChange={onchangeInputFile}
                             ref={inputFileRef}
                             type="file"
                             id="fileInput"
-                            style={{
-                                position: 'absolute',
-                                width: '100%',
-                                height: '100%',
-                                filter: 'opacity(0)',
-                                color: '#000'
-                            }}
+                            style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
                         />
                     </div>
             }

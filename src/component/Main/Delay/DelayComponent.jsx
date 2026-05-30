@@ -48,19 +48,17 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
 
     return (
         <>
-            <div className='w-full flex justify-evenly content-center p-4 items-start gap-[1rem] flex-wrap'>
-                <BottonSelection title='Demora de primera atención' ico={book} id='primera atención' event={setTitle} />
-                <BottonSelection title='Demora de limpieza' ico={serviseSvg} id='limpieza' event={setTitle} />
-                <BottonSelection title='Demora de servicio' ico={food} id='servicio' event={setTitle} />
-                <BottonSelection title='Demora en entrega de plato' ico={plate} id='plato' event={setTitle} />
-                <BottonSelection title='Demora de tablet' ico={tablet} id='tablet' event={setTitle} />
-                <BottonSelection title='Marcada en pantalla antes de estar listo' ico={touchTablet} id='tablet-touch' event={setTitle} />
-                <BottonSelection title='Error de tiket en toasd' ico={tiketIco} id='tablet-tiket' event={setTitle} />
-                <BottonSelection title='Plato no comandado' ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={setTitle} />
+            <div className='delay-grid'>
+                <BottonSelection title='Primera atención'              ico={book}        id='primera atención'   event={setTitle} />
+                <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={setTitle} />
+                <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={setTitle} />
+                <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={setTitle} />
+                <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={setTitle} />
+                <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={setTitle} />
+                <BottonSelection title='Error de tiket'                ico={tiketIco}    id='tablet-tiket'       event={setTitle} />
+                <BottonSelection title='Plato no comandado'            ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={setTitle} />
             </div>
-            {
-                render(title)
-            }
+            {render(title)}
         </>
     );
 }
@@ -68,15 +66,22 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
 
 
 function BottonSelection({ title, ico, id, event }) {
-
-
-
     return (
-        <div className='shrink-0 flex flex-col justify-center items-center gap-[.5rem] w-[100px]' >
-            <button className='bg-[transparent] w-[100%]' id={id} onClick={e => event(e.currentTarget.id)}>
-                <img src={ico} alt={ico} className='w-[100%]' />
+        <div className='delay-btn-wrap'>
+            <button
+                className='delay-btn'
+                id={id}
+                type='button'
+                onClick={e => event(e.currentTarget.id)}
+                title={title}
+            >
+                <img
+                    src={ico}
+                    alt={title}
+                    className='delay-btn-icon'
+                />
             </button>
-            <b className='text-[black] text-center text-[.8rem]'>{title}</b>
+            <span className='delay-btn-label'>{title}</span>
         </div>
     );
 }

@@ -33,9 +33,9 @@
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: light;
-    color: #1e293b;
-    background-color: #ededed;
+    color-scheme: dark;
+    color: rgba(215, 235, 255, 0.92);
+    background-color: #010c18;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -99,7 +99,7 @@ body {
     min-height: 100%;
     width: 100%;
     top: 0;
-    background-color: #ededed;
+    background-color: #010c18;
     position: absolute;
 }
 
