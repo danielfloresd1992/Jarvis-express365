@@ -11,26 +11,18 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    background-color: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(6px);
+    background: rgba(0, 5, 18, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     align-items: center;
     justify-content: center;
-    animation: backtrans .4s ease-in-out;
+    animation: backtrans 0.35s ease-out;
     z-index: 10000;
 }
 
 @keyframes backtrans {
-    0% {
-        background-color: rgba(255, 255, 255, 0);
-    }
-
-    50% {
-        background-color: rgba(255, 255, 255, 0.5);
-    }
-
-    100% {
-        background-color: rgba(255, 255, 255, 0.88);
-    }
+    from { background: rgba(0, 5, 18, 0); }
+    to   { background: rgba(0, 5, 18, 0.78); }
 }
 
 .hidden {
@@ -38,11 +30,13 @@
 }
 
 .textAwait {
-    font-size: 1.4rem;
-    color: var(--green-700, #3a6b00);
-    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(0, 185, 255, 0.85);
+    font-weight: 700;
     font-family: 'Inter', sans-serif;
-    letter-spacing: 0.3px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(0, 185, 255, 0.45);
     animation: textFade .6s ease;
 }
 
@@ -77,9 +71,9 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--green-600, #4e8300);
+    background: #00b9ff;
     margin: -4px 0 0 -4px;
-    box-shadow: 0 0 8px rgba(78, 131, 0, 0.3);
+    box-shadow: 0 0 8px rgba(0, 185, 255, 0.6);
 }
 
 .lds-roller div:nth-child(1) {

@@ -1,101 +1,229 @@
 /* ============================================
-   BOX MODAL — Clean Desktop Style
+   BOX MODAL — Dark Futuristic Style
    ============================================ */
 
-.boxModal-contain {}
-
-@keyframes backtrans {
-    0% {
-        background-color: rgba(0, 0, 0, 0);
-    }
-
-    50% {
-        background-color: rgba(0, 0, 0, 0.2);
-    }
-
-    100% {
-        background-color: rgba(0, 0, 0, 0.4);
-    }
+/* Backdrop overlay propio del modal */
+.boxModal-contain {
+    background: rgba(0, 5, 18, 0.82) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    animation: boxModal-backdrop 0.3s ease-out !important;
 }
 
+@keyframes boxModal-backdrop {
+    from { background: rgba(0, 5, 18, 0); }
+    to   { background: rgba(0, 5, 18, 0.82); }
+}
+
+/* ── Card del modal ── */
 .boxModal-div {
     position: relative;
-    width: 450px;
-    background-color: #fff;
-    min-height: 300px;
+    width: 440px;
+    background: rgba(3, 12, 26, 0.97);
+    min-height: 220px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
-    border-radius: 16px;
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(0, 185, 255, 0.28);
+    box-shadow:
+        0 0 0 1px rgba(0, 185, 255, 0.06) inset,
+        0 0 40px rgba(0, 120, 255, 0.1),
+        0 25px 70px rgba(0, 0, 0, 0.7),
+        0 8px 28px rgba(0, 0, 0, 0.5);
+    animation: boxModal-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes boxModal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.88) translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Línea de brillo en el tope (efecto neon top edge) */
+.boxModal-div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 185, 255, 0.55),
+        rgba(57, 255, 20, 0.3),
+        transparent
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ── Header del modal ── */
 .boxModal-titleContain {
     width: 100%;
-    background-color: var(--green-700, #3a6b00);
-    padding: 1rem 1.2rem;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 185, 255, 0.1) 0%,
+        rgba(0, 100, 200, 0.06) 100%
+    );
+    border-bottom: 1px solid rgba(0, 185, 255, 0.18);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+}
+
+/* Barra lateral izquierda del header */
+.boxModal-titleContain::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 185, 255, 0.9) 0%,
+        rgba(57, 255, 20, 0.6) 100%
+    );
+    border-radius: 0 2px 2px 0;
+}
+
+/* Icono de información en el header */
+.boxModal-titleContain::after {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00b9ff;
+    box-shadow: 0 0 8px rgba(0, 185, 255, 0.8);
+    flex-shrink: 0;
+    animation: boxModal-dot 2s ease-in-out infinite;
+    margin-left: auto;
+}
+
+@keyframes boxModal-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0,185,255,0.8); }
+    50%       { opacity: 0.4; box-shadow: 0 0 4px rgba(0,185,255,0.3); }
 }
 
 .boxModal-title {
-    color: #fff;
-    font-weight: 600;
+    color: rgba(210, 245, 255, 0.97);
+    font-weight: 700;
     font-size: 1rem;
+    letter-spacing: 0.2px;
+    margin: 0;
+    /* Sutil neon glow en el título */
+    text-shadow:
+        0 0 12px rgba(0, 185, 255, 0.35),
+        0 0 24px rgba(0, 185, 255, 0.15);
 }
 
+/* ── Cuerpo / descripción ── */
 .boxModal-descriptionContain {
-    padding: 2rem;
-}
-
-.boxModal-description {
-    font-size: 1.05rem;
-    color: var(--slate-600, #475569);
-    text-align: center;
-    line-height: 1.5;
-}
-
-.boxModal-imgContain {
-    position: absolute;
-    height: 100%;
+    flex: 1;
+    padding: 1.75rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.boxModal-img {
-    filter: opacity(0.06);
+.boxModal-description {
+    font-size: 0.98rem;
+    color: rgba(180, 215, 255, 0.78);
+    text-align: center;
+    line-height: 1.6;
+    letter-spacing: 0.15px;
 }
 
+/* ── Footer con botones ── */
 .boxModal-btnContain {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.85rem 1.25rem;
     display: flex;
     justify-content: flex-end;
-    z-index: 200;
-    border-top: 1px solid var(--slate-100, #f1f5f9);
+    align-items: center;
+    gap: 0.5rem;
+    border-top: 1px solid rgba(0, 185, 255, 0.1);
+    background: rgba(0, 185, 255, 0.03);
 }
 
+/* ── Botón cerrar — outline cyan ── */
 .boxModal-btnClose {
-    width: 100px;
-    justify-content: center;
-    font-weight: 600;
-    color: var(--slate-500, #64748b);
-    border: 1px solid var(--slate-300, #cbd5e1);
+    padding: 0.45rem 1.25rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: inherit;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: rgba(0, 185, 255, 0.85);
+    background: rgba(0, 185, 255, 0.06);
+    border: 1.5px solid rgba(0, 185, 255, 0.3);
     border-radius: 8px;
-    padding: 0.4rem 0.8rem;
-    background: #fff;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer hover */
+.boxModal-btnClose::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(0, 200, 255, 0.1) 50%,
+        transparent 80%
+    );
+    transform: translateX(-110%);
+    transition: transform 0.45s ease;
 }
 
 .boxModal-btnClose:hover {
-    border-color: var(--green-600, #4e8300);
-    color: var(--green-700, #3a6b00);
+    color: rgba(0, 215, 255, 1);
+    border-color: rgba(0, 185, 255, 0.65);
+    background: rgba(0, 185, 255, 0.12);
+    box-shadow:
+        0 0 16px rgba(0, 185, 255, 0.22),
+        inset 0 1px 0 rgba(0, 200, 255, 0.15);
+    transform: translateY(-1px);
 }
 
-@media screen and (max-width: 720px) {
+.boxModal-btnClose:hover::before {
+    transform: translateX(110%);
+}
+
+.boxModal-btnClose:active {
+    transform: translateY(0);
+    background: rgba(0, 185, 255, 0.08);
+    box-shadow: 0 0 8px rgba(0, 185, 255, 0.12);
+}
+
+.boxModal-btnClose:focus,
+.boxModal-btnClose:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 185, 255, 0.4);
+}
+
+/* ── Responsive ── */
+@media screen and (max-width: 520px) {
     .boxModal-div {
-        width: 90%;
+        width: 92%;
+        min-height: 180px;
+    }
+    .boxModal-descriptionContain {
+        padding: 1.25rem 1rem;
     }
 }
