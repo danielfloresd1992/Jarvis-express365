@@ -89,7 +89,7 @@ function drawServerRoom() {
     ctx.fillStyle = floor; ctx.fillRect(0, H * 0.72, W, H * 0.28);
 
 
-    {/*
+    /*
     // Rack columns
     const rackW = W * 0.13;
     const rh    = H / ROWS;
@@ -129,8 +129,9 @@ function drawServerRoom() {
             });
         }
     }
+        */
 }
-*/}
+
 
 function drawHexGrid() {
     const size = 56, hh = size * Math.sqrt(3);
