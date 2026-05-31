@@ -63,7 +63,7 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
             {/* Overlay for mobile 'sidebar--open' */}
             {openBoleanSidebar && <div className='sidebar-overlay' onClick={() => selectNovelty('')} />}
 
-            <aside className={`sidebar ${openBoleanSidebar ? 'sidebar--closed' : 'sidebar--closed'}`}>
+            <aside className={`sidebar ${openBoleanSidebar ? 'sidebar--open' : 'sidebar--closed'}`}>
                 {/* Local name header */}
                 <div className='sidebar__header'>
                     {!isMobile || isTablet ? (

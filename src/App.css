@@ -1050,7 +1050,7 @@
     background: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
-    z-index: 949;
+    z-index: 549;
     display: none;
 }
 
@@ -1062,7 +1062,7 @@
     height: calc(100vh - 52px);
     background: rgba(2, 10, 24, 0.97);
     border-right: 1px solid rgba(0,185,255,0.12);
-    z-index: 850;
+    z-index: 950;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     display: flex;

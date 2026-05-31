@@ -107,7 +107,8 @@ export default function Home() {
     const selectNovelty = (value) => {
         if ((typeof value) !== 'string') throw 'Type err, param not string';
         setRenderValue(renderValue = value);
-        closeOpenAsideBar();
+        if(window?.innerWidth < 721) closeOpenAsideBar();
+        
     };
 
 
