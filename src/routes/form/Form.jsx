@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { setUser } from '../../store/slices/user.js';
 import URL from '../../libs/fetch_data/api_conexion.js';
 
-//import Presentation from '../../component/presentatiom.jsx'
+import Presentation from '../../component/presentatiom.jsx'
 
 
 function LoginUser() {
@@ -70,7 +70,7 @@ function LoginUser() {
             <div className='auth-page'>
                 {/* Full-screen animated background */}
                 <div className='auth-page__brand'>
-                    {/* <Presentation /> */}
+                <Presentation /> 
                 </div>
 
                 {/* Remix-style two-column shell */}
