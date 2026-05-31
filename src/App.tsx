@@ -9,6 +9,7 @@ import LoadingPage from './component/loanding/loadingPage.jsx';
 const Home = lazy(() => import('@/routes/Home/Home'));
 
 import ModalData from './component/ModalData/ModalData.jsx';
+import Raytracer from './component/Raytracer.jsx';
 
 
 
