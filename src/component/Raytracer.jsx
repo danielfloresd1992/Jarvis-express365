@@ -19,6 +19,7 @@ export default function Raytracer({ width = 800, height = 600, className }) {
     const state = useRef({ worker: null, offscreen: null });
 
     useEffect(() => {
+    /*
         const canvas = canvasRef.current;
         if (!canvas) return;
         const s = state.current;
@@ -42,6 +43,7 @@ export default function Raytracer({ width = 800, height = 600, className }) {
         // En cleanup solo pausamos; el worker se reutiliza si React vuelve a montar.
         return () => { s.worker?.postMessage({ type: 'stop' }); };
         // eslint-disable-next-line react-hooks/exhaustive-deps
+        */
     }, []);
 
     return (
