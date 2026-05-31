@@ -82,7 +82,7 @@ export default function Presentation() {
 
             {/* ══ HUD PANELS ══ */}
 
-            {/* Top-left: Analytics / Radar */}
+            {/* Top-left: Analytics / Radar 
             <div className="fp-panel fp-panel--tl">
                 <div className="fp-panel-title">ANALYTICS</div>
                 <svg viewBox="0 0 60 60" className="fp-radar-svg">
@@ -104,7 +104,7 @@ export default function Presentation() {
                     <span className="fp-pv">12ms</span>
                 </div>
             </div>
-
+            */}
             {/* Top-right: Network */}
             <div className="fp-panel fp-panel--tr">
                 <div className="fp-panel-title">NETWORK</div>
