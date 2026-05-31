@@ -1112,7 +1112,7 @@
 .sidebar__section-label {
     font-size: 0.65rem;
     font-weight: 600;
-    color: rgba(0,185,255,0.4);
+    color: rgba(0, 187, 255, 0.596);
     text-transform: uppercase;
     letter-spacing: 0.8px;
     padding: 0.5rem 0.5rem 0.25rem;
@@ -1130,7 +1130,7 @@
     cursor: pointer;
     transition: all 0.15s ease;
     text-align: left;
-    color: rgba(200,230,255,0.75);
+    color: rgb(241, 249, 255);
     font-size: 0.82rem;
     font-weight: 500;
     font-family: inherit;

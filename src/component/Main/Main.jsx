@@ -47,7 +47,7 @@ function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
             case 'show-manager': return (<ShowManager key='show-manager' />);
             case 'delayTabletForTablet': return (<FormTablet awaitWindow={awaitWindow} boxModal={boxModal} title={menu.filter(menu => menu.es === 'Demora en preparación de plato')[0]} reset={selectNovelty} key='imagen-6' />);
             case 'loadImage': return (<LoadFileForm awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-47' />);
-            default: return (<RenderDefault />)
+            default: return (<RenderDefault selectNovelty={selectNovelty} />)
         }
     };
 

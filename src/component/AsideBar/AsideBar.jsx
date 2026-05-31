@@ -146,10 +146,10 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
                                 </svg>
                             )}
                             <div>
-                                <p className='font-bold text-[#363a6e] text-[.9rem]'>{userSelet?.name} {userSelet?.surName}</p>
+                                <p className='font-bold text-[#ff6fbb] text-[.9rem]'>{userSelet?.name} {userSelet?.surName}</p>
                                 {
                                     userSelet?.jobInformation?.position && (
-                                        <p className='font-medium text-[#525252] text-[.8rem]'>{userSelet?.jobInformation?.position}</p>
+                                        <p className='font-medium text-[#ffffff] text-[.8rem]'>{userSelet?.jobInformation?.position}</p>
                                     )
                                 }
                                 <span>
