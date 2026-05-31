@@ -88,6 +88,8 @@ function drawServerRoom() {
     floor.addColorStop(1,   'rgba(0,30,100,0.18)');
     ctx.fillStyle = floor; ctx.fillRect(0, H * 0.72, W, H * 0.28);
 
+
+    {/*
     // Rack columns
     const rackW = W * 0.13;
     const rh    = H / ROWS;
@@ -128,6 +130,7 @@ function drawServerRoom() {
         }
     }
 }
+*/}
 
 function drawHexGrid() {
     const size = 56, hh = size * Math.sqrt(3);
@@ -318,7 +321,7 @@ function animate() {
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, r*5, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI*2); ctx.fillStyle = 'rgba(160,230,255,0.95)'; ctx.fill();
     });
-/*
+
     // Data streams
     for (let i = 0; i < 5; i++) {
         const y = H * (0.12 + i * 0.16);
@@ -328,7 +331,6 @@ function animate() {
         ctx.strokeStyle = grd; ctx.lineWidth = 0.6;
         ctx.beginPath(); ctx.moveTo(Math.max(0,off-110), y); ctx.lineTo(Math.min(W,off+110), y); ctx.stroke();
     }
-        */
 }
 
 /* ─── Mensajes del main thread ─── */
