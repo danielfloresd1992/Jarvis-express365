@@ -231,6 +231,26 @@
     margin-bottom: 1.5rem;
 }
 
+/* Distintivo "VERSIÓN LITE" — badge resaltado sobre el saludo del login. */
+.auth-version-lite {
+    display: inline-block;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 0.22em;
+    color: #001018;
+    margin: 0 0 0.9rem;
+    padding: 0.35rem 1.1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #39ff14 0%, #00e6a8 50%, #00b9ff 100%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+        0 0 18px rgba(0, 230, 168, 0.55),
+        0 0 38px rgba(0, 185, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+}
+
 .auth-card__logo-mobile {
     width: 56px;
     height: auto;
@@ -1063,8 +1083,8 @@
     background: rgba(2, 10, 24, 0.97);
     border-right: 1px solid rgba(0,185,255,0.12);
     z-index: 950;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    /* backdrop-filter eliminado: el fondo es 97% opaco, el blur no se ve pero
+       repinta la zona en GPU en cada frame (sidebar siempre visible). */
     display: flex;
     flex-direction: column;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1237,8 +1257,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    /* backdrop-filter eliminado: fondo 92% opaco, blur imperceptible y caro
+       (botón siempre visible que además levita). */
     box-shadow:
         0 0 16px rgba(0, 185, 255, 0.22),
         0 4px 16px rgba(0, 0, 0, 0.5),
@@ -1262,31 +1282,11 @@
     background: rgba(0, 185, 255, 0.12);
 }
 
+/* Solo animamos transform (compositado en GPU). La sombra es estática para
+   evitar el repintado por frame que disparaba la CPU. */
 @keyframes inbox-btn-float {
-    0%, 100% {
-        transform: translateY(0) scale(1);
-        box-shadow:
-            /* glow frontal */
-            0 0 16px rgba(0, 185, 255, 0.22),
-            /* sombra realista cercana */
-            0 4px 16px rgba(0, 0, 0, 0.55),
-            /* sombra difusa lejana (penumbra) */
-            0 12px 32px rgba(0, 0, 40, 0.3),
-            inset 0 1px 0 rgba(0, 185, 255, 0.15);
-    }
-    50% {
-        transform: translateY(-7px) scale(1.02);
-        box-shadow:
-            /* glow más intenso cuando está alto */
-            0 0 32px rgba(0, 185, 255, 0.46),
-            /* sombra proyectada más larga y suave */
-            0 22px 48px rgba(0, 0, 40, 0.7),
-            /* halo secundario verde (ray tracing GI) */
-            0 0 55px rgba(0, 220, 160, 0.1),
-            /* reflexión en superficie inferior */
-            0 30px 15px rgba(0, 185, 255, 0.04),
-            inset 0 1px 0 rgba(0, 220, 255, 0.25);
-    }
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-7px) scale(1.02); }
 }
 
 /* Badge counter */
@@ -3130,18 +3130,14 @@ hr {
 .intermittence {
     border: 2px solid var(--slate-400);
     animation: intermittence 2s infinite;
-    transition: animation cubic-bezier(1, 0, 0, 1);
 }
 
 
+/* Solo animamos border-color (paint, sin recalcular layout). Antes se animaba
+   el shorthand `border` completo, lo que forzaba reflow cada frame. */
 @keyframes intermittence {
-    from {
-        border: 2px solid var(--slate-200)
-    }
-
-    to {
-        border: 2px solid var(--green-500)
-    }
+    from { border-color: var(--slate-200); }
+    to   { border-color: var(--green-500); }
 }
 
 
@@ -4231,8 +4227,7 @@ hr {
     padding: 0;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    /* backdrop-filter eliminado: fondo 82% opaco, ahorro de GPU. */
     box-shadow:
         0 0 0 1px rgba(0, 185, 255, 0.06) inset,
         0 0 14px rgba(0, 185, 255, 0.07),

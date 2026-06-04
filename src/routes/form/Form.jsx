@@ -166,6 +166,7 @@ function LoginUser() {
                     {/* ── RIGHT: Login card ── */}
                     <div className='auth-card'>
                         <div className='auth-card__header'>
+                            <h2 className='auth-version-lite'>VERSIÓN LITE</h2>
                             <h2 className='auth-card__title'>Bienvenido</h2>
                             <p className='auth-card__subtitle'>Inicia sesión para continuar</p>
                         </div>
