@@ -184,7 +184,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
         <FormLayaut title='Demora de tablet' event={e => sendImgForm(e)} >
 
 
-            <div className='box-imgComponenContent' ref={htmlAdapterRef}>
+            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
                 {
                     noveltyConfig.photos.caption.map(iteration => (
                         <ImgBoxImg data={iteration} boxModal={boxModal} setImg={pushImg} deleteImg={deleteImg} key={iteration.index} language={local?.lang} config={config} />

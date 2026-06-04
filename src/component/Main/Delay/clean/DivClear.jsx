@@ -77,7 +77,6 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
         if (number === 1) file2.current = null;
     };
 
-    console.log(local);
 
     const sendImg = async e => {
         try {
@@ -231,7 +230,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
             <>
                 {
                     hasFinishedState ?
-                        <div className='box-imgComponenContent' ref={htmlAdapterRef}>
+                        <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
                             <ImgBoxImg
                                 data={title.photos.caption[0]}
                                 boxModal={boxModal}

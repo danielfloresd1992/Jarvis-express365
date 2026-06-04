@@ -156,11 +156,11 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
             style={{ minHeight: '100%', width: '100%', alignContent: 'center' }}
         >
             <div>
-                <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>{'Demora de tablet '}</h2>
-                <p style={{ color: 'rgb(92 92 92)', textAlign: 'center', fontSize: '.9rem' }}>marcada en pantalla antes de etar listo en cocina</p>
+                <h2 style={{ color: 'rgb(255, 255, 255)', textDecoration: 'underline', textAlign: 'center' }}>{'Demora de tablet '}</h2>
+                <p style={{ color: 'rgb(0, 195, 255)', textAlign: 'center', fontSize: '.9rem' }}>marcada en pantalla antes de etar listo en cocina</p>
             </div>
 
-            <div className='box-imgComponenContent' style={{ zoom: window.innerWidth < 1350 ? ((window.innerWidth / 1350) - 0.1).toString() : '1' }} ref={htmlAdapterRef}>
+            <div className='box-imgComponenContent gridx4' style={{ zoom: window.innerWidth < 1350 ? ((window.innerWidth / 1350) - 0.1).toString() : '1' }} ref={htmlAdapterRef}>
                 {
                     title[0].photos.caption.map((iteration, index) => (
 

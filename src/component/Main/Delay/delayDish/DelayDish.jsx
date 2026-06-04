@@ -251,7 +251,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
     function catBoxImg() {
         return (
-            <div className='box-imgComponenContent' ref={htmlAdapterRef} >
+            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef} >
                 <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={local?.lang} index_image={0} />
                 <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={deleteImg} language={local?.lang} index_image={1} />
                 <ImgBoxImg data={title.photos.caption[2]} boxModal={boxModal} setImg={files => { file3.current = files }} deleteImg={deleteImg} language={local?.lang} index_image={2} />

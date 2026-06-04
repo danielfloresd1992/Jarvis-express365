@@ -182,7 +182,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
     return (
         <FormLayaut title={title.es} event={e => sendImg(e)} >
 
-            <div className='box-imgComponenContent' ref={htmlAdapterRef} style={{ zoom: ((window.innerWidth / 1350) - 0.1).toString() }}>
+            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef} style={{ zoom: ((window.innerWidth / 1350) - 0.1).toString() }}>
                 {
                     title.photos.caption.map((iteration, index) => {
 

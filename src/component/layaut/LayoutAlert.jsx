@@ -5,7 +5,7 @@ export default function LayautAlert({ eventForm, titleMenu, hiddenBtn = false, c
             eventForm(e);
         }
         }>
-            <h2 style={{ color: 'rgb(92 92 92)', textDecoration: 'underline', textAlign: 'center' }}>{titleMenu}</h2>
+            <h2 style={{ color: 'rgb(255, 255, 255)', textDecoration: 'underline', textAlign: 'center' }}>{titleMenu}</h2>
             {children}
         </form>
     )

@@ -42,7 +42,7 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
     const printImg = () => {
 
         return (
-            <div className='box-div-imgContain' style={{ zoom: window.innerWidth < 1350 ? ((window.innerWidth / 1350) - 0.1).toString() : '1' }} ref={htmlAdapterRef}>
+            <div className='box-div-imgContain gridx4' style={{ zoom: window.innerWidth < 1350 ? ((window.innerWidth / 1350) - 0.1).toString() : '1' }} ref={htmlAdapterRef}>
                 {
                     title[0].photos.caption.map((img, index) => (
 
