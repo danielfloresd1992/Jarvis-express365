@@ -1,5 +1,419 @@
+/* ═══════════════════════════════════════════════════════════
+   VIDEO COMPONENT — Dark futuristic (vc-*)
+   Sin animaciones infinitas — solo transiciones de hover.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Contenedor general ── */
+.vc-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.5rem 0;
+}
+
+/* ── Panel de control (reemplaza NavBar rosa) ── */
+.vc-panel {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: stretch;
+    padding: 1rem;
+    background: rgba(2, 12, 28, 0.72);
+    border: 1px solid rgba(0, 185, 255, 0.2);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+        inset 0 1px 0 rgba(0, 185, 255, 0.08),
+        0 0 24px rgba(0, 120, 255, 0.06),
+        0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Cada control (cantidad / velocidad) ── */
+.vc-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-width: 130px;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 185, 255, 0.04);
+    border: 1px solid rgba(0, 185, 255, 0.12);
+    border-radius: 12px;
+}
+
+.vc-control__label {
+    font-family: 'Inter', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(0, 185, 255, 0.55);
+    margin: 0;
+}
+
+.vc-control__value {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: rgba(215, 240, 255, 0.96);
+    line-height: 1;
+    text-shadow: 0 0 14px rgba(0, 185, 255, 0.35);
+    margin: 0;
+}
+
+.vc-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.15rem;
+}
+
+/* ── Botón +/- (stepper) — 3D ── */
+.vc-step-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 9px;
+    border: 1px solid rgba(0, 185, 255, 0.3);
+    background: linear-gradient(145deg, #0a8fc0 0%, #044e84 100%);
+    color: rgba(220, 248, 255, 0.97);
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        inset 1px 1px 0 rgba(150, 230, 255, 0.25),
+        0 2px 0 #022a4e,
+        0 4px 10px rgba(0, 4, 22, 0.5),
+        0 0 10px rgba(0, 185, 255, 0.15);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.vc-step-btn:hover:not(:disabled) {
+    filter: brightness(1.12);
+    transform: translateY(-2px);
+    box-shadow:
+        inset 1px 1px 0 rgba(170, 240, 255, 0.3),
+        0 4px 0 #022a4e,
+        0 8px 18px rgba(0, 4, 22, 0.55),
+        0 0 18px rgba(0, 185, 255, 0.3);
+}
+
+.vc-step-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow:
+        inset 0 2px 5px rgba(0, 10, 40, 0.5),
+        0 0 8px rgba(0, 185, 255, 0.2);
+}
+
+.vc-step-btn:disabled {
+    background: rgba(30, 50, 80, 0.5);
+    border-color: rgba(0, 185, 255, 0.08);
+    color: rgba(140, 180, 220, 0.3);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* ── Botón de acción (descargar / reset) ── */
+.vc-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid rgba(0, 185, 255, 0.3);
+    background: rgba(0, 185, 255, 0.06);
+    color: rgba(0, 200, 255, 0.9);
+    transition: all 0.18s ease;
+}
+.vc-action:hover {
+    background: rgba(0, 185, 255, 0.12);
+    border-color: rgba(0, 185, 255, 0.6);
+    color: #00c8ff;
+    box-shadow: 0 0 18px rgba(0, 185, 255, 0.22);
+    transform: translateY(-1px);
+}
+.vc-action svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.vc-action--reset {
+    border-color: rgba(255, 90, 90, 0.3);
+    background: rgba(255, 90, 90, 0.05);
+    color: rgba(255, 120, 120, 0.9);
+}
+.vc-action--reset:hover {
+    background: rgba(255, 90, 90, 0.12);
+    border-color: rgba(255, 90, 90, 0.6);
+    color: #ff7878;
+    box-shadow: 0 0 18px rgba(255, 90, 90, 0.22);
+}
+
+/* ── Nota informativa ── */
+.vc-note {
+    width: 100%;
+    font-size: 0.78rem;
+    color: rgba(0, 185, 255, 0.5);
+    text-align: center;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+.vc-note svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+
+/* ── Zona de videos ── */
+.vc-stage { width: 100%; }
+
+.vc-grid {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* ── Reproductor principal ── */
+.vc-player-wrap {
+    width: 100%;
+    max-width: 640px;          /* ancho tope para no estirarse de más */
+    margin: 0 auto;            /* centrado */
+    aspect-ratio: 16 / 9;      /* proporción directa width ↔ height */
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 185, 255, 0.22);
+    background: #03070e;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 185, 255, 0.05),
+        0 0 30px rgba(0, 120, 255, 0.08),
+        0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+.vc-player {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+    border-radius: 14px;
+    object-fit: contain;       /* respeta el video sin recortarlo */
+}
+
+/* placeholder cuando no hay video aún */
+.vc-player--empty {
+    min-height: 240px;
+    object-fit: contain;
+    opacity: 0.5;
+}
+
+/* Etiqueta sobre el reproductor */
+.vc-player-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 100px;
+    font-family: 'Inter', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(0, 200, 255, 0.9);
+    background: rgba(1, 10, 24, 0.78);
+    border: 1px solid rgba(0, 185, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.vc-player-badge__dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #25d366;
+    box-shadow: 0 0 6px rgba(37, 211, 102, 0.8);
+}
+
+/* Resultado final */
+.vc-result {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.vc-result__label {
+    font-family: 'Inter', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(57, 255, 20, 0.7);
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+    margin: 0;
+}
+
+/* ── Box de drop individual (video.jsx) ── */
+.vc-drop {
+    position: relative;
+    width: 310px;
+    height: 180px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1.5px dashed rgba(0, 185, 255, 0.3);
+    background: rgba(2, 12, 28, 0.6);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.vc-drop:hover {
+    border-color: rgba(0, 185, 255, 0.55);
+    box-shadow: 0 0 22px rgba(0, 185, 255, 0.12);
+}
+.vc-drop.ondrop {
+    border-style: solid;
+    border-color: rgba(57, 255, 20, 0.6);
+    box-shadow: 0 0 26px rgba(57, 255, 20, 0.2);
+}
+
+/* Capa de bloqueo (orden de carga) */
+.vc-drop__lock {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: rgba(1, 8, 18, 0.72);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vc-drop__lock svg { width: 26px; height: 26px; color: rgba(0, 185, 255, 0.4); }
+
+/* Placeholder de drop */
+.vc-drop__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    pointer-events: none;
+    color: rgba(0, 185, 255, 0.55);
+}
+.vc-drop__placeholder svg { width: 40px; height: 40px; opacity: 0.75; }
+.vc-drop__placeholder span {
+    font-family: 'Inter', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.vc-drop__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: #000;
+}
+
+/* ══════════════════════════════════════
+   CHECKBOX futurista — ¿no se requiere video?
+   ══════════════════════════════════════ */
+.vc-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.55rem 0.9rem;
+    border-radius: 12px;
+    background: rgba(2, 12, 28, 0.55);
+    border: 1px solid rgba(0, 185, 255, 0.15);
+    transition: border-color 0.18s ease, background 0.18s ease;
+}
+.vc-toggle:hover {
+    border-color: rgba(0, 185, 255, 0.35);
+    background: rgba(0, 185, 255, 0.04);
+}
+.vc-toggle__text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(200, 230, 255, 0.85);
+}
+
+/* checkbox real oculto */
+.vc-toggle__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* switch track */
+.vc-toggle__switch {
+    position: relative;
+    width: 42px;
+    height: 22px;
+    border-radius: 100px;
+    background: rgba(0, 30, 60, 0.8);
+    border: 1px solid rgba(0, 185, 255, 0.25);
+    flex-shrink: 0;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+/* knob */
+.vc-toggle__switch::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(150, 200, 240, 0.9);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    transition: left 0.2s ease, background 0.2s ease;
+}
+/* checked */
+.vc-toggle__input:checked + .vc-toggle__switch {
+    background: rgba(0, 185, 255, 0.25);
+    border-color: rgba(0, 185, 255, 0.6);
+    box-shadow: 0 0 14px rgba(0, 185, 255, 0.25);
+}
+.vc-toggle__input:checked + .vc-toggle__switch::after {
+    left: 23px;
+    background: #00c8ff;
+    box-shadow: 0 0 8px rgba(0, 200, 255, 0.7);
+}
+.vc-toggle__input:focus-visible + .vc-toggle__switch {
+    box-shadow: 0 0 0 3px rgba(0, 185, 255, 0.3);
+}
+
+/* ── Responsive ── */
+@media screen and (max-width: 720px) {
+    .vc-drop { width: 100%; }
+    .vc-control { min-width: 110px; }
+}
+
+/* compat legacy */
 .btnSend:disabled {
-    background: var(--slate-300, #cbd5e1);
+    background: rgba(30, 50, 80, 0.5);
     box-shadow: none;
     cursor: not-allowed;
     opacity: 0.7;

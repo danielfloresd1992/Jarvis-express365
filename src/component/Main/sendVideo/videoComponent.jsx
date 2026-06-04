@@ -3,7 +3,6 @@ import dropImg from '../../../../public/img/drop.png';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRef } from 'react';
-import NavBar from '../../layaut/NasBar.jsx';
 import BoxVideo from './video.jsx';
 
 
@@ -149,209 +148,163 @@ export default function VideoComponent({ awaitWindow, boxModal, getVideo }) {
 
     return (
 
-        <div className='box-send-videoContent' >
-            <NavBar>
+        <div className='vc-wrap'>
 
-                <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'column',
-                        color: '#fff'
-                    }}
-                >
+            {/* ── Panel de control ── */}
+            <div className='vc-panel'>
 
-                    <p>Cantidad de videos</p> <p style={{ fontSize: '1.2rem' }}>{videoArrState.length}</p>
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '.5rem'
-                        }}
-                    >
+                {/* Cantidad de videos */}
+                <div className='vc-control'>
+                    <p className='vc-control__label'>Cantidad de videos</p>
+                    <p className='vc-control__value'>{videoArrState.length}</p>
+                    <div className='vc-stepper'>
                         <button
-                            className='btn'
+                            className='vc-step-btn'
                             disabled={disableState}
                             type='button'
-                            onClick={e => {
+                            onClick={() => {
                                 if (videoArrState.length === 1) return;
-                                let numberArr = [...videoArrState];
+                                const numberArr = [...videoArrState];
                                 numberArr.pop(null);
-                                setVideoArrState(numberArr)
+                                setVideoArrState(numberArr);
                             }}
-                        >-</button>
-
+                        >−</button>
                         <button
-                            className='btn'
+                            className='vc-step-btn'
                             disabled={disableState}
                             type='button'
-                            onClick={e => {
+                            onClick={() => {
                                 if (videoArrState.length === 4) return;
-
-                                let numberArr = [...videoArrState];
+                                const numberArr = [...videoArrState];
                                 numberArr.push(null);
                                 setVideoArrState(numberArr);
                             }}
                         >+</button>
-
                     </div>
                 </div>
 
-                <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'column',
-                        color: '#fff'
-                    }}
-                >
-                    <p>Velodidad</p>
-                    <p>{speedVideoState}</p>
-
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '.5rem'
-                        }}
-                    >
+                {/* Velocidad */}
+                <div className='vc-control'>
+                    <p className='vc-control__label'>Velocidad</p>
+                    <p className='vc-control__value'>{speedVideoState}×</p>
+                    <div className='vc-stepper'>
                         <button
-                            className='btn'
+                            className='vc-step-btn'
                             disabled={disableState}
                             type='button'
-                            onClick={e => {
-                                setSpeedVideoState(state => state = Number((state - 0.1).toFixed(1)));
-                            }}
-                        >-</button>
-
+                            onClick={() => setSpeedVideoState(state => Number((state - 0.1).toFixed(1)))}
+                        >−</button>
                         <button
-                            className='btn'
+                            className='vc-step-btn'
                             disabled={disableState}
                             type='button'
-                            onClick={e => {
-                                setSpeedVideoState(state => state = Number((state + 0.1).toFixed(1)));
-                            }}
+                            onClick={() => setSpeedVideoState(state => Number((state + 0.1).toFixed(1)))}
                         >+</button>
-
                     </div>
                 </div>
-                {
-                    file ?
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <div style={{ top: '20px', right: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid #fff', height: '40%', padding: '1rem', borderRadius: '5px' }}>
-                                <a style={{ color: '#fff' }} href={file} download='video.mp4'>Descargar video</a>
-                            </div>
-                        </div>
-                        :
-                        null
-                }
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <button type='button' onClick={resetVideo} style={{ backgroundColor: 'transparent', top: '20px', right: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid #fff', height: '40%', padding: '1rem', borderRadius: '5px' }}>
-                        Reset
+
+                {/* Acciones */}
+                {file && (
+                    <div className='vc-control' style={{ justifyContent: 'center' }}>
+                        <a className='vc-action' href={file} download='video.mp4'>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Descargar
+                        </a>
+                    </div>
+                )}
+
+                <div className='vc-control' style={{ justifyContent: 'center' }}>
+                    <button type='button' className='vc-action vc-action--reset' onClick={resetVideo}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reiniciar
                     </button>
                 </div>
-            </NavBar>
-
-            <div className={{ width: '100%' }}>
-                {
-                    videoArrState.length > 1 ?
-                        <p style={{ fontSize: '.8rem', color: '#fff' }}>Nota: Coloque los videos en orden acendente uno despues del otro</p>
-                        :
-                        null
-                }
-
             </div>
 
-            <div className=''
-                style={{
-                    width: '100%'
-                }}
-            >
-                {
-                    videoArrState?.length < 2 ?
+            {/* Nota de orden */}
+            {videoArrState.length > 1 && (
+                <p className='vc-note'>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    Coloque los videos en orden ascendente, uno después del otro
+                </p>
+            )}
 
-                        <video autoPlay controls className='box-imgContain' src={file ? file : dropImg}
-                            value={file}
+            {/* ── Escenario de videos ── */}
+            <div className='vc-stage'>
+                {videoArrState?.length < 2 ? (
+                    /* Reproductor único / dropzone */
+                    <div className='vc-player-wrap'>
+                        <span className='vc-player-badge'>
+                            <span className='vc-player-badge__dot' />
+                            {file ? 'Video' : 'Suelta tu video aquí'}
+                        </span>
+                        <video
+                            autoPlay
+                            controls
+                            loop
+                            className='vc-player'
+                            src={file || dropImg}
                             onDragLeave={e => e.preventDefault()}
                             onDragEnter={e => e.preventDefault()}
                             onDragOver={e => e.preventDefault()}
                             onDrop={e => {
                                 e.preventDefault();
-
                                 awaitWindow.open('Procesando video, por favor espere...');
-                                onChange(e.dataTransfer.files[0])
+                                onChange(e.dataTransfer.files[0]);
                             }}
-                            style={{ border: 'solid 1px #fff', width: '100%', }}>
-                            <p className='box-text'>Novedad</p>
-                        </video>
-                        :
-                        <div
-                            style={{
-                                width: '100%',
-                                display: 'flex',
-                                alignItem: 'center',
-                                justifyContent: 'center',
-                                flexWrap: 'wrap',
-                                gap: '1rem'
-                            }}
-                        >
-                            {
-                                videoArrState.map((element, indexItem) => (
-                                    <BoxVideo
-                                        changeEvent={updateArrVideo}
-                                        index={indexItem}
-                                        awaitWindow={awaitWindow}
-                                        countVideo={numberVideoCompleteState}
-                                        setVideoComplete={() => {
-                                            setDisableState(true);
-                                            setNumberVideoCompleteState(numberVideoCompleteState = numberVideoCompleteState + 1)
-                                        }}
-                                        setError={(error) => {
-                                            console.log(error);
-                                            if (error?.response) {
-                                                if (error.response.status === 400) boxModal.open({ title: 'Error', description: 'Error en el formato de archivo' });
-                                                if (error.response.status === 413) boxModal.open({ title: 'Error', description: 'Error en el peso de archivo, excede 50MB' })
-                                            }
-                                            else if (error.message) {
-                                                console.log(error);
-                                                boxModal.open({ title: 'Error', description: error?.message })
-                                            }
-                                        }}
-                                    />
-                                ))
-                            }
-                            {
-                                file ?
-                                    <>
-                                        <div
-                                            style={{
-                                                width: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                flexDirection: 'column',
-                                                position: 'relative'
-                                            }}
-                                        >
-                                            <video autoPlay loop={true} controls className='box-imgContain' src={file ? file : null} value={file}
-                                                style={{
-                                                    width: '100%',
-                                                    backgroundColor: '#000',
+                        />
+                    </div>
+                ) : (
+                    /* Multi-video: grid de drops + resultado */
+                    <div className='vc-grid'>
+                        {videoArrState.map((element, indexItem) => (
+                            <BoxVideo
+                                key={indexItem}
+                                changeEvent={updateArrVideo}
+                                index={indexItem}
+                                awaitWindow={awaitWindow}
+                                countVideo={numberVideoCompleteState}
+                                setVideoComplete={() => {
+                                    setDisableState(true);
+                                    setNumberVideoCompleteState(numberVideoCompleteState = numberVideoCompleteState + 1);
+                                }}
+                                setError={(error) => {
+                                    console.log(error);
+                                    if (error?.response) {
+                                        if (error.response.status === 400) boxModal.open({ title: 'Error', description: 'Error en el formato de archivo' });
+                                        if (error.response.status === 413) boxModal.open({ title: 'Error', description: 'Error en el peso de archivo, excede 50MB' });
+                                    }
+                                    else if (error.message) {
+                                        boxModal.open({ title: 'Error', description: error?.message });
+                                    }
+                                }}
+                            />
+                        ))}
 
-                                                }}
-                                            >
-                                            </video>
-                                            <p style={{ textAlign: 'center' }}>Resultado</p>
-                                        </div>
-
-                                    </>
-                                    :
-                                    null
-                            }
-                        </div>
-                }
+                        {file && (
+                            <div className='vc-result'>
+                                <div className='vc-player-wrap'>
+                                    <span className='vc-player-badge'>
+                                        <span className='vc-player-badge__dot' />
+                                        Resultado
+                                    </span>
+                                    <video autoPlay loop controls className='vc-player' src={file} />
+                                </div>
+                                <p className='vc-result__label'>Video unido listo</p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

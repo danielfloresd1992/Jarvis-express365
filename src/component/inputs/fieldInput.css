@@ -1,0 +1,266 @@
+/* ═══════════════════════════════════════════════════════════
+   FIELD INPUT — input controlado unificado (fi-*)
+   Tema dark/cyan. Solo transiciones de interacción (sin loops).
+   ═══════════════════════════════════════════════════════════ */
+
+.fi-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.fi-label {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(0, 185, 255, 0.6);
+}
+
+/* ── Base de input / select / textarea ── */
+.fi-input,
+.fi-select,
+.fi-textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: rgba(210, 238, 255, 0.95);
+    background: rgba(0, 185, 255, 0.05);
+    border: 1.5px solid rgba(0, 185, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.fi-input::placeholder,
+.fi-textarea::placeholder {
+    color: rgba(0, 185, 255, 0.3);
+}
+
+.fi-input:focus,
+.fi-select:focus,
+.fi-textarea:focus {
+    border-color: rgba(0, 185, 255, 0.55);
+    background: rgba(0, 185, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(0, 150, 255, 0.1), 0 0 18px rgba(0, 150, 255, 0.06);
+}
+
+.fi-input:invalid,
+.fi-select:invalid {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ── Select ── */
+.fi-select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.4rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(0,185,255,0.6)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+}
+.fi-select > option {
+    background: #030f1e;
+    color: rgba(210, 238, 255, 0.92);
+}
+
+/* ── Textarea ── */
+.fi-textarea {
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.5;
+}
+
+/* ── Checkbox (toggle switch) ── */
+.fi-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.55rem 0.9rem;
+    border-radius: 12px;
+    background: rgba(2, 12, 28, 0.55);
+    border: 1px solid rgba(0, 185, 255, 0.15);
+    transition: border-color 0.18s ease, background 0.18s ease;
+}
+.fi-toggle:hover {
+    border-color: rgba(0, 185, 255, 0.35);
+    background: rgba(0, 185, 255, 0.04);
+}
+.fi-toggle__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.fi-toggle__switch {
+    position: relative;
+    width: 42px;
+    height: 22px;
+    border-radius: 100px;
+    background: rgba(0, 30, 60, 0.8);
+    border: 1px solid rgba(0, 185, 255, 0.25);
+    flex-shrink: 0;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fi-toggle__switch::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(150, 200, 240, 0.9);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    transition: left 0.2s ease, background 0.2s ease;
+}
+.fi-toggle__input:checked + .fi-toggle__switch {
+    background: rgba(0, 185, 255, 0.25);
+    border-color: rgba(0, 185, 255, 0.6);
+    box-shadow: 0 0 14px rgba(0, 185, 255, 0.25);
+}
+.fi-toggle__input:checked + .fi-toggle__switch::after {
+    left: 23px;
+    background: #00c8ff;
+    box-shadow: 0 0 8px rgba(0, 200, 255, 0.7);
+}
+.fi-toggle__input:focus-visible + .fi-toggle__switch {
+    box-shadow: 0 0 0 3px rgba(0, 185, 255, 0.3);
+}
+.fi-toggle__text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(200, 230, 255, 0.85);
+}
+
+/* ── Radio group ── */
+.fi-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+}
+.fi-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+    background: rgba(2, 12, 28, 0.55);
+    border: 1.5px solid rgba(0, 185, 255, 0.15);
+    transition: all 0.18s ease;
+}
+.fi-radio:hover {
+    border-color: rgba(0, 185, 255, 0.35);
+}
+.fi-radio--on {
+    border-color: rgba(0, 185, 255, 0.55);
+    background: rgba(0, 185, 255, 0.08);
+    box-shadow: 0 0 14px rgba(0, 185, 255, 0.12);
+}
+.fi-radio__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.fi-radio__dot {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 185, 255, 0.4);
+    flex-shrink: 0;
+    transition: border-color 0.18s ease;
+}
+.fi-radio__dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00c8ff;
+    box-shadow: 0 0 8px rgba(0, 200, 255, 0.7);
+    transition: transform 0.18s ease;
+}
+.fi-radio--on .fi-radio__dot {
+    border-color: rgba(0, 185, 255, 0.7);
+}
+.fi-radio--on .fi-radio__dot::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+.fi-radio__text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(200, 230, 255, 0.85);
+}
+
+/* ── Hour (HH:MM:SS) ── */
+.fi-hour {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid rgba(0, 185, 255, 0.2);
+    border-radius: 10px;
+    background: rgba(0, 185, 255, 0.05);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.fi-hour:focus-within {
+    border-color: rgba(0, 185, 255, 0.55);
+    background: rgba(0, 185, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(0, 150, 255, 0.1), 0 0 18px rgba(0, 150, 255, 0.06);
+}
+.fi-hour__seg {
+    display: inline-flex;
+    align-items: center;
+}
+.fi-hour__input {
+    width: 2.2ch;
+    padding: 0.15rem 0;
+    text-align: center;
+    font-family: 'Inter', monospace;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: rgba(215, 240, 255, 0.96);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+}
+.fi-hour__input::placeholder {
+    color: rgba(0, 185, 255, 0.25);
+}
+.fi-hour__input:focus {
+    background: rgba(0, 185, 255, 0.12);
+}
+.fi-hour__colon {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: rgba(0, 185, 255, 0.5);
+    padding: 0 0.1rem;
+    user-select: none;
+}
+
+/* ── Mobile ── */
+@media screen and (max-width: 720px) {
+    .fi-hour__input { font-size: 1.55rem; }
+    .fi-radio-group { flex-direction: column; }
+}

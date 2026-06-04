@@ -13,6 +13,7 @@ import { useTextMenu } from '../../../hook/useTextMenu';
 import { useImgAlternative } from '../../../hook/useImgAlternative.jsx';
 
 import CarsSelect from '../../inputs/InputCar.jsx';
+import FieldInput from '../../inputs/FieldInput.jsx';
 import URL from '../../../libs/fetch_data/api_conexion.js';
 import { sendFailedDvr, removeFailedDvr } from '../../../libs/fetch_data/failedRequest.js';
 
@@ -54,6 +55,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
     const [person, setPerson] = useState(null);
     const [area, setArea] = useState(null);
     const ref = useRef(null);
+    const [timeUniqueState, setTimeUniqueState] = useState('');
     const user = useRef(null);
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
 
@@ -366,29 +368,23 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                             {
                                 title[0].table === true ?  //tableNeeded, setTableNeeded
                                     <>
-                                        <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                                            <p>¿no se necesita numero de mesa?</p>
-                                            <input type='checkbox'
-                                                checked={tableNeeded}
-                                                onChange={e => {
-                                                    console.log(e.target.checked)
-                                                    setTableNeeded(e.target.checked)
-                                                }}
-                                            />
-                                        </label>
+                                        <FieldInput
+                                            type="checkbox"
+                                            value={tableNeeded}
+                                            onChange={checked => setTableNeeded(checked)}
+                                            trueLabel="Requiere número de mesa"
+                                            falseLabel="Sin número de mesa"
+                                        />
 
                                         {
                                             tableNeeded ?
-                                                <label className='box-label' > Número de mesa
-                                                    <input
-                                                        className='box-inputText'
-                                                        type="text"
-                                                        id="inicio"
-                                                        value={table}
-                                                        required
-                                                        onChange={e => setTable(table = e.target.value)}
-                                                    />
-                                                </label>
+                                                <FieldInput
+                                                    type="text"
+                                                    label="Número de mesa"
+                                                    value={table}
+                                                    required
+                                                    onChange={v => setTable(table = v)}
+                                                />
                                                 :
                                                 null
                                         }
@@ -401,19 +397,13 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                             }
                             {
                                 title[0].amountOfSomething ?
-                                    <>
-                                        <label className='box-label' >Cantidad total
-                                            <input
-                                                className='box-inputText'
-                                                type="number"
-                                                id="inicio"
-                                                value={amountState}
-                                                required
-                                                onChange={e => setAmountState(e.target.value)}
-                                            />
-                                        </label>
-                                    </>
-
+                                    <FieldInput
+                                        type="number"
+                                        label="Cantidad total"
+                                        value={amountState}
+                                        required
+                                        onChange={v => setAmountState(v)}
+                                    />
                                     :
                                     null
                             }
@@ -422,29 +412,19 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Tiempo de la novedad</h2>
-                                            <label className='box-label' > Inició
-                                                <input
-                                                    className='box-inputText'
-                                                    type="text" id="inicio"
-                                                    value={time1}
-                                                    required
-                                                    pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$"
-                                                    onChange={e => setTime1(e.target.value)}
-                                                />
-                                            </label>
+                                            <FieldInput
+                                                type="hour"
+                                                label="Inició"
+                                                value={time1}
+                                                onChange={v => setTime1(v)}
+                                            />
 
-                                            <label className='box-label' > Finalizó
-                                                <input
-                                                    className='box-inputText'
-                                                    type="text"
-                                                    id="fin"
-                                                    value={time2}
-                                                    required
-                                                    pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$"
-                                                    onChange={e => setTime2(e.target.value)}
-                                                />
-                                            </label>
-
+                                            <FieldInput
+                                                type="hour"
+                                                label="Finalizó"
+                                                value={time2}
+                                                onChange={v => setTime2(v)}
+                                            />
 
                                             <p className='box-textHourResult' >Tiempo total: <span>{calculateTime(time1, time2)}</span></p>
                                         </>
@@ -459,16 +439,15 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Tiempo de la novedad</h2>
-                                            <label className='box-label' > {title[0].especial?.time?.timeUnique ? title[0].especial?.time?.timeUnique[LANG] : 'Hora'}
-                                                <input
-                                                    className='box-inputText'
-                                                    type="text"
-                                                    id="inicio"
-                                                    value={ref.current}
-                                                    required pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$"
-                                                    onChange={e => ref.current = e.target.value}
-                                                />
-                                            </label>
+                                            <FieldInput
+                                                type="hour"
+                                                label={title[0].especial?.time?.timeUnique ? title[0].especial?.time?.timeUnique[LANG] : 'Hora'}
+                                                value={timeUniqueState}
+                                                onChange={v => {
+                                                    setTimeUniqueState(v);
+                                                    ref.current = v;
+                                                }}
+                                            />
                                         </>
                                     ) :
                                     (
@@ -493,81 +472,52 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Descripción de la persona</h2>
-                                            <label className='box-label' > Genero
-                                                <select
-                                                    className='box-inputText'
-                                                    style={
-                                                        {
-                                                            textAlign: 'left'
-                                                        }
-                                                    }
-                                                    required
-                                                    onChange={
-                                                        e => {
-                                                            setPerson({ ...person, gender: e.target.value })
-                                                        }
-                                                    }
-                                                >
-                                                    <option value=''>Selecione</option>
-                                                    <option value={local.lang === 'es' ? 'dama' : 'lady'}>Dama</option>
-                                                    <option value={local.lang === 'es' ? 'caballero' : 'glentmen'}>Caballero</option>
-                                                </select>
-                                            </label>
-                                            <label
-                                                className='box-label' > Tipo de prenda de la persona
-                                                <select
-                                                    className='box-inputText'
-                                                    style={
-                                                        {
-                                                            textAlign: 'left'
-                                                        }
-                                                    }
-                                                    required
-                                                    onChange={
-                                                        e => {
-                                                            setPerson({ ...person, garment: e.target.value })
-                                                        }
-                                                    }
-                                                >
-                                                    <option value=''>Selecione</option>
-                                                    <option value={local.lang === 'es' ? 'suéter' : 'sweater'}>Sueter</option>
-                                                    <option value={local.lang === 'es' ? 'chaqueta' : 'jacket'}>Chaqueta</option>
-                                                    <option value={local.lang === 'es' ? 'camisa' : 'shirt'}>Camisa</option>
-                                                    <option value={local.lang === 'es' ? 'vestido' : 'dress'}>Vestido</option>
-                                                </select>
-                                            </label>
-                                            <label
-                                                className='box-label' > Color la prenda
-                                                <select
-                                                    className='box-inputText'
-                                                    style={
-                                                        {
-                                                            textAlign: 'left'
-                                                        }
-                                                    }
-                                                    required
-                                                    onChange={
-                                                        e => {
-                                                            setPerson({ ...person, color: e.target.value })
-                                                        }
-                                                    }
-                                                >
-                                                    <option value=''>Selecione</option>
-                                                    <option value={local.lang === 'es' ? 'negro' : 'black'}>negro</option>
-                                                    <option value={local.lang === 'es' ? 'blanco' : 'white'}>blanco</option>
-                                                    <option value={local.lang === 'es' ? 'verde' : 'green'}>verde</option>
-                                                    <option value={local.lang === 'es' ? 'amarillo' : 'yellow'}>amarillo</option>
-                                                    <option value={local.lang === 'es' ? 'azul' : 'blue'}>azul</option>
-                                                    <option value={local.lang === 'es' ? 'rojo' : 'red'}>rojo</option>
-                                                    <option value='beige'>beige</option>
-                                                    <option value={local.lang === 'es' ? 'marron' : 'brown'}>marron</option>
-                                                    <option value={local.lang === 'es' ? 'rosa' : 'pink'}>rosa</option>
-                                                    <option value={local.lang === 'es' ? 'gris' : 'grey'}>gris</option>
-                                                    <option value={local.lang === 'es' ? 'dorado' : 'golden'}>dorado</option>
-                                                    <option value={local.lang === 'es' ? 'vinotinto' : 'burgundy'}>vinotinto</option>
-                                                    <option value={local.lang === 'es' ? 'naranja' : 'orange'}>naranja</option>
-                                                </select>
-                                            </label>
+                                            <FieldInput
+                                                type="select"
+                                                label="Género"
+                                                value={person?.gender ?? ''}
+                                                required
+                                                onChange={v => setPerson({ ...person, gender: v })}
+                                                options={[
+                                                    { value: local.lang === 'es' ? 'dama' : 'lady', text: 'Dama' },
+                                                    { value: local.lang === 'es' ? 'caballero' : 'glentmen', text: 'Caballero' },
+                                                ]}
+                                            />
+                                            <FieldInput
+                                                type="select"
+                                                label="Tipo de prenda de la persona"
+                                                value={person?.garment ?? ''}
+                                                required
+                                                onChange={v => setPerson({ ...person, garment: v })}
+                                                options={[
+                                                    { value: local.lang === 'es' ? 'suéter' : 'sweater', text: 'Suéter' },
+                                                    { value: local.lang === 'es' ? 'chaqueta' : 'jacket', text: 'Chaqueta' },
+                                                    { value: local.lang === 'es' ? 'camisa' : 'shirt', text: 'Camisa' },
+                                                    { value: local.lang === 'es' ? 'vestido' : 'dress', text: 'Vestido' },
+                                                ]}
+                                            />
+                                            <FieldInput
+                                                type="select"
+                                                label="Color de la prenda"
+                                                value={person?.color ?? ''}
+                                                required
+                                                onChange={v => setPerson({ ...person, color: v })}
+                                                options={[
+                                                    { value: local.lang === 'es' ? 'negro' : 'black', text: 'Negro' },
+                                                    { value: local.lang === 'es' ? 'blanco' : 'white', text: 'Blanco' },
+                                                    { value: local.lang === 'es' ? 'verde' : 'green', text: 'Verde' },
+                                                    { value: local.lang === 'es' ? 'amarillo' : 'yellow', text: 'Amarillo' },
+                                                    { value: local.lang === 'es' ? 'azul' : 'blue', text: 'Azul' },
+                                                    { value: local.lang === 'es' ? 'rojo' : 'red', text: 'Rojo' },
+                                                    { value: 'beige', text: 'Beige' },
+                                                    { value: local.lang === 'es' ? 'marron' : 'brown', text: 'Marrón' },
+                                                    { value: local.lang === 'es' ? 'rosa' : 'pink', text: 'Rosa' },
+                                                    { value: local.lang === 'es' ? 'gris' : 'grey', text: 'Gris' },
+                                                    { value: local.lang === 'es' ? 'dorado' : 'golden', text: 'Dorado' },
+                                                    { value: local.lang === 'es' ? 'vinotinto' : 'burgundy', text: 'Vinotinto' },
+                                                    { value: local.lang === 'es' ? 'naranja' : 'orange', text: 'Naranja' },
+                                                ]}
+                                            />
                                         </>
                                     )
                                     :
@@ -579,39 +529,39 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     (
                                         <>
                                             <h2>Área de la incidencia</h2>
-                                            <label className='box-label' > Área
-                                                <select
-                                                    className='box-inputText'
-                                                    style={
-                                                        {
-                                                            textAlign: 'left'
-                                                        }
-                                                    }
-                                                    required
-                                                    onChange={
-                                                        e => {
-                                                            setArea(e.target.value)
-                                                        }
-                                                    }
-                                                >
-                                                    <option value=''>Selecione</option>
-                                                    <option value={local.lang === 'es' ? 'almacén' : 'warehouse'}>Almacén</option>
-                                                    <option value={local.lang === 'es' ? 'barra' : 'bar'}>Barra</option>
-                                                    <option value={local.lang === 'es' ? 'baños' : 'bathrooms'}>Baños</option>
-                                                    <option value={local.lang === 'es' ? 'cava' : 'large fridge compartment'}>Cava</option>
-                                                    <option value={local.lang === 'es' ? 'cocina' : 'kitchen'}>Cocina</option>
-                                                    <option value={local.lang === 'es' ? 'deposito' : 'warehouse'}>Deposito</option>
-                                                    <option value={local.lang === 'es' ? 'oficina' : 'office'}>Oficina</option>
-                                                    <option value={local.lang === 'es' ? 'pasillo' : 'hallway'}>Pasillo</option>
-                                                    <option value={local.lang === 'es' ? 'puerta trasera' : 'back door'}>Puerta trasera</option>
-                                                    <option value={local.lang === 'es' ? 'puerta principal' : 'main door'}>Puerta pincipal</option>
-                                                    <option value={local.lang === 'es' ? 'salón principal' : 'main hall'}>Salón principal</option>
-                                                    <option value={local.lang === 'es' ? 'terraza' : 'terrace'}>Terraza</option>
-                                                    <option value={local.lang === 'es' ? 'preparación' : 'preparation'}>Terraza</option>
-
-
-                                                </select>
-                                            </label>
+                                            <FieldInput
+                                                type="select"
+                                                label="Área"
+                                                value={area ?? ''}
+                                                required
+                                                onChange={v => setArea(v)}
+                                                options={[
+                                                    { value: local.lang === 'es' ? 'almacén' : 'warehouse', text: 'Almacén' },
+                                                    { value: local.lang === 'es' ? 'área de lavado' : 'dishwashing area', text: 'Área de lavado' },
+                                                    { value: local.lang === 'es' ? 'baños' : 'bathrooms', text: 'Baños' },
+                                                    { value: local.lang === 'es' ? 'barra' : 'bar', text: 'Barra' },
+                                                    { value: local.lang === 'es' ? 'caja' : 'cash register', text: 'Caja' },
+                                                    { value: local.lang === 'es' ? 'cámara de congelación' : 'freezer room', text: 'Cámara de congelación' },
+                                                    { value: local.lang === 'es' ? 'cámara de refrigeración' : 'cold room', text: 'Cámara de refrigeración' },
+                                                    { value: local.lang === 'es' ? 'cava' : 'large fridge compartment', text: 'Cava' },
+                                                    { value: local.lang === 'es' ? 'cocina' : 'kitchen', text: 'Cocina' },
+                                                    { value: local.lang === 'es' ? 'comedor' : 'dining room', text: 'Comedor' },
+                                                    { value: local.lang === 'es' ? 'deposito' : 'storage room', text: 'Depósito' },
+                                                    { value: local.lang === 'es' ? 'escaleras' : 'stairs', text: 'Escaleras' },
+                                                    { value: local.lang === 'es' ? 'estacionamiento' : 'parking lot', text: 'Estacionamiento' },
+                                                    { value: local.lang === 'es' ? 'oficina' : 'office', text: 'Oficina' },
+                                                    { value: local.lang === 'es' ? 'parrilla' : 'grill area', text: 'Parrilla' },
+                                                    { value: local.lang === 'es' ? 'pasillo' : 'hallway', text: 'Pasillo' },
+                                                    { value: local.lang === 'es' ? 'preparación' : 'preparation', text: 'Preparación' },
+                                                    { value: local.lang === 'es' ? 'puerta principal' : 'main door', text: 'Puerta principal' },
+                                                    { value: local.lang === 'es' ? 'puerta trasera' : 'back door', text: 'Puerta trasera' },
+                                                    { value: local.lang === 'es' ? 'recepción' : 'reception', text: 'Recepción' },
+                                                    { value: local.lang === 'es' ? 'salón principal' : 'main hall', text: 'Salón principal' },
+                                                    { value: local.lang === 'es' ? 'terraza' : 'terrace', text: 'Terraza' },
+                                                    { value: local.lang === 'es' ? 'vestidor' : 'locker room', text: 'Vestidor' },
+                                                    { value: local.lang === 'es' ? 'zona de carga' : 'loading area', text: 'Zona de carga' },
+                                                ]}
+                                            />
                                         </>
                                     )
                                     :
@@ -621,17 +571,16 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                 Array.isArray(title) && title[0].doesItrequireVideo ?
 
                                     <>
-                                        <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                                            <p>¿no se requiere video?</p>
-                                            <input type='checkbox'
-                                                checked={isRequieredVideoState}
-                                                onChange={e => {
-                                                    if (!e.target.checked) setVideoState(null);
-                                                    if (e.target.checked === false) setVideoState(null);
-                                                    setIsRequieredVideo(e.target.checked)
-                                                }}
-                                            />
-                                        </label>
+                                        <FieldInput
+                                            type="checkbox"
+                                            value={isRequieredVideoState}
+                                            onChange={checked => {
+                                                if (!checked) setVideoState(null);
+                                                setIsRequieredVideo(checked);
+                                            }}
+                                            trueLabel="Adjuntar video"
+                                            falseLabel="Sin video"
+                                        />
 
                                         {
                                             isRequieredVideoState ?
@@ -645,18 +594,13 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                     :
                                     null
                             }
-                            <label className='box-label' htmlFor=""> Nota
-                                <textarea
-                                    className='box-textArea'
-                                    spellCheck="true"
-                                    autoComplete='true'
-                                    placeholder='en caso que lo amerite'
-                                    cols="30"
-                                    rows="10"
-                                    value={description}
-                                    onChange={e => setDescription(description = e.target.value)}>
-                                </textarea>
-                            </label>
+                            <FieldInput
+                                type="textarea"
+                                label="Nota"
+                                value={description}
+                                placeholder="En caso que lo amerite"
+                                onChange={v => setDescription(description = v)}
+                            />
 
                         </div>
                     </>

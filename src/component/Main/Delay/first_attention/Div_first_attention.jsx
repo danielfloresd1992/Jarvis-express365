@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux';
 import { useAlert } from '../../../../hook/useAlert';
 import { Search } from '../../search/searchComponent.jsx';
 import { returnTimeExceding } from '../../../../libs/date_time/time.js';
+import calculateTime from '../../../../libs/date_time/calculate_time.js';
+
 import { useDataUser } from '../../../../hook/useTextMenu.jsx';
 import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
 import { ImgBoxImg } from '../../imgBoxComponent/ImgBox';
@@ -15,7 +17,7 @@ import { useImgAlternative } from '../../../../hook/useImgAlternative';
 import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
-
+import FieldInput from '../../../inputs/FieldInput.jsx';
 
 
 
@@ -36,9 +38,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
     let [time1, setTime1] = useState('');
     let [time2, setTime2] = useState('');
-    let [timeTotal, setTimeTotal] = useState('');
-
-    let [textResult, setResult] = useState('00:00:00');
+    let timeTotal = calculateTime(time1, time2);
     let [description, setDescription] = useState('');
 
     const [hasFinishedState, setHasFinishedState] = useState(true);
@@ -100,19 +100,18 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
     function catBoxImg() {
         return (
-            <>
+            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
                 {
                     hasFinishedState ?
-                        <div className='box-imgComponenContent' ref={htmlAdapterRef}>
+                        <>
                             <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={() => deleteImg(0)} language={local?.lang} />
                             <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={() => deleteImg(1)} language={local?.lang} />
-                        </div>
+                        </>
                         :
-                        <div className='box-imgComponenContent' ref={htmlAdapterRef}>
-                            <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={local?.lang} />
-                        </div>
+                        <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={local?.lang} />
+
                 }
-            </>
+            </div>
         );
     }
 
@@ -181,7 +180,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 });
             }
 
-      
+
 
             dataForRequest.title = hasFinishedState ? 'Demora de primera atención' : 'Mesa no recibe protocolo de PA1 aún (aviso)';
             dataForRequest.table = table;
@@ -210,8 +209,6 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');
-                setTimeTotal(timeTotal = '');
-                setResult('00:00:00');
                 boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
                 reset();
             }
@@ -267,32 +264,41 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                     />
                 </label>
 
-                <label className='box-label' htmlFor=""> Tiempo de ocupa
-                    <input className='box-inputText' type="text" id="ocupa" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                        onChange={e => recepHour(e.target)}
-                    />
-                </label>
+
+                <FieldInput
+                    type="hour"
+                    label="Tiempo del ocupa de la mesa"
+                    value={time1}
+                    onChange={v => setTime1(v)}
+                />
+
+
 
                 <label htmlFor="" className='box-label'>¿Sin primera atención aún?
                     <input className='box-inputText' type="checkbox" value={hasFinishedState}
                         onChange={e => setHasFinishedState(state => state = !state)}
                     />
                 </label>
+
+
                 {
                     hasFinishedState ?
                         <>
-                            <label htmlFor="" className='box-label'> Timpo de primera atención
-                                <input className='box-inputText' type="text" id="primera-atencion" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                                    onChange={e => recepHour(e.target)}
-                                />
-                            </label>
+                            <FieldInput
+                                type="hour"
+                                label="Timpo de la primera atención a la mesa"
+                                value={time2}
+                                onChange={v => setTime2(v)}
+                            />
 
-                            <p className='box-textHourResult' >Hora total: <span>{textResult}</span></p>
+
+
+                            <p className='box-textHourResult' >Tiempo total en recibir la primera atención a la mesa: <span>{calculateTime(time1, time2)}</span></p>
 
                             {
                                 localData.franchise === 'Mister01' ?
                                     (
-                                        <p className='box-textHourResult' >Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING.current)}</span></p>
+                                        <p className='box-textHourResult' >Tiempo excedido: <span>{calculateTime(calculateTime(time1, time2), TIME_EXCEDING.current)}</span></p>
                                     )
                                     :
                                     (
@@ -302,11 +308,15 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                         </>
                         :
                         <>
-                            <label htmlFor="" className='box-label'>Hora actual sin primera atención
-                                <input className='box-inputText' type="text" id="primera-atencion" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                                    onChange={e => recepHour(e.target)}
-                                />
-                            </label>
+                            <FieldInput
+                                type="hour"
+                                label="Timpo de la primera atención a la mesa"
+                                value={time2}
+                                onChange={e => setTime2(e)}
+                            />
+
+
+
                             <p className='box-textHourResult'>Tiempo en que continua sin primera atención: {returnTimeExceding(time2, time1)}</p>
                         </>
                 }

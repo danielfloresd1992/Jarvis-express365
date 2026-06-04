@@ -6,6 +6,7 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
     return new Promise((resolve, reject) => {
         const originalElement = elementHtml;
         originalElement.style.zoom = 'normal';
+        originalElement.classList.remove("gridx4");
         const replicElement = originalElement.querySelector('#forImg-canvas02');
         if (replicElement) replicElement.remove();
 
@@ -74,6 +75,7 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
             })
             .finally(() => {
                 htmlForImg.remove();
+                originalElement.classList.add('gridx4');
             });
 
     });

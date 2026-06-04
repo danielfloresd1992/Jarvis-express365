@@ -188,16 +188,19 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
             <div className='box-inputContain box-div-imputContain'>
 
                 <>
-                    <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                        <p>¿no se requiere video?</p>
-                        <input type='checkbox'
+                    <label className='vc-toggle' htmlFor='vc-requiere-video-tt'>
+                        <input
+                            id='vc-requiere-video-tt'
+                            className='vc-toggle__input'
+                            type='checkbox'
                             checked={isRequieredVideoState}
                             onChange={e => {
                                 if (!e.target.checked) setVideoState(null);
-                                if (e.target.checked === false) setVideoState(null);
-                                setIsRequieredVideo(e.target.checked)
+                                setIsRequieredVideo(e.target.checked);
                             }}
                         />
+                        <span className='vc-toggle__switch' />
+                        <span className='vc-toggle__text'>Adjuntar video</span>
                     </label>
 
                     {

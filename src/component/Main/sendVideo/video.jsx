@@ -1,8 +1,7 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
 import SpinerColor from '../../awaits/spinnerColor';
-
-import icoDrop from '../../../../public/ico/icons8-arrastrar-y-soltar-100.png';
+import './style.css';
 
 
 
@@ -77,57 +76,38 @@ export default function boxVideo({ changeEvent, index, awaitWindow, countVideo, 
 
 
     return (
-        <div
-            style={{
-                position: 'relative',
-                width: '310px',
-                height: '180px'
-            }}
-        >
-            {
-                index - 1 >= countVideo ?
-                    <div
-                        style={{ backgroundColor: 'rgb(0 0 0 / 64%)', position: 'absolute', width: '100%', height: '180px', top: '0', left: '0', zIndex: 1 }}
-                    >
+        <div className='vc-drop' ref={boxRefStyle}>
+            {/* Capa de bloqueo: aún no es su turno en el orden */}
+            {index - 1 >= countVideo && (
+                <div className='vc-drop__lock'>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                </div>
+            )}
 
-                    </div>
-                    : null
-            }
+            {/* Placeholder de drop */}
+            {!urlVideoState && !awaitState && (
+                <div className='vc-drop__placeholder'>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span>Video {index + 1}</span>
+                </div>
+            )}
 
-            {
-                !urlVideoState && !awaitState ?
-                    <div className='box-inputCamera'
-                        ref={boxRefStyle}
-                        style={{
-                            position: 'absolute',
-                            top: '0',
-                            height: '100%',
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexDirection: 'column',
-                            gap: '.5rem'
-                        }}
-                    >
+            {/* Spinner de conversión */}
+            {awaitState && <SpinerColor text={'Preparando video'} />}
 
-                        <img src={icoDrop} alt='drop' style={{ width: '50px' }} />
-                        <p style={{ color: '#fff' }}>video {index + 1}</p>
-
-                    </div>
-                    : null
-            }
-            {
-                awaitState ?
-                    <SpinerColor text={'Preparando video para la conversión'} />
-                    :
-                    null
-            }
-            <video className='box-imgContain-video'
-                autoPlay={true}
-                loop={true}
+            <video
+                className='vc-drop__video'
+                autoPlay
+                loop
+                muted
                 src={urlVideoState}
-                value={null}
                 onDragLeave={e => {
                     e.preventDefault();
                     boxRefStyle.current.classList.remove('ondrop');
@@ -145,12 +125,8 @@ export default function boxVideo({ changeEvent, index, awaitWindow, countVideo, 
                         setUrlVideoState(null);
                         concactVideoRequest(e.dataTransfer.files[0]);
                     }
-
                 }}
-                style={{ border: 'solid 1px #fff' }}
-            >
-
-            </video>
+            />
         </div>
     );
 }

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import search from '../../../../public/ico/seach/search.svg';
 import Fuse from 'fuse.js';
 
 function Search({ array, config, callback }) {
@@ -33,8 +32,11 @@ function Search({ array, config, callback }) {
         <div className='speedContain'>
             <div className='speed'>
                 <input className='speed-input' type='text' placeholder={config.placeholder} value={inputValue} onChange={e => { autoComplete(e.target.value, array), setInputValue(inputValue = e.target.value) }} required />
-                <button className='speed-btn' type='button' >
-                    <img className='speed-btnImg' src={search} alt="" />
+                <button className='speed-btn' type='button' aria-label='Buscar'>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
                 </button>
             </div>
             <div className='resultContain'>

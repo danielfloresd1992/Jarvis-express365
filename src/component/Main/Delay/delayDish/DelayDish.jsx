@@ -421,17 +421,19 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
 
                     <>
-                        <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                            <p>¿no se requiere video?</p>
-                            <input type='checkbox'
+                        <label className='vc-toggle' htmlFor='vc-requiere-video'>
+                            <input
+                                id='vc-requiere-video'
+                                className='vc-toggle__input'
+                                type='checkbox'
                                 checked={isRequieredVideoState}
                                 onChange={e => {
-                                    console.log(e.target.checked)
                                     if (!e.target.checked) setVideoState(null);
-                                    if (e.target.checked === false) setVideoState(null);
-                                    setIsRequieredVideo(e.target.checked)
+                                    setIsRequieredVideo(e.target.checked);
                                 }}
                             />
+                            <span className='vc-toggle__switch' />
+                            <span className='vc-toggle__text'>Adjuntar video</span>
                         </label>
 
                         {
