@@ -1,8 +1,4 @@
-import imgDefault from '../../../public/img/default.png';
-import NavBar from '../../component/Navbar/NavBar.jsx';
-import InboxImg from '../../component/inbox/images_inbox.jsx';
-import AsideBar from '../../component/AsideBar/AsideBar.jsx';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import axiosInstance from '@/libs/fetch_data/instanceAxios';
 import { isMobile, isTablet } from 'react-device-detect';
 import { Main } from '../../component/Main/Main.jsx';
@@ -10,9 +6,10 @@ import Chat from '../../component/chat/Chat.jsx';
 import { Await } from '../../component/Main/awaitComponent/AwaitComponent.jsx';
 import { useDispatch, useSelector } from 'react-redux';
 import { createIo, socketAppManager } from '../../store/slices/socketio.js';
-
-
-
+import imgDefault from '../../../public/img/default.png';
+import NavBar from '../../component/Navbar/NavBar.jsx';
+import InboxImg from '../../component/inbox/images_inbox.jsx';
+import AsideBar from '../../component/AsideBar/AsideBar.jsx';
 import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
 import { BoxModal } from '../../component/Main/boxModal/BoxModal.jsx';
@@ -21,6 +18,7 @@ import Notifications from '../../component/notifications/notifications.jsx'
 import URL from '../../libs/fetch_data/api_conexion.js';
 import { getEstablishmentByIdFull } from '../../libs/fetch_data/establishmentFetching.js';
 import { arrayBufferToBase64 } from '../../libs/script/toBase64.js';
+
 
 
 
@@ -38,6 +36,7 @@ export default function Home() {
     let [render, setRender] = useState(JSON.parse(localStorage.getItem('local_appExpress')));
     let [renderValue, setRenderValue] = useState(String);
     let [openSideBar, setOpenSideBar] = useState(false);
+
 
 
     useEffect(() => {
@@ -73,7 +72,6 @@ export default function Home() {
                 localId: selectEstablishment._id
             }
         };
-
 
         socketAppManager.emit('user-data', dataUser);
     };
@@ -139,8 +137,9 @@ export default function Home() {
 
 
     useEffect(() => {
-        axiosInstance.get(`${URL}/localLigth?populate=dishes`)
+        axiosInstance.get(`${URL}/localLigth`)
             .then(response => {
+                console.log(response)
                 dispatch(setLocals(response.data));
                 if (localStorage.getItem('local_appExpress')) {
                     setLocal(local = JSON.parse(localStorage.getItem('local_appExpress')));
@@ -161,6 +160,8 @@ export default function Home() {
 
         if (isMobile && !isTablet) setRender(render = true);
     }, []);
+
+
 
 
 
@@ -197,6 +198,11 @@ export default function Home() {
 
 
 
+    const orderEstablishment  = useMemo(() => {
+        return [...localSelector].sort((a, b) => a.name.localeCompare(b.name))
+    }, [localSelector]);
+
+
 
     return (
         <>
@@ -225,13 +231,8 @@ export default function Home() {
                                         >
                                             <option className='local-option' value="">- Selecciones un local -</option>
                                             {
-                                                localSelector.map(local => (
-                                                    local.status === 'activo' ?
-                                                        (
-                                                            <option className='local-option' key={local._id} value={local._id}>{local.name}</option>
-                                                        )
-                                                        :
-                                                        (null)
+                                                orderEstablishment.sort((a, b) =>  a.name - b.name).map(local => (
+                                                    <option className='local-option' key={local._id} value={local._id}>{local.name}</option>
                                                 ))
                                             }
                                         </select>

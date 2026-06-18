@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"RC=$?\")",
+      "Bash(node --check \"/run/media/sistemas-m2/786b5b1a-4e8e-4d06-bf9c-174df97c7d98/Client365/src/components/raytracer/raytracer.worker.js\")",
+      "Bash(node /tmp/recolor_client365.mjs)",
+      "Bash(echo \"EXIT=$?\")"
+    ]
+  }
+}

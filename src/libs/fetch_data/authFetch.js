@@ -2,15 +2,12 @@ import axiosInstance from './instanceAxios';
 import IP from './dataFetch';
 
 
-export const confirmAuthentication = () => {
-    return new Promise((resolve, reject) => {
-        axiosInstance.get(`${IP}/auth/isAuth`)
-            .then(response => {
-                resolve(response)
-            })
-            .catch(error => {
-                console.log(error);
-                reject(error)
-            });
-    });
+
+export const confirmAuthentication = async () => {
+    try {
+        return await axiosInstance.get(`${IP}/auth/isAuth`)
+    } 
+    catch(error){
+        return error
+    }
 }

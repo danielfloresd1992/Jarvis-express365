@@ -27,11 +27,9 @@ function LoginUser() {
 
     useEffect(() => {
         localStorage.removeItem('local_appExpress');
-        if (JSON.parse(sessionStorage.getItem('session'))) {
-            dispatch(setUser(JSON.parse(window.sessionStorage.getItem('session'))));
-            navigate('/home');
-        }
+       
     }, []);
+
 
 
     const loggin = data => {
@@ -51,6 +49,7 @@ function LoginUser() {
             });
     };
 
+    
 
     return (
         <>

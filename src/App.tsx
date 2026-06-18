@@ -54,6 +54,7 @@ const App: FC = () => {
                             }
                         />
 
+
                         <Route path={'/ModalData'} element={
                             <ProtectedRoutes>
                                 <ModalData />
