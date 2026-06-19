@@ -19,7 +19,7 @@ function Chat() {
     const [chatState, setChatState] = useState([]);
     const [hiddenWindowState, setWindowState] = useState(false);
     const inputRef = useRef(null);
-    const local = JSON.parse(localStorage.getItem('local_appExpress'))[0];
+    const establishment = useSelector(store => store.establishment);
     const refPaginate = useRef(0);
 
 
@@ -97,12 +97,12 @@ function Chat() {
         setMessageForChat({
             message: inputRef.current.value.trim(),
             establishment: {
-                name: local.name,
-                establishmentId: local._id
+                name: establishment.name,
+                establishmentId: establishment._id
             }
         })
             .then(response => {
-                const text = `_*${userSeled?.name} ${userSeled?.surName} ha escrito:*_\n${inputRef.current.value}${local ? `\n*en: ${local.name}*` : ''}`;
+                const text = `_*${userSeled?.name} ${userSeled?.surName} ha escrito:*_\n${inputRef.current.value}${establishment ? `\n*en: ${establishment.name}*` : ''}`;
 
                 axios.post('https://72.68.60.254:4000/bot/imgV2/number=120363370695210667@g.us', { "my-text": text })
                     .then(response => {

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import './fieldInput.css';
 
 /**
@@ -17,6 +17,10 @@ import './fieldInput.css';
  *  @param {string}  trueLabel/falseLabel - textos del checkbox
  *  @param {object}  inputProps - props extra para el <input/select/textarea>
  */
+
+
+
+
 export default function FieldInput({
     type = 'text',
     label,
@@ -188,8 +192,9 @@ function RadioField({ value, onChange, options, name }) {
 
 
 /* ─── hour (HH:MM:SS) ─── */
-function HourField({ value, onChange, name }) {
+function HourField({ value, onChange, required, name }) {
     const refs = [useRef(null), useRef(null), useRef(null)];
+    const [touched, setTouched] = useState(false);
 
     const max = [23, 59, 59];
 
@@ -230,6 +235,7 @@ function HourField({ value, onChange, name }) {
         /* Dígito 0-9 */
         if (/^\d$/.test(e.key)) {
             e.preventDefault();
+            if (!touched) setTouched(true);
             const current = segRef.current[i];
             let seg = fresh.current[i] ? e.key : (current + e.key).slice(-2);
             if (Number(seg) > max[i]) seg = e.key;   // clamp al máximo
@@ -263,6 +269,7 @@ function HourField({ value, onChange, name }) {
         e.preventDefault();
         const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
         if (!digits) return;
+        if (!touched) setTouched(true);
         const padded = digits.padEnd(6, '0');
         segRef.current = [padded.slice(0, 2), padded.slice(2, 4), padded.slice(4, 6)]
             .map((p, idx) => (Number(p) > max[idx] ? '00' : p));
@@ -277,7 +284,37 @@ function HourField({ value, onChange, name }) {
     };
 
     return (
-        <div className="fi-hour" data-name={name}>
+        <div className="fi-hour" style={{ position: 'relative' }} data-name={name}>
+            {/*
+             * Input oculto portador de la validación nativa.
+             * value="" cuando no se ha tocado → falla `required` y bloquea el submit.
+             * value=tiempo cuando el usuario editó → pasa la validación.
+             * NO puede ser readOnly ni display:none — ambos saltan la constraint validation del browser.
+             */}
+            {required && (
+                <input
+                    type="text"
+                    name={name}
+                    value={touched ? (value || '00:00:00') : ''}
+                    required
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: 0,
+                        height: 0,
+                        padding: 0,
+                        margin: 0,
+                        border: 0,
+                        opacity: 0,
+                        pointerEvents: 'none',
+                        overflow: 'hidden',
+                    }}
+                    onChange={() => {}}
+                />
+            )}
             {segments.map((seg, i) => (
                 <span key={i} className="fi-hour__seg">
                     <input

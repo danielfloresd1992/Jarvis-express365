@@ -27,9 +27,9 @@ import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
 
 function Servises({ awaitWindow, boxModal, reset, title }) {
 
-
-    const seletedEstableshment = useSelector(state => state.establishment);
-
+   
+    const establishment = useSelector(state => state.establishment);
+    const user = useSelector(store => store.user);
 
     const alert = useAlert();
     const saveNoveltie = useSaveNoveltie();
@@ -42,8 +42,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
     let [time2, setTime2] = useState('');
     let [description, setDescription] = useState('');
 
-    const user = useRef(null);
-    let [local, setLocal] = useState(null);
+
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
 
 
@@ -67,11 +66,8 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
     };
 
 
-    useEffect(() => {
-        if (!isMobile) {
-            setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
-        }
-    }, []);
+  
+    
 
 
     const sendImg = async e => {
@@ -89,13 +85,13 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
 
-            const data = useDataUser(user.current, seletedEstableshment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user, establishment);
 
             const text = textAssembly({
                 establishmentName: data.localData.name,
                 dish: dish || { nameDishe: 'servicio' },
                 table: NONE_TABLE ? null : table,
-                alertLength: seletedEstableshment.alertLength,
+                alertLength: establishment.alertLength,
                 time1,
                 time2,
                 timeTotal,
@@ -157,8 +153,6 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                 setTime2(time2 = '');
                 setFiles(files = []);
                 setDish(dish = '');
-                user.current = null;
-                setLocal(local = null);
                 boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
                 reset();
             }
@@ -188,7 +182,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
                         console.log(iteration);
 
-                        return <ImgBoxImg data={iteration} boxModal={boxModal} setImg={(file) => pushImg(file, index)} deleteImg={() => deleteImg(index)} key={iteration.index} language={local?.lang} />
+                        return <ImgBoxImg data={iteration} boxModal={boxModal} setImg={(file) => pushImg(file, index)} deleteImg={() => deleteImg(index)} key={iteration.index} language={establishment?.lang} />
                     })
 
                 }
@@ -210,7 +204,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                     <DishInputSelet
                         value={dish}
                         onChangeEvent={(dish) => setDish(dish)}
-                        dishes={seletedEstableshment?.dishes}
+                        dishes={establishment?.dishes}
                     />
 
 
@@ -239,7 +233,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
             </div>
 
             <ErrorWithoutMenu
-                arr={seletedEstableshment?.dishes}
+                arr={establishment?.dishes}
             />
         </FormLayaut>
     );

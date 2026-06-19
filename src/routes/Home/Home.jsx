@@ -10,7 +10,7 @@ import imgDefault from '../../../public/img/default.png';
 import NavBar from '../../component/Navbar/NavBar.jsx';
 import InboxImg from '../../component/inbox/images_inbox.jsx';
 import AsideBar from '../../component/AsideBar/AsideBar.jsx';
-import { setEstablishment } from '../../store/slices/establishment.js';
+import { establishment, setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
 import { BoxModal } from '../../component/Main/boxModal/BoxModal.jsx';
 import Notifications from '../../component/notifications/notifications.jsx'
@@ -28,7 +28,7 @@ export default function Home() {
     const userSelector = useSelector(state => state.user);
     const dispatch = useDispatch();
     const localSelector = useSelector(state => state.locals);
-    let [local, setLocal] = useState([]);
+
     let [listMenu, setListMenu] = useState([]);
 
     let [openAwaitWindow, setOpenAwait] = useState({ text: '', open: false });
@@ -89,17 +89,18 @@ export default function Home() {
 
     const resetLocal = () => {
         setRender(render = false);
-        localStorage.removeItem('local_appExpress');
+        dispatch(setLocals(null));
     };
 
 
     const enter = () => {
-        if (!JSON.parse(localStorage.getItem('local_appExpress'))) return null;
+        
         if (window.location.host !== 'localhost') {
             dispatch(createIo());
         }
         setRender(render = true);
     };
+
 
 
     const selectNovelty = (value) => {
@@ -141,9 +142,6 @@ export default function Home() {
             .then(response => {
                 console.log(response)
                 dispatch(setLocals(response.data));
-                if (localStorage.getItem('local_appExpress')) {
-                    setLocal(local = JSON.parse(localStorage.getItem('local_appExpress')));
-                }
             })
             .catch(err => {
                 console.log(err);
@@ -183,18 +181,20 @@ export default function Home() {
 
 
 
+
+
     const handdlerClickSeleted = useCallback((e) => {
         const localSelect = localSelector.filter(local => local._id === e.target.value);
         getEstablishmentByIdFull(localSelect[0]._id)
             .then(response => {
-                localStorage.setItem('local_appExpress', JSON.stringify(localSelect));
                 dispatch(setEstablishment(response.data));
-                setLocal(localSelect);
+
             })
             .catch(error => {
                 console.log(error);
             })
     }, [localSelector]);
+
 
 
 
@@ -204,14 +204,14 @@ export default function Home() {
 
 
 
-    return (
+    return ( 
         <>
             {
                 render && listMenu.length > 0 ?
                     (
                         <div className="homeComponent">
                             <NavBar clearLocal={resetLocal} openCloseSidebar={closeOpenAsideBar} boxModal={configBoxModal} />
-                            <AsideBar clearLocal={resetLocal} localMonitoring={local} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
+                            <AsideBar clearLocal={resetLocal} localMonitoring={establishment} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
                             <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} />
                             <InboxImg />
                             <Chat key='chats' />
@@ -237,7 +237,7 @@ export default function Home() {
                                             }
                                         </select>
 
-                                        <img className='local-img ' src={selectEstablishment && selectEstablishment?.img?.data ? arrayBufferToBase64(selectEstablishment.img.data.data, 'image/png') : imgDefault} alt="" />
+                                        <img className='local-img ' src={selectEstablishment && selectEstablishment?.image ? selectEstablishment.image : imgDefault} alt="" />
 
                                         <button className='local-btn-closeWindow' disabled={selectEstablishment ? false : true} onClick={enter} >Next</button>
                                     </div>

@@ -25,12 +25,13 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
     const users = useSelector(state => state.users);
     const locals = useSelector(state => state.locals);
-
+    const establishment = useSelector(store => store.establishment);
 
     const alert = useAlert();
     const saveNoveltie = useSaveNoveltie();
     const user = useRef(null);
-    let [local, setLocal] = useState(null);
+
+    
     let [table, setNumberTable] = useState('');
     let [time1, setTime1] = useState('');
     let [time2, setTime2] = useState('');
@@ -46,20 +47,17 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
 
+
+
+
+
     useEffect(() => {
-
-        if (isMobile) {
-
-        }
-        else {
-            setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
-
             if (
-                local.name === 'Mister Aventura' ||
-                local.name === 'Mister Brickell P.' ||
-                local.name === 'Mister Coconut' ||
-                local.name === 'Mister Wynwood' ||
-                local.name === 'Mister PineCrest'
+                establishment?.name === 'Mister Aventura' ||
+                establishment?.name === 'Mister Brickell P.' ||
+                establishment?.name === 'Mister Coconut' ||
+                establishment?.name === 'Mister Wynwood' ||
+                establishment?.name === 'Mister PineCrest'
             ) {
                 TIME_EXCEDING.current = '00:02:00';
             }
@@ -67,7 +65,6 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
                 TIME_EXCEDING.current = '00:03:30';
             }
 
-        }
     }, []);
 
 
@@ -85,7 +82,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
             let text;
 
-            const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user.current, establishment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
             if (
                 data.localData.name === 'Mister Aventura' ||
                 data.localData.name === 'Mister Brickell P.' ||
@@ -98,7 +95,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
 
             if (data.LANG === 'es' && hasFinishedState) {
-                text = `*${data.localData.name}*\n_*Demora de limpieza*_\nMesa: ${table}\n${local?.alertLength === 'extended' ? `Desocupa: ${time1}\nLimpieza: ${time2}\nTiempo de limpieza: ${timeTotal}\n*Mesa no cumple protocolo de limpieza ❌*\n` : `Hora:${time2}\nTiempo total: ${timeTotal}\n`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                text = `*${data.localData.name}*\n_*Demora de limpieza*_\nMesa: ${table}\n${establishment?.alertLength === 'extended' ? `Desocupa: ${time1}\nLimpieza: ${time2}\nTiempo de limpieza: ${timeTotal}\n*Mesa no cumple protocolo de limpieza ❌*\n` : `Hora:${time2}\nTiempo total: ${timeTotal}\n`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
             }
             else if (data.LANG === 'en' && hasFinishedState) {
                 if (data.localData.name === 'Mister Turtle Creek' || data.localData.name === 'Mister Grapevine' || data.localData.name === 'Mister Fort Lauderdale' || data.localData.name === 'Mister Wynwood' || data.localData.name === 'Mister Coconut' || data.localData.name === 'Mister Brickell P.' || data.localData.name === 'Mister Aventura' || data.localData.name === 'Mister Bay Harbor') {
@@ -219,10 +216,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
     };
 
 
-    const fillLocal = id => {
-        const localFranchise = locals.filter(item => id === item._id);
-        setLocal(local = localFranchise[0]);
-    };
+
 
 
     function catBoxImg() {
@@ -236,7 +230,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
                                 boxModal={boxModal}
                                 setImg={files => { file1.current = files }}
                                 deleteImg={() => deleteImg(0)}
-                                language={local?.lang}
+                                language={establishment?.lang}
                                 index_image={0}
                             />
                             <ImgBoxImg
@@ -244,12 +238,12 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
                                 boxModal={boxModal}
                                 setImg={files => { file2.current = files }}
                                 deleteImg={() => deleteImg(1)}
-                                language={local?.lang} index_image={1}
+                                language={establishment?.lang} index_image={1}
                             />
                         </div>
                         :
                         <div className='box-imgComponenContent' ref={htmlAdapterRef}>
-                            <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={local?.lang} />
+                            <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={establishment?.lang} />
                         </div>
                 }
             </>
@@ -261,51 +255,9 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
     return (
         <FormLayaut title={title.es} event={e => sendImg(e)} >
 
-            {
-                isMobile ?
-                    (
-                        <>
-                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '80' }} >
-                                <Search array={users} config={{ placeholder: 'Nombre del operador', key: ['name', 'userName'] }} callback={(element, reset) => { return <p onClick={e => { setUser(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name} ${element.surName}`} </p> }} />
-                            </div>
-                        </>
-                    )
-                    :
-                    (
-                        null
-                    )
-            }
-            {
-                isMobile ?
-                    (
-                        <>
-                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '40' }} >
-                                <Search array={locals} config={{ placeholder: 'Nombre del local', key: ['name'] }} callback={(element, reset) => { return <p onClick={e => { fillLocal(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name}`} </p> }} />
-                            </div>
-                        </>
-                    )
-                    :
-                    (
-                        null
-                    )
 
-            }
             {
-                isMobile ?
-                    (
-                        local?.name !== undefined ?
-                            (
-                                catBoxImg()
-                            )
-                            :
-                            (
-                                null
-                            )
-                    )
-                    :
-                    (
-                        catBoxImg()
-                    )
+                catBoxImg()  
             }
 
 
@@ -351,7 +303,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
                 }
 
                 {
-                    local?.name && local.franchise === 'Mister01' ?
+                    establishment?.name && establishment.franchise === 'Mister01' ?
                         (
                             <p className='box-textHourResult'>Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING.current)}</span></p>
                         )

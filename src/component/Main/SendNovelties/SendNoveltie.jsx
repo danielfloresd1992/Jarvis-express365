@@ -35,6 +35,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
     const users = useSelector(state => state.users);
     const locals = useSelector(state => state.locals);
+    const establishment = useSelector(state => state.establishment);
 
     const keySubmit = useRef(true);
 
@@ -46,7 +47,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
     const [tableNeeded, setTableNeeded] = useState(true);
     let [time1, setTime1] = useState('');
     let [time2, setTime2] = useState('');
-    let [local, setLocal] = useState(null);
+
 
 
     let [description, setDescription] = useState('');
@@ -62,10 +63,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
 
 
-    useEffect(() => {
-        isMobile ? null : setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
-    }, []);
-
+    console.log(establishment)
 
 
     if (videoState) saveVideo(videoState).then((url) => console.log(url))
@@ -84,9 +82,9 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
 
                 let dataForRequest = {};
-                const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
-                const LANG = local.lang;
-                const localData = local;
+                const data = useDataUser(user.current, establishment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+                const LANG = establishment.lang;
+                const localData = establishment;
                 let urlVideo;
 
                 const menu = useTextMenu({
@@ -186,7 +184,6 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                     setTime2('');
                     setDescription('');
                     user.current = null;
-                    setLocal(local = null);
                     ref.current = null;
                     boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
                     keySubmit.current = true;
@@ -216,7 +213,6 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
     const fillLocal = id => {
         const localFranchise = locals.filter(item => id === item._id);
         localStorage.setItem('local_appExpress', JSON.stringify(localFranchise));
-        setLocal(local = localFranchise[0]);
     };
 
 
@@ -238,7 +234,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
                         <ImgComponent
                             saveImg={file => {
-                                file.caption = img[local.lang]
+                                file.caption = img[establishment.lang]
                                 const arrState = [...files]
                                 arrState[index] = file;
                                 setFiles(arrState);
@@ -353,7 +349,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                     )
             }
             {
-                local && title.length > 0 ?
+                establishment && title.length > 0 ?
 
                     <>
                         <h3 className='box-div-title' >{title[0].es}</h3>
@@ -459,7 +455,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                 Boolean(title[0].car) ?
                                     (
                                         <>
-                                            <CarsSelect changueInput={car => setCar(car)} lang={local.lang} imagenCompare={files[0]?.image ? files[0].image[1] : null} />
+                                            <CarsSelect changueInput={car => setCar(car)} lang={establishment.lang} imagenCompare={files[0]?.image ? files[0].image[1] : null} />
                                             <hr />
                                         </>
                                     )
@@ -479,8 +475,8 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                                 required
                                                 onChange={v => setPerson({ ...person, gender: v })}
                                                 options={[
-                                                    { value: local.lang === 'es' ? 'dama' : 'lady', text: 'Dama' },
-                                                    { value: local.lang === 'es' ? 'caballero' : 'glentmen', text: 'Caballero' },
+                                                    { value: establishment.lang === 'es' ? 'dama' : 'lady', text: 'Dama' },
+                                                    { value: establishment.lang === 'es' ? 'caballero' : 'glentmen', text: 'Caballero' },
                                                 ]}
                                             />
                                             <FieldInput
@@ -490,10 +486,10 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                                 required
                                                 onChange={v => setPerson({ ...person, garment: v })}
                                                 options={[
-                                                    { value: local.lang === 'es' ? 'suéter' : 'sweater', text: 'Suéter' },
-                                                    { value: local.lang === 'es' ? 'chaqueta' : 'jacket', text: 'Chaqueta' },
-                                                    { value: local.lang === 'es' ? 'camisa' : 'shirt', text: 'Camisa' },
-                                                    { value: local.lang === 'es' ? 'vestido' : 'dress', text: 'Vestido' },
+                                                    { value: establishment.lang === 'es' ? 'suéter' : 'sweater', text: 'Suéter' },
+                                                    { value: establishment.lang === 'es' ? 'chaqueta' : 'jacket', text: 'Chaqueta' },
+                                                    { value: establishment.lang === 'es' ? 'camisa' : 'shirt', text: 'Camisa' },
+                                                    { value: establishment.lang === 'es' ? 'vestido' : 'dress', text: 'Vestido' },
                                                 ]}
                                             />
                                             <FieldInput
@@ -503,19 +499,19 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                                 required
                                                 onChange={v => setPerson({ ...person, color: v })}
                                                 options={[
-                                                    { value: local.lang === 'es' ? 'negro' : 'black', text: 'Negro' },
-                                                    { value: local.lang === 'es' ? 'blanco' : 'white', text: 'Blanco' },
-                                                    { value: local.lang === 'es' ? 'verde' : 'green', text: 'Verde' },
-                                                    { value: local.lang === 'es' ? 'amarillo' : 'yellow', text: 'Amarillo' },
-                                                    { value: local.lang === 'es' ? 'azul' : 'blue', text: 'Azul' },
-                                                    { value: local.lang === 'es' ? 'rojo' : 'red', text: 'Rojo' },
+                                                    { value: establishment.lang === 'es' ? 'negro' : 'black', text: 'Negro' },
+                                                    { value: establishment.lang === 'es' ? 'blanco' : 'white', text: 'Blanco' },
+                                                    { value: establishment.lang === 'es' ? 'verde' : 'green', text: 'Verde' },
+                                                    { value: establishment.lang === 'es' ? 'amarillo' : 'yellow', text: 'Amarillo' },
+                                                    { value: establishment.lang === 'es' ? 'azul' : 'blue', text: 'Azul' },
+                                                    { value: establishment.lang === 'es' ? 'rojo' : 'red', text: 'Rojo' },
                                                     { value: 'beige', text: 'Beige' },
-                                                    { value: local.lang === 'es' ? 'marron' : 'brown', text: 'Marrón' },
-                                                    { value: local.lang === 'es' ? 'rosa' : 'pink', text: 'Rosa' },
-                                                    { value: local.lang === 'es' ? 'gris' : 'grey', text: 'Gris' },
-                                                    { value: local.lang === 'es' ? 'dorado' : 'golden', text: 'Dorado' },
-                                                    { value: local.lang === 'es' ? 'vinotinto' : 'burgundy', text: 'Vinotinto' },
-                                                    { value: local.lang === 'es' ? 'naranja' : 'orange', text: 'Naranja' },
+                                                    { value: establishment.lang === 'es' ? 'marron' : 'brown', text: 'Marrón' },
+                                                    { value: establishment.lang === 'es' ? 'rosa' : 'pink', text: 'Rosa' },
+                                                    { value: establishment.lang === 'es' ? 'gris' : 'grey', text: 'Gris' },
+                                                    { value: establishment.lang === 'es' ? 'dorado' : 'golden', text: 'Dorado' },
+                                                    { value: establishment.lang === 'es' ? 'vinotinto' : 'burgundy', text: 'Vinotinto' },
+                                                    { value: establishment.lang === 'es' ? 'naranja' : 'orange', text: 'Naranja' },
                                                 ]}
                                             />
                                         </>
@@ -536,30 +532,30 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                                 required
                                                 onChange={v => setArea(v)}
                                                 options={[
-                                                    { value: local.lang === 'es' ? 'almacén' : 'warehouse', text: 'Almacén' },
-                                                    { value: local.lang === 'es' ? 'área de lavado' : 'dishwashing area', text: 'Área de lavado' },
-                                                    { value: local.lang === 'es' ? 'baños' : 'bathrooms', text: 'Baños' },
-                                                    { value: local.lang === 'es' ? 'barra' : 'bar', text: 'Barra' },
-                                                    { value: local.lang === 'es' ? 'caja' : 'cash register', text: 'Caja' },
-                                                    { value: local.lang === 'es' ? 'cámara de congelación' : 'freezer room', text: 'Cámara de congelación' },
-                                                    { value: local.lang === 'es' ? 'cámara de refrigeración' : 'cold room', text: 'Cámara de refrigeración' },
-                                                    { value: local.lang === 'es' ? 'cava' : 'large fridge compartment', text: 'Cava' },
-                                                    { value: local.lang === 'es' ? 'cocina' : 'kitchen', text: 'Cocina' },
-                                                    { value: local.lang === 'es' ? 'comedor' : 'dining room', text: 'Comedor' },
-                                                    { value: local.lang === 'es' ? 'deposito' : 'storage room', text: 'Depósito' },
-                                                    { value: local.lang === 'es' ? 'escaleras' : 'stairs', text: 'Escaleras' },
-                                                    { value: local.lang === 'es' ? 'estacionamiento' : 'parking lot', text: 'Estacionamiento' },
-                                                    { value: local.lang === 'es' ? 'oficina' : 'office', text: 'Oficina' },
-                                                    { value: local.lang === 'es' ? 'parrilla' : 'grill area', text: 'Parrilla' },
-                                                    { value: local.lang === 'es' ? 'pasillo' : 'hallway', text: 'Pasillo' },
-                                                    { value: local.lang === 'es' ? 'preparación' : 'preparation', text: 'Preparación' },
-                                                    { value: local.lang === 'es' ? 'puerta principal' : 'main door', text: 'Puerta principal' },
-                                                    { value: local.lang === 'es' ? 'puerta trasera' : 'back door', text: 'Puerta trasera' },
-                                                    { value: local.lang === 'es' ? 'recepción' : 'reception', text: 'Recepción' },
-                                                    { value: local.lang === 'es' ? 'salón principal' : 'main hall', text: 'Salón principal' },
-                                                    { value: local.lang === 'es' ? 'terraza' : 'terrace', text: 'Terraza' },
-                                                    { value: local.lang === 'es' ? 'vestidor' : 'locker room', text: 'Vestidor' },
-                                                    { value: local.lang === 'es' ? 'zona de carga' : 'loading area', text: 'Zona de carga' },
+                                                    { value: establishment.lang === 'es' ? 'almacén' : 'warehouse', text: 'Almacén' },
+                                                    { value: establishment.lang === 'es' ? 'área de lavado' : 'dishwashing area', text: 'Área de lavado' },
+                                                    { value: establishment.lang === 'es' ? 'baños' : 'bathrooms', text: 'Baños' },
+                                                    { value: establishment.lang === 'es' ? 'barra' : 'bar', text: 'Barra' },
+                                                    { value: establishment.lang === 'es' ? 'caja' : 'cash register', text: 'Caja' },
+                                                    { value: establishment.lang === 'es' ? 'cámara de congelación' : 'freezer room', text: 'Cámara de congelación' },
+                                                    { value: establishment.lang === 'es' ? 'cámara de refrigeración' : 'cold room', text: 'Cámara de refrigeración' },
+                                                    { value: establishment.lang === 'es' ? 'cava' : 'large fridge compartment', text: 'Cava' },
+                                                    { value: establishment.lang === 'es' ? 'cocina' : 'kitchen', text: 'Cocina' },
+                                                    { value: establishment.lang === 'es' ? 'comedor' : 'dining room', text: 'Comedor' },
+                                                    { value: establishment.lang === 'es' ? 'deposito' : 'storage room', text: 'Depósito' },
+                                                    { value: establishment.lang === 'es' ? 'escaleras' : 'stairs', text: 'Escaleras' },
+                                                    { value: establishment.lang === 'es' ? 'estacionamiento' : 'parking lot', text: 'Estacionamiento' },
+                                                    { value: establishment.lang === 'es' ? 'oficina' : 'office', text: 'Oficina' },
+                                                    { value: establishment.lang === 'es' ? 'parrilla' : 'grill area', text: 'Parrilla' },
+                                                    { value: establishment.lang === 'es' ? 'pasillo' : 'hallway', text: 'Pasillo' },
+                                                    { value: establishment.lang === 'es' ? 'preparación' : 'preparation', text: 'Preparación' },
+                                                    { value: establishment.lang === 'es' ? 'puerta principal' : 'main door', text: 'Puerta principal' },
+                                                    { value: establishment.lang === 'es' ? 'puerta trasera' : 'back door', text: 'Puerta trasera' },
+                                                    { value: establishment.lang === 'es' ? 'recepción' : 'reception', text: 'Recepción' },
+                                                    { value: establishment.lang === 'es' ? 'salón principal' : 'main hall', text: 'Salón principal' },
+                                                    { value: establishment.lang === 'es' ? 'terraza' : 'terrace', text: 'Terraza' },
+                                                    { value: establishment.lang === 'es' ? 'vestidor' : 'locker room', text: 'Vestidor' },
+                                                    { value: establishment.lang === 'es' ? 'zona de carga' : 'loading area', text: 'Zona de carga' },
                                                 ]}
                                             />
                                         </>

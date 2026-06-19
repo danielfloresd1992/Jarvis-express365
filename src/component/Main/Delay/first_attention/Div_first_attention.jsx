@@ -21,19 +21,17 @@ import FieldInput from '../../../inputs/FieldInput.jsx';
 
 
 
+
+
 function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
 
-    const users = useSelector(state => state.users);
-    const locals = useSelector(state => state.locals);
-
+    const user = useSelector(store => store.user);
+    const establishment = useSelector(store => store.establishment);
 
     const alert = useAlert();
     const saveNoveltie = useSaveNoveltie();
 
-
-    const user = useRef(null);
-    let [local, setLocal] = useState(null);
     let [table, setNumberTable] = useState('');
 
     let [time1, setTime1] = useState('');
@@ -52,29 +50,22 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
 
 
+
     useEffect(() => {
-
-        if (isMobile) {
-
+        if (
+            establishment.name === 'Mister Aventura' ||
+            establishment.name === 'Mister Brickell P.' ||
+            establishment.name === 'Mister Coconut' ||
+            establishment.name === 'Mister Wynwood' ||
+            establishment.name === 'Mister PineCrest'
+        ) {
+            TIME_EXCEDING.current = '00:02:00';
         }
         else {
-            setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
-
-            if (
-                local.name === 'Mister Aventura' ||
-                local.name === 'Mister Brickell P.' ||
-                local.name === 'Mister Coconut' ||
-                local.name === 'Mister Wynwood' ||
-                local.name === 'Mister PineCrest'
-            ) {
-                TIME_EXCEDING.current = '00:02:00';
-            }
-            else {
-                TIME_EXCEDING.current = '00:03:30';
-            }
-
+            TIME_EXCEDING.current = '00:03:30';
         }
     }, []);
+
 
 
 
@@ -85,18 +76,6 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
 
 
-    const setUser = id => {
-        const userFill = users.filter(item => id === item._id);
-        user.current = userFill[0];
-    };
-
-
-
-    const fillLocal = id => {
-        const localFranchise = locals.filter(item => id === item._id);
-        setLocal(local = localFranchise[0]);
-    };
-
 
     function catBoxImg() {
         return (
@@ -104,11 +83,11 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 {
                     hasFinishedState ?
                         <>
-                            <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={() => deleteImg(0)} language={local?.lang} />
-                            <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={() => deleteImg(1)} language={local?.lang} />
+                            <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={() => deleteImg(0)} language={establishment?.lang} />
+                            <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={() => deleteImg(1)} language={establishment?.lang} />
                         </>
                         :
-                        <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={local?.lang} />
+                        <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={establishment?.lang} />
 
                 }
             </div>
@@ -123,7 +102,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
             let text;
 
-            const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user, establishment);
 
             if (
                 data.localData.name === 'Mister Aventura' ||
@@ -141,7 +120,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
             ];
 
             if (data.LANG === 'es' && hasFinishedState) {
-                text = `*${data.localData.name}*\n_*Demora de primera atención*_\nMesa: ${table}\n${local.alertLength === 'extended' ? `Ocupa: ${time1}\nPrimera atención: ${time2}\nTiempo total de demora: ${timeTotal}\n*Mesa no cumple protocolo de primera atención ❌*` : `Hora: ${time2}\nTiempo total: ${timeTotal}`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                text = `*${data.localData.name}*\n_*Demora de primera atención*_\nMesa: ${table}\n${establishment.alertLength === 'extended' ? `Ocupa: ${time1}\nPrimera atención: ${time2}\nTiempo total de demora: ${timeTotal}\n*Mesa no cumple protocolo de primera atención ❌*` : `Hora: ${time2}\nTiempo total: ${timeTotal}`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
             }
             else if (data.LANG === 'en' && hasFinishedState) {
                 if (data.localData.name === 'Mister Turtle Creek' || data.localData.name === 'Mister Grapevine' || data.localData.name === 'Mister Fort Lauderdale' || data.localData.name === 'Mister Wynwood' || data.localData.name === 'Mister Coconut' || data.localData.name === 'Mister Brickell P.' || data.localData.name === 'Mister Aventura' || data.localData.name === 'Mister Bay Harbor') {
@@ -225,68 +204,68 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
 
 
-    const recepHour = (element) => {
-        if (element.id === 'ocupa') setTime1(time1 = element.value);
-        if (element.id === 'primera-atencion') setTime2(time2 = element.value);
-        let hourTotal = time2.split(':')[0] - time1.split(':')[0];
-        let minuteTotal = time2.split(':')[1] - time1.split(':')[1];
-        let secondTotal = time2.split(':')[2] - time1.split(':')[2];
 
 
-        if (secondTotal < 0) {
-            secondTotal = 60 - Math.abs(secondTotal)
-            --minuteTotal;
-        }
-        if (minuteTotal < 0) {
-            minuteTotal = 60 - Math.abs(minuteTotal);
-            --hourTotal
-        }
-        if (minuteTotal < 10) minuteTotal = `0${minuteTotal}`
-        if (secondTotal < 10) secondTotal = `0${secondTotal}`
-        if (hourTotal < 10) hourTotal = `0${hourTotal}`.substr(-2);
 
-        setResult(textResult = ` ${isNaN(hourTotal) ? '❌' : hourTotal}:${isNaN(minuteTotal) ? '❌' : minuteTotal}:${isNaN(secondTotal) ? '❌' : secondTotal}`);
-        if (!isNaN(hourTotal) && !isNaN(minuteTotal) && !isNaN(secondTotal)) {
-            setTimeTotal(timeTotal = `${hourTotal}:${minuteTotal}:${secondTotal}`);
-        }
-    };
+    return (
+        <FormLayaut 
+            title={title.es} 
+            icon='/ico/icons8-waiter-24.png' 
+            event={e => sendImg(e)} 
+            description='Registra el tiempo desde que una mesa se ocupa hasta que recibe su primera atención. Si supera el protocolo, se genera una novedad de incumplimiento'
+        >
+            {
+                catBoxImg()
+            }
 
+            <div className='box-inputContain box-div-imputContain'>
 
-    function returnForm(localData) {
-        return (
-            <div className='box-inputContain box-div-imputContain'
-            >
-                <label className='box-label' htmlFor=""> Número de mesa
-                    <input className='box-inputText' type="text" id="table" value={table} required
-                        onChange={e => {
-                            setNumberTable(table = e.target.value);
-                        }}
-                    />
-                </label>
+                 <FieldInput
+                    type='text'
+                    required={true}
+                    label='Número de mesa'
+                    value={table}
+                    onChange={v => setNumberTable(v)}
+
+                />
+
 
 
                 <FieldInput
-                    type="hour"
-                    label="Tiempo del ocupa de la mesa"
+                    type='hour'
+                    required={true}
+                    label='Tiempo del ocupa de la mesa'
                     value={time1}
                     onChange={v => setTime1(v)}
                 />
 
 
 
-                <label htmlFor="" className='box-label'>¿Sin primera atención aún?
-                    <input className='box-inputText' type="checkbox" value={hasFinishedState}
+                <label htmlFor='' className='box-label'>
+                    <input className='box-inputText' type='checkbox' value={hasFinishedState}
                         onChange={e => setHasFinishedState(state => state = !state)}
                     />
                 </label>
+
+                <div className='w-full flex justify-center'>
+                    <FieldInput
+                        type='checkbox'
+                        label='¿Sin primera atención aún?'
+                        value={hasFinishedState}
+                        onChange={v => setHasFinishedState(v)}
+                    />
+                </div>
+
+        
 
 
                 {
                     hasFinishedState ?
                         <>
                             <FieldInput
-                                type="hour"
-                                label="Timpo de la primera atención a la mesa"
+                                type='hour'
+                                required={true}
+                                label='Timpo de la primera atención a la mesa'
                                 value={time2}
                                 onChange={v => setTime2(v)}
                             />
@@ -296,7 +275,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                             <p className='box-textHourResult' >Tiempo total en recibir la primera atención a la mesa: <span>{calculateTime(time1, time2)}</span></p>
 
                             {
-                                localData.franchise === 'Mister01' ?
+                                establishment.franchise === 'Mister01' ?
                                     (
                                         <p className='box-textHourResult' >Tiempo excedido: <span>{calculateTime(calculateTime(time1, time2), TIME_EXCEDING.current)}</span></p>
                                     )
@@ -309,8 +288,8 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                         :
                         <>
                             <FieldInput
-                                type="hour"
-                                label="Timpo de la primera atención a la mesa"
+                                type='hour'
+                                label='Timpo de la primera atención a la mesa'
                                 value={time2}
                                 onChange={e => setTime2(e)}
                             />
@@ -320,82 +299,16 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                             <p className='box-textHourResult'>Tiempo en que continua sin primera atención: {returnTimeExceding(time2, time1)}</p>
                         </>
                 }
-                <label className='box-label' htmlFor="">Nota
-                    <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
+                <label className='box-label' htmlFor=''>Nota
+                    <textarea className='box-textArea' spellCheck='true' autoComplete='true' placeholder='en caso que lo amerite' cols='30' rows='10' value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
                 </label>
 
             </div>
-        );
-    }
 
-
-    return (
-        <FormLayaut title={title.es} event={e => sendImg(e)} >
-
-
-            {
-                isMobile ?
-                    (
-                        <>
-                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '80' }} >
-                                <Search array={users} config={{ placeholder: 'Nombre del operador', key: ['name', 'userName'] }} callback={(element, reset) => { return <p onClick={e => { setUser(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name} ${element.surName}`} </p> }} />
-                            </div>
-                        </>
-                    )
-                    :
-                    (
-                        null
-                    )
-            }
-            {
-                isMobile ?
-                    (
-                        <>
-                            <div className='productionContain-headerContain' style={{ justifyContent: 'center', zIndex: '40' }} >
-                                <Search array={locals} config={{ placeholder: 'Nombre del local', key: ['name'] }} callback={(element, reset) => { return <p onClick={e => { fillLocal(e.target.id); reset(e.target.textContent) }} className='speed-title' key={element._id} id={element._id} >{`${element.name}`} </p> }} />
-                            </div>
-                        </>
-                    )
-                    :
-                    (
-                        null
-                    )
-
-            }
-
-
-            {
-                isMobile ?
-                    (
-                        local?.name !== undefined ?
-                            (
-                                catBoxImg()
-                            )
-                            :
-                            (
-                                null
-                            )
-
-                    )
-                    :
-                    (
-                        catBoxImg()
-                    )
-            }
-
-            {
-                local !== null ?
-                    (
-                        returnForm(local)
-                    )
-                    :
-                    (
-                        null
-                    )
-            }
         </FormLayaut >
     );
 }
 
 
 export { DivAttention }
+ 
