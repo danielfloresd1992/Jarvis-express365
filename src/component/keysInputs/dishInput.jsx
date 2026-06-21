@@ -19,11 +19,11 @@ export default function DishInputSelet({ dishes, onChangeEvent, value }) {
                 defaultValue={null}
                 value={value?.nameDishe || null}
             >
-                <option value={null} selected disabled={true}>--Selecione--</option>
+                <option className='text-[#000000]' value={null} selected disabled={true}>--Selecione--</option>
                 {
                     Array.isArray(dishes) > 0 ?
                         dishes.map(items => (
-                            <option key={items._id} value={items.nameDishe} style={{ color: '#000', backgroundColor: '#fff' }}>{items.nameDishe}</option>
+                            <option className='text-[#000000]' key={items._id} value={items.nameDishe} style={{ color: '#000', backgroundColor: '#fff' }}>{items.nameDishe}</option>
 
                         ))
                         :
