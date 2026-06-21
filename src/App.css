@@ -1137,6 +1137,7 @@
     padding: 0.5rem 0.5rem 0.25rem;
 }
 
+
 .sidebar__btn {
     display: flex;
     align-items: center;
@@ -1153,8 +1154,11 @@
     font-size: 0.82rem;
     font-weight: 500;
     font-family: inherit;
+    font-weight: 500;
+    border: 1px solid #142d53
    
 }
+
 
 .sidebar__btn_highlighted {
     background: rgba(0,185,255,0.12);
@@ -1178,6 +1182,7 @@
     transition: color 0.15s;
     pointer-events: none;
 }
+
 
 .sidebar__btn-text {
     pointer-events: none;
@@ -1219,7 +1224,6 @@
 
 .main-content {
     margin-top: 52px;
-    margin-left: 260px;
     min-height: calc(100vh - 52px);
     padding: 1.5rem;
     padding-bottom: 3.5rem;

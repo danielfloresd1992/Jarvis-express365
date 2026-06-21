@@ -1,32 +1,5 @@
-import { ReactNode, FormEventHandler, useEffect, useState, useRef } from 'react';
+import { ReactNode, FormEventHandler } from 'react';
 
-
-const SUCCESS_MESSAGES = [
-    '¡Novedad enviada! 🚀',
-    '¡Perfecto, todo registrado! ✅',
-    '¡Así se hace! 💪',
-    '¡Listo! El equipo fue notificado 🔔',
-    '¡Excelente trabajo! ✨',
-    '¡Registro guardado con éxito! 🎯',
-];
-
-function playSuccessSound() {
-    try {
-        const ctx = new AudioContext();
-        [523, 659, 784].forEach((freq, i) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.frequency.value = freq;
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.35);
-            osc.start(ctx.currentTime + i * 0.1);
-            osc.stop(ctx.currentTime + i * 0.1 + 0.35);
-        });
-    } catch { /* AudioContext no disponible */ }
-}
 
 
 type Props = {
@@ -94,6 +67,7 @@ export default function FormLayaut({
                     <img
                         src={icon}
                         alt=''
+                        draggable={false}
                         style={{
                             width: '35px',
                             height: '35px',

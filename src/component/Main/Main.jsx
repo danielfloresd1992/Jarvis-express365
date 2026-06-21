@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { isTablet } from 'react-device-detect';
 import { RenderDefault } from './Default/Default.jsx';
 import { SendNoveltie } from './SendNovelties/SendNoveltie.jsx';
@@ -8,9 +9,12 @@ import { ShowManager } from './showManager/ShowManager.jsx';
 import Pizza from './pizzaComponent/Pizza.jsx';
 import FormTablet from '../for_tablet/FormTablet.jsx';
 import LoadFileForm from '../for_tablet/loadImg.jsx';
+import calculateTime from '@/libs/date_time/calculate_time.js';
 
 
-function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
+
+
+export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
 
 
@@ -53,11 +57,155 @@ function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
 
 
+    const establishment = useSelector(store => store.establishment);
+
+    console.log(establishment);
+
+
     return (
         <main className="main-content">
-            {render(value)}
+            <div className='w-full border border-[#0a3a66] rounded-[12px] overflow-hidden bg-[#01122c]'>
+                <div className='flex w-full items-center justify-around'>
+                    {
+                        ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'Limpieza', 'Demora'].map((text) => {
+                            return (
+                                <WrapperCell key={text} classStyles='uppercase  border-[#044e84] bg-[#021a38]'>{text}</WrapperCell>
+
+                            )
+                        })
+                    }
+                </div>
+
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+                <RotationLine />
+            </div>
         </main>
     );
 }
 
-export { Main };
+
+
+
+function RotationLine({ }) {
+
+
+    const [tableNuumber, setTableNumber] = useState('');
+    const [customerSeated, setCustomerSeated] = useState('');
+    const [firtAtenttion, setFirtAttention] = useState('');
+    const timeLimit = '00:03:00';
+
+    const handdlerContextMenu = e => {
+        e.preventDefault();
+    };
+
+
+
+    return (
+        <div className='flex w-full items-center justify-around'>
+            <WrapperCell classStyles='bg-[#0e1223]'>
+                <WrapperText
+                    classStyles='text-white'
+                    value={tableNuumber}
+                    updateValue={(value) => setTableNumber(value)}
+                />
+            </WrapperCell>
+
+            <WrapperCell classStyles='bg-[#0e1223]'>
+                <WrapperText 
+                    value={customerSeated}
+                    updateValue={(value) => setCustomerSeated(value)}
+                />
+            </WrapperCell>
+
+            <WrapperCell classStyles='bg-[#0e1223]'>
+                <WrapperText 
+                    value={firtAtenttion}
+                    updateValue={(value) => setFirtAttention(value)}
+                />
+            </WrapperCell>
+
+            <WrapperCell classStyles='bg-[#0e1223]'>
+                <WrapperText value={calculateTime(customerSeated, firtAtenttion)} />
+            </WrapperCell>
+
+
+            <WrapperCell classStyles='bg-[#0e1223]'>
+                <WrapperText value='00:00:00' />
+            </WrapperCell>
+
+            <WrapperCell classStyles='bg-[#0e1223]'>
+                <WrapperText value='00:00:00' />
+            </WrapperCell>
+
+            <WrapperCell classStyles='bg-[#0e1223]'>
+                <WrapperText value='00:00:00' />
+            </WrapperCell>
+        </div>
+    )
+}
+
+
+
+
+function WrapperCell({ classStyles = '', children }) {
+    return (
+        <div className={`cursor-pointer flex-1 text-[#5e7ba0] h-[26px] flex items-center justify-center text-[12px] font-bold tracking-[0.8px]  border-b border-b-[#0a3a66] text-center leading-[1.15] border-r border-r-[#0a3a66]/45 ${classStyles}`}>
+            {children}
+        </div>
+    );
+}
+
+
+function WrapperText({ classStyles = '', value, updateValue }) {
+
+
+    const handdlerClick = () => {
+        updateValue(getBiteDAte())
+    };
+
+
+
+    return (
+        <div className='w-full h-full flex items-center justify-center' onClick={handdlerClick}>
+        
+            <p className={`text-[#6aff6e]  font-bold tracking-[0.3px] font-mono tabular-nums ${classStyles}`}>{value === '' ? '-' : value}</p>
+     
+        </div>
+    )
+}
+
+
+
+function getBiteDAte() {
+    const ahora = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(ahora.getHours())}:${pad(ahora.getMinutes())}:${pad(ahora.getSeconds())}`;
+}

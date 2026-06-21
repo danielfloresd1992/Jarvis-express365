@@ -23,7 +23,7 @@ import FieldInput from '../../../inputs/FieldInput.jsx';
 
 
 
-function DivAttention({ awaitWindow, boxModal, reset, title }) {
+export function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
 
     const user = useSelector(store => store.user);
@@ -218,8 +218,6 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 catBoxImg()
             }
 
-            <div className='box-inputContain box-div-imputContain'>
-
                  <FieldInput
                     type='text'
                     required={true}
@@ -228,8 +226,6 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                     onChange={v => setNumberTable(v)}
 
                 />
-
-
 
                 <FieldInput
                     type='hour'
@@ -240,24 +236,14 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 />
 
 
-
-                <label htmlFor='' className='box-label'>
-                    <input className='box-inputText' type='checkbox' value={hasFinishedState}
-                        onChange={e => setHasFinishedState(state => state = !state)}
-                    />
-                </label>
-
                 <div className='w-full flex justify-center'>
                     <FieldInput
                         type='checkbox'
-                        label='¿Sin primera atención aún?'
+                        label='ya tiene la primera atención'
                         value={hasFinishedState}
                         onChange={v => setHasFinishedState(v)}
                     />
                 </div>
-
-        
-
 
                 {
                     hasFinishedState ?
@@ -269,8 +255,6 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                                 value={time2}
                                 onChange={v => setTime2(v)}
                             />
-
-
 
                             <p className='box-textHourResult' >Tiempo total en recibir la primera atención a la mesa: <span>{calculateTime(time1, time2)}</span></p>
 
@@ -289,7 +273,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                         <>
                             <FieldInput
                                 type='hour'
-                                label='Timpo de la primera atención a la mesa'
+                                label='Tiempo en vivo sin la primera atención'
                                 value={time2}
                                 onChange={e => setTime2(e)}
                             />
@@ -302,13 +286,6 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 <label className='box-label' htmlFor=''>Nota
                     <textarea className='box-textArea' spellCheck='true' autoComplete='true' placeholder='en caso que lo amerite' cols='30' rows='10' value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
                 </label>
-
-            </div>
-
         </FormLayaut >
     );
-}
-
-
-export { DivAttention }
- 
+} 

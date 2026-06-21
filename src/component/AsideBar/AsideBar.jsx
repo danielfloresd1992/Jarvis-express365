@@ -11,6 +11,8 @@ import URL from '../../libs/fetch_data/api_conexion.js';
 
 
 
+
+
 function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSidebar }) {
 
     let isLocalVisivility = localMonitoring[0] ? true : false;
@@ -42,10 +44,15 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
 
 
     const menuItems = [
-        { id: 'imagen-1', label: 'Novedades', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', hideOnTablet: true },
-        { id: 'imagen-3', label: 'Demoras', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', hideOnTablet: true },
-        { id: 'imagen-2', label: 'Producción', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10', hideOnMobile: true, hideOnTablet: true },
-        { id: 'imagen-pizza', label: 'Estándares de calidad', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', hideOnMobile: true, hideOnTablet: true },
+        { id: 'delay-1ra', label: 'Primera atención', icon: '/ico/icons8-book-50.png', hideOnTablet: true },
+        { id: 'limpieza-02', label: 'Limpieza', icon: '/ico/icons8-cleaning-a-surface-50.png', hideOnTablet: true },
+        { id: 'services-03', label: 'Servicio', icon: '/ico/icons8-food-64.png', hideOnTablet: true },
+        { id: 'delivery-04', label: 'Entrega de plato', icon: '/ico/icons8-food-trolley-48.png', hideOnTablet: true },
+        { id: 'tablet-05', label: 'Toast POS', icon: '/ico/icons8-tablet-50.png', hideOnTablet: true },
+        { id: 'touch-06', label: 'Marcada antes de estar listo', icon: '/ico/icons8-touch-50.png', hideOnTablet: true },
+        { id: 'imagen-1', label: 'Novedades', icon: '/ico/icons8-google-alerts-48.png', hideOnTablet: true },
+        { id: 'imagen-2', label: 'Producción', icon: '/ico/icons8-knife-64.png', hideOnMobile: true, hideOnTablet: true },
+        { id: 'imagen-pizza', label: 'Estándares de calidad', icon: '/ico/icons8-warranty-32.png', hideOnMobile: true, hideOnTablet: true },
     ];
 
     const tabletItems = [
@@ -88,9 +95,9 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
                                         onClick={e => selectNovelty(e.currentTarget.id)}
                                         id={item.id}
                                     >
-                                        <svg className='sidebar__btn-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d={item.icon} />
-                                        </svg>
+                                        <img className='sidebar__btn-icon' src={item.icon} alt='primera-atención'/>
+                                        
+                                        
                                         <span className='sidebar__btn-text'>{item.label}</span>
                                     </button>
                                 );
@@ -106,9 +113,7 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
                                             onClick={e => selectNovelty(e.currentTarget.id)}
                                             id={item.id}
                                         >
-                                            <svg className='sidebar__btn-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d={item.icon} />
-                                            </svg>
+                                            <img clasName='' src={icon} alt='' />
                                             <span className='sidebar__btn-text'>{item.label}</span>
                                         </button>
                                     ))}
@@ -156,7 +161,7 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
 
                                 </span>
                             </div>
-                           
+
                         </div>
                     </div>
 

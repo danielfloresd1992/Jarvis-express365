@@ -41,7 +41,12 @@ export default function FieldInput({
 
     /* checkbox/radio se auto-contienen su propio label */
     if (type === 'checkbox') {
-        return <div className="fi-wrap">{body}</div>;
+        return (
+            <div className='fi-wrap'>
+                {label && <span className='fi-label'>{label}</span>}
+                {body}
+            </div>
+        );
     }
 
     return (
