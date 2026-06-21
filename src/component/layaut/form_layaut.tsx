@@ -34,13 +34,14 @@ export default function FormLayaut({
             className='w-full flex flex-col items-center justify-center'
             onSubmit={event}
             style={{
+                height: '100%',
+                overflowY: 'scroll',
                 background: 'rgba(3, 12, 26, 0.82)',
                 border: '1.5px solid rgba(0, 185, 255, 0.22)',
                 borderRadius: '18px',
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
                 boxShadow: '0 0 40px rgba(0, 120, 255, 0.08), 0 25px 70px rgba(0,0,0,0.5)',
-                overflow: 'hidden',
             }}
         >
             <div style={{

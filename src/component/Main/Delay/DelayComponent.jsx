@@ -21,12 +21,13 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
     let [title, setTitle] = useState([]);
 
 
-
+    // (<Delay titlesJson={menu.filter(menu => menu.category === 'delay')} awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-3' />);
 
     if (titlesJson.length < 1) return null;
 
     const render = text => {
         switch (text) {
+            
             case 'primera atención': return <DivAttention awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[0]} />;
             case 'limpieza': return <Divclear awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[1]} />;
             case 'servicio': return <Servises awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[2]} />;

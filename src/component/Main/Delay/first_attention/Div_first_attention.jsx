@@ -23,7 +23,7 @@ import FieldInput from '../../../inputs/FieldInput.jsx';
 
 
 
-export function DivAttention({ awaitWindow, boxModal, reset, title }) {
+export function DivAttention({ awaitWindow, boxModal, reset, title, data }) {
 
 
     const user = useSelector(store => store.user);
@@ -32,10 +32,11 @@ export function DivAttention({ awaitWindow, boxModal, reset, title }) {
     const alert = useAlert();
     const saveNoveltie = useSaveNoveltie();
 
-    let [table, setNumberTable] = useState('');
+    let [table, setNumberTable] = useState(data?.tableNumber || '');
 
-    let [time1, setTime1] = useState('');
-    let [time2, setTime2] = useState('');
+    let [time1, setTime1] = useState(data?.customerSeatedTime || '');
+    let [time2, setTime2] = useState(data?.firtAtenttionTime ||  '');
+
     let timeTotal = calculateTime(time1, time2);
     let [description, setDescription] = useState('');
 

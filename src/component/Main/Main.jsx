@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { isTablet } from 'react-device-detect';
 import { RenderDefault } from './Default/Default.jsx';
@@ -9,12 +9,18 @@ import { ShowManager } from './showManager/ShowManager.jsx';
 import Pizza from './pizzaComponent/Pizza.jsx';
 import FormTablet from '../for_tablet/FormTablet.jsx';
 import LoadFileForm from '../for_tablet/loadImg.jsx';
-import calculateTime from '@/libs/date_time/calculate_time.js';
+import calculateTime, { getTimeReport } from '@/libs/date_time/calculate_time.js';
+import FieldInput from '@/component/inputs/FieldInput.jsx';
 
-
+//import { DivAttention } from './first_attention/Div_first_attention.jsx';
+import { DivAttention } from './Delay/first_attention/Div_first_attention.jsx';
 
 
 export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
+
+
+    const establishment = useSelector(store => store.establishment);
+    const [typeDelay, setTypeDelay] = useState({ data: null, type: '' })
 
 
 
@@ -37,10 +43,17 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
 
 
+    const changeStateForm = (type, data) => {
+        setTypeDelay({ type, data })
+    };
+
+
+
 
     const render = (value) => {
 
         switch (value) {
+            case '': return
             case 'imagen-1': return (<SendNoveltie titlesJson={menu.filter(menu => menu.category !== 'delay' && menu.es !== 'Servicio Pick Up')} awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-1' />);
             case 'imagen-2': return (<Production awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-2' title={menu.filter(menu => menu.es === 'Empleado realiza producción')[0]} />);
             case 'imagen-3': return (<Delay titlesJson={menu.filter(menu => menu.category === 'delay')} awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-3' />);
@@ -57,26 +70,28 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
 
 
-    const establishment = useSelector(store => store.establishment);
 
-    console.log(establishment);
+
+    if (!menu) return null;
 
 
     return (
+        <>
         <main className="main-content">
-            <div className='w-full border border-[#0a3a66] rounded-[12px] overflow-hidden bg-[#01122c]'>
-                <div className='flex w-full items-center justify-around'>
+
+            <div className='w-full h-[100%] min-h-0 overflow-auto rounded-xl border border-[#0a3a66]/60 bg-[#01122c]'>
+                <div className='sticky top-0 h-[45px] flex w-full items-center justify-around'>
                     {
                         ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'Limpieza', 'Demora'].map((text) => {
                             return (
-                                <WrapperCell key={text} classStyles='uppercase  border-[#044e84] bg-[#021a38]'>{text}</WrapperCell>
+                                <WrapperCell key={text} classStyles='h-full uppercase tracking-[0.6px] font-semibold text-[#5e7ba0] bg-[#021a38]'>{text}</WrapperCell>
 
                             )
                         })
                     }
                 </div>
 
-                <RotationLine />
+                <RotationLine setDelay={changeStateForm} />
                 <RotationLine />
                 <RotationLine />
                 <RotationLine />
@@ -107,65 +122,118 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
                 <RotationLine />
                 <RotationLine />
             </div>
+            
+{
+                typeDelay.type === '1raAttention' && (
+                    <div className='fixed h-[100%] top-0  p-[5rem_0] overflow-y-scroll flex justify-end'>
+                        <div className='w-[50%]'>
+                            <DivAttention
+                                titlesJson={menu.filter(menu => menu.category === 'delay')[0]}
+                                awaitWindow={awaitWindow}
+                                boxModal={boxModal}
+                                reset={selectNovelty}
+                                title={menu.filter(menu => menu.category === 'delay')[0]}
+                                data={typeDelay?.data}
+                            />
+                        </div>
+                     </div>
+                )
+            }
+            
         </main>
+        
+        </>
     );
 }
 
 
 
 
-function RotationLine({ }) {
+function RotationLine({ setDelay }) {
 
 
-    const [tableNuumber, setTableNumber] = useState('');
-    const [customerSeated, setCustomerSeated] = useState('');
-    const [firtAtenttion, setFirtAttention] = useState('');
+    const [tableNumber, setTableNumber] = useState('');
+    const [customerSeatedTime, setCustomerSeatedTime] = useState('');
+    const [firtAtenttionTime, setFirtAttentionTime] = useState('');
     const timeLimit = '00:03:00';
+
+    const totalTime = useMemo(() => getTimeReport(customerSeatedTime, firtAtenttionTime, timeLimit), [customerSeatedTime, firtAtenttionTime]);
+    const timeWhitTouch = customerSeatedTime === '' && firtAtenttionTime === '';
+
+
 
     const handdlerContextMenu = e => {
         e.preventDefault();
     };
 
 
+    const handdlerChengeTable = (e) => {
+        setTableNumber(e.target.value);
+    };
+
+
+    const handdlerDelay1raAttention = () => {
+        if (tableNumber === '') return alert('Indique el número de mesa');
+
+        setDelay('1raAttention', { tableNumber, customerSeatedTime, firtAtenttionTime })
+
+    };
+
+
 
     return (
-        <div className='flex w-full items-center justify-around'>
-            <WrapperCell classStyles='bg-[#0e1223]'>
+        <div className='flex w-full items-center justify-around bg-[#0e1223] transition-colors hover:bg-[#10203c]'>
+            <WrapperCell classStyles='font-semibold'>
+                <input
+                    className='w-full h-full text-center'
+                    type='text'
+                    value={tableNumber}
+                    onChange={handdlerChengeTable}
+                />
+            </WrapperCell>
+
+            <WrapperCell classStyles='text-[#aecbf0]'>
                 <WrapperText
-                    classStyles='text-white'
-                    value={tableNuumber}
-                    updateValue={(value) => setTableNumber(value)}
+                    value={customerSeatedTime}
+                    updateValue={(value) => setCustomerSeatedTime(value)}
                 />
             </WrapperCell>
 
-            <WrapperCell classStyles='bg-[#0e1223]'>
-                <WrapperText 
-                    value={customerSeated}
-                    updateValue={(value) => setCustomerSeated(value)}
+            <WrapperCell classStyles='text-[#aecbf0]'>
+                <WrapperText
+
+                    value={firtAtenttionTime}
+                    updateValue={(value) => setFirtAttentionTime(value)}
                 />
             </WrapperCell>
 
-            <WrapperCell classStyles='bg-[#0e1223]'>
-                <WrapperText 
-                    value={firtAtenttion}
-                    updateValue={(value) => setFirtAttention(value)}
+
+            <WrapperCell classStyles='text-[#39ff14] font-semibold relative'>
+                <WrapperText
+                    classStyles={timeWhitTouch ? 'text-[#33486a]' : totalTime.exceeded ? 'text-[red]' : 'text-lime-500'}
+                    value={timeWhitTouch ? '00:00:00' : totalTime.timeTotal}
                 />
+
+                {
+                    totalTime.exceeded && (
+                        <button className='absolute w-[60px] right-[0px]' onClick={handdlerDelay1raAttention}>
+                            <img className='w-full h-full' src='/ico/icons8-delay-64.png' alt='ico-delay' />
+                        </button>
+                    )
+                }
+
             </WrapperCell>
 
-            <WrapperCell classStyles='bg-[#0e1223]'>
-                <WrapperText value={calculateTime(customerSeated, firtAtenttion)} />
-            </WrapperCell>
 
-
-            <WrapperCell classStyles='bg-[#0e1223]'>
+            <WrapperCell classStyles='text-[#33486a]'>
                 <WrapperText value='00:00:00' />
             </WrapperCell>
 
-            <WrapperCell classStyles='bg-[#0e1223]'>
+            <WrapperCell classStyles='text-[#33486a]'>
                 <WrapperText value='00:00:00' />
             </WrapperCell>
 
-            <WrapperCell classStyles='bg-[#0e1223]'>
+            <WrapperCell classStyles='text-[#33486a]'>
                 <WrapperText value='00:00:00' />
             </WrapperCell>
         </div>
@@ -177,28 +245,56 @@ function RotationLine({ }) {
 
 function WrapperCell({ classStyles = '', children }) {
     return (
-        <div className={`cursor-pointer flex-1 text-[#5e7ba0] h-[26px] flex items-center justify-center text-[12px] font-bold tracking-[0.8px]  border-b border-b-[#0a3a66] text-center leading-[1.15] border-r border-r-[#0a3a66]/45 ${classStyles}`}>
+        <div className={`cursor-pointer flex-1 h-7 flex items-center justify-center text-[12px] border-b border-b-[#0a3a66]/25 text-center leading-[1.15] border-r border-r-[#0a3a66]/25 ${classStyles}`}>
             {children}
         </div>
     );
 }
 
 
+
+
+
 function WrapperText({ classStyles = '', value, updateValue }) {
 
 
+    const [modeEdit , setModeEdit] = useState(false);
+
+
     const handdlerClick = () => {
-        updateValue(getBiteDAte())
+        if (typeof updateValue === 'function') updateValue(getBiteDAte());
+    };
+
+
+    const haddlerOnDoubleClick = () => {
+        if(!modeEdit) setModeEdit(true);
     };
 
 
 
+
+    if(modeEdit) return (
+        <input 
+            className='w-full h-full text-center'
+            type='text' 
+            name='impút' 
+            value={value} 
+            onChange={(e) => {console.log(e.target.value);updateValue(e.target.value)}} 
+        />
+    )
+
+
     return (
-        <div className='w-full h-full flex items-center justify-center' onClick={handdlerClick}>
-        
-            <p className={`text-[#6aff6e]  font-bold tracking-[0.3px] font-mono tabular-nums ${classStyles}`}>{value === '' ? '-' : value}</p>
-     
+        <div
+            className='w-full h-full flex items-center justify-center'
+            onClick={handdlerClick}
+            onDoubleClick={haddlerOnDoubleClick}
+        >
+
+            <p className={`tracking-[0.3px] font-mono tabular-nums ${classStyles}`}>{value === '' ? '-' : value}</p>
+
         </div>
+
     )
 }
 
