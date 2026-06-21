@@ -132,9 +132,9 @@ function SelectField({ value, onChange, required, options, placeholder, name, in
             onChange={e => onChange(e.target.value)}
             {...inputProps}
         >
-            <option value="">{placeholder || 'Selecciona…'}</option>
+            <option className='text-[#000000]' value="">{placeholder || 'Selecciona…'}</option>
             {options.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.text}</option>
+                <option className='text-[#000000]' key={opt.value} value={opt.value}>{opt.text}</option>
             ))}
         </select>
     );
