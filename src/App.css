@@ -1226,11 +1226,8 @@
     margin-top: 52px;
     height: calc(100vh - 52px);
     
-    padding-bottom: 3.5rem;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
+    padding-bottom: 2rem;
+   
     position: relative;
     gap: 1.5rem;
     background: #010e1c;

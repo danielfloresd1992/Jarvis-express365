@@ -77,56 +77,56 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
     return (
         <>
-        <main className="main-content">
+            <main className="main-content" >
 
-            <div className='w-full h-[100%] min-h-0 overflow-auto rounded-xl border border-[#0a3a66]/60 bg-[#01122c]'>
-                <div className='sticky top-0 h-[45px] flex w-full items-center justify-around'>
-                    {
-                        ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'Limpieza', 'Demora'].map((text) => {
-                            return (
-                                <WrapperCell key={text} classStyles='h-full uppercase tracking-[0.6px] font-semibold text-[#5e7ba0] bg-[#021a38]'>{text}</WrapperCell>
+                <div className='w-full h-[100%] min-h-0 overflow-auto rounded-xl border border-[#0a3a66]/60 bg-[#01122c]'>
+                    <div className='sticky top-0 h-[45px] flex w-full items-center justify-around'>
+                        {
+                            ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'Limpieza', 'Demora'].map((text) => {
+                                return (
+                                    <WrapperCell key={text} classStyles='h-full uppercase tracking-[0.6px] font-semibold text-[#5e7ba0] bg-[#021a38]'>{text}</WrapperCell>
 
-                            )
-                        })
-                    }
+                                )
+                            })
+                        }
+                    </div>
+
+                    <RotationLine setDelay={changeStateForm} />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
+                    <RotationLine />
                 </div>
 
-                <RotationLine setDelay={changeStateForm} />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-                <RotationLine />
-            </div>
-            
-{
-                typeDelay.type === '1raAttention' && (
-                    <div className='fixed h-[100%] top-0  p-[5rem_0] overflow-y-scroll flex justify-end'>
-                        <div className='w-[50%]'>
+                {
+                    typeDelay.type === '1raAttention' && (
+                        <div className='fixed right-0 w-[50%] h-[calc(100%_-_32px)] p-[52px_0_0_0] top-0 h-[100%]'>
+
                             <DivAttention
                                 titlesJson={menu.filter(menu => menu.category === 'delay')[0]}
                                 awaitWindow={awaitWindow}
@@ -135,13 +135,13 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
                                 title={menu.filter(menu => menu.category === 'delay')[0]}
                                 data={typeDelay?.data}
                             />
+
                         </div>
-                     </div>
-                )
-            }
-            
-        </main>
-        
+                    )
+                }
+
+            </main>
+
         </>
     );
 }
@@ -258,7 +258,7 @@ function WrapperCell({ classStyles = '', children }) {
 function WrapperText({ classStyles = '', value, updateValue }) {
 
 
-    const [modeEdit , setModeEdit] = useState(false);
+    const [modeEdit, setModeEdit] = useState(false);
 
 
     const handdlerClick = () => {
@@ -267,19 +267,19 @@ function WrapperText({ classStyles = '', value, updateValue }) {
 
 
     const haddlerOnDoubleClick = () => {
-        if(!modeEdit) setModeEdit(true);
+        if (!modeEdit) setModeEdit(true);
     };
 
 
 
 
-    if(modeEdit) return (
-        <input 
+    if (modeEdit) return (
+        <input
             className='w-full h-full text-center'
-            type='text' 
-            name='impút' 
-            value={value} 
-            onChange={(e) => {console.log(e.target.value);updateValue(e.target.value)}} 
+            type='text'
+            name='impút'
+            value={value}
+            onChange={(e) => { console.log(e.target.value); updateValue(e.target.value) }}
         />
     )
 

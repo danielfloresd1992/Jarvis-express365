@@ -31,7 +31,7 @@ export default function FormLayaut({
 
     return (
         <form
-            className='w-full flex flex-col items-center justify-center'
+            className='w-full items-center justify-center'
             onSubmit={event}
             style={{
                 height: '100%',
@@ -42,17 +42,20 @@ export default function FormLayaut({
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
                 boxShadow: '0 0 40px rgba(0, 120, 255, 0.08), 0 25px 70px rgba(0,0,0,0.5)',
+                
             }}
         >
             <div style={{
                 width: '100%',
-                background: 'linear-gradient(135deg, rgba(0, 185, 255, 0.08) 0%, rgba(0, 100, 200, 0.04) 100%)',
+                background: 'linear-gradient(135deg, rgb(1 49 68) 0%, rgb(1 21 40 / 97%) 100%)',
                 borderBottom: '1px solid rgba(0, 185, 255, 0.18)',
                 padding: '1rem 1.25rem',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                position: 'relative',
+                position: 'sticky',
+                top: 0,
+                zIndex: '100'
             }}>
                 <div style={{
                     position: 'absolute',
