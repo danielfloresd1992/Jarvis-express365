@@ -41,7 +41,7 @@ export default function FormLayaut({
                 borderRadius: '18px',
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
-                boxShadow: '0 0 40px rgba(0, 120, 255, 0.08), 0 25px 70px rgba(0,0,0,0.5)',
+                boxShadow: '0 0 40px rgba(0, 119, 255, 0.34), 0 25px 70px rgba(0, 0, 0, 0.66)',
                 
             }}
         >

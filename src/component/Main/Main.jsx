@@ -14,6 +14,9 @@ import FieldInput from '@/component/inputs/FieldInput.jsx';
 
 //import { DivAttention } from './first_attention/Div_first_attention.jsx';
 import { DivAttention } from './Delay/first_attention/Div_first_attention.jsx';
+import { TabletScreen } from '../tabletScreen/TabletScreen.jsx';
+
+
 
 
 export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
@@ -48,7 +51,7 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
     };
 
 
-
+    /*
 
     const render = (value) => {
 
@@ -68,7 +71,7 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
         }
     };
 
-
+    */
 
 
 
@@ -80,7 +83,7 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
             <main className="main-content" >
 
                 <div className='w-full h-[100%] min-h-0 overflow-auto rounded-xl border border-[#0a3a66]/60 bg-[#01122c]'>
-                    <div className='sticky top-0 h-[45px] flex w-full items-center justify-around'>
+                    <div className='sticky top-0 h-[45px] bg-[#021a38] flex w-full items-center justify-around'>
                         {
                             ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'Limpieza', 'Demora'].map((text) => {
                                 return (
@@ -125,7 +128,7 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
                 {
                     typeDelay.type === '1raAttention' && (
-                        <div className='fixed right-0 w-[50%] h-[calc(100%_-_32px)] p-[52px_0_0_0] top-0 h-[100%]'>
+                        <div className='fixed right-0 w-[50%]  p-[52px_0_0_0] top-0 h-[100%]'>
 
                             <DivAttention
                                 titlesJson={menu.filter(menu => menu.category === 'delay')[0]}
@@ -139,6 +142,8 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
                         </div>
                     )
                 }
+
+                <TabletScreen />
 
             </main>
 
@@ -255,7 +260,7 @@ function WrapperCell({ classStyles = '', children }) {
 
 
 
-function WrapperText({ classStyles = '', value, updateValue }) {
+function WrapperText({ classStyles = '', value, updateValue, block=false }) {
 
 
     const [modeEdit, setModeEdit] = useState(false);

@@ -1,0 +1,3293 @@
+[
+    {
+        "brand": "Toyota",
+        "logo": "/logo/logo-toyota.png",
+        "models": [
+            {
+                "model": "4Runner",
+                "img": [
+                    "/cards/toyota-4runner-2006-2009-1682429251.3025696.jpg",
+                    "/cards/152a48b1d5fdc4df58b72b9aac3a3960.jpg",
+                    "/cards/2025-toyota-4runner-limited-108-jpg-6615620b104f8.avif"
+                ]
+            },
+            {
+                "model": "Hilux",
+                "img": [
+                    "/cards/toyota-hylux-2.8-sr-cd-4x4-tdi-branco-2019-2020-1.jpg",
+                    "/cards/NPAZ_7689710c1a4f45699db6dc4c710a10ea.webp"
+                ]
+            },
+            {
+                "model": "Corolla",
+                "img": [
+                    "/cards/d227b46c-3846-478f-b27b-8064e42b5408_026b7d9f-adf5-4c53-b819-38a9174eedbe.webp",
+                    "/cards/1996-1999_Toyota_Corolla_(AE101R)_CSi_sedan_(2011-06-15)_01.jpg",
+                    "/cards/3ebf6866-ce25-4082-81ef-8a53e31457cc.png",
+                    "/cards/D_NQ_NP_704668-MLV78593139452_082024-O.webp"
+                ]
+            },
+            {
+                "model": "Celica",
+                "img": [
+                    "/cards/2020-toyota-celica-rendering.jpg",
+                    "/cards/celica.jpg",
+                    "/cards/1992_Toyota_Celica_GT4_Turbo_Front.jpg"
+                ]
+            },
+            {
+                "model": "Starlet",
+                "img": [
+                    "/cards/640px-1998_Toyota_Starlet_S_1.3_Front.jpg"
+                ]
+            },
+            {
+                "model": "Camry",
+                "img": [
+                    "/cards/NAZ_231d75746a0b422f94123eee06fa6b7e.jpg",
+                    "/cards/images.jpg"
+                ]
+            },
+            {
+                "model": "Samurai",
+                "img": [
+                    "/cards/D_NQ_NP_794481-MLV76451215014_052024-O.webp",
+                    "/cards/D_NQ_NP_694560-MLV78294996782_082024-O.webp"
+                ]
+            },
+            {
+                "model": "Macho",
+                "img": [
+                    "/cards/D_NQ_NP_2X_733272-MLV77066158627_062024-T.webp"
+                ]
+            },
+            {
+                "model": "Machito",
+                "img": [
+                    "/cards/D_NQ_NP_2X_835384-MLV72651030924_112023-T.webp"
+                ]
+            },
+            {
+                "model": "Tacoma",
+                "img": [
+                    "/cards/toyota-hylux-2.8-sr-cd-4x4-tdi-branco-2019-2020-1.jpg",
+                    "/cards/c5ae15da-b0cd-425c-aa77-29fd2e5851e3.webp"
+                ]
+            },
+            {
+                "model": "Yaris",
+                "img": [
+                    "/cards/2020_Toyota_Yaris_Design_HEV_CVT_1.5_Front.jpg"
+                ]
+            },
+            {
+                "model": "Meru",
+                "img": [
+                    "/cards/TOYOTA-MERU-3-AA575NA.jpg"
+                ]
+            },
+            {
+                "model": "Autana",
+                "img": [
+                    "/cards/Toyota-autana-2001-244000km.webp",
+                    "/cards/D_NQ_NP_2X_697542-MLV73543891229_122023-T.webp"
+                ]
+            },
+            {
+                "model": "Fortuner",
+                "img": [
+                    "/cards/TOYOTA-FORTUNER-NEGRA-1.jpg",
+                    "/cards/WhatsApp-Image-2024-05-13-at-10.30.55-AM-2.jpg"
+                ]
+            },
+            {
+                "model": "Prado",
+                "img": [
+                    "/cards/toyota-1.png",
+                    "/cards/D_NQ_NP_738936-MLV73094367868_112023-O.webp",
+                    "/cards/LAND_CRUISER.jpg"
+                ]
+            },
+            {
+                "model": "Terios",
+                "title": "Mejor conocido como 'Terios Kervis'",
+                "img": [
+                    "/cards/e0ffe37af3fa63b1cb86c36da6df188c.jpg"
+                ]
+            },
+            {
+                "model": "L200",
+                "img": [
+                    "/cards/D_NQ_NP_733001-MLV76451021424_052024-O.webp"
+                ]
+            },
+            {
+                "model": "Supra",
+                "img": [
+                    "/cards/D_NQ_NP_907920-MLV78416698324_082024-O.webp"
+                ]
+            },
+            {
+                "model": "Corolla Cross",
+                "img": [
+                    "/cards/toyota-corolla-cross-2023-3063706.webp"
+                ]
+            },
+            {
+                "model": "Siena",
+                "img": [
+                    "/cards/546be79a4cdcdb7dfa3152fbd19a9004.jpg"
+                ]
+            },
+            {
+                "model": "Sequoia",
+                "img": [
+                    "/cards/Sequoia-Limited-TRD-Offroad-SEQ35-TRDO-White-Black-2023-01-876x535.jpg",
+                    "/cards/2023-toyota-sequoia-trd-pro.jpg"
+                ]
+            },
+            {
+                "model": "LC 300",
+                "img": [
+                    "/cards/maxresdefault.jpg"
+                ]
+            },
+            {
+                "model": "Fj",
+                "img": [
+                    "/cards/NF6048-G.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Honda",
+        "logo": "/logo/honda.jpg",
+        "models": [
+            {
+                "model": "Accord",
+                "img": [
+                    "/cards/1999_Honda_Accord_VTi-L_sedan_(2015-07-14)_01.jpg",
+                    "/cards/D_NQ_NP_806726-MLV78767406058_092024-O.webp"
+                ]
+            },
+            {
+                "model": "Civic",
+                "img": [
+                    "/cards/945BEC57-4B22-4CB6-B17E-9F7060E07711.webp",
+                    "/cards/dd1c9ab7-96ab-4893-a0a4-4b74ef761002.webp"
+                ]
+            },
+            {
+                "model": "Passport",
+                "img": [
+                    "/cards/f7350354-bfe3-4114-a269-22f1b81ff104.webp"
+                ]
+            },
+            {
+                "model": "Acty",
+                "img": [
+                    "/cards/1986-honda-tn-acty-mini-truck.jpg"
+                ]
+            },
+            {
+                "model": "Concerto",
+                "img": [
+                    "/cards/1200px-Honda_Concerto_front_20071007.jpg"
+                ]
+            },
+            {
+                "model": "Acura Integra",
+                "img": [
+                    "/cards/honda-integra-type-r-jdm-1998-1.jpg",
+                    "/cards/D_NQ_NP_642560-MLV78053191960_082024-O.webp"
+                ]
+            },
+            {
+                "model": "Acura Rsx",
+                "img": [
+                    "/cards/2004-05_Acura_RSX.jpg"
+                ]
+            },
+            {
+                "model": "Prelude",
+                "img": [
+                    "/cards/is-a-1990-honda-prelude-a-good-first-car-v0-udmjo4ghytxa1.webp"
+                ]
+            },
+            {
+                "model": "Fit",
+                "img": [
+                    "/cards/2007-Honda-Fit-Sport.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "BMW",
+        "logo": "/logo/png-transparent-bmw.png",
+        "models": [
+            {
+                "model": "325I",
+                "img": [
+                    "/cards/1200px-BMW_3er_(E90)_Facelift_20090720_front.jpg"
+                ]
+            },
+            {
+                "model": "330I",
+                "img": [
+                    "/cards/2008_bmw_3-series_coupe_328i_fq_oem_1_1600.jpg"
+                ]
+            },
+            {
+                "model": "318s",
+                "img": [
+                    "/cards/20230406_151823.jpg"
+                ]
+            },
+            {
+                "model": "X3",
+                "img": [
+                    "/cards/2018_BMW_X3_xDrive30d_M_Sport_Automatic_3.0_Front.jpg"
+                ]
+            },
+            {
+                "model": "X5",
+                "img": [
+                    "/cards/x5-home-edit.jpg"
+                ]
+            },
+            {
+                "model": "X6",
+                "img": [
+                    "/cards/hq720.jpg"
+                ]
+            },
+            {
+                "model": "525",
+                "img": [
+                    "/cards/1200_630_7_1606XK54-1.webp"
+                ]
+            },
+            {
+                "model": "M6",
+                "img": [
+                    "/cards/NAZ_59cdd6d6e9da439187bd969a1e0393cc.jpg"
+                ]
+            },
+            {
+                "model": "540i",
+                "img": [
+                    "/cards/2021-bmw-540i-xdrive-343-1608066218.avif"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Buick",
+        "logo": "/logo/buick-images.png",
+        "models": [
+            {
+                "model": "Century",
+                "img": [
+                    "/cards/'91-'93_Buick_Century_Sedan.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Audi",
+        "logo": "/logo/Logo_audi.jpg",
+        "models": [
+            {
+                "model": "Q8",
+                "img": [
+                    "/cards/2019_Audi_Q8_Front.jpg"
+                ]
+            },
+            {
+                "model": "A3",
+                "img": [
+                    "/cards/audi_a3sprtbk35tfsiadvhb4b_angularfront.jpg"
+                ]
+            },
+            {
+                "model": "A4",
+                "img": [
+                    "/cards/Audi_A4_B9_Limousine_3.0_TDI_quattro.jpg"
+                ]
+            },
+            {
+                "model": "Q7",
+                "img": [
+                    "/cards/2022_audi_q7_4dr-suv_prestige_fq_oem_1_600.avif"
+                ]
+            },
+            {
+                "model": "A6",
+                "img": [
+                    "/cards/2018_Audi_A6_Sport_40_TDi_S-A_2.0.jpg"
+                ]
+            },
+            {
+                "model": "Audi TT",
+                "img": [
+                    "/cards/Audi_TT_Coupé_2.0_TFSI_quattro_S-line_(8S)_–_Frontansicht,_3._April_2015,_Düsseldorf.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Mercedes Benz",
+        "logo": "/logo/channels4_profile.jpg",
+        "models": [
+            {
+                "model": "C450 amg",
+                "img": [
+                    "/cards/450_1000.jpg"
+                ]
+            },
+            {
+                "model": "S500",
+                "img": [
+                    "/cards/0_Mercedes-Maybach_S_580_1.jpg"
+                ]
+            },
+            {
+                "model": "C280",
+                "img": [
+                    "/cards/1st_Mercedes-Benz_C280.jpg"
+                ]
+            },
+            {
+                "model": "ML300",
+                "img": [
+                    "/cards/a.ccdn.jpg"
+                ]
+            },
+            {
+                "model": "E320",
+                "img": [
+                    "/cards/mceu_16785993211690483336564.webp"
+                ]
+            },
+            {
+                "model": "AMG G 63",
+                "img": [
+                    "/cards/mercedes-amg-g-63-blindado-inkas-2031531.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Volkswagen",
+        "logo": "/logo/volkswagen-logo-2016.jpg",
+        "models": [
+            {
+                "model": "Escarabajo",
+                "img": [
+                    "/cards/pngtree-pink-volkswagen-beetle-in-wildflowers-image_15827516.jpg",
+                    "/cards/c02a227e8a8d7449bc0943cb5aac3aa1.jpg"
+                ]
+            },
+            {
+                "model": "Gol",
+                "img": [
+                    "/cards/Volkswagen_Gol_Hatchback_--_Front.jpg",
+                    "/cards/D_NQ_NP_892826-MLB75973396350_052024-O.webp"
+                ]
+            },
+            {
+                "model": "Golf",
+                "img": [
+                    "/cards/NAZ_a9d6488536804eebb9734f1121713be3.webp"
+                ]
+            },
+            {
+                "model": "Gol cli",
+                "img": [
+                    "/cards/volkswagen_gol_power_2007.webp"
+                ]
+            },
+            {
+                "model": "Polo",
+                "img": [
+                    "/cards/1200px-2018_Volkswagen_Polo_SE_TSi_1.0_Front.jpg"
+                ]
+            },
+            {
+                "model": "Fox",
+                "img": [
+                    "/cards/VW_Fox_front_20080115.jpg"
+                ]
+            },
+            {
+                "model": "Bora",
+                "img": [
+                    "/cards/Volkswagen-Jetta-MK4-1.8T-Wolfsburg.jpg"
+                ]
+            },
+            {
+                "model": "Crossfox",
+                "img": [
+                    "/cards/volkswagen_crossfox-2005-07_r2.jpg"
+                ]
+            },
+            {
+                "model": "Jeta",
+                "img": [
+                    "/cards/vw-jetta-ii-1984-1992.jpg"
+                ]
+            },
+            {
+                "model": "Spacefox",
+                "img": [
+                    "/cards/volkswagen-spacefox-2005-2010-1637848608.6186337.jpg"
+                ]
+            },
+            {
+                "model": "Kombi o Furgoneta",
+                "img": [
+                    "/cards/314663-volkswagen-t2-last-eidtion-frontal.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Volvo",
+        "logo": "/logo/machine-embroidery-design-logo-volvo-628-750x750.jpg",
+        "models": [
+            {
+                "model": "460",
+                "img": [
+                    "/cards/Volvo460.jpg"
+                ]
+            },
+            {
+                "model": "960",
+                "img": [
+                    "/cards/Volvo-960-964.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Chevrolet",
+        "logo": "/logo/logo-chevrolet.png",
+        "models": [
+            {
+                "model": "Triton 3500",
+                "img": [
+                    "/cards/D_NQ_NP_2X_732223-MLV77033891669_062024-T.webp",
+                    "/cards/1092476-1-2019-silverado-1500-chevrolet-rough-country-suspension-lift-35in-fuel-contra-machined-black.webp",
+                    "/cards/1121929-1-2018-silverado-1500-chevrolet-rough-country-suspension-lift-35in-fuel-triton-black.webp"
+                ]
+            },
+            {
+                "model": "Aveo",
+                "img": [
+                    "/cards/1200px-Chevrolet_Aveo_LT_hatch_front.jpg",
+                    "/cards/im02626-1-chevrolet-aveo.jpg"
+                ]
+            },
+            {
+                "model": "Astra",
+                "img": [
+                    "/cards/Astra_gls_20.jpg",
+                    "/cards/5d5fbf9f0de694f23434950a-opel-astra-2019-primeros-precios-oficiales-para-europa-y-datos-tecnicos-claves.jpg"
+                ]
+            },
+            {
+                "model": "Astro",
+                "img": [
+                    "/cards/1994_Chevrolet_Astro,_front_(2)_6.14.21.jpg",
+                    "/cards/842e5ba2658da81c5a7d468d55721805.jpg"
+                ]
+            },
+            {
+                "model": "Aguile",
+                "img": [
+                    "/cards/Chevrolet_Agile_front.jpg"
+                ]
+            },
+            {
+                "model": "Avalache",
+                "img": [
+                    "/cards/1200px-2007_Chevrolet_Avalanche_LS.jpg",
+                    "/cards/new-chevrolet-avalanche-unofficial-rendering.jpg"
+                ]
+            },
+            {
+                "model": "Blazer",
+                "img": [
+                    "/cards/5e141f44-51d7-458b-aed1-58eac41d5c1c.webp"
+                ]
+            },
+            {
+                "model": "Grand Blazer",
+                "img": [
+                    "/cards/chevrolet_1999_gasolina_chevrolet_grand_blazer_1999_mun_sucre_noreste_autos_usados_en_distrito_capital_mun_sucre_noreste_roodos_venezuela_4320006725114928640.jpg"
+                ]
+            },
+            {
+                "model": "Traliblaze",
+                "img": [
+                    "/cards/Chevrolet_TrailBlazer_--_06-05-2010.jpg"
+                ]
+            },
+            {
+                "model": "Beat",
+                "img": [
+                    "/cards/bateria-para-carro-chevrolet-beat-2018-2023.jpg"
+                ]
+            },
+            {
+                "model": "Corsa",
+                "img": [
+                    "/cards/Corsa_sport_2004.jpg"
+                ]
+            },
+            {
+                "model": "Chevette",
+                "img": [
+                    "/cards/421960820_404583462019967_3932880132429693555_n.jpg"
+                ]
+            },
+            {
+                "model": "Cruze",
+                "img": [
+                    "/cards/Chevrolet_Cruze_J300_sedan_China_2012-04-14.jpg"
+                ]
+            },
+            {
+                "model": "C10",
+                "img": [
+                    "/cards/download.jpg"
+                ]
+            },
+            {
+                "model": "Colorado",
+                "img": [
+                    "/cards/2015_Chevrolet_Colorado_Z71_Extended_Cab_4WD,_front.jpg"
+                ]
+            },
+            {
+                "model": "Captiva",
+                "img": [
+                    "/cards/Chevrolet_Captiva_LTZ_2.2_D_4WD_(Facelift)_–_Frontansicht,_18._März_2012,_Wuppertal.jpg"
+                ]
+            },
+            {
+                "model": "Epica",
+                "img": [
+                    "/cards/chevrolet_epica_2006_2177_1.jpg"
+                ]
+            },
+            {
+                "model": "Grand vitara",
+                "img": [
+                    "/cards/CHEVROLET-GRAN-VITARA-2007-SIN-AZUL-AF566EV.jpg"
+                ]
+            },
+            {
+                "model": "Vitara",
+                "img": [
+                    "/cards/20210809-CHEVROLET-VITARA-1996-CON-MOTOR-DE-CAMARO-scaled.jpg"
+                ]
+            },
+            {
+                "model": "Impala",
+                "img": [
+                    "/cards/2007_chevrolet_impala_sedan_lt_fq_oem_1_500.avif"
+                ]
+            },
+            {
+                "model": "Jimny",
+                "img": [
+                    "/cards/pictures_chevrolet_jimny_1999_1_b.jpg"
+                ]
+            },
+            {
+                "model": "Luv Dmax",
+                "img": [
+                    "/cards/517990b528940ab51cc497ef1dd43922.jpg"
+                ]
+            },
+            {
+                "model": "Montana",
+                "img": [
+                    "/cards/D_NQ_NP_915145-MLV72605808617_102023-O.webp"
+                ]
+            },
+            {
+                "model": "Optra",
+                "img": [
+                    "/cards/Chevrolet_Lacetti_front.jpg"
+                ]
+            },
+            {
+                "model": "Onix",
+                "img": [
+                    "/cards/2021_Chevrolet_Onix_1.0T_Premier_(Chile)_front_view.jpg"
+                ]
+            },
+            {
+                "model": "Orlando",
+                "img": [
+                    "/cards/20110606_chevrolet_orlando_0001.j"
+                ]
+            },
+            {
+                "model": "Spark",
+                "img": [
+                    "/cards/RT_PU_6702b48148164263a3ff21b6f4f977ea.jpg"
+                ]
+            },
+            {
+                "model": "Silverado",
+                "img": [
+                    "/cards/D_Q_NP_2X_870211-MLV77113551955_062024-T.webp"
+                ]
+            },
+            {
+                "model": "Tahoe",
+                "img": [
+                    "/cards/D_NQ_NP_796240-MLV74534696431_022024-O.webp"
+                ]
+            },
+            {
+                "model": "Trax",
+                "img": [
+                    "/cards/2018_Chevrolet_Trax_LT_1.4L_front_3.15.19.jpg"
+                ]
+            },
+            {
+                "model": "Wagon",
+                "img": [
+                    "/cards/D_NQ_NP_863544-MCO72742170366_112023-O.webp"
+                ]
+            },
+            {
+                "model": "Camaro",
+                "img": [
+                    "/cards/1200px-Bumblebee-realcar.jpg"
+                ]
+            },
+            {
+                "model": "Camaro SS",
+                "img": [
+                    "/cards/2018-chevrolet-camaro-ss-1le-social-media-1.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Subaru",
+        "logo": "/logo/Subaru_logo_(transparent).svg",
+        "models": [
+            {
+                "model": "Impreza",
+                "img": [
+                    "/cards/Subaru-Impreza-STI-22B-1.webp"
+                ]
+            },
+            {
+                "model": "Wrx",
+                "img": [
+                    "/cards/04-05_Subaru_WRX_STi_2.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Mitsubishi",
+        "logo": "/logo/Mitsubishi_motors_new_logo.svg.png",
+        "models": [
+            {
+                "model": "ASX",
+                "img": [
+                    "/cards/mitsubishi-asx-front-view.jpg"
+                ]
+            },
+            {
+                "model": "Eclipse",
+                "img": [
+                    "/cards/00-02_Mitsubishi_Eclipse.jpg"
+                ]
+            },
+            {
+                "model": "Evolution",
+                "img": [
+                    "/cards/subasta-mitsubishi-lancer-evo-ix-mr-2007.JPG.jpg"
+                ]
+            },
+            {
+                "model": "Galant",
+                "img": [
+                    "/cards/im00002-1-mitsubishi-galant.jpg"
+                ]
+            },
+            {
+                "model": "MF",
+                "img": [
+                    "/cards/32362890673_22c9360173_z.jpg"
+                ]
+            },
+            {
+                "model": "Lancer",
+                "img": [
+                    "/cards/MITSUBISHI-LANCER-TOURING-2014-AUT-VINOTINTO-AF150EV-1.jpg"
+                ]
+            },
+            {
+                "model": "Mirage",
+                "img": [
+                    "/cards/A66_45_ELL_GLS.png"
+                ]
+            },
+            {
+                "model": "Signo",
+                "img": [
+                    "/cards/SIGNO-DIAGONAL.jpg"
+                ]
+            },
+            {
+                "model": "Montero dakar",
+                "img": [
+                    "/cards/D_NQ_NP_846063-MLV76204795998_052024-O.webp"
+                ]
+            },
+            {
+                "model": "Montero",
+                "img": [
+                    "/cards/Mitsubishi_Montero_4.jpg",
+                    "/cards/Montero_Diesel.png"
+                ]
+            },
+            {
+                "model": "Nativa",
+                "img": [
+                    "/cards/Mitsubishi_Pajero_Sport_Spotted_At_Kota_Kinabalu.jpg",
+                    "/cards/c8298fb4bb59ff340ad0f51177c97bd3.jpg"
+                ]
+            },
+            {
+                "model": "L200",
+                "img": [
+                    "/cards/2024_Mitsubishi_Outlander_1.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Jeep",
+        "logo": "/logo/Jeep-logo.png",
+        "models": [
+            {
+                "model": "Avenger",
+                "img": [
+                    "/cards/JEEP-AVENGER-top-sun-VOLCANO-565x330-1.png"
+                ]
+            },
+            {
+                "model": "Cherokee xj",
+                "img": [
+                    "/cards/Jeep_Cherokee_2-door.jpg"
+                ]
+            },
+            {
+                "model": "Cherokee sport",
+                "img": [
+                    "/cards/jeep_cherokee_2005_1608_1.jpg"
+                ]
+            },
+            {
+                "model": "Cherokee wj",
+                "img": [
+                    "/cards/Jeep_Grand_Cherokee_WJ_34h.jpg"
+                ]
+            },
+            {
+                "model": "Cherokee Wk",
+                "img": [
+                    "/cards/1200px-3rd-Jeep-Grand-Cherokee.jpg",
+                    "/cards/a5e76e7c-e00f-4723-b0a2-f6eeaed9945d.webp"
+                ]
+            },
+            {
+                "model": "Commander",
+                "img": [
+                    "/cards/Jeep-Commander.jpg"
+                ]
+            },
+            {
+                "model": "Compass",
+                "img": [
+                    "/cards/Portada-Jeep-Compass-01.jpg.img.1440.avif"
+                ]
+            },
+            {
+                "model": "Gladiator (JT)",
+                "img": [
+                    "/cards/2020_Jeep_Gladiator_Rubicon,_front_10.25.20.jpg"
+                ]
+            },
+            {
+                "model": "Rubicon",
+                "img": [
+                    "/cards/NAZ_3d48eb7aebcf4826913ce715269f1f10.jpg"
+                ]
+            },
+            {
+                "model": "Wrangler",
+                "img": [
+                    "/cards/IMG_5017-scaled.jpg"
+                ]
+            },
+            {
+                "model": "Overland",
+                "img": [
+                    "/cards/01.png"
+                ]
+            },
+            {
+                "model": "Liberty",
+                "img": [
+                    "/cards/jeep-liberty-1.jpg"
+                ]
+            },
+            {
+                "model": "KK",
+                "img": [
+                    "/cards/1200px-2008_Jeep_Liberty_KK_white-f.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Ford",
+        "logo": "/logo/png-transparent-ford-motor-company-car-ford-mustang-ford-focus-company-logo-blue-text-logo.png",
+        "models": [
+            {
+                "model": "Super Duty 350",
+                "img": [
+                    "/cards/D_NQ_NP_623931-MLV73810648545_012024-O.webp",
+                    "/cards/D_NQ_NP_747602-MLV72440072530_102023-O.webp",
+                    "/cards/2022-Ford-F-250-Super-Duty-2-taller-small.jpg",
+                    "/cards/vehicle.avif"
+                ]
+            },
+            {
+                "model": "Bronco",
+                "img": [
+                    "/cards/Ford-Bronco-China.jpg",
+                    "/cards/1990-ford-bronco-eddie-bauer.jpg",
+                    "/cards/2022_Ford_Bronco_2-Door_Big_Bend_with_Sasquatch_Package,_front_right,_10-28-2022.jpg"
+                ]
+            },
+            {
+                "model": "Expedition",
+                "img": [
+                    "/cards/2022_Ford_Expedition_Platinum_unmarked_unit,_front_4.14.23.jpg",
+                    "/cards/2004_ford_expedition_4dr-suv_eddie-bauer_fq_oem_1_500.avif"
+                ]
+            },
+            {
+                "model": "Explorer",
+                "img": [
+                    "/cards/54687_st0640_116.png",
+                    "/cards/Ext229379-1.jpg",
+                    "/cards/42263_ford-explorer-2005-1.jpg"
+                ]
+            },
+            {
+                "model": "Ecosport",
+                "img": [
+                    "/cards/2018_Ford_Ecosport_Zetec_facelift_1.0.jpg"
+                ]
+            },
+            {
+                "model": "Escape",
+                "img": [
+                    "/cards/FORD-ESCAPE-AUT-GRIS-KBK05N-6.jpg"
+                ]
+            },
+            {
+                "model": "Escort",
+                "img": [
+                    "/cards/1995_Ford_Escort_1.6_Sapphire_(19773828282).jpg"
+                ]
+            },
+            {
+                "model": "Fairmont",
+                "img": [
+                    "/cards/Ford-Fairmon-Sedán-4-puertas-1978.jpg"
+                ]
+            },
+            {
+                "model": "Fusion",
+                "img": [
+                    "/cards/Ford_Fusion.jpg",
+                    "/cards/Ford-Fusion-2012-697.webp",
+                    "/cards/shutterstock_535790773-1.jpg"
+                ]
+            },
+            {
+                "model": "F-150",
+                "img": [
+                    "/cards/ford-colombia-f-150-raptor-negro-agata.png",
+                    "/cards/ford-f-150-2020-015-min-1400x700.png.webp"
+                ]
+            },
+            {
+                "model": "Fiesta",
+                "img": [
+                    "/cards/FIESTA-MFU56E-DIAGONAL-1.jpg",
+                    "/cards/ford-fiesta-1567546.jpg"
+                ]
+            },
+            {
+                "model": "Fiesta move",
+                "img": [
+                    "/cards/ford-fiesta-move-2013-01.jpg"
+                ]
+            },
+            {
+                "model": "Fiesta Ka",
+                "img": [
+                    "/cards/D_990056-MLA76113625814_052024-C.jpg"
+                ]
+            },
+            {
+                "model": "Fiesta balita",
+                "img": [
+                    "/cards/full.jpg"
+                ]
+            },
+            {
+                "model": "Fx4",
+                "img": [
+                    "/cards/Ford_F150_FX4_2004.jpg",
+                    "/cards/D_NQ_NP_679570-MLV76886482613_062024-O.webp"
+                ]
+            },
+            {
+                "model": "Malibu",
+                "img": [
+                    "/cards/'81_Chevrolet_Malibu_Coupe_(Orange_Julep).jpg"
+                ]
+            },
+            {
+                "model": "Mustang Hatchback",
+                "img": [
+                    "/cards/1989-ford-mustang-lx-5-0-front.jpg",
+                    "/cards/1982_Ford_Mustang_GT_Hatchback_(14393014141).jpg"
+                ]
+            },
+            {
+                "model": "Mustang 67",
+                "img": [
+                    "/cards/1967-ford-mustang.jpg"
+                ]
+            },
+            {
+                "model": "Mustang Svo",
+                "img": [
+                    "/cards/IMG_8136.g4A0oqL-L.jpg",
+                    "/cards/86_SVO_(cropped).jpg"
+                ]
+            },
+            {
+                "model": "Mustang GT 96",
+                "img": [
+                    "/cards/1996-ford-mustang-cobra-SVT-front-three-quarter-promo.webp"
+                ]
+            },
+            {
+                "model": "Mustang GT",
+                "title": "El mejor carro de la historiasssssssssssssssssssssssssssss",
+                "img": [
+                    "/cards/1200px-Ford_Mustang_GT_1.jpg",
+                    "/cards/KPGxN7gZ-xxmX_AZHvY-(edit).jpg",
+                    "/cards/2008-ford-mustang-2-door-coupe-gt-premium-angular-front-exterior-view_100297808_l.jpg"
+                ]
+            },
+            {
+                "model": "Mustang Shelby GT",
+                "img": [
+                    "/cards/2008_ford_mustang-shelby-gt-coupe_7f8a2464-58840.webp",
+                    "/cards/sddefault.jpg"
+                ]
+            },
+            {
+                "model": "Mustang GT 500",
+                "img": [
+                    "/cards/3gDjBe7e-vFt1eHnafH-(edit).jpg",
+                    "/cards/2010-ford-shelby-gt500-barn-find_100554580_l.jpg"
+                ]
+            },
+            {
+                "model": "Mustang GT350r",
+                "img": [
+                    "/cards/1500081408918.jpg"
+                ]
+            },
+            {
+                "model": "Mustang Ranger",
+                "img": [
+                    "/cards/Ford_ranger_sport_2007.jpg",
+                    "/cards/7dfa00f39497fd2849061ef182f1a43a.jpg"
+                ]
+            },
+            {
+                "model": "Sierra",
+                "img": [
+                    "/cards/Sierra_3_door_-_an_early_one.jpg",
+                    "/cards/1985_Ford_Sierra_2.0L_Estate_(8289712307).jpg"
+                ]
+            },
+            {
+                "model": "Taurus",
+                "img": [
+                    "/cards/Ford_Taurus_--_07-09-2009.jpg",
+                    "/cards/05-07_Ford_Taurus_SE_sedan.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Cadillac",
+        "logo": "/logo/327387909-922051635467145-187631568011728888-n_-1-.png_2048551729.webp",
+        "models": [
+            {
+                "model": "Escalade",
+                "img": [
+                    "/cards/2012_cadillac_escalade_4dr-suv_platinum-edition_fq_oem_1_1600.avif",
+                    "/cards/Cadillac_Escalade_2012.webp",
+                    "/cards/998f63670ed3417b_ap.jpg"
+                ]
+            },
+            {
+                "model": "Cts",
+                "img": [
+                    "/cards/'14_Cadillac_CTS_Sedan.jpg",
+                    "/cards/Cadillac_CTS_2.0_Turbo_Luxury_(III)_–_Frontansicht,_5._September_2015,_Düsseldorf.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Chrysler",
+        "logo": "/logo/chrysler-2.svg",
+        "models": [
+            {
+                "model": "300c",
+                "img": [
+                    "/cards/2007_chrysler_300_sedan_base_fq_oem_1_1600.webp"
+                ]
+            },
+            {
+                "model": "Sebring",
+                "img": [
+                    "/cards/2008_chrysler_sebring_angularfront.jpg"
+                ]
+            },
+            {
+                "model": "Pt cruiser",
+                "img": [
+                    "/cards/2008_chrysler_pt_cruiser_angularfront.jpg"
+                ]
+            },
+            {
+                "model": "Stratus",
+                "img": [
+                    "/cards/Chrysler-Stratus-JA.jpg"
+                ]
+            },
+            {
+                "model": "Neon",
+                "img": [
+                    "/cards/1st-Dodge-Neon.jpg"
+                ]
+            },
+            {
+                "model": "Town country",
+                "img": [
+                    "/cards/chrysler-town-country-2005-2007-1678294288.8668783.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Hyundai",
+        "logo": "/logo/hyundai-logo-brand-symbol-with-name-white-design-south-korean-car-automobile-illustration-with-blue-background-free-vector.jpg",
+        "models": [
+            {
+                "model": "Accent",
+                "img": [
+                    "/cards/hyundai-accent-2001-01.jpg"
+                ]
+            },
+            {
+                "model": "Excel",
+                "img": [
+                    "/cards/1991-1994_Hyundai_Excel_(X2)_LS_5-door_hatchback_03.jpg"
+                ]
+            },
+            {
+                "model": "Getz",
+                "img": [
+                    "/cards/0_Hyundai_Click_(2002)_1.jpg",
+                    "/cards/hyundai-atos-prime-climatizzat.jpg"
+                ]
+            },
+            {
+                "model": "Atos",
+                "img": [
+                    "/cards/0_Hyundai_Atos_2.jpg",
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "Azera",
+                "img": [
+                    "/cards/Hyundai-Azera-11.jpg",
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "Coupe",
+                "img": [
+                    "/cards/2007-Hyundai-Tiburon.jpg"
+                ]
+            },
+            {
+                "model": "Creta",
+                "img": [
+                    "/cards/Hyundai_Creta.jpg"
+                ]
+            },
+            {
+                "model": "Elantra",
+                "img": [
+                    "/cards/x5_1159017038h1n.jpg",
+                    "/cards/Large-56914-2024Elantra-1264x734.jpg"
+                ]
+            },
+            {
+                "model": "Genesis",
+                "img": [
+                    "/cards/2010_Hyundai_Genesis_Coupe_3_--_08-28-2009.jpg"
+                ]
+            },
+            {
+                "model": "H1",
+                "img": [
+                    "/cards/1aaaaa.jpg",
+                    "/cards/D_NQ_NP_643830-MLV72416198465_102023-O.webp"
+                ]
+            },
+            {
+                "model": "Ioniq",
+                "img": [
+                    "/cards/NAZ_54a584ccec564759ad9273f205b47a5c.jpg",
+                    "/cards/NAZ_2412bbb780c54f97962e62f291b93cea.jpg"
+                ]
+            },
+            {
+                "model": "I10",
+                "img": [
+                    "/cards/hyundai-i10-2024.jpg"
+                ]
+            },
+            {
+                "model": "I20",
+                "img": [
+                    "/cards/hyundai-i20-n-2021.jpg",
+                    "/cards/800px-2018_Hyundai_i20_SE_MPi_1.2_Front.jpg"
+                ]
+            },
+            {
+                "model": "Veracruz",
+                "img": [
+                    "/cards/Hyundai_ix55_front_20100706.jpg"
+                ]
+            },
+            {
+                "model": "Matrix",
+                "img": [
+                    "/cards/2010_Hyundai_Matrix_Comfort_1.6_Front.jpg"
+                ]
+            },
+            {
+                "model": "Tiburon",
+                "img": [
+                    "/cards/1998_hyundai_tiburon_2dr-hatchback_fx_fq_oem_1_500.avif"
+                ]
+            },
+            {
+                "model": "",
+                "img": [
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "Tucson",
+                "img": [
+                    "/cards/tucson-1.png",
+                    "/cards/Hyundai-Tucson-I.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Nissan",
+        "logo": "/logo/HD-wallpaper-nissan-logo-logo-nissan.jpg",
+        "models": [
+            {
+                "model": "240sx",
+                "img": [
+                    "/cards/ZU3tYOUbTREBlvZt.jpg"
+                ]
+            },
+            {
+                "model": "350z",
+                "img": [
+                    "/cards/800px-Nissan350Z-01.jpg"
+                ]
+            },
+            {
+                "model": "Almera",
+                "img": [
+                    "/cards/Nissan-Almera-2008-Sedan.jpg",
+                    "/cards/almera.png"
+                ]
+            },
+            {
+                "model": "Kicks",
+                "img": [
+                    "/cards/0_Nissan_Kicks_(P15)_1.jpg",
+                    "/cards/840_560.jpg"
+                ]
+            },
+            {
+                "model": "",
+                "img": [
+                    "/cards/",
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "B13",
+                "img": [
+                    "/cards/20161026-NISSAN-SENTRA-B13-TSURU-01.jpg",
+                    "/cards/1121dbefaf8ca1d6ae0dd8c379bde179.jpg"
+                ]
+            },
+            {
+                "model": "B15",
+                "img": [
+                    "/cards/Nissan-Sentra-B15.jpg",
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "D21",
+                "img": [
+                    "/cards/D_NQ_NP_819735-MLM43139437164_082020-O.jpg",
+                    "/cards/gowqjm914khb1.webp"
+                ]
+            },
+            {
+                "model": "Frontier",
+                "img": [
+                    "/cards/2001_nissan_frontier_crew-cab-pickup_sc-v6_fq_oem_1_500.avif",
+                    "/cards/frontier.jpg"
+                ]
+            },
+            {
+                "model": "GTR",
+                "img": [
+                    "/cards/historia-nissan-gt-r-3068670.webp"
+                ]
+            },
+            {
+                "model": "Interstar",
+                "img": [
+                    "/cards/original.jpg",
+                    "/cards/Portada-scaled.jpg"
+                ]
+            },
+            {
+                "model": "Lucino",
+                "img": [
+                    "/cards/1997Nissan200sxse.jpg"
+                ]
+            },
+            {
+                "model": "Maxima",
+                "img": [
+                    "/cards/NJUO.jpg",
+                    "/cards/Nissan_máxima.jpg"
+                ]
+            },
+            {
+                "model": "March",
+                "img": [
+                    "/cards/4fcf3771239b4674b1f1a1753b97bb18.jpg",
+                    "/cards/MARCH-SENSE-CONNECT-1"
+                ]
+            },
+            {
+                "model": "Murano",
+                "img": [
+                    "/cards/www.iihs.jpg",
+                    "/cards/2009-Nissan-Murano.jpg"
+                ]
+            },
+            {
+                "model": "Skyline",
+                "img": [
+                    "/cards/Nissan_Skyline_GT-R_R34_V_Spec_II.jpg"
+                ]
+            },
+            {
+                "model": "Pathfinder",
+                "img": [
+                    "/cards/preview-928x522.jpg"
+                ]
+            },
+            {
+                "model": "Patrol",
+                "img": [
+                    "/cards/w4ozpsnogbhyz25eqber.avif",
+                    "/cards/2016_Nissan_Patrol_(Y62)_Ti-L_wagon_(2018-09-17)_01.jpg",
+                    "/cards/Nissan_Patrol_2019_review__Ti_L_1001x565(6).jpg"
+                ]
+            },
+            {
+                "model": "Primera",
+                "img": [
+                    "/cards/nissan-primera-gt-sedan-p11.jpg",
+                    "/cards/2005_Nissan_Primera_SX_DCi_2.2_Front.jpg"
+                ]
+            },
+            {
+                "model": "Quest",
+                "img": [
+                    "/cards/93-95_Nissan_Quest.jpg"
+                ]
+            },
+            {
+                "model": "Slyphy",
+                "img": [
+                    "/cards/Nissan-Sylphy-_1_.webp"
+                ]
+            },
+            {
+                "model": "Terrano",
+                "img": [
+                    "/cards/historia-nissan-terrano-2236447.webp",
+                    "/cards/Nissan-Terrano-Front-view-93548.webp"
+                ]
+            },
+            {
+                "model": "Titan",
+                "img": [
+                    "/cards/2008_Nissan_Titan.jpg"
+                ]
+            },
+            {
+                "model": "Tida",
+                "img": [
+                    "/cards/Nissan_Tiida_C12_China_2014-05-01.jpg"
+                ]
+            },
+            {
+                "model": "X-trail",
+                "img": [
+                    "/cards/2013_Nissan_X-Trail_(T31)_ST_wagon_(2014-12-23)_01.jpg"
+                ]
+            },
+            {
+                "model": "Y60",
+                "img": [
+                    "/cards/nissan-patrol-iv-3-door-y60.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Fiat",
+        "logo": "/logo/66e5bd2713b41cba12314a082d3f9e75.jpg",
+        "models": [
+            {
+                "model": "Abarth 500",
+                "img": [
+                    "/cards/2009_Abarth_500_1.4_Front.jpg",
+                    "/cards/lanzamiento-fiat-500-abarth-595-turismo-2021.jpg",
+                    "/cards/2017-fiat-500c-abarth-open-graph-3.webp"
+                ]
+            },
+            {
+                "model": "Aventure",
+                "img": [
+                    "/cards/unnamed.jpg",
+                    "/cards/555192_1_im.jpg"
+                ]
+            },
+            {
+                "model": "Argo",
+                "img": [
+                    "/cards/29-1.jpg",
+                    "/cards/NAZ_be7961a76d4f4329af12eb9511b1b319.jpg"
+                ]
+            },
+            {
+                "model": "Cronos",
+                "img": [
+                    "/cards/Fiat_Cronos_1.8_16V_E.Torq_Precision.jpg",
+                    "/cards/lanzamiento-fiat-cronos-2020.jpg",
+                    "/cards/SDesignMY22_1.webp"
+                ]
+            },
+            {
+                "model": "Duna",
+                "img": [
+                    "/cards/FiatDuna1-Tandil.jpg",
+                    "/cards/fiat-duna-scx.webp"
+                ]
+            },
+            {
+                "model": "Strada",
+                "img": [
+                    "/cards/estrada.jpg",
+                    "/cards/1strada-64ac06b57b1cc.jpg",
+                    "/cards/fiat-strada-ultra-2024.webp"
+                ]
+            },
+            {
+                "model": "Fiorino",
+                "img": [
+                    "/cards/D_NQ_NP_917847-MLB70283418464_072023-O.webp",
+                    "/cards/Fiat_Fiorino_front_20080111.jpg"
+                ]
+            },
+            {
+                "model": "Fire",
+                "img": [
+                    "/cards/fiat-mille-fire-1_17052024_78677_960_720.jpg",
+                    "/cards/1988_Fiat_Uno_Fire_(33541200276).jpg"
+                ]
+            },
+            {
+                "model": "Grand siena",
+                "img": [
+                    "/cards/Fiat-Grand-Siena-GNC-delantera.jpg"
+                ]
+            },
+            {
+                "model": "Idea",
+                "img": [
+                    "/cards/2005_Fiat_Idea.jpg",
+                    "/cards/b8fe7a5b2cb22c9b9274ccf910e7d23e.jpg"
+                ]
+            },
+            {
+                "model": "Linea",
+                "img": [
+                    "/cards/fiat_linea_2007_2478_1.jpg",
+                    "/cards/46866_1.jpg"
+                ]
+            },
+            {
+                "model": "Mobi",
+                "img": [
+                    "/cards/00-1.jpg",
+                    "/cards/Fiat_Mobi_Trekking_1.0_2021_in_Montevideo_(front).jpg"
+                ]
+            },
+            {
+                "model": "Marea",
+                "img": [
+                    "/cards/280px-Fiat_Marea_1.9_JTD_105_facelift.jpg",
+                    "/cards/fiat-marea-1996-2002-1492072269.08.jpg"
+                ]
+            },
+            {
+                "model": "Palio",
+                "img": [
+                    "/cards/20171202-FIAT-PALIO-05A.jpg",
+                    "/cards/downloaeawrad.jpg",
+                    "/cards/Fiat-Palio-2008-sedan.jpg"
+                ]
+            },
+            {
+                "model": "Premio",
+                "img": [
+                    "/cards/FIAT-Premio-723x356.png",
+                    "/cards/Foto290.jpg"
+                ]
+            },
+            {
+                "model": "Qubo",
+                "img": [
+                    "/cards/im03999-1-fiat-qubo.jpg",
+                    "/cards/Fiat-Fiorino_Qubo_2009_C01.webp"
+                ]
+            },
+            {
+                "model": "Regata",
+                "img": [
+                    "/cards/fiat-regata-es-1.webp",
+                    "/cards/fiat-regata-1.webp"
+                ]
+            },
+            {
+                "model": "Ritmo",
+                "img": [
+                    "/cards/fiat-ritmo-i-138a-facelift-1982.jpg",
+                    "/cards/Exterior03.jpg"
+                ]
+            },
+            {
+                "model": "Siena",
+                "img": [
+                    "/cards/D_NQ_NP_879748-MLA44526720932_012021-O.jpg"
+                ]
+            },
+            {
+                "model": "Toro",
+                "img": [
+                    "/cards/hero.png"
+                ]
+            },
+            {
+                "model": "Tucan",
+                "img": [
+                    "/cards/Fiat_147_late.jpg"
+                ]
+            },
+            {
+                "model": "Tempra",
+                "img": [
+                    "/cards/Fiaiot_Tempra_SX_'93.jpg"
+                ]
+            },
+            {
+                "model": "Uno",
+                "img": [
+                    "/cards/fiat-uno-1520829.jpg",
+                    "/cards/D_NQ_NP_693034-MLA71782115971_092023-O.webp",
+                    "/cards/fiat-uno-2019-2021-1650974587.3305824.jpg"
+                ]
+            },
+            {
+                "model": "Volcano",
+                "img": [
+                    "/cards/fiat-toro-volcano.png"
+                ]
+            },
+            {
+                "model": "Zpacio",
+                "img": [
+                    "/cards/fiat-spazio-3.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Renault",
+        "logo": "/logo/Renault_logo.jpg",
+        "models": [
+            {
+                "model": "Break",
+                "img": [
+                    "/cards/renault-12-break-ts-01.webp"
+                ]
+            },
+            {
+                "model": "Aro",
+                "img": [
+                    "/cards/10.9 2.jpg",
+                    "/cards/MHV_Aro_4x4_02.jpg"
+                ]
+            },
+            {
+                "model": "Clio",
+                "img": [
+                    "/cards/1999_Renault_Clio_5-door_Radio_101_edition.jpg",
+                    "/cards/im01512-1-renault-clio-iii.jpg",
+                    "/cards/reanault-clio-2015-(2).webp"
+                ]
+            },
+            {
+                "model": "Captur",
+                "img": [
+                    "/cards/6245c46862cb9.jpg"
+                ]
+            },
+            {
+                "model": "Duster",
+                "img": [
+                    "/cards/RT_V_b2971a12e190479fb187ea7bcdd1e673.jpg"
+                ]
+            },
+            {
+                "model": "Express",
+                "img": [
+                    "/cards/1200px-Renault_Express.jpg",
+                    "/cards/renault-express-fase2-1.jpg",
+                    "/cards/2485540.webp"
+                ]
+            },
+            {
+                "model": "Energy",
+                "img": [
+                    "/cards/Renault_19_front.jpg"
+                ]
+            },
+            {
+                "model": "Fluence",
+                "img": [
+                    "/cards/1200px-Renault_Fluence_front_20100918.jpg"
+                ]
+            },
+            {
+                "model": "Fuego",
+                "img": [
+                    "/cards/renault-fuego.webp",
+                    "/cards/copertina-renault-fuego.jpg",
+                    "/cards/b2ba43ad33af636896a1bf92ae015793.jpg"
+                ]
+            },
+            {
+                "model": "Gala",
+                "img": [
+                    "/cards/D_NQ_NP_2X_951144-MLV78687852114_092024-T.webp"
+                ]
+            },
+            {
+                "model": "Intence",
+                "img": [
+                    "/cards/renault_kwid-intense-2017_r34.jpg"
+                ]
+            },
+            {
+                "model": "Iconic",
+                "img": [
+                    "/cards/20201104-RENAULT-KWID-ICONIC-COLOMBIA-PRECIO-CARACTERISTICAS-02.jpg",
+                    "/cards/Diseno-sin-titulo-86.png"
+                ]
+            },
+            {
+                "model": "Juliaca",
+                "img": [
+                    "/cards/renault_koleos_2016_renault_koleos_sportway_usado_automatico_4x4_14_700_s_14_700_1900049719318099961.jpg",
+                    "/cards/2024-05-23-1.-Imagen-destacada-600x400.jpg"
+                ]
+            },
+            {
+                "model": "Cango",
+                "img": [
+                    "/cards/1200px-Renault_Kangoo_I_front_20090121.jpg",
+                    "/cards/renault_kangoo-2011_r8.jpg"
+                ]
+            },
+            {
+                "model": "Kwid",
+                "img": [
+                    "/cards/Renault_Kwid_2017_in_Montevideo_(front).jpg"
+                ]
+            },
+            {
+                "model": "Laguna",
+                "img": [
+                    "/cards/Laguna1p1f.jpg",
+                    "/cards/1822_a71e5bc90da3ea2_794_529_70.jpg"
+                ]
+            },
+            {
+                "model": "Megane",
+                "img": [
+                    "/cards/1200px-2017_Renault_Megane_Dynamique_S_NAV_DC_1.5_Front.jpg"
+                ]
+            },
+            {
+                "model": "Nevada",
+                "img": [
+                    "/cards/renault-21-nevada-3.jpg"
+                ]
+            },
+            {
+                "model": "9",
+                "img": [
+                    "/cards/RENAULT-9-FRENTE.webp"
+                ]
+            },
+            {
+                "model": "Oroch",
+                "img": [
+                    "/cards/Renault_Duster_Oroch_2016_in_Punta_del_Este_01.jpg",
+                    "/cards/Renault-Oroch-1.jpg"
+                ]
+            },
+            {
+                "model": "Sandero",
+                "img": [
+                    "/cards/nuevo-renault-sandero-gris-cassiope-agenciauto.jpg"
+                ]
+            },
+            {
+                "model": "Stepway",
+                "img": [
+                    "/cards/20200929-DACIA-SANDERO-STEPWAY-2021-RENAULT-NUEVA-GENERACION-01.jpg"
+                ]
+            },
+            {
+                "model": "Symbol",
+                "img": [
+                    "/cards/renault-symbol-2002-2008-1619771232.6051512.jpg",
+                    "/cards/renault-symbol-2018-2022-1679662372.6813402.jpg"
+                ]
+            },
+            {
+                "model": "Twingo",
+                "img": [
+                    "/cards/1280px-Renault_Twingo_front_20080709.jpg",
+                    "/cards/NAZ_f18881151bde4fbbb141a77c8e421600.jpg"
+                ]
+            },
+            {
+                "model": "Trafic",
+                "img": [
+                    "/cards/renault-trafic-renault-trafic---1998-section-class-price-mb-10-dhide-auto-sidebar-blanc_7838963911.jpg",
+                    "/cards/renault-trafic-1980-2001-1634565701.091865.jpg",
+                    "2018_Renault_Trafic_SL27_Business+_Energy_1.6_Front.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Land Rover",
+        "logo": "/logo/9a9f9f209598b73824a197ecc15029ab.png",
+        "models": [
+            {
+                "model": "Sport",
+                "img": [
+                    "/cards/f.elconfidencial.com_original_fd2_85f_db3_fd285fdb3d7f3cb72da55f283b81ee62.jpg"
+                ]
+            },
+            {
+                "model": "Defender 110",
+                "img": [
+                    "/cards/venta-ultimo-land-rover-defender-110-adventure-2613357.webp",
+                    "/cards/1600.webp"
+                ]
+            },
+            {
+                "model": "Range Rover",
+                "img": [
+                    "/cards/Land_Rover_Range_Rover_1979_(4911138431).jpg",
+                    "/cards/2000_land-rover_range-rover_2000p38-2-59264-scaled.webp",
+                    "/cards/2009_Land_Rover_Range_Rover_Preview_summaryImage.jpg",
+                    "/cards/The-2016-Land-Rover-Range-Rover-Sport-02.jpg",
+                    "/cards/2020-range-rover-evoque.jpg"
+                ]
+            },
+            {
+                "model": "Range Rover Sport",
+                "img": [
+                    "/cards/2014_land-rover_range-rover-sport_4dr-suv_se_fq_oem_1_1600.webp",
+                    "/cards/range-rover-sport-2022.jpg"
+                ]
+            },
+            {
+                "model": "P530",
+                "img": [
+                    "/cards/2022_land-rover_range-rover_4dr-suv_p530-autobiography-lwb-5_fq_oem_1_600.webp"
+                ]
+            },
+            {
+                "model": "Discovery",
+                "img": [
+                    "/cards/spec_595cec4b-0877-46dc-a82b-dc77c1fad195_640_0.jpg",
+                    "/cards/1618520415dc394ac148a5Provo-Land-Rover-Discovery-001-scaled.webp",
+                    "/cards/Land-Rover-Discovery-4-2009-1.jpg",
+                    "/cards/2020-discovery-se.jpg"
+                ]
+            },
+            {
+                "model": "Freelander",
+                "img": [
+                    "/cards/LANDROVERFreelander-3452_2.jpg",
+                    "/cards/nsatwj4fQrmprjYXQWv7.avif"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Mazda",
+        "logo": "/logo/mazda.svg",
+        "models": [
+            {
+                "model": "Allegro",
+                "img": [
+                    "/cards/mazda-allegro-1993-1998-1617349917.5971098.jpg",
+                    "/cards/MADZA-GRIS-3-GBR15Z.jpg"
+                ]
+            },
+            {
+                "model": "Artis",
+                "img": [
+                    "/cards/mazda_1997_bencina_mazda_bencina_5320027718301949896.jpg",
+                    "/cards/mazda_1996_bencina_mazda_bencina_4920027718301946128.jpg"
+                ]
+            },
+            {
+                "model": "Axela",
+                "img": [
+                    "/cards/IMG_4295.jpg"
+                ]
+            },
+            {
+                "model": "Bt 50",
+                "img": [
+                    "/cards/732858f6e8f9bb7f3e3b53556048a4e0.jpg",
+                    "/cards/MazdaBT50-31012012-03.jpg"
+                ]
+            },
+            {
+                "model": "Bt 2200",
+                "img": [
+                    "/cards/mazda_b_2200_1995_vendo_hermosa_mazda_b2200_estacas_1080050679575440677.jpg",
+                    "/cards/20190226101722-bf34.jpg"
+                ]
+            },
+            {
+                "model": "CX3",
+                "img": [
+                    "/cards/2018-mazda-cx-3.jpg",
+                    "/cards/mme_cx5_kdpweag_46v_7-8.avif"
+                ]
+            },
+            {
+                "model": "CX7",
+                "img": [
+                    "/cards/013.301447.jpg"
+                ]
+            },
+            {
+                "model": "CX9",
+                "img": [
+                    "/cards/galeria-ext-4.jpg"
+                ]
+            },
+            {
+                "model": "CX30",
+                "img": [
+                    "/cards/2024_mazda_cx-30_prime-line_front.avif"
+                ]
+            },
+            {
+                "model": "Demio",
+                "img": [
+                    "/cards/2007_Mazda_Demio_01.jpg",
+                    "/cards/mazda-demio-2005-2007-1648096188.4897602.jpg",
+                    "/cards/_1677209_0.webp"
+                ]
+            },
+            {
+                "model": "3 Grand Touring",
+                "img": [
+                    "/cards/png-transparent-2018-mazda3-grand-touring-manual-sedan-compact-car-2018-mazda3-grand-touring-manual-sedan-2018-mazda3-grand-touring-automatic-sedan-mazda-compact-car-sedan-car.png"
+                ]
+            },
+            {
+                "model": "MX5",
+                "img": [
+                    "/cards/Mazda_Roadster_(MX-5)_by_Negawa_Bridge_(cropped).jpg"
+                ]
+            },
+            {
+                "model": "Milenio",
+                "img": [
+                    "/cards/D_NQ_NP_687406-MCO70157001261_062023-O.webp"
+                ]
+            },
+            {
+                "model": "MPV",
+                "img": [
+                    "/cards/2000_Mazda_MPV.jpg"
+                ]
+            },
+            {
+                "model": "Ocasion",
+                "img": [
+                    "/cards/x01.jpg"
+                ]
+            },
+            {
+                "model": "Protege",
+                "img": [
+                    "/cards/big5281.jpg"
+                ]
+            },
+            {
+                "model": "Premacy",
+                "img": [
+                    "/cards/1200px-Mazda_Premacy_front_20071227.jpg",
+                    "/cards/2012_Mazda5_Sport_--_03-09-2011.jpg"
+                ]
+            },
+            {
+                "model": "Copupe",
+                "img": [
+                    "/cards/20200808-MAZDA-323-COUPE-COLOMBIA-HISTORIA-CARACTERISTICAS-01.jpg"
+                ]
+            },
+            {
+                "model": "RX8",
+                "img": [
+                    "/cards/Mazda_RX-8_on_freeway.jpg"
+                ]
+            },
+            {
+                "model": "Speed 3",
+                "img": [
+                    "/cards/im_20130420_autos_130429993.webp"
+                ]
+            },
+            {
+                "model": "Tribute",
+                "img": [
+                    "/cards/2001-2004_Mazda_Tribute_--_03-21-2012.jpg",
+                    "/cards/08-Mazda-Tribute.jpg"
+                ]
+            },
+            {
+                "model": "3",
+                "img": [
+                    "/cards/2003-2006-1679931469.7509544.jpg",
+                    "/cards/NAZ_302114194bd24ca7917bb742c8986d99.jpg"
+                ]
+            },
+            {
+                "model": "6",
+                "img": [
+                    "/cards/Mazda-6-sedan-2005.jpg",
+                    "/cards/Mazda6-sport-sedan-gallery.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Suzuki",
+        "logo": "/logo/18212f82cf5eac6a7d34e599b726fa7d.jpg",
+        "models": [
+            {
+                "model": "Baleno",
+                "img": [
+                    "/cards/SUZUKI-BALENO-2023-AUT-PLATA-SP2574-1-1.jpg"
+                ]
+            },
+            {
+                "model": "Alto",
+                "img": [
+                    "/cards/1703779969-JpwQJECso6.webp"
+                ]
+            },
+            {
+                "model": "Selenium",
+                "img": [
+                    "/cards/foto_0000000520220608150407_new_celerio_gl_color_azul_ceruleo.png"
+                ]
+            },
+            {
+                "model": "Ertiga",
+                "img": [
+                    "/cards/ERTIGA-XL7-BOOSTERGREEN-2024.png"
+                ]
+            },
+            {
+                "model": "Swift",
+                "img": [
+                    "/cards/2018_Suzuki_Swift_SZ5_Boosterjet_SHVS_1.0_Front.jpg"
+                ]
+            },
+            {
+                "model": "Fronx",
+                "img": [
+                    "/cards/suzuki-fronx-plata.png"
+                ]
+            },
+            {
+                "model": "Dsire",
+                "img": [
+                    "/cards/1659392017-yrZC3CplcJ.webp"
+                ]
+            },
+            {
+                "model": "Carry",
+                "img": [
+                    "/cards/vendo-furgon-suzuki-carry-all-antildeo-98_4be7b1bdb_3.jpg",
+                    "/cards/2019_Suzuki_Carry_Flat_Deck_1.5_DC61T_(20190826)_01.jpg"
+                ]
+            },
+            {
+                "model": "XL7",
+                "img": [
+                    "/cards/Suzuki_Vitara_-_przód_(MSP16).jpg",
+                    "/cards/olet-grand-vitara-x-l7-2007-128000km.webp"
+                ]
+            },
+            {
+                "model": "Vitara",
+                "img": [
+                    "/cards/suzuki_vitara_3-1.jpg",
+                    "/cards/suzuki-vitara_4.webp"
+                ]
+            },
+            {
+                "model": "Grand Vitara",
+                "img": [
+                    "/cards/337463548152397.jpg",
+                    "/cards/SUSUKI-GRAN-VITARA-2008-AB888CGN-6.jpg",
+                    "/cards/SUZUKI-GRAND-VITARA-2024-AUT-BLANCO-SP0076-6.jpg"
+                ]
+            },
+            {
+                "model": "Celerio",
+                "img": [
+                    "/cards/suzuki-celerio-2014-frontal-azul.308117.jpg",
+                    "/cards/RT_V_f5243b71b4fe43739ded6c9c6d91769e.jpg"
+                ]
+            },
+            {
+                "model": "Ignis",
+                "img": [
+                    "/cards/NAZ_908ddd6ccb5b42ab9844bc1e959b17b3.jpg"
+                ]
+            },
+            {
+                "model": "Jimmi",
+                "img": [
+                    "/cards/suzuki-jimny-suzuki-jimny-2001-noir_7139101400.jpg",
+                    "/cards/suzuki_jimny_1999_1563_1.jpg",
+                    "/cards/suzuki-jimny-5-puertas-india-202183215-1638546060_1.webp",
+                    "/cards/1.png"
+                ]
+            },
+            {
+                "model": "S-cross",
+                "img": [
+                    "/cards/S-Cross-interna-Plate.png"
+                ]
+            },
+            {
+                "model": "Lj80",
+                "img": [
+                    "/cards/474fa21c-ece5-49bf-a083-c46c14667129_1706064995619_l.jpg",
+                    "/cards/maxressfsdefault.jpg"
+                ]
+            },
+            {
+                "model": "Fronte",
+                "img": [
+                    "/cards/6th_Suzuki_Fronte.jpg"
+                ]
+            },
+            {
+                "model": "St30k",
+                "img": [
+                    "/cards/imaSSSges.jpg"
+                ]
+            },
+            {
+                "model": "Ciaz",
+                "img": [
+                    "/cards/Suzuki_Ciaz_2015_in_Punta_del_Este.jpg",
+                    "/cards/suzuki-ciaz-1.jpg"
+                ]
+            },
+            {
+                "model": "APV",
+                "img": [
+                    "/cards/apv_panel_color_blanco_zyg.png"
+                ]
+            },
+            {
+                "model": "Dreza",
+                "img": [
+                    "/cards/preview.webp"
+                ]
+            },
+            {
+                "model": "Samurai",
+                "img": [
+                    "/cards/historia-suzuki-samuraianuncio-2012663.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Daewoo",
+        "logo": "/logo/download.png",
+        "models": [
+            {
+                "model": "Cielo",
+                "img": [
+                    "/cards/DaewooC.jpg",
+                    "/cards/20100904_daewoo_cielo_1.jpg"
+                ]
+            },
+            {
+                "model": "Espero",
+                "img": [
+                    "/cards/1995_Daewoo_Espero_CDXi_2.0_Front.jpg",
+                    "/cards/1200px-Daewoo_Espero_vl_silver.jpg"
+                ]
+            },
+            {
+                "model": "Gentra",
+                "img": [
+                    "/cards/daewoo-gentra.jpg"
+                ]
+            },
+            {
+                "model": "Lanos",
+                "img": [
+                    "/cards/Daewoo_Lanos_hatchback_--_04-22-2011_front.jpg"
+                ]
+            },
+            {
+                "model": "Matiz",
+                "img": [
+                    "/cards/Daewoo_Matiz_M100_silver.jpg",
+                    "/cards/Daewoo-Matiz-1.jpg"
+                ]
+            },
+            {
+                "model": "Nubira",
+                "img": [
+                    "/cards/0_Daewoo_Nubira_(J100)_1.jpg"
+                ]
+            },
+            {
+                "model": "Tacuma",
+                "img": [
+                    "/cards/Daewoo_Rezzo_Front.jpg"
+                ]
+            },
+            {
+                "model": "Tosca",
+                "img": [
+                    "/cards/20101023_daewoo_tosca_01.jpg"
+                ]
+            },
+            {
+                "model": "Winstorm",
+                "img": [
+                    "/cards/BF711074_bb8268.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Kia",
+        "logo": "/logo/autosoft-resources-oemspecsheet-feature-kia-certification.jpg.webp",
+        "models": [
+            {
+                "model": "Avella",
+                "img": [
+                    "/cards/MHV_Kia_Avella_01.jpg"
+                ]
+            },
+            {
+                "model": "Besta",
+                "img": [
+                    "/cards/iiuhu.png",
+                    "/cards/Kia_Besta_2.7d_1997_(26509766974).jpg"
+                ]
+            },
+            {
+                "model": "Cadenza",
+                "img": [
+                    "/cards/640px-KIA_K7.jpg",
+                    "/cards/www.iihsss.jpg",
+                    "/cards/9d9ce632-9d61-4719-8eca-c01b65939c45.webp"
+                ]
+            },
+            {
+                "model": "Carens",
+                "img": [
+                    "/cards/Kia-Carens-I.jpg"
+                ]
+            },
+            {
+                "model": "Ceeed",
+                "img": [
+                    "/cards/kia_cee__d_2007_ceed_2556_1.jpg"
+                ]
+            },
+            {
+                "model": "Clarus",
+                "img": [
+                    "/cards/1200px-1996_Kia_Clarus_01.jpg",
+                    "/cards/kia-clarus-01-329fc864da1f9841b9e2f38a218ac4de56e1afec.jpg"
+                ]
+            },
+            {
+                "model": "Concord",
+                "img": [
+                    "/cards/1200px-20100801_kia_concord_001.jpg"
+                ]
+            },
+            {
+                "model": "K9",
+                "img": [
+                    "/cards/NAZ_84a9f248989844399f89ef00a1903dad.jpg"
+                ]
+            },
+            {
+                "model": "Pegas",
+                "img": [
+                    "/cards/KIA-PEGAS-AUT-GRIS-AI014AK-1.jpg"
+                ]
+            },
+            {
+                "model": "Optima",
+                "img": [
+                    "/cards/kia-optima-2007-6.jpg",
+                    "/cards/09_Kia_Optima_LX.jpg",
+                    "/cards/OPTIMA-AC037YE-DIAGONAL.jpg"
+                ]
+            },
+            {
+                "model": "Mohave",
+                "img": [
+                    "/cards/dcc2317c581fc92c0206a73d58cd4f5c.jpg",
+                    "/cards/NAZ_6b3bafe0e69b49b8baf327cfd2254cbf.jpg"
+                ]
+            },
+            {
+                "model": "",
+                "img": [
+                    "/cards/D_Q_NP_2X_603336-MLA73952386975_012024-T.jpg",
+                    "/cards/",
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "Opirus",
+                "img": [
+                    "/cards/D_Q_NP_2X_603336-MLA73952386975_012024-T.jpg",
+                    "/cards/D_Q_NP_2X_898690-MLV74173477687_012024-T.jpg"
+                ]
+            },
+            {
+                "model": "Picanto",
+                "img": [
+                    "/cards/74885621d183b4cc22.webp",
+                    "/cards/1200x655_PicantoEstatico8.webp"
+                ]
+            },
+            {
+                "model": "Pregio",
+                "img": [
+                    "/cards/KIA-GRAND-REGIONS-AC049KD-3.jpg",
+                    "/cards/Kia-Pregio_2003_Minivens_2221431626.jpg"
+                ]
+            },
+            {
+                "model": "RIO",
+                "img": [
+                    "/cards/2018_Kia_Rio_EX_-_Side.jpg",
+                    "/cards/anzamiento-kia-rio-2022.webp"
+                ]
+            },
+            {
+                "model": "Sedona",
+                "img": [
+                    "/cards/2007_kia_sedona_passenger-minivan_base_fq_oem_1_500.avif"
+                ]
+            },
+            {
+                "model": "Sephia",
+                "img": [
+                    "/cards/1200px-Kia_Sephia_SLX_Dunkelblau.jpg",
+                    "/cards/IMG_7445-scaled.jpg"
+                ]
+            },
+            {
+                "model": "Venga",
+                "img": [
+                    "/cards/Kia_Venga_CRDi_Vision_Continentalsilber.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Isuzu",
+        "logo": "/logo/isuzu-logo-brand-symbol-with-name-white-design-japan-car-automobile-illustration-with-red-background-free-vector.jpg",
+        "models": [
+            {
+                "model": "Caribe",
+                "img": [
+                    "/cards/D_NQ_NP_796432-MLV51933540229_102022-O.webp",
+                    "/cards/Caribe442-7.webp",
+                    "/cards/cac3deaefbc3c36aa417b959db3a50ca.jpg"
+                ]
+            },
+            {
+                "model": "Trooper",
+                "img": [
+                    "/cards/isuzu-trooper-ls.jpg"
+                ]
+            },
+            {
+                "model": "Rodeo",
+                "img": [
+                    "/cards/1994_isuzu_rodeo_4dr-suv_s_fq_oem_1_500.avif",
+                    "/cards/1996_isuzu_rodeo_4dr-suv_ls_rq_oem_1_500.avif"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Chery",
+        "logo": "/logo/images.jpg",
+        "models": [
+           
+            {
+                "model": "Arauca",
+                "img": [
+                    "/cards/VA_beceea01b2824055a2410b7e98ce1243.jpg",
+                    "/cards/ARAUCA-AA484AB-DIAGONAL.jpg"
+                ]
+            },
+            {
+                "model": "Arrizo",
+                "img": [
+                    "/cards/02Arrizo-3-Blanco.png",
+                    "/cards/chery-arrizo-8-2022-2024-1693997264.584388.jpg",
+                    "/cards/789121c07b8ce9f8b92f8b993474bb64.jpg",
+                    "/cards/chery-arrizo-5-sport.jpg"
+                ]
+            },
+            {
+                "model": "Arrizo GT",
+                "img": [
+                    "/cards/1-4.jpg"
+                ]
+            },
+            {
+                "model": "Arrizo 6",
+                "img": [
+                    "/cards/20202406-CHERY-ARRIZO-6-2021-PORTADA-01.jpg",
+                    "/cards/chery-arrizo-6-pro-2021-2025-1705923405.8486977.jpg"
+                ]
+            },
+            {
+                "model": "Arrizo 8",
+                "img": [
+                    "/cards/3-4_COLORES-FEB24-ICE_IZQ Negro.png"
+                ]
+            },
+            {
+                "model": "Tiggo",
+                "img": [
+                    "/cards/CHERY-GRAND-TIGGO-2014-AC165GB-4.jpg",
+                    "/cards/Chery-Tiggo-2-exterior-10.jpg",
+                    "/cards/tiggo-2-pro-thumb-artic-white-plus.jpg",
+                    "/cards/Blanco-T3PRO-GLS.png",
+                    "/cards/negro.webp"
+                ]
+            },
+            {
+                "model": "Grand Tiger",
+                "img": [
+                    "/cards/D_NQ_NP_600354-MLV44429450283_122020-O.webp",
+                    "/cards/",
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "X1",
+                "img": [
+                    "/cards/X1-AG257YM-DIAGONAL.jpg",
+                    "/cards/",
+                    "/cards/"
+                ]
+            },
+            {
+                "model": "Orinoco",
+                "img": [
+                    "/cards/VA_b8237936c7f14ecea160474369c8ef46.jpg"
+                ]
+            },
+            {
+                "model": "QQ",
+                "img": [
+                    "/cards/lanzamiento-chery-qq.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "MG",
+        "logo": "/logo/1027481236616752b23efde453431830_0_0.png",
+        "models": [
+           
+            {
+                "model": "3",
+                "img": [
+                    "/cards/MG-3-BLACK.png"
+                ]
+            },
+            {
+                "model": "4",
+                "img": [
+                    "/cards/MG4-GRAY.png"
+                ]
+            },
+            {
+                "model": "5",
+                "img": [
+                    "/cards/MG5.rojo1_.png"
+                ]
+            },
+            {
+                "model": "GT",
+                "img": [
+                    "/cards/1.jpg"
+                ]
+            },
+            {
+                "model": "ZS",
+                "img": [
+                    "/cards/MG-ZS-RED.png"
+                ]
+            },{
+                "model": "X8",
+                "img": [
+                    "/cards/mg-rx8-Negro.png"
+                ]
+            },
+            {
+                "model": "HS",
+                "img": [
+                    "/cards/MG-HS-BLACK.png"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Seat",
+        "logo": "/logo/logo_principal_seat.webp",
+        "models": [
+           
+            {
+                "model": "Arona",
+                "img": [
+                    "/cards/seat-arona-fr-sapphire-blue-colour.png"
+                ]
+            },
+            {
+                "model": " Ateca",
+                "img": [
+                    "/cards/new-seat-ateca-fr-trim-red-colour.png"
+                ]
+            },
+            {
+                "model": "Ibiza",
+                "img": [
+                    "/cards/seat-ibiza-reference-colour-candy-white.png"
+                ]
+            },
+            {
+                "model": "León",
+                "img": [
+                    "/cards/seat-leon-5d-midnight-black-style-trim-colour-alloy-wheels.png"
+                ]
+            },
+            {
+                "model": "Mii",
+                "img": [
+                    "/cards/seat-mii-10-ecofuel.webp"
+                ]
+            },
+            {
+                "model": "Terraco",
+                "img": [
+                    "/cards/seat-tarraco-with-18-black-alloy-wheels.png"
+                ]
+            },
+            {
+                "model": "Toledo",
+                "img": [
+                    "/cards/Seat_Toledo_II_front_20081230.jpg",
+                    "/cards/800px-Seat_Toledo_front_20080227.jpg"
+                ]
+            },
+            {
+                "model": "Cordoba",
+                "img": [
+                    "/cards/seat-cordoba-2003-centralina.jpg"
+                ]
+            },
+            {
+                "model": "Estella",
+                "img": [
+                    "/cards/nuevo-seat-leon.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Hummer",
+        "logo": "/logo/hummer-logo-brand-symbol-black-design-usa-car-automobile-illustration-free-vector.jpg",
+        "models": [
+           
+            {
+                "model": "H1",
+                "img": [
+                    "/cards/hummer-h1-toyota-megacruiser-3207066.webp"
+                ]
+            },
+            {
+                "model": "H2",
+                "img": [
+                    "/cards/Hummer_H2_(52891415542)_(cropped).jpg"
+                ]
+            },
+            {
+                "model": "H3",
+                "img": [
+                    "/cards/2007_Hummer_H3_--_NHTSA.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Peugeot",
+        "logo": "/logo/valencia-spain-march-29-2023-260nw-2282030519.webp",
+        "models": [
+           
+            {
+                "model": "106",
+                "img": [
+                    "/cards/Peugeot_106_front_20090730.jpg",
+                    "/cards/peugeot-106-ii-1.jpg"
+                ]
+            },
+            {
+                "model": "108",
+                "img": [
+                    "/cards/17-08-05-Island-Auto-RalfR-DSC_2520.jpg"
+                ]
+            },
+            {
+                "model": "206",
+                "img": [
+                    "/cards/2002_Peugeot_206_LX_1.4_Front.jpg"
+                ]
+            },
+            {
+                "model": "207",
+                "img": [
+                    "/cards/peugeot-207-compact.jpg"
+                ]
+            },
+            {
+                "model": "208",
+                "img": [
+                    "/cards/NAZ_764e30225b22474090acd56a243bf218.webp"
+                ]
+            },
+            {
+                "model": "301",
+                "img": [
+                    "/cards/NAZ_faa9c02a78d343028c0da40560f1d147.jpg",
+                    "/cards/Peugeot_301_noire_cropped.jpg"
+                ]
+            },
+            {
+                "model": "307",
+                "img": [
+                    "/cards/dowSSSnload.jpg",
+                    "/cards/Peugeot-307-facelift-2005.jpg"
+                ]
+            },
+            {
+                "model": "308",
+                "img": [
+                    "/cards/Peugeot_308_5-Türer_front-1.jpg",
+                    "/cards/037.jpg"
+                ]
+            },
+            {
+                "model": "406",
+                "img": [
+                    "/cards/peugeot-406-8.jpg"
+                ]
+            },
+            {
+                "model": "407",
+                "img": [
+                    "/cards/2008_Peugeot_407_Sport_HDi_2.0_Front.jpg",
+                    "/cards/peugeot-407-2004-2011.jpg"
+                ]
+            },
+            {
+                "model": "408",
+                "img": [
+                    "/cards/Peugeot_408_China_2012-05-12.jpg"
+                ]
+            },
+            {
+                "model": "508",
+                "img": [
+                    "/cards/1200px-Paris_-_Mondial_de_l'automobile_2010_-_Peugeot_508_-_004.jpg",
+                    "/cards/Showroom_508_M_Allure_1.avif"
+                ]
+            },
+            {
+                "model": "605",
+                "img": [
+                    "/cards/peugeot_605_8.jpeg.jpg"
+                ]
+            },
+            {
+                "model": "607",
+                "img": [
+                    "/cards/Peugeot_607_-_2.7_HDI_Facelift.jpg"
+                ]
+            },
+            {
+                "model": "1007",
+                "img": [
+                    "/cards/Peugeot_1007_–_Frontansicht,_31._März_2012,_Hilden.jpg"
+                ]
+            },
+            {
+                "model": "2008",
+                "img": [
+                    "/cards/Peugeot_2008_Allure_e-HDi_116.jpg"
+                ]
+            },
+            {
+                "model": "3008",
+                "img": [
+                    "/cards/my24-peugeot-3008-artense-trim-mx-01.avif"
+                ]
+            },
+            {
+                "model": "4007",
+                "img": [
+                    "/cards/Peugeot_4007_20090531_front.jpg"
+                ]
+            },
+            {
+                "model": "4008",
+                "img": [
+                    "/cards/Nuova-Peugeot-4008-1024x503.jpg"
+                ]
+            },
+            {
+                "model": "Boxer",
+                "img": [
+                    "/cards/peugeot_boxer17-1_fte_ladoacompanante-_puertaabierta20210819.webp",
+                    "/cards/Peugeot Boxer L1H1 8m.png"
+                ]
+            },
+            {
+                "model": "Peugeot Boxer L1H1 8m.png",
+                "img": [
+                    "/cards/Peugeot-Bipper.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Maxus",
+        "logo": "/logo/MAXUS.jpg",
+        "models": [
+           
+            {
+                "model": "T60",
+                "img": [
+                    "/cards/Maxus_T60_GLX_2018_(30991213787).jpg",
+                    "/cards/T60 Color.jpg"
+                ]
+            },
+            {
+                "model": "T90 EV",
+                "img": [
+                    "/cards/T90 EV (1).png"
+                ]
+            },
+            {
+                "model": "D60",
+                "img": [
+                    "/cards/Maxus_D60_2024_Grupo_Condor_Paraguay.jpg",
+                    "/cards/MAXUS D60 34 DELANTERO IZQUIERDO2.jpg"
+                ]
+            },
+            {
+                "model": "T90",
+                "img": [
+                    "/cards/FichaTécnica T90 1010x478.png"
+                ]
+            },
+            {
+                "model": "G10",
+                "img": [
+                    "/cards/1556652524maxus-g109+1.jpg"
+                ]
+            },
+            {
+                "model": "B80",
+                "img": [
+                    "/cards/maxus-v80-philippines-5cf5fe844fedc.jpg"
+                ]
+            },
+            {
+                "model": "B90",
+                "img": [
+                    "/cards/Maxus-V90-Bus-M-IMG.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Lamborghini",
+        "logo": "/logo/lamborghini-logo-1-02.jpg",
+        "models": [
+           
+            {
+                "model": "Aventador",
+                "img": [
+                    "/cards/Lamborghini-Aventador-SVJ-7.jpg"
+                ]
+            },
+            {
+                "model": "Gallardo",
+                "img": [
+                    "/cards/LAMBORGHINI_GALLARDO_LP_560-4_COUPE-5937_0.webp"
+                ]
+            },
+            {
+                "model": "Huracan",
+                "img": [
+                    "/cards/2015_Lamborghini_Huracan_LP610-4_(19884965832).jpg",
+                    "/cards/Lamborghini_Huracan_STO09_0.webp"
+                ]
+            },
+            {
+                "model": "Countach",
+                "img": [
+                    "/cards/lamborghini-countach-25deg-anniversario-di-rod-stewart.webp"
+                ]
+            },
+            {
+                "model": "Urus",
+                "img": [
+                    "/cards/Lamborghini_Urus_20180306_Genf_2018.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Ferrary",
+        "title": "Estos son los carros de los enchufados como 'Richar'",
+        "logo": "/logo/ferrari-logo-illustration.jpg",
+        "models": [
+           
+            {
+                "model": "SF90 Stradale",
+                "img": [
+                    "/cards/1714734880903-blob.webp"
+                ]
+            },
+            {
+                "model": "SF90 Spider",
+                "img": [
+                    "/cards/ferrari-sf90-tailor-made-3120000.webp"
+                ]
+            },
+            {
+                "model": "296 GTB",
+                "img": [
+                    "/cards/2022_Ferrari_296_(cropped).jpg"
+                ]
+            },
+            {
+                "model": "296 gts",
+                "img": [
+                    "/cards/ferrari_296_gts.webp"
+                ]
+            },
+            {
+                "model": "12cilindri",
+                "img": [
+                    "/cards/662cee0da44e370010b5476f-ferrari-12cilindri-share-intro.avif"
+                ]
+            },
+            {
+                "model": "12cilindri spider",
+                "img": [
+                    "/cards/Ferrari-12Cilindri-Spider-2025-7.jpg"
+                ]
+            },
+            {
+                "model": "Purosangre",
+                "img": [
+                    "/cards/Ferrari_Purosangue_IMG_9554.jpg",
+                    "/cards/IMG_13514-c_hu2817898136816716611.jpg"
+                ]
+            },
+            {
+                "model": "Roma",
+                "img": [
+                    "/cards/2021_Ferrari_Roma_in_Rosso_Fiorano,_front_right.jpg"
+                ]
+            },
+            {
+                "model": "Roma spider",
+                "img": [
+                    "/cards/1 Ferrari Roma Spider.webp"
+                ]
+            },
+            {
+                "model": "Serie especial",
+                "img": [
+                    "/cards/Ferrari-SP48-Unica-1.jpg"
+                ]
+            },
+            {
+                "model": "Icona",
+                "img": [
+                    "/cards/6195238ab3c7ea5975d9077d-f150bdcoverthree1300x730pg.avif"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Porsche",
+        "logo": "/logo/porsche-brand-logo-car-symbol-with-name-black-design-german-automobile-illustration-with-red-background-free-vector.jpg",
+        "models": [
+            {
+                "model": "718 Boxster",
+                "img": [
+                    "/cards/PCGB20_0937_fine.jpg"
+                ]
+            },
+            {
+                "model": "718 Cayman",
+                "img": [
+                    "/cards/2024-Porsche-718-Cayman-Grey.png"
+                ]
+            },
+            {
+                "model": "911",
+                "img": [
+                    "/cards/0840_nevada_coupe_u-crane_AKOS0607_edit_V03-sky.jpg"
+                ]
+            },
+            {
+                "model": "Tycan",
+                "img": [
+                    "/cards/800px-Porsche_Taycan_4S_IMG_3526.jpg"
+                ]
+            },
+            {
+                "model": "Panamera",
+                "img": [
+                    "/cards/2025-porsche-panamera-turbo-s-e-hybrid.jpg"
+                ]
+            },
+            {
+                "model": "Macan",
+                "img": [
+                    "/cards/porsche-macan-2024.jpg"
+                ]
+            },
+            {
+                "model": "Cayenne",
+                "img": [
+                    "/cards/2024-porsche-cayenne.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Lexus",
+        "logo": "/logo/Lexus-Logo.png",
+        "models": [
+            {
+                "model": "Lx600",
+                "img": [
+                    "/cards/lx-600-vip-performance-under-the-hood.jpg"
+                ]
+            },
+            {
+                "model": "Gx550",
+                "img": [
+                    "/cards/003-2024-lexus-gx550-overtrail-prototype.avif"
+                ]
+            },
+            {
+                "model": "Lx-570",
+                "img": [
+                    "/cards/2020_Lexus_LX_570_009_DEBF87DA17FDBBCAC0303D3C69EEFC399727951A.jpg"
+                ]
+            },
+            {
+                "model": "Sc-300",
+                "img": [
+                    "/cards/1992-lexus-sc300.jpg",
+                    "/cards/1992_Lexus_SC300,_front_right_(NYC).jpg"
+                ]
+            },
+            {
+                "model": "Rx330",
+                "img": [
+                    "/cards/2004_lexus_rx-330_4dr-suv_base_fq_oem_1_500.avif",
+                    "/cards/34dc2f59-846b-41b0-96f5-5c8960620e6c.webp"
+                ]
+            },
+            {
+                "model": "Gx460",
+                "img": [
+                    "/cards/LEXUS-GX460-2023-AUT-NEGRO-AC283AL-1.jpg",
+                    "/cards/2023+Lexus+GX460+Main-2.jpg"
+                ]
+            },
+            {
+                "model": "Gx 470",
+                "img": [
+                    "/cards/2015_Lexus_GX_460_(URJ150R)_wagon_(2015-12-26)_01.jpg"
+                ]
+            },
+            {
+                "model": "Is350 F Sport",
+                "img": [
+                    "/cards/DSC_0256.avif"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Changan",
+        "logo": "/logo/Changan-Logo-historia.png",
+        "models": [
+            {
+                "model": "Cs35 plus",
+                "img": [
+                    "/cards/cs35-exterior-4.webp"
+                ]
+            },
+            {
+                "model": "Cs55 plus",
+                "img": [
+                    "/cards/2022-11-17-gris_oscuro(1).jpg"
+                ]
+            },
+            {
+                "model": "Hunter",
+                "img": [
+                    "/cards/NAZ_d81d302d44184f4ca0872f5cb85d67a7.jpg",
+                    "/cards/scsc.jpg"
+                ]
+            },
+            {
+                "model": "Cs15",
+                "img": [
+                    "/cards/imsssages.jpg"
+                ]
+            },
+            {
+                "model": "Benni",
+                "img": [
+                    "/cards/imASCDSACages.jpg"
+                ]
+            },
+            {
+                "model": "Alsvin",
+                "img": [
+                    "/cards/maxreSSsdefault.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Dongfeng",
+        "logo": "/logo/logo-red-512.png",
+        "models": [
+            {
+                "model": "D1 4X4",
+                "img": [
+                    "/cards/ccd68f_f690144ae4f449b5ad24806b91cd828d~mv2.webp"
+                ]
+            },
+            {
+                "model": "Glory 600",
+                "img": [
+                    "/cards/banner-glory-600-640x360.png"
+                ]
+            },
+            {
+                "model": "Glory 500",
+                "img": [
+                    "/cards/500_blanco_modulo_3_desktop.webp"
+                ]
+            },
+            {
+                "model": "Glory E5",
+                "img": [
+                    "/cards/DFSK_E5_Dorado_800-x500.png"
+                ]
+            },
+            {
+                "model": "K01S",
+                "img": [
+                    "/cards/K01s-01-1299x727.webp"
+                ]
+            },
+            {
+                "model": "K02S",
+                "img": [
+                    "/cards/K02s-03-1-1299x727.webp"
+                ]
+            },
+            {
+                "model": "K05S",
+                "img": [
+                    "/cards/NAZ_6eca5fa238cd4a5cbb34fb412d39112c.jpg"
+                ]
+            },
+            {
+                "model": "K07S",
+                "img": [
+                    "/cards/K07S_Galeria_3_640x520.jpg"
+                ]
+            },
+            {
+                "model": "C31",
+                "img": [
+                    "/cards/exterier-6.jpg"
+                ]
+            },
+            {
+                "model": "C32",
+                "img": [
+                    "/cards/168-c32-hero-web.jpg"
+                ]
+            },
+            {
+                "model": "C35",
+                "img": [
+                    "/cards/ccd68f_9f3a3a567ed743ba900a05703032c610~mv2.webp"
+                ]
+            },
+            {
+                "model": "C37",
+                "img": [
+                    "/cards/ccd68f_c9b3b9bdb2344429a003f612cad8e68c~mv2.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Mini",
+        "logo": "/logo/BlueOutdoor-1_72706ca4-cf09-4110-ab24-7c8098ef8bb8.webp",
+        "models": [
+            {
+                "model": "Cooper S",
+                "img": [
+                    "/cards/9a3adc4ef465493d_ap.jpg",
+                    "/cards/mini_classic_01.jpg"
+                ]
+            },
+            {
+                "model": "Twin Turbo",
+                "img": [
+                    "/cards/15424655-a896-4951-a6b4-342fe22d524e.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Dodge",
+        "logo": "/logo/imagqwertes.jpg",
+        "models": [
+            {
+                "model": "Ram 2.500",
+                "img": [
+                    "/cards/ram_JB_flat_BilletSilver.png.img.1440.png",
+                    "/cards/Dodge-Ram-2500.jpg"
+                ]
+            },
+            {
+                "model": "Dodge Ram",
+                "img": [
+                    "/cards/historia-de-ram-1620845.jpg"
+                ]
+            },
+            {
+                "model": "Van",
+                "img": [
+                    "/cards/1990_Dodge_Ram_350_Maxi,_front_right.jpg",
+                    "/cards/640px-Dodge-Ram-wagon.jpg"
+                ]
+            },
+            {
+                "model": "Forza",
+                "img": [
+                    "/cards/DODGE-FORZA-1.jpg",
+                    "/cards/FORZA-AI375BA-DIAGONAL.jpg"
+                ]
+            },
+            {
+                "model": "Caliber",
+                "img": [
+                    "/cards/1200px-Dodge_Caliber_001.jpg",
+                    "/cards/dodge-caliber-srt-4.jpg"
+                ]
+            },
+            {
+                "model": "Dodge Ram Magnum",
+                "img": [
+                    "/cards/1995-dodge-ram-1500-laramie-slt.jpg"
+                ]
+            },
+            {
+                "model": "Ram slt",
+                "img": [
+                    "/cards/2009_Dodge_Ram_SLT_Big_Horn_Quad_Cab.jpg"
+                ]
+            },
+            {
+                "model": "Dodge Caliber Lx",
+                "img": [
+                    "/cards/D_NQ_NP_933253-MLV77799866323_072024-O.webp"
+                ]
+            },
+            {
+                "model": "Van Foodtruck",
+                "img": [
+                    "/cards/D_NQ_NP_952062-MLV75205728583_032024-O.webp"
+                ]
+            },
+            {
+                "model": "Dodge Challenger",
+                "img": [
+                    "/cards/2016-dodge-challenger-review-car-and-driver-photo-668804-s-original.jpg",
+                    "/cards/4ee4eb2a-d445-4711-8bd0-b1b2f2d883e9.webp"
+                ]
+            },
+            {
+                "model": "Dodge Commander",
+                "img": [
+                    "/cards/Used-1942-DODGE-COMMANDERWC57-1506715416.jpg"
+                ]
+            },
+            {
+                "model": "V700 RAPID",
+                "img": [
+                    "/cards/DODGE-A88AW0B-5.jpg",
+                    "/cards/ram-v700-rapid-1536x864-1.png"
+                ]
+            },
+            {
+                "model": "Dodge Brisa",
+                "img": [
+                    "/cards/1184_dodge-brisa-08.jpg",
+                    "/cards/1180_dodge-brisa-ii.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Foton",
+        "logo": "/logo/foton_logo_hd.jpg",
+        "models": [
+            {
+                "model": "Tunland G7",
+                "img": [
+                    "/cards/MAV-FOTON-TUNLAND-2.jpg",
+                    "/cards/TUNLAND_-VISTA_DIAGONAL-V2.png"
+                ]
+            },
+            {
+                "model": "Truckmate",
+                "img": [
+                    "/cards/001.jpg"
+                ]
+            },
+            {
+                "model": "TM5H",
+                "img": [
+                    "/cards/TM5H-1.8-Ton-top-banner.png"
+                ]
+            },
+            {
+                "model": "View c2",
+                "img": [
+                    "/cards/Foton-VIEW-C2-Flat-Top.webp"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Bentley",
+        "logo": "/logo/fce64c4f7ce00caef91d774bc81de711.jpg",
+        "models": [
+            {
+                "model": "Continental",
+                "img": [
+                    "/cards/one-of-one-bentley-continental-gt-speed.jpg",
+                    "/cards/",
+                    "/cards/"
+                ]
+            }
+        ]
+    },
+    {
+        "brand": "Citroen",
+        "logo": "/logo/citron.png",
+        "models": [
+            {
+                "model": "C4",
+                "img": [
+                    "/cards/New E-C4 and C4_0MP00NWP_Blanc Banquise_FR_1280_720.avif"
+                ]
+            },
+            {
+                "model": "C3",
+                "img": [
+                    "/cards/citroen-c3-2020-7-virtudes-2-defectos-2091573.webp"
+                ]
+            },
+            {
+                "model": "Jumpy",
+                "img": [
+                    "/cards/RT_PU_3691a541310b4f55b2e32e8c37b34434.webp"
+                ]
+            },
+            {
+                "model": "Berlingo",
+                "img": [
+                    "/cards/kiamablue_Berlingo_M.avif"
+                ]
+            },
+            {
+                "model": "Xsara Picasso",
+                "img": [
+                    "/cards/citroen-xsara-picasso-3003544.webp"
+                ]
+            }
+        ]
+    }
+]

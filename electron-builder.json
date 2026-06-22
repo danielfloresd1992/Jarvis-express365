@@ -1,0 +1,18 @@
+{
+    "appId": "com.jarvis.express365",
+    "productName": "Jarvis Express 365",
+    "directories": {
+        "output": "release"
+    },
+    "files": [
+        "out/**/*",
+        "package.json"
+    ],
+    "linux": {
+        "target": ["AppImage", "deb"],
+        "category": "Utility"
+    },
+    "win": {
+        "target": ["nsis"]
+    }
+}
