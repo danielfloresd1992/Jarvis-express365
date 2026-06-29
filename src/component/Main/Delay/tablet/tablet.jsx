@@ -212,6 +212,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                     onChangeEvent={(value) => setNumberTable(value)}
                 />
 
+
                 <DishInputSelet
                     value={dish}
                     onChangeEvent={(dish) => setDish(dish)}

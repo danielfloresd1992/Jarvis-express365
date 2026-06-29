@@ -21,7 +21,7 @@ import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 
 import FormLayaut from '@/component/layaut/form_layaut';
-
+import DishInputSelet from '@/component/keysInputs/dishInput.jsx'
 
 
 
@@ -29,11 +29,13 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
     const users = useSelector(state => state.users);
     const locals = useSelector(state => state.locals);
+    const seletedEstableshment = useSelector(state => state.establishment);
+
     const alert = useAlert();
     const saveNoveltie = useSaveNoveltie();
     const TIME_EXCEDING = '00:03:00';
     const user = useRef(null);
-    let [local, setLocal] = useState(null);
+  
 
     const [isRequieredVideoState, setIsRequieredVideo] = useState(true);
     const [videoState, setVideoState] = useState(null);
@@ -62,13 +64,10 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
 
 
-    useEffect(() => {
-        isMobile ? null : setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
-    }, []);
 
     useEffect(() => {
-        setContainsPlateArrayState(Array.isArray(local?.dishes) && local?.dishes.length > 0);
-    }, [local]);
+        setContainsPlateArrayState(Array.isArray(seletedEstableshment?.dishes) && seletedEstableshment?.dishes.length > 0);
+    }, [seletedEstableshment]);
 
 
 
@@ -88,10 +87,10 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
                 urlVideo = await saveVideo(videoState);
             }
             console.log(urlVideo);
-            const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user.current, seletedEstableshment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
 
             let text;
-            const FOR_MISTER01 = `${local.franchise === 'Mister01' ? `tiempo que excede: ${returnTimeExceding(timeTotal, TIME_EXCEDING)}` : ''}`;
+            const FOR_MISTER01 = `${seletedEstableshment.franchise === 'Mister01' ? `tiempo que excede: ${returnTimeExceding(timeTotal, TIME_EXCEDING)}` : ''}`;
 
             const caption = [
                 data.LANG === 'es' ? `toma de orden - mesa ${table}` : `order take - table ${table}`,
@@ -107,12 +106,12 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
 
             if (data.LANG === 'es') {
-                if (local.franchise === 'La Francisca') {
+                if (seletedEstableshment.franchise === 'La Francisca') {
                     text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en tablet: ${time2}\nListo en ${awaitSite}: ${time3}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
                 }
 
                 else {
-                    if (local.name === 'Bocas Brickell') {
+                    if (seletedEstableshment.name === 'Bocas Brickell') {
                         text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en tablet: ${time2}\nListo en ${awaitSite}: ${time3}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
                     }
                     else {
@@ -252,10 +251,10 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
     function catBoxImg() {
         return (
             <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef} >
-                <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={local?.lang} index_image={0} />
-                <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={deleteImg} language={local?.lang} index_image={1} />
-                <ImgBoxImg data={title.photos.caption[2]} boxModal={boxModal} setImg={files => { file3.current = files }} deleteImg={deleteImg} language={local?.lang} index_image={2} />
-                <ImgBoxImg data={title.photos.caption[3]} boxModal={boxModal} setImg={files => { file4.current = files }} deleteImg={deleteImg} language={local?.lang} index_image={3} />
+                <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={seletedEstableshment?.lang} index_image={0} />
+                <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={deleteImg} language={seletedEstableshment?.lang} index_image={1} />
+                <ImgBoxImg data={title.photos.caption[2]} boxModal={boxModal} setImg={files => { file3.current = files }} deleteImg={deleteImg} language={seletedEstableshment?.lang} index_image={2} />
+                <ImgBoxImg data={title.photos.caption[3]} boxModal={boxModal} setImg={files => { file4.current = files }} deleteImg={deleteImg} language={seletedEstableshment?.lang} index_image={3} />
 
             </div>
         );
@@ -269,12 +268,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
 
 
-    const fillLocal = id => {
-        const localFranchise = locals.filter(item => id === item._id);
-        setLocal(local = localFranchise[0]);
-    };
-
-
+   
 
     function returnForm(localData) {
 
@@ -347,7 +341,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
                                             {
                                                 localData.dishMenu.dishEvaluation === 'completo' ?
                                                     (
-                                                        <option style={optionStyles} value={local.dishMenu.dessert}>
+                                                        <option style={optionStyles} value={seletedEstableshment.dishMenu.dessert}>
                                                             {
                                                                 localData.dishMenu.dessert
                                                             }
@@ -459,6 +453,9 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
     };
 
 
+    console.log(dishState);
+    console.log(seletedEstableshment);
+
 
     return (
         <FormLayaut title={title.es} event={e => sendImg(e)} >
@@ -495,7 +492,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
             {
                 isMobile ?
                     (
-                        local?.name !== undefined ?
+                        seletedEstableshment?.name !== undefined ?
                             (
                                 catBoxImg()
                             )
@@ -512,9 +509,9 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
             }
 
             {
-                local?.name !== undefined ?
+                seletedEstableshment?.name !== undefined ?
                     (
-                        returnForm(local)
+                        returnForm(seletedEstableshment)
                     )
                     :
                     (
