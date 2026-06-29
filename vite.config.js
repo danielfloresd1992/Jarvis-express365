@@ -19,7 +19,7 @@ export default defineConfig({
     },
     server: {
         host: '0.0.0.0',
-        https: false,
+        https: true,
         port: 5173
     }
 });
