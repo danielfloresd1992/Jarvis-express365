@@ -822,9 +822,10 @@
    ═══════════════════════════════════════ */
 
 .homeComponent {
-    position: absolute;
+    position: relative;
+    flex: 1;
+    min-height: 0;          /* llena .App y deja que main haga scroll interno */
     width: 100%;
-    min-height: 100vh;
     background-color: #010c18;
     display: flex;
     flex-direction: column;
@@ -849,15 +850,13 @@
 /* ═══ TOP NAV BAR ═══ */
 
 .nav-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
+    height: 50px;
+    flex-shrink: 0;          /* altura fija dentro de la columna; no se encoge */
     width: 100%;
-    height: 52px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+
     background: rgba(2, 12, 28, 0.96);
     border-bottom: 1px solid rgba(0, 185, 255, 0.15);
     z-index: 1000;
@@ -975,8 +974,8 @@
 .nav-bar__action-btn svg {
     flex-shrink: 0;
 }
-
-.nav-bar__action-btn--logout {
+.nav-bar
+__action-btn--logout {
     color: rgba(0,185,255,0.3);
     padding: 0.4rem;
     margin-left: 0.25rem;
@@ -1075,10 +1074,10 @@
 
 .sidebar {
     position: fixed;
-    top: 52px;
+    top: calc(var(--titlebar-h) + 50px);          /* barra de título + navbar */
     left: 0;
     width: 260px;
-    height: calc(100vh - 52px);
+    height: calc(100vh - var(--titlebar-h) - 50px);
     background: rgba(2, 10, 24, 0.97);
     border-right: 1px solid rgba(0,185,255,0.12);
     z-index: 950;
@@ -1223,15 +1222,14 @@
 /* ═══ MAIN CONTENT AREA ═══ */
 
 .main-content {
-    margin-top: 52px;
-    height: calc(100vh - 52px);
-    
-    padding-bottom: 2rem;
-   
-    position: relative;
-    gap: 1.5rem;
+    flex: 1;                /* llena el alto restante bajo el navbar */
+    min-height: 0;          /* permite el scroll interno de #table-data */
+    width: 100%;
+    padding: 1.5rem;
+    position: relative;     /* ancla los overlays absolutos (TabletScreen embebida) */
+    display: flex;
+    flex-direction: column;
     background: #010e1c;
-
 }
 
 

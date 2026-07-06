@@ -90,9 +90,60 @@ function startSystemStats(win, intervalMs = 1e3) {
   return () => clearInterval(timer);
 }
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
+const PRELOAD = path.join(__dirname$1, "../preload/index.js");
+if (process.platform === "linux") {
+  app.commandLine.appendSwitch("ozone-platform-hint", "x11");
+}
 let mainWindow = null;
+let tabletWindow = null;
 let staticServer = null;
 let stopSystemStats = null;
+let baseUrl = "";
+let usbReady = false;
+function setupUsbPermission() {
+  if (usbReady) return;
+  usbReady = true;
+  session.defaultSession.setPermissionCheckHandler(() => true);
+  session.defaultSession.setDevicePermissionHandler(() => true);
+  session.defaultSession.on("select-usb-device", (event, details, callback) => {
+    event.preventDefault();
+    callback(details.deviceList[0]?.deviceId);
+  });
+}
+function openTabletWindow() {
+  if (tabletWindow && !tabletWindow.isDestroyed()) {
+    tabletWindow.focus();
+    return;
+  }
+  tabletWindow = new BrowserWindow({
+    width: 360,
+    height: 620,
+    minWidth: 260,
+    minHeight: 340,
+    frame: false,
+    alwaysOnTop: true,
+    backgroundColor: "#01122c",
+    webPreferences: {
+      preload: PRELOAD,
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+  tabletWindow.setAlwaysOnTop(true, "screen-saver");
+  tabletWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  const keepOnTop = () => {
+    if (!tabletWindow || tabletWindow.isDestroyed()) return;
+    tabletWindow.setAlwaysOnTop(true, "screen-saver");
+    tabletWindow.moveTop();
+  };
+  tabletWindow.on("blur", keepOnTop);
+  const keepOnTopTimer = process.platform === "linux" ? setInterval(keepOnTop, 1e3) : null;
+  tabletWindow.loadURL(`${baseUrl}?view=tablet`);
+  tabletWindow.on("closed", () => {
+    if (keepOnTopTimer) clearInterval(keepOnTopTimer);
+    tabletWindow = null;
+  });
+}
 async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -104,7 +155,7 @@ async function createWindow() {
     //  sin barra nativa: usamos la barra personalizada
     icon: path.join(__dirname$1, "../renderer/app-icon.png"),
     webPreferences: {
-      preload: path.join(__dirname$1, "../preload/index.js"),
+      preload: PRELOAD,
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -112,19 +163,21 @@ async function createWindow() {
   registerWindowControls();
   trackMaximizeState(mainWindow);
   stopSystemStats = startSystemStats(mainWindow);
-  mainWindow.webContents.session.on("select-usb-device", (event, details, callback) => {
-    event.preventDefault();
-    callback(details.deviceList[0]?.deviceId);
+  ipcMain.on("tablet:open", openTabletWindow);
+  mainWindow.on("closed", () => {
+    if (tabletWindow && !tabletWindow.isDestroyed()) tabletWindow.close();
+    mainWindow = null;
   });
-  session.defaultSession.setPermissionCheckHandler(() => true);
-  session.defaultSession.setDevicePermissionHandler(() => true);
+  setupUsbPermission();
   if (!app.isPackaged) {
-    await mainWindow.loadURL(`http://localhost:${DEV_PORT}`);
+    baseUrl = `http://localhost:${DEV_PORT}`;
+    await mainWindow.loadURL(baseUrl);
     mainWindow.webContents.openDevTools();
   } else {
     const buildDir = path.join(__dirname$1, "../renderer");
     staticServer = await startStaticServer(buildDir, PROD_PORT);
-    await mainWindow.loadURL(`http://localhost:${PROD_PORT}`);
+    baseUrl = `http://localhost:${PROD_PORT}`;
+    await mainWindow.loadURL(baseUrl);
   }
 }
 app.on("certificate-error", (event, webContents, url, error, certificate, callback) => {

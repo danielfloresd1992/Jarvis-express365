@@ -30,12 +30,12 @@ export function DivAttention({ awaitWindow, boxModal, reset, title, data }) {
     const establishment = useSelector(store => store.establishment);
 
     const alert = useAlert();
-    const saveNoveltie = useSaveNoveltie();
+
 
     let [table, setNumberTable] = useState(data?.tableNumber || '');
 
     let [time1, setTime1] = useState(data?.customerSeatedTime || '');
-    let [time2, setTime2] = useState(data?.firtAtenttionTime ||  '');
+    let [time2, setTime2] = useState(data?.firtAtenttionTime || '');
 
     let timeTotal = calculateTime(time1, time2);
     let [description, setDescription] = useState('');
@@ -77,23 +77,6 @@ export function DivAttention({ awaitWindow, boxModal, reset, title, data }) {
 
 
 
-
-    function catBoxImg() {
-        return (
-            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
-                {
-                    hasFinishedState ?
-                        <>
-                            <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={() => deleteImg(0)} language={establishment?.lang} />
-                            <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={() => deleteImg(1)} language={establishment?.lang} />
-                        </>
-                        :
-                        <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={establishment?.lang} />
-
-                }
-            </div>
-        );
-    }
 
 
     const sendImg = async e => {
@@ -181,6 +164,7 @@ export function DivAttention({ awaitWindow, boxModal, reset, title, data }) {
                 init: time1,
                 end: time2,
             };
+            
 
             const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
 
@@ -209,84 +193,97 @@ export function DivAttention({ awaitWindow, boxModal, reset, title, data }) {
 
 
     return (
-        <FormLayaut 
-            title={title.es} 
-            icon='/ico/icons8-waiter-24.png' 
-            event={e => sendImg(e)} 
+        <FormLayaut
+            title={title.es}
+            icon='/ico/icons8-waiter-24.png'
+            event={e => sendImg(e)}
             description='Registra el tiempo desde que una mesa se ocupa hasta que recibe su primera atención. Si supera el protocolo, se genera una novedad de incumplimiento'
         >
-            {
-                catBoxImg()
-            }
 
-                 <FieldInput
-                    type='text'
-                    required={true}
-                    label='Número de mesa'
-                    value={table}
-                    onChange={v => setNumberTable(v)}
-
-                />
-
-                <FieldInput
-                    type='hour'
-                    required={true}
-                    label='Tiempo del ocupa de la mesa'
-                    value={time1}
-                    onChange={v => setTime1(v)}
-                />
-
-
-                <div className='w-full flex justify-center'>
-                    <FieldInput
-                        type='checkbox'
-                        label='ya tiene la primera atención'
-                        value={hasFinishedState}
-                        onChange={v => setHasFinishedState(v)}
-                    />
-                </div>
-
+            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
                 {
                     hasFinishedState ?
                         <>
-                            <FieldInput
-                                type='hour'
-                                required={true}
-                                label='Timpo de la primera atención a la mesa'
-                                value={time2}
-                                onChange={v => setTime2(v)}
-                            />
-
-                            <p className='box-textHourResult' >Tiempo total en recibir la primera atención a la mesa: <span>{calculateTime(time1, time2)}</span></p>
-
-                            {
-                                establishment.franchise === 'Mister01' ?
-                                    (
-                                        <p className='box-textHourResult' >Tiempo excedido: <span>{calculateTime(calculateTime(time1, time2), TIME_EXCEDING.current)}</span></p>
-                                    )
-                                    :
-                                    (
-                                        null
-                                    )
-                            }
+                            <ImgBoxImg data={title.photos.caption[0]} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={() => deleteImg(0)} language={establishment?.lang} />
+                            <ImgBoxImg data={title.photos.caption[1]} boxModal={boxModal} setImg={files => { file2.current = files }} deleteImg={() => deleteImg(1)} language={establishment?.lang} />
                         </>
                         :
-                        <>
-                            <FieldInput
-                                type='hour'
-                                label='Tiempo en vivo sin la primera atención'
-                                value={time2}
-                                onChange={e => setTime2(e)}
-                            />
-
-
-
-                            <p className='box-textHourResult'>Tiempo en que continua sin primera atención: {returnTimeExceding(time2, time1)}</p>
-                        </>
+                        <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={establishment?.lang} />
                 }
-                <label className='box-label' htmlFor=''>Nota
-                    <textarea className='box-textArea' spellCheck='true' autoComplete='true' placeholder='en caso que lo amerite' cols='30' rows='10' value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
-                </label>
+            </div>
+
+
+
+            <FieldInput
+                type='text'
+                required={true}
+                label='Número de mesa'
+                value={table}
+                onChange={v => setNumberTable(v)}
+
+            />
+
+            <FieldInput
+                type='hour'
+                required={true}
+                label='Tiempo del ocupa de la mesa'
+                value={time1}
+                onChange={v => setTime1(v)}
+            />
+
+
+            <div className='w-full flex justify-center'>
+                <FieldInput
+                    type='checkbox'
+                    label='ya tiene la primera atención'
+                    value={hasFinishedState}
+                    onChange={v => setHasFinishedState(v)}
+                />
+            </div>
+
+            {
+                hasFinishedState ?
+                    <>
+                        <FieldInput
+                            type='hour'
+                            required={true}
+                            label='Timpo de la primera atención a la mesa'
+                            value={time2}
+                            onChange={v => setTime2(v)}
+                        />
+
+                        <p className='box-textHourResult' >Tiempo total en recibir la primera atención a la mesa: <span>{calculateTime(time1, time2)}</span></p>
+
+                        {
+                            establishment.franchise === 'Mister01' ?
+                                (
+                                    <p className='box-textHourResult' >Tiempo excedido: <span>{calculateTime(calculateTime(time1, time2), TIME_EXCEDING.current)}</span></p>
+                                )
+                                :
+                                (
+                                    null
+                                )
+                        }
+                    </>
+                    :
+                    <>
+                        <FieldInput
+                            type='hour'
+                            label='Tiempo en vivo sin la primera atención'
+                            value={time2}
+                            onChange={e => setTime2(e)}
+                        />
+
+
+
+                        <p className='box-textHourResult'>Tiempo en que continua sin primera atención: {returnTimeExceding(time2, time1)}</p>
+                    </>
+            }
+
+            <label className='box-label' htmlFor=''>Nota
+                <textarea className='box-textArea' spellCheck='true' autoComplete='true' placeholder='en caso que lo amerite' cols='30' rows='10' value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
+            </label>
+
         </FormLayaut >
     );
 } 

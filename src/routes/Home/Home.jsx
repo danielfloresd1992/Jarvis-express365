@@ -211,7 +211,7 @@ export default function Home() {
                     (
                         <div className="homeComponent">
                             <NavBar clearLocal={resetLocal} openCloseSidebar={closeOpenAsideBar} boxModal={configBoxModal} />
-                            <AsideBar clearLocal={resetLocal} localMonitoring={establishment} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
+                          
                             <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} />
                             <InboxImg />
                             <Chat key='chats' />

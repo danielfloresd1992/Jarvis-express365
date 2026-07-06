@@ -31,7 +31,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
     const saveNoveltie = useSaveNoveltie();
     const user = useRef(null);
 
-    
+
     let [table, setNumberTable] = useState('');
     let [time1, setTime1] = useState('');
     let [time2, setTime2] = useState('');
@@ -52,18 +52,18 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
 
     useEffect(() => {
-            if (
-                establishment?.name === 'Mister Aventura' ||
-                establishment?.name === 'Mister Brickell P.' ||
-                establishment?.name === 'Mister Coconut' ||
-                establishment?.name === 'Mister Wynwood' ||
-                establishment?.name === 'Mister PineCrest'
-            ) {
-                TIME_EXCEDING.current = '00:02:00';
-            }
-            else {
-                TIME_EXCEDING.current = '00:03:30';
-            }
+        if (
+            establishment?.name === 'Mister Aventura' ||
+            establishment?.name === 'Mister Brickell P.' ||
+            establishment?.name === 'Mister Coconut' ||
+            establishment?.name === 'Mister Wynwood' ||
+            establishment?.name === 'Mister PineCrest'
+        ) {
+            TIME_EXCEDING.current = '00:02:00';
+        }
+        else {
+            TIME_EXCEDING.current = '00:03:30';
+        }
 
     }, []);
 
@@ -219,36 +219,7 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
 
 
-    function catBoxImg() {
-        return (
-            <>
-                {
-                    hasFinishedState ?
-                        <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
-                            <ImgBoxImg
-                                data={title.photos.caption[0]}
-                                boxModal={boxModal}
-                                setImg={files => { file1.current = files }}
-                                deleteImg={() => deleteImg(0)}
-                                language={establishment?.lang}
-                                index_image={0}
-                            />
-                            <ImgBoxImg
-                                data={title.photos.caption[1]}
-                                boxModal={boxModal}
-                                setImg={files => { file2.current = files }}
-                                deleteImg={() => deleteImg(1)}
-                                language={establishment?.lang} index_image={1}
-                            />
-                        </div>
-                        :
-                        <div className='box-imgComponenContent' ref={htmlAdapterRef}>
-                            <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={establishment?.lang} />
-                        </div>
-                }
-            </>
-        )
-    }
+   
 
 
 
@@ -257,7 +228,28 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
 
             {
-                catBoxImg()  
+                hasFinishedState ?
+                    <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
+                        <ImgBoxImg
+                            data={title.photos.caption[0]}
+                            boxModal={boxModal}
+                            setImg={files => { file1.current = files }}
+                            deleteImg={() => deleteImg(0)}
+                            language={establishment?.lang}
+                            index_image={0}
+                        />
+                        <ImgBoxImg
+                            data={title.photos.caption[1]}
+                            boxModal={boxModal}
+                            setImg={files => { file2.current = files }}
+                            deleteImg={() => deleteImg(1)}
+                            language={establishment?.lang} index_image={1}
+                        />
+                    </div>
+                    :
+                    <div className='box-imgComponenContent' ref={htmlAdapterRef}>
+                        <ImgBoxImg data={{ index: 1, es: 'En vivo', en: 'now' }} boxModal={boxModal} setImg={files => { file1.current = files }} deleteImg={deleteImg} language={establishment?.lang} />
+                    </div>
             }
 
 

@@ -82,7 +82,7 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
         <>
             <main className="main-content" >
 
-                <div className='w-full h-[100%] min-h-0 overflow-auto rounded-xl border border-[#0a3a66]/60 bg-[#01122c]'>
+                <div id='table-data' className='w-full flex-1 min-h-0 overflow-auto rounded-xl border border-[#0a3a66]/60 bg-[#01122c]'>
                     <div className='sticky top-0 h-[45px] bg-[#021a38] flex w-full items-center justify-around'>
                         {
                             ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'Limpieza', 'Demora'].map((text) => {
@@ -128,7 +128,7 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
                 {
                     typeDelay.type === '1raAttention' && (
-                        <div className='fixed right-0 w-[50%]  p-[52px_0_0_0] top-0 h-[100%]'>
+                        <div className='fixed right-0 w-[50%] z-[900] top-[calc(var(--titlebar-h)+50px)] h-[calc(100%-var(--titlebar-h)-50px)]'>
 
                             <DivAttention
                                 titlesJson={menu.filter(menu => menu.category === 'delay')[0]}
@@ -141,9 +141,10 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
                         </div>
                     )
+                    //<TabletScreen />
                 }
 
-                <TabletScreen />
+                
 
             </main>
 

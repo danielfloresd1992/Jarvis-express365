@@ -47,7 +47,7 @@ export function TitleBar({ appName = 'Jarvis Express 365' }) {
 
 
     return (
-        <div style={DRAG} className='flex items-center justify-between h-8 w-full select-none bg-[#021326] border-b border-[#0a3a66] pl-3'>
+        <div style={DRAG} className='shrink-0 z-[999999] flex items-center justify-between h-8 w-full select-none bg-[#021326] border-b border-[#0a3a66] pl-3'>
 
 
             {/*  IZQUIERDA: ícono + nombre  */}
@@ -76,25 +76,25 @@ export function TitleBar({ appName = 'Jarvis Express 365' }) {
             {/*  DERECHA: botones minimizar / maximizar / cerrar  */}
             <div style={NO_DRAG} className='flex items-center h-full'>
 
-                <button onClick={handdlerMinimize} className='h-full w-11 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60'>
-                    <svg width='11' height='11' viewBox='0 0 11 11'><line x1='1' y1='6' x2='10' y2='6' stroke='currentColor' strokeWidth='1.2' /></svg>
+                <button onClick={handdlerMinimize} className='h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60'>
+                    <svg width='15' height='15' viewBox='0 0 11 11'><line x1='1' y1='6' x2='10' y2='6' stroke='currentColor' strokeWidth='1.2' /></svg>
                 </button>
 
-                <button onClick={handdlerMaximize} className='h-full w-11 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60'>
+                <button onClick={handdlerMaximize} className='h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60'>
                     {
                         isMax ?
-                            <svg width='11' height='11' viewBox='0 0 11 11' fill='none' stroke='currentColor' strokeWidth='1.2'>
+                            <svg width='15' height='15' viewBox='0 0 11 11' fill='none' stroke='currentColor' strokeWidth='1.2'>
                                 <rect x='2.5' y='1' width='7' height='7' /><rect x='1' y='2.5' width='7' height='7' fill='#021326' />
                             </svg>
                             :
-                            <svg width='11' height='11' viewBox='0 0 11 11' fill='none' stroke='currentColor' strokeWidth='1.2'>
+                            <svg width='15' height='15' viewBox='0 0 11 11' fill='none' stroke='currentColor' strokeWidth='1.2'>
                                 <rect x='1' y='1' width='9' height='9' />
                             </svg>
                     }
                 </button>
 
-                <button onClick={handdlerClose} className='h-full w-11 flex items-center justify-center text-[#aecbf0] hover:bg-[#c0392b] hover:text-white'>
-                    <svg width='11' height='11' viewBox='0 0 11 11' stroke='currentColor' strokeWidth='1.2'>
+                <button onClick={handdlerClose} className='h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#c0392b] hover:text-white'>
+                    <svg width='15' height='15' viewBox='0 0 11 11' stroke='currentColor' strokeWidth='1.2'>
                         <line x1='1' y1='1' x2='10' y2='10' /><line x1='10' y1='1' x2='1' y2='10' />
                     </svg>
                 </button>

@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["./Home-DtuYCk_j.js","./Home-C8r9xKzu.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["./Home-DAAebK9K.js","./Home-C8r9xKzu.css"])))=>i.map(i=>d[i]);
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 function getDefaultExportFromCjs(x2) {
   return x2 && x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
@@ -7564,8 +7564,8 @@ function resolvePathname(relativePath, fromPathname) {
   });
   return segments.length > 1 ? segments.join("/") : "/";
 }
-function getInvalidPathError(char, field, dest, path) {
-  return "Cannot include a '" + char + "' character in a manually specified " + ("`to." + field + "` field [" + JSON.stringify(path) + "].  Please separate it out to the ") + ("`to." + dest + "` field. Alternatively you may provide the full path as ") + 'a string in <Link to="..."> and the router will parse it for you.';
+function getInvalidPathError(char, field2, dest, path) {
+  return "Cannot include a '" + char + "' character in a manually specified " + ("`to." + field2 + "` field [" + JSON.stringify(path) + "].  Please separate it out to the ") + ("`to." + dest + "` field. Alternatively you may provide the full path as ") + 'a string in <Link to="..."> and the router will parse it for you.';
 }
 function getPathContributingMatches(matches) {
   return matches.filter((match, index2) => index2 === 0 || match.route.path && match.route.path.length > 0);
@@ -8239,7 +8239,7 @@ function merge$1() {
   }
   return result;
 }
-const extend = (a2, b2, thisArg, { allOwnKeys } = {}) => {
+const extend$1 = (a2, b2, thisArg, { allOwnKeys } = {}) => {
   forEach(b2, (val, key) => {
     if (thisArg && isFunction$2(val)) {
       a2[key] = bind(val, thisArg);
@@ -8461,7 +8461,7 @@ const utils$2 = {
   isFileList,
   forEach,
   merge: merge$1,
-  extend,
+  extend: extend$1,
   trim,
   stripBOM,
   inherits,
@@ -10658,9 +10658,9 @@ function set$1(object, path, value2) {
 }
 const focusFieldBy = (fields, callback2, fieldsNames) => {
   for (const key of fieldsNames || Object.keys(fields)) {
-    const field = get(fields, key);
-    if (field) {
-      const { _f, ...currentField } = field;
+    const field2 = get(fields, key);
+    if (field2) {
+      const { _f, ...currentField } = field2;
       if (_f && callback2(_f.name)) {
         if (_f.ref.focus) {
           _f.ref.focus();
@@ -10734,8 +10734,8 @@ var getValueAndMessage = (validationData) => isObject$2(validationData) && !isRe
   value: validationData,
   message: ""
 };
-var validateField = async (field, inputValue, validateAllFieldCriteria, shouldUseNativeValidation, isFieldArray) => {
-  const { ref, refs, required, maxLength, minLength, min, max, pattern, validate, name, valueAsNumber, mount, disabled } = field._f;
+var validateField = async (field2, inputValue, validateAllFieldCriteria, shouldUseNativeValidation, isFieldArray) => {
+  const { ref, refs, required, maxLength, minLength, min, max, pattern, validate, name, valueAsNumber, mount, disabled } = field2._f;
   if (!mount || disabled) {
     return {};
   }
@@ -11050,8 +11050,8 @@ function getFieldValue(_f) {
 var getResolverOptions = (fieldsNames, _fields, criteriaMode, shouldUseNativeValidation) => {
   const fields = {};
   for (const name of fieldsNames) {
-    const field = get(_fields, name);
-    field && set$1(fields, name, field._f);
+    const field2 = get(_fields, name);
+    field2 && set$1(fields, name, field2._f);
   }
   return {
     criteriaMode,
@@ -11073,9 +11073,9 @@ function schemaErrorLookup(errors, _fields, name) {
   const names2 = name.split(".");
   while (names2.length) {
     const fieldName = names2.join(".");
-    const field = get(_fields, fieldName);
+    const field2 = get(_fields, fieldName);
     const foundError = get(errors, fieldName);
-    if (field && !Array.isArray(field) && name !== fieldName) {
+    if (field2 && !Array.isArray(field2) && name !== fieldName) {
       return { name };
     }
     if (foundError && foundError.type) {
@@ -11214,10 +11214,10 @@ function createFormControl(props = {}, flushRootRender) {
     });
   };
   const updateValidAndValue = (name, shouldSkipSetValueAs, value2, ref) => {
-    const field = get(_fields, name);
-    if (field) {
+    const field2 = get(_fields, name);
+    if (field2) {
       const defaultValue = get(_formValues, name, isUndefined(value2) ? get(_defaultValues, name) : value2);
-      isUndefined(defaultValue) || ref && ref.defaultChecked || shouldSkipSetValueAs ? set$1(_formValues, name, shouldSkipSetValueAs ? defaultValue : getFieldValue(field._f)) : setFieldValue(name, defaultValue);
+      isUndefined(defaultValue) || ref && ref.defaultChecked || shouldSkipSetValueAs ? set$1(_formValues, name, shouldSkipSetValueAs ? defaultValue : getFieldValue(field2._f)) : setFieldValue(name, defaultValue);
       _stateFlags.mount && _updateValid();
     }
   };
@@ -11293,12 +11293,12 @@ function createFormControl(props = {}, flushRootRender) {
     valid: true
   }) => {
     for (const name in fields) {
-      const field = fields[name];
-      if (field) {
-        const { _f, ...fieldValue } = field;
+      const field2 = fields[name];
+      if (field2) {
+        const { _f, ...fieldValue } = field2;
         if (_f) {
           const isFieldArrayRoot = _names.array.has(_f.name);
-          const fieldError = await validateField(field, get(_formValues, _f.name), shouldDisplayAllAssociatedErrors, _options.shouldUseNativeValidation, isFieldArrayRoot);
+          const fieldError = await validateField(field2, get(_formValues, _f.name), shouldDisplayAllAssociatedErrors, _options.shouldUseNativeValidation, isFieldArrayRoot);
           if (fieldError[_f.name]) {
             context.valid = false;
             if (shouldOnlyCheckValid) {
@@ -11314,8 +11314,8 @@ function createFormControl(props = {}, flushRootRender) {
   };
   const _removeUnmounted = () => {
     for (const name of _names.unMount) {
-      const field = get(_fields, name);
-      field && (field._f.refs ? field._f.refs.every((ref) => !live(ref)) : !live(field._f.ref)) && unregister(name);
+      const field2 = get(_fields, name);
+      field2 && (field2._f.refs ? field2._f.refs.every((ref) => !live(ref)) : !live(field2._f.ref)) && unregister(name);
     }
     _names.unMount = /* @__PURE__ */ new Set();
   };
@@ -11325,10 +11325,10 @@ function createFormControl(props = {}, flushRootRender) {
   }, isGlobal, defaultValue);
   const _getFieldArray = (name) => compact(get(_stateFlags.mount ? _formValues : _defaultValues, name, props.shouldUnregister ? get(_defaultValues, name, []) : []));
   const setFieldValue = (name, value2, options = {}) => {
-    const field = get(_fields, name);
+    const field2 = get(_fields, name);
     let fieldValue = value2;
-    if (field) {
-      const fieldReference = field._f;
+    if (field2) {
+      const fieldReference = field2._f;
       if (fieldReference) {
         !fieldReference.disabled && set$1(_formValues, name, getFieldValueAs(value2, fieldReference));
         fieldValue = isWeb && isHTMLElement(fieldReference.ref) && isNullOrUndefined(value2) ? "" : value2;
@@ -11359,12 +11359,12 @@ function createFormControl(props = {}, flushRootRender) {
     for (const fieldKey in value2) {
       const fieldValue = value2[fieldKey];
       const fieldName = `${name}.${fieldKey}`;
-      const field = get(_fields, fieldName);
-      (_names.array.has(name) || !isPrimitive(fieldValue) || field && !field._f) && !isDateObject(fieldValue) ? setValues(fieldName, fieldValue, options) : setFieldValue(fieldName, fieldValue, options);
+      const field2 = get(_fields, fieldName);
+      (_names.array.has(name) || !isPrimitive(fieldValue) || field2 && !field2._f) && !isDateObject(fieldValue) ? setValues(fieldName, fieldValue, options) : setFieldValue(fieldName, fieldValue, options);
     }
   };
   const setValue = (name, value2, options = {}) => {
-    const field = get(_fields, name);
+    const field2 = get(_fields, name);
     const isFieldArray = _names.array.has(name);
     const cloneValue = cloneObject(value2);
     set$1(_formValues, name, cloneValue);
@@ -11382,7 +11382,7 @@ function createFormControl(props = {}, flushRootRender) {
         });
       }
     } else {
-      field && !field._f && !isNullOrUndefined(cloneValue) ? setValues(name, cloneValue, options) : setFieldValue(name, cloneValue, options);
+      field2 && !field2._f && !isNullOrUndefined(cloneValue) ? setValues(name, cloneValue, options) : setFieldValue(name, cloneValue, options);
     }
     isWatched(name, _names) && _subjects.state.next({});
     _subjects.watch.next({
@@ -11393,21 +11393,21 @@ function createFormControl(props = {}, flushRootRender) {
   const onChange = async (event) => {
     const target = event.target;
     let name = target.name;
-    const field = get(_fields, name);
-    const getCurrentFieldValue = () => target.type ? getFieldValue(field._f) : getEventValue(event);
-    if (field) {
+    const field2 = get(_fields, name);
+    const getCurrentFieldValue = () => target.type ? getFieldValue(field2._f) : getEventValue(event);
+    if (field2) {
       let error;
       let isValid;
       const fieldValue = getCurrentFieldValue();
       const isBlurEvent = event.type === EVENTS.BLUR || event.type === EVENTS.FOCUS_OUT;
-      const shouldSkipValidation = !hasValidation(field._f) && !_options.resolver && !get(_formState.errors, name) && !field._f.deps || skipValidation(isBlurEvent, get(_formState.touchedFields, name), _formState.isSubmitted, validationModeAfterSubmit, validationModeBeforeSubmit);
+      const shouldSkipValidation = !hasValidation(field2._f) && !_options.resolver && !get(_formState.errors, name) && !field2._f.deps || skipValidation(isBlurEvent, get(_formState.touchedFields, name), _formState.isSubmitted, validationModeAfterSubmit, validationModeBeforeSubmit);
       const watched = isWatched(name, _names, isBlurEvent);
       set$1(_formValues, name, fieldValue);
       if (isBlurEvent) {
-        field._f.onBlur && field._f.onBlur(event);
+        field2._f.onBlur && field2._f.onBlur(event);
         delayErrorCallback && delayErrorCallback(0);
-      } else if (field._f.onChange) {
-        field._f.onChange(event);
+      } else if (field2._f.onChange) {
+        field2._f.onChange(event);
       }
       const fieldState = updateTouchAndDirty(name, fieldValue, isBlurEvent, false);
       const shouldRender = !isEmptyObject(fieldState) || watched;
@@ -11429,14 +11429,14 @@ function createFormControl(props = {}, flushRootRender) {
         name = errorLookupResult.name;
         isValid = isEmptyObject(errors);
       } else {
-        error = (await validateField(field, get(_formValues, name), shouldDisplayAllAssociatedErrors, _options.shouldUseNativeValidation))[name];
+        error = (await validateField(field2, get(_formValues, name), shouldDisplayAllAssociatedErrors, _options.shouldUseNativeValidation))[name];
         if (error) {
           isValid = false;
         } else if (_proxyFormState.isValid) {
           isValid = await executeBuiltInValidation(_fields, true);
         }
       }
-      field._f.deps && trigger(field._f.deps);
+      field2._f.deps && trigger(field2._f.deps);
       shouldRenderByError(name, isValid, error, fieldState);
     }
   };
@@ -11451,8 +11451,8 @@ function createFormControl(props = {}, flushRootRender) {
       validationResult = name ? !fieldNames.some((name2) => get(errors, name2)) : isValid;
     } else if (name) {
       validationResult = (await Promise.all(fieldNames.map(async (fieldName) => {
-        const field = get(_fields, fieldName);
-        return await executeBuiltInValidation(field && field._f ? { [fieldName]: field } : field);
+        const field2 = get(_fields, fieldName);
+        return await executeBuiltInValidation(field2 && field2._f ? { [fieldName]: field2 } : field2);
       }))).every(Boolean);
       !(!validationResult && !_formState.isValid) && _updateValid();
     } else {
@@ -11525,19 +11525,19 @@ function createFormControl(props = {}, flushRootRender) {
     !options.keepIsValid && _updateValid();
   };
   const register = (name, options = {}) => {
-    let field = get(_fields, name);
+    let field2 = get(_fields, name);
     const disabledIsDefined = isBoolean$1(options.disabled);
     set$1(_fields, name, {
-      ...field || {},
+      ...field2 || {},
       _f: {
-        ...field && field._f ? field._f : { ref: { name } },
+        ...field2 && field2._f ? field2._f : { ref: { name } },
         name,
         mount: true,
         ...options
       }
     });
     _names.mount.add(name);
-    field ? disabledIsDefined && set$1(_formValues, name, options.disabled ? void 0 : get(_formValues, name, getFieldValue(field._f))) : updateValidAndValue(name, true, options.value);
+    field2 ? disabledIsDefined && set$1(_formValues, name, options.disabled ? void 0 : get(_formValues, name, getFieldValue(field2._f))) : updateValidAndValue(name, true, options.value);
     return {
       ...disabledIsDefined ? { disabled: options.disabled } : {},
       ..._options.shouldUseNativeValidation ? {
@@ -11554,16 +11554,16 @@ function createFormControl(props = {}, flushRootRender) {
       ref: (ref) => {
         if (ref) {
           register(name, options);
-          field = get(_fields, name);
+          field2 = get(_fields, name);
           const fieldRef = isUndefined(ref.value) ? ref.querySelectorAll ? ref.querySelectorAll("input,select,textarea")[0] || ref : ref : ref;
           const radioOrCheckbox = isRadioOrCheckbox(fieldRef);
-          const refs = field._f.refs || [];
-          if (radioOrCheckbox ? refs.find((option) => option === fieldRef) : fieldRef === field._f.ref) {
+          const refs = field2._f.refs || [];
+          if (radioOrCheckbox ? refs.find((option) => option === fieldRef) : fieldRef === field2._f.ref) {
             return;
           }
           set$1(_fields, name, {
             _f: {
-              ...field._f,
+              ...field2._f,
               ...radioOrCheckbox ? {
                 refs: [
                   ...refs.filter(live),
@@ -11576,9 +11576,9 @@ function createFormControl(props = {}, flushRootRender) {
           });
           updateValidAndValue(name, false, void 0, fieldRef);
         } else {
-          field = get(_fields, name, {});
-          if (field._f) {
-            field._f.mount = false;
+          field2 = get(_fields, name, {});
+          if (field2._f) {
+            field2._f.mount = false;
           }
           (_options.shouldUnregister || options.shouldUnregister) && !(isNameInFieldArray(_names.array, name) && _stateFlags.action) && _names.unMount.add(name);
         }
@@ -11667,9 +11667,9 @@ function createFormControl(props = {}, flushRootRender) {
       } else {
         if (isWeb && isUndefined(formValues)) {
           for (const name of _names.mount) {
-            const field = get(_fields, name);
-            if (field && field._f) {
-              const fieldReference = Array.isArray(field._f.refs) ? field._f.refs[0] : field._f.ref;
+            const field2 = get(_fields, name);
+            if (field2 && field2._f) {
+              const fieldReference = Array.isArray(field2._f.refs) ? field2._f.refs[0] : field2._f.ref;
               if (isHTMLElement(fieldReference)) {
                 const form = fieldReference.closest("form");
                 if (form) {
@@ -11714,8 +11714,8 @@ function createFormControl(props = {}, flushRootRender) {
   };
   const reset = (formValues, keepStateOptions) => _reset(isFunction$1(formValues) ? formValues(_formValues) : formValues, keepStateOptions);
   const setFocus = (name, options = {}) => {
-    const field = get(_fields, name);
-    const fieldReference = field && field._f;
+    const field2 = get(_fields, name);
+    const fieldReference = field2 && field2._f;
     if (fieldReference) {
       const fieldRef = fieldReference.refs ? fieldReference.refs[0] : fieldReference.ref;
       if (fieldRef.focus) {
@@ -14098,9 +14098,9 @@ function AppInitializer({ children }) {
   }
   return children;
 }
-const arrayBufferToBase64 = (buffer, contentType) => {
+const arrayBufferToBase64 = (buffer2, contentType) => {
   let binary = "";
-  let bytes = new Uint8Array(buffer);
+  let bytes = new Uint8Array(buffer2);
   let len = bytes.byteLength;
   for (let i2 = 0; i2 < len; i2++) {
     binary += String.fromCharCode(bytes[i2]);
@@ -15122,16 +15122,16 @@ function throttled(fn2, thisArg) {
     }
   };
 }
-function debounce$1(fn2, delay) {
+function debounce$1(fn2, delay2) {
   let timeout;
   return function(...args) {
-    if (delay) {
+    if (delay2) {
       clearTimeout(timeout);
-      timeout = setTimeout(fn2, delay, args);
+      timeout = setTimeout(fn2, delay2, args);
     } else {
       fn2.apply(this, args);
     }
-    return delay;
+    return delay2;
   };
 }
 const _toLeftRightCenter = (align) => align === "start" ? "left" : align === "end" ? "right" : "center";
@@ -15621,11 +15621,11 @@ function toFontString(font) {
   }
   return (font.style ? font.style + " " : "") + (font.weight ? font.weight + " " : "") + font.size + "px " + font.family;
 }
-function _measureText(ctx, data, gc2, longest, string) {
-  let textWidth = data[string];
+function _measureText(ctx, data, gc2, longest, string2) {
+  let textWidth = data[string2];
   if (!textWidth) {
-    textWidth = data[string] = ctx.measureText(string).width;
-    gc2.push(string);
+    textWidth = data[string2] = ctx.measureText(string2).width;
+    gc2.push(string2);
   }
   if (textWidth > longest) {
     longest = textWidth;
@@ -30317,12 +30317,12 @@ function directionsEnabled(mode, chart) {
   }
   return { x: false, y: false };
 }
-function debounce(fn2, delay) {
+function debounce(fn2, delay2) {
   let timeout;
   return function() {
     clearTimeout(timeout);
-    timeout = setTimeout(fn2, delay);
-    return delay;
+    timeout = setTimeout(fn2, delay2);
+    return delay2;
   };
 }
 function getScaleUnderPoint({ x: x2, y: y2 }, chart) {
@@ -30848,9 +30848,9 @@ function wheel(chart, event) {
     onZoomComplete();
   }
 }
-function addDebouncedHandler(chart, name, handler, delay) {
+function addDebouncedHandler(chart, name, handler, delay2) {
   if (handler) {
-    getState(chart).handlers[name] = debounce(() => callback(handler, [{ chart }]), delay);
+    getState(chart).handlers[name] = debounce(() => callback(handler, [{ chart }]), delay2);
   }
 }
 function addListeners(chart, options) {
@@ -32611,7 +32611,7 @@ function ModalData() {
     ] }) : null
   ] }) });
 }
-const Home = reactExports.lazy(() => __vitePreload(() => import("./Home-DtuYCk_j.js"), true ? __vite__mapDeps([0,1]) : void 0, import.meta.url));
+const Home = reactExports.lazy(() => __vitePreload(() => import("./Home-DAAebK9K.js"), true ? __vite__mapDeps([0,1]) : void 0, import.meta.url));
 const NotFount = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
   "div",
   {
@@ -32662,7 +32662,6 @@ const render = createSlice({
     }
   }
 });
-const { setRender } = render.actions;
 const render$1 = render.reducer;
 const userReport = createSlice({
   name: "user",
@@ -32674,7 +32673,6 @@ const userReport = createSlice({
     }
   }
 });
-const { setUserReport } = userReport.actions;
 const users = userReport.reducer;
 const locals = createSlice({
   name: "locals",
@@ -32900,14 +32898,14 @@ function createPacketEncoderStream() {
           new DataView(header.buffer).setUint8(0, payloadLength);
         } else if (payloadLength < 65536) {
           header = new Uint8Array(3);
-          const view = new DataView(header.buffer);
-          view.setUint8(0, 126);
-          view.setUint16(1, payloadLength);
+          const view2 = new DataView(header.buffer);
+          view2.setUint8(0, 126);
+          view2.setUint16(1, payloadLength);
         } else {
           header = new Uint8Array(9);
-          const view = new DataView(header.buffer);
-          view.setUint8(0, 127);
-          view.setBigUint64(1, BigInt(payloadLength));
+          const view2 = new DataView(header.buffer);
+          view2.setUint8(0, 127);
+          view2.setBigUint64(1, BigInt(payloadLength));
         }
         if (packet.data && typeof packet.data !== "string") {
           header[0] |= 128;
@@ -32926,10 +32924,10 @@ function concatChunks(chunks, size) {
   if (chunks[0].length === size) {
     return chunks.shift();
   }
-  const buffer = new Uint8Array(size);
+  const buffer2 = new Uint8Array(size);
   let j2 = 0;
   for (let i2 = 0; i2 < size; i2++) {
-    buffer[i2] = chunks[0][j2++];
+    buffer2[i2] = chunks[0][j2++];
     if (j2 === chunks[0].length) {
       chunks.shift();
       j2 = 0;
@@ -32938,7 +32936,7 @@ function concatChunks(chunks, size) {
   if (chunks.length && j2 < chunks[0].length) {
     chunks[0] = chunks[0].slice(j2);
   }
-  return buffer;
+  return buffer2;
 }
 function createPacketDecoderStream(maxPayload, binaryType) {
   if (!TEXT_DECODER) {
@@ -32978,13 +32976,13 @@ function createPacketDecoderStream(maxPayload, binaryType) {
             break;
           }
           const headerArray = concatChunks(chunks, 8);
-          const view = new DataView(headerArray.buffer, headerArray.byteOffset, headerArray.length);
-          const n2 = view.getUint32(0);
+          const view2 = new DataView(headerArray.buffer, headerArray.byteOffset, headerArray.length);
+          const n2 = view2.getUint32(0);
           if (n2 > Math.pow(2, 53 - 32) - 1) {
             controller.enqueue(ERROR_PACKET);
             break;
           }
-          expectedLength = n2 * Math.pow(2, 32) + view.getUint32(4);
+          expectedLength = n2 * Math.pow(2, 32) + view2.getUint32(4);
           state = 3;
         } else {
           if (totalLength(chunks) < expectedLength) {
@@ -34090,11 +34088,11 @@ class SocketWithoutUpgrade extends Emitter {
    */
   _resetPingTimeout() {
     this.clearTimeoutFn(this._pingTimeoutTimer);
-    const delay = this._pingInterval + this._pingTimeout;
-    this._pingTimeoutTime = Date.now() + delay;
+    const delay2 = this._pingInterval + this._pingTimeout;
+    this._pingTimeoutTime = Date.now() + delay2;
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
       this._onClose("ping timeout");
-    }, delay);
+    }, delay2);
     if (this.opts.autoUnref) {
       this._pingTimeoutTimer.unref();
     }
@@ -35950,7 +35948,7 @@ class Manager extends Emitter {
       this.emitReserved("reconnect_failed");
       this._reconnecting = false;
     } else {
-      const delay = this.backoff.duration();
+      const delay2 = this.backoff.duration();
       this._reconnecting = true;
       const timer = this.setTimeoutFn(() => {
         if (self2.skipReconnect)
@@ -35967,7 +35965,7 @@ class Manager extends Emitter {
             self2.onreconnect();
           }
         });
-      }, delay);
+      }, delay2);
       if (this.opts.autoUnref) {
         timer.unref();
       }
@@ -36027,7 +36025,7 @@ socket.on("connect", (socked) => {
   console.log('cliente io conectado al púerto "3000"');
 });
 let dataUser = null;
-const SockedAppManager = "72.68.60.201:3006";
+const SockedAppManager = "wss://72.68.60.201:3006";
 const urlSockedAppManager = SockedAppManager;
 const socketAppManager = lookup(urlSockedAppManager, { secure: true, rejectUnauthorized: false });
 socketAppManager.on("update-user-client-express", (userId) => {
@@ -36064,10 +36062,7 @@ const socketIo = createSlice({
 });
 const {
   createIo,
-  desconnectIo,
-  sendText,
-  sendFailed,
-  sendReconnection
+  desconnectIo
 } = socketIo.actions;
 const socketIo$1 = socketIo.reducer;
 const store = configureStore({
@@ -36088,10 +36083,12 @@ function TitleBar({ appName = "Jarvis Express 365" }) {
   const [isMax, setIsMax] = reactExports.useState(false);
   const [stats, setStats] = reactExports.useState({ cpu: 0, ramPercent: 0, ramUsedGb: "0", ramTotalGb: "0" });
   reactExports.useEffect(() => {
-    if (!api) return;
+    if (!api?.isElectron) return;
+    document.documentElement.classList.add("is-electron");
     const offMax = api.onMaximizeChange(setIsMax);
     const offStats = api.onSystemStats(setStats);
     return () => {
+      document.documentElement.classList.remove("is-electron");
       offMax?.();
       offStats?.();
     };
@@ -36100,7 +36097,7 @@ function TitleBar({ appName = "Jarvis Express 365" }) {
   const handdlerMinimize = () => api.minimize();
   const handdlerMaximize = () => api.maximize();
   const handdlerClose = () => api.close();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: DRAG, className: "flex items-center justify-between h-8 w-full select-none bg-[#021326] border-b border-[#0a3a66] pl-3", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: DRAG, className: "shrink-0 z-[999999] flex items-center justify-between h-8 w-full select-none bg-[#021326] border-b border-[#0a3a66] pl-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 min-w-0", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/app-icon.png", alt: "", className: "w-[18px] h-[18px] object-contain", draggable: false }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[12px] font-semibold tracking-[0.4px] text-[#aecbf0] truncate", children: appName })
@@ -36124,27 +36121,4836 @@ function TitleBar({ appName = "Jarvis Express 365" }) {
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: NO_DRAG, className: "flex items-center h-full", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handdlerMinimize, className: "h-full w-11 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60", children: /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "11", height: "11", viewBox: "0 0 11 11", children: /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "1", y1: "6", x2: "10", y2: "6", stroke: "currentColor", strokeWidth: "1.2" }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handdlerMaximize, className: "h-full w-11 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60", children: isMax ? /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "11", height: "11", viewBox: "0 0 11 11", fill: "none", stroke: "currentColor", strokeWidth: "1.2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handdlerMinimize, className: "h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60", children: /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "15", height: "15", viewBox: "0 0 11 11", children: /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "1", y1: "6", x2: "10", y2: "6", stroke: "currentColor", strokeWidth: "1.2" }) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handdlerMaximize, className: "h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60", children: isMax ? /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "15", height: "15", viewBox: "0 0 11 11", fill: "none", stroke: "currentColor", strokeWidth: "1.2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "2.5", y: "1", width: "7", height: "7" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1", y: "2.5", width: "7", height: "7", fill: "#021326" })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "11", height: "11", viewBox: "0 0 11 11", fill: "none", stroke: "currentColor", strokeWidth: "1.2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1", y: "1", width: "9", height: "9" }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handdlerClose, className: "h-full w-11 flex items-center justify-center text-[#aecbf0] hover:bg-[#c0392b] hover:text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "11", height: "11", viewBox: "0 0 11 11", stroke: "currentColor", strokeWidth: "1.2", children: [
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "15", height: "15", viewBox: "0 0 11 11", fill: "none", stroke: "currentColor", strokeWidth: "1.2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1", y: "1", width: "9", height: "9" }) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handdlerClose, className: "h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#c0392b] hover:text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "15", height: "15", viewBox: "0 0 11 11", stroke: "currentColor", strokeWidth: "1.2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "1", y1: "1", x2: "10", y2: "10" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "10", y1: "1", x2: "1", y2: "10" })
       ] }) })
     ] })
   ] });
 }
+class PromiseResolver {
+  #promise;
+  get promise() {
+    return this.#promise;
+  }
+  #resolve;
+  #reject;
+  #state = "running";
+  get state() {
+    return this.#state;
+  }
+  constructor() {
+    this.#promise = new Promise((resolve2, reject) => {
+      this.#resolve = resolve2;
+      this.#reject = reject;
+    });
+  }
+  resolve = (value2) => {
+    this.#resolve(value2);
+    this.#state = "resolved";
+  };
+  reject = (reason) => {
+    this.#reject(reason);
+    this.#state = "rejected";
+  };
+}
+class AsyncOperationManager {
+  nextId;
+  pendingResolvers = /* @__PURE__ */ new Map();
+  constructor(startId = 0) {
+    this.nextId = startId;
+  }
+  add() {
+    const id2 = this.nextId++;
+    const resolver = new PromiseResolver();
+    this.pendingResolvers.set(id2, resolver);
+    return [id2, resolver.promise];
+  }
+  getResolver(id2) {
+    if (!this.pendingResolvers.has(id2)) {
+      return null;
+    }
+    const resolver = this.pendingResolvers.get(id2);
+    this.pendingResolvers.delete(id2);
+    return resolver;
+  }
+  resolve(id2, result) {
+    const resolver = this.getResolver(id2);
+    if (resolver !== null) {
+      resolver.resolve(result);
+      return true;
+    }
+    return false;
+  }
+  reject(id2, reason) {
+    const resolver = this.getResolver(id2);
+    if (resolver !== null) {
+      resolver.reject(reason);
+      return true;
+    }
+    return false;
+  }
+}
+function delay(time) {
+  return new Promise((resolve2) => {
+    globalThis.setTimeout(() => resolve2(), time);
+  });
+}
+function isPromiseLike(value2) {
+  return typeof value2 === "object" && value2 !== null && "then" in value2;
+}
+function advance(iterator2, next) {
+  while (true) {
+    const { done, value: value2 } = iterator2.next(next);
+    if (done) {
+      return value2;
+    }
+    if (isPromiseLike(value2)) {
+      return value2.then((value3) => advance(iterator2, { resolved: value3 }), (error) => advance(iterator2, { error }));
+    }
+    next = value2;
+  }
+}
+// @__NO_SIDE_EFFECTS__
+function bipedal(fn2, bindThis) {
+  function result(...args) {
+    const iterator2 = fn2.call(this, function* (value2) {
+      if (isPromiseLike(value2)) {
+        const result2 = yield value2;
+        if ("resolved" in result2) {
+          return result2.resolved;
+        } else {
+          throw result2.error;
+        }
+      }
+      return value2;
+    }, ...args);
+    return advance(iterator2, void 0);
+  }
+  {
+    return result;
+  }
+}
+function defaultFieldSerializer(serializer) {
+  return (source, context) => {
+    if ("buffer" in context) {
+      const buffer2 = serializer(source, context);
+      context.buffer.set(buffer2, context.index);
+      return buffer2.length;
+    } else {
+      return serializer(source, context);
+    }
+  };
+}
+function byobFieldSerializer(size, serializer) {
+  return (source, context) => {
+    if ("buffer" in context) {
+      context.index ??= 0;
+      serializer(source, context);
+      return size;
+    } else {
+      const buffer2 = new Uint8Array(size);
+      serializer(source, {
+        buffer: buffer2,
+        index: 0,
+        littleEndian: context.littleEndian
+      });
+      return buffer2;
+    }
+  };
+}
+// @__NO_SIDE_EFFECTS__
+function _field(size, type, serialize, deserialize, options) {
+  const field2 = {
+    size,
+    type,
+    serialize: type === "default" ? defaultFieldSerializer(serialize) : byobFieldSerializer(size, serialize),
+    deserialize: /* @__PURE__ */ bipedal(deserialize),
+    omitInit: options?.omitInit
+  };
+  if (options?.init) {
+    field2.init = options.init;
+  }
+  return field2;
+}
+const field = _field;
+const EmptyUint8Array = new Uint8Array(0);
+function copyMaybeDifferentLength(dest, source, index2, length) {
+  if (source.length < length) {
+    dest.set(source, index2);
+    dest.fill(0, index2 + source.length, index2 + length);
+  } else if (source.length === length) {
+    dest.set(source, index2);
+  } else {
+    dest.set(source.subarray(0, length), index2);
+  }
+}
+// @__NO_SIDE_EFFECTS__
+function buffer(lengthOrField, converter) {
+  if (typeof lengthOrField === "number") {
+    let serialize;
+    let deserialize2;
+    let init2;
+    if (lengthOrField === 0) {
+      serialize = () => {
+      };
+      if (converter) {
+        deserialize2 = function* () {
+          return converter.convert(EmptyUint8Array);
+        };
+      } else {
+        deserialize2 = function* () {
+          return EmptyUint8Array;
+        };
+      }
+    } else {
+      serialize = (value2, { buffer: buffer2, index: index2 }) => copyMaybeDifferentLength(buffer2, value2, index2, lengthOrField);
+      if (converter) {
+        deserialize2 = function* (then, reader) {
+          const array = reader.readExactly(lengthOrField);
+          return converter.convert(yield* then(array));
+        };
+        init2 = (value2) => converter.back(value2);
+      } else {
+        deserialize2 = function* (_then, reader) {
+          const array = reader.readExactly(lengthOrField);
+          return array;
+        };
+      }
+    }
+    return field(lengthOrField, "byob", serialize, deserialize2, { init: init2 });
+  }
+  if ((typeof lengthOrField === "object" || typeof lengthOrField === "function") && "serialize" in lengthOrField) {
+    let deserialize2;
+    let init2;
+    if (converter) {
+      deserialize2 = function* (then, reader, context) {
+        const length = yield* then(lengthOrField.deserialize(reader, context));
+        const array = length !== 0 ? reader.readExactly(length) : EmptyUint8Array;
+        return converter.convert(yield* then(array));
+      };
+      init2 = (value2) => converter.back(value2);
+    } else {
+      deserialize2 = function* (then, reader, context) {
+        const length = yield* then(lengthOrField.deserialize(reader, context));
+        const array = length !== 0 ? reader.readExactly(length) : EmptyUint8Array;
+        return array;
+      };
+    }
+    return field(lengthOrField.size, "default", (value2, { littleEndian }) => {
+      if (lengthOrField.type === "default") {
+        const lengthBuffer = lengthOrField.serialize(value2.length, {
+          littleEndian
+        });
+        if (value2.length === 0) {
+          return lengthBuffer;
+        }
+        const result = new Uint8Array(lengthBuffer.length + value2.length);
+        result.set(lengthBuffer, 0);
+        result.set(value2, lengthBuffer.length);
+        return result;
+      } else {
+        const result = new Uint8Array(lengthOrField.size + value2.length);
+        lengthOrField.serialize(value2.length, {
+          buffer: result,
+          index: 0,
+          littleEndian
+        });
+        result.set(value2, lengthOrField.size);
+        return result;
+      }
+    }, deserialize2, { init: init2 });
+  }
+  if (typeof lengthOrField === "string") {
+    let deserialize2;
+    let init2;
+    if (converter) {
+      deserialize2 = function* (then, reader, { dependencies }) {
+        const length = dependencies[lengthOrField];
+        const array = length !== 0 ? reader.readExactly(length) : EmptyUint8Array;
+        return converter.convert(yield* then(array));
+      };
+      init2 = (value2, dependencies) => {
+        const array = converter.back(value2);
+        dependencies[lengthOrField] = array.length;
+        return array;
+      };
+    } else {
+      deserialize2 = function* (_then, reader, { dependencies }) {
+        const length = dependencies[lengthOrField];
+        const array = length !== 0 ? reader.readExactly(length) : EmptyUint8Array;
+        return array;
+      };
+      init2 = (value2, dependencies) => {
+        const array = value2;
+        dependencies[lengthOrField] = array.length;
+        return array;
+      };
+    }
+    return field(0, "default", (source) => source, deserialize2, { init: init2 });
+  }
+  let deserialize;
+  let init;
+  if (converter) {
+    deserialize = function* (then, reader, { dependencies }) {
+      const rawLength = dependencies[lengthOrField.field];
+      const length = lengthOrField.convert(rawLength);
+      const array = length !== 0 ? reader.readExactly(length) : EmptyUint8Array;
+      return converter.convert(yield* then(array));
+    };
+    init = (value2, dependencies) => {
+      const array = converter.back(value2);
+      dependencies[lengthOrField.field] = lengthOrField.back(array.length);
+      return array;
+    };
+  } else {
+    deserialize = function* (_then, reader, { dependencies }) {
+      const rawLength = dependencies[lengthOrField.field];
+      const length = lengthOrField.convert(rawLength);
+      const array = length !== 0 ? reader.readExactly(length) : EmptyUint8Array;
+      return array;
+    };
+    init = (value2, dependencies) => {
+      const array = value2;
+      dependencies[lengthOrField.field] = lengthOrField.back(array.length);
+      return array;
+    };
+  }
+  return field(0, "default", (source) => source, deserialize, { init });
+}
+class ExactReadableEndedError extends Error {
+  constructor() {
+    super("ExactReadable ended");
+  }
+}
+class Uint8ArrayExactReadable {
+  #data;
+  #position;
+  get position() {
+    return this.#position;
+  }
+  constructor(data) {
+    this.#data = data;
+    this.#position = 0;
+  }
+  readExactly(length) {
+    if (this.#position + length > this.#data.length) {
+      throw new ExactReadableEndedError();
+    }
+    const result = this.#data.subarray(this.#position, this.#position + length);
+    this.#position += length;
+    return result;
+  }
+}
+class StructDeserializeError extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+class StructNotEnoughDataError extends StructDeserializeError {
+  constructor() {
+    super("The underlying readable was ended before the struct was fully deserialized");
+  }
+}
+class StructEmptyError extends StructDeserializeError {
+  constructor() {
+    super("The underlying readable doesn't contain any more struct");
+  }
+}
+// @__NO_SIDE_EFFECTS__
+function struct(fields, options) {
+  const fieldList = Object.entries(fields);
+  let size = 0;
+  let byob = true;
+  for (const [, field2] of fieldList) {
+    size += field2.size;
+    if (byob && field2.type !== "byob") {
+      byob = false;
+    }
+  }
+  const littleEndian = options.littleEndian;
+  const extra = options.extra ? Object.getOwnPropertyDescriptors(options.extra) : void 0;
+  return {
+    littleEndian,
+    fields,
+    extra: options.extra,
+    type: byob ? "byob" : "default",
+    size,
+    serialize(source, bufferOrContext) {
+      const temp = { ...source };
+      for (const [key, field2] of fieldList) {
+        if (key in temp && "init" in field2) {
+          const result = field2.init?.(temp[key], temp);
+          temp[key] = result;
+        }
+      }
+      const sizes = new Array(fieldList.length);
+      const buffers = new Array(fieldList.length);
+      {
+        const context2 = { littleEndian };
+        for (const [index3, [key, field2]] of fieldList.entries()) {
+          if (field2.type === "byob") {
+            sizes[index3] = field2.size;
+          } else {
+            buffers[index3] = field2.serialize(temp[key], context2);
+            sizes[index3] = buffers[index3].length;
+          }
+        }
+      }
+      const size2 = sizes.reduce((sum, size3) => sum + size3, 0);
+      let externalBuffer;
+      let buffer2;
+      let index2;
+      if (bufferOrContext instanceof Uint8Array) {
+        if (bufferOrContext.length < size2) {
+          throw new Error("Buffer too small");
+        }
+        externalBuffer = true;
+        buffer2 = bufferOrContext;
+        index2 = 0;
+      } else if (typeof bufferOrContext === "object" && "buffer" in bufferOrContext) {
+        externalBuffer = true;
+        buffer2 = bufferOrContext.buffer;
+        index2 = bufferOrContext.index ?? 0;
+        if (buffer2.length - index2 < size2) {
+          throw new Error("Buffer too small");
+        }
+      } else {
+        externalBuffer = false;
+        buffer2 = new Uint8Array(size2);
+        index2 = 0;
+      }
+      const context = {
+        buffer: buffer2,
+        index: index2,
+        littleEndian
+      };
+      for (const [index3, [key, field2]] of fieldList.entries()) {
+        if (buffers[index3]) {
+          buffer2.set(buffers[index3], context.index);
+        } else {
+          field2.serialize(temp[key], context);
+        }
+        context.index += sizes[index3];
+      }
+      if (externalBuffer) {
+        return size2;
+      } else {
+        return buffer2;
+      }
+    },
+    deserialize: /* @__PURE__ */ bipedal(function* (then, reader) {
+      const startPosition = reader.position;
+      const result = {};
+      const context = {
+        dependencies: result,
+        littleEndian
+      };
+      try {
+        for (const [key, field2] of fieldList) {
+          result[key] = yield* then(field2.deserialize(reader, context));
+        }
+      } catch (e2) {
+        if (!(e2 instanceof ExactReadableEndedError)) {
+          throw e2;
+        }
+        if (reader.position === startPosition) {
+          throw new StructEmptyError();
+        } else {
+          throw new StructNotEnoughDataError();
+        }
+      }
+      if (extra) {
+        Object.defineProperties(result, extra);
+      }
+      if (options.postDeserialize) {
+        return options.postDeserialize.call(result, result);
+      } else {
+        return result;
+      }
+    })
+  };
+}
+// @__NO_SIDE_EFFECTS__
+function extend(base, fields, options) {
+  return /* @__PURE__ */ struct(Object.assign({}, base.fields, fields), {
+    littleEndian: options?.littleEndian ?? base.littleEndian,
+    extra: base.extra,
+    postDeserialize: options?.postDeserialize
+  });
+}
+// @__NO_SIDE_EFFECTS__
+function getInt32(buffer2, offset, littleEndian) {
+  return littleEndian ? buffer2[offset] | buffer2[offset + 1] << 8 | buffer2[offset + 2] << 16 | buffer2[offset + 3] << 24 : buffer2[offset] << 24 | buffer2[offset + 1] << 16 | buffer2[offset + 2] << 8 | buffer2[offset + 3];
+}
+function setInt32(buffer2, offset, value2, littleEndian) {
+  if (littleEndian) {
+    buffer2[offset] = value2;
+    buffer2[offset + 1] = value2 >> 8;
+    buffer2[offset + 2] = value2 >> 16;
+    buffer2[offset + 3] = value2 >> 24;
+  } else {
+    buffer2[offset] = value2 >> 24;
+    buffer2[offset + 1] = value2 >> 16;
+    buffer2[offset + 2] = value2 >> 8;
+    buffer2[offset + 3] = value2;
+  }
+}
+function setInt64LittleEndian(buffer2, offset, value2) {
+  buffer2[offset] = Number(value2 & 0xffn);
+  buffer2[offset + 1] = Number(value2 >> 8n & 0xffn);
+  buffer2[offset + 2] = Number(value2 >> 16n & 0xffn);
+  buffer2[offset + 3] = Number(value2 >> 24n & 0xffn);
+  buffer2[offset + 4] = Number(value2 >> 32n & 0xffn);
+  buffer2[offset + 5] = Number(value2 >> 40n & 0xffn);
+  buffer2[offset + 6] = Number(value2 >> 48n & 0xffn);
+  buffer2[offset + 7] = Number(value2 >> 56n & 0xffn);
+}
+function setInt64BigEndian(buffer2, offset, value2) {
+  buffer2[offset] = Number(value2 >> 56n & 0xffn);
+  buffer2[offset + 1] = Number(value2 >> 48n & 0xffn);
+  buffer2[offset + 2] = Number(value2 >> 40n & 0xffn);
+  buffer2[offset + 3] = Number(value2 >> 32n & 0xffn);
+  buffer2[offset + 4] = Number(value2 >> 24n & 0xffn);
+  buffer2[offset + 5] = Number(value2 >> 16n & 0xffn);
+  buffer2[offset + 6] = Number(value2 >> 8n & 0xffn);
+  buffer2[offset + 7] = Number(value2 & 0xffn);
+}
+// @__NO_SIDE_EFFECTS__
+function getUint32LittleEndian(buffer2, offset) {
+  return (buffer2[offset] | buffer2[offset + 1] << 8 | buffer2[offset + 2] << 16 | buffer2[offset + 3] << 24) >>> 0;
+}
+// @__NO_SIDE_EFFECTS__
+function getUint32(buffer2, offset, littleEndian) {
+  return littleEndian ? (buffer2[offset] | buffer2[offset + 1] << 8 | buffer2[offset + 2] << 16 | buffer2[offset + 3] << 24) >>> 0 : (buffer2[offset] << 24 | buffer2[offset + 1] << 16 | buffer2[offset + 2] << 8 | buffer2[offset + 3]) >>> 0;
+}
+function setUint32LittleEndian(buffer2, offset, value2) {
+  buffer2[offset] = value2;
+  buffer2[offset + 1] = value2 >> 8;
+  buffer2[offset + 2] = value2 >> 16;
+  buffer2[offset + 3] = value2 >> 24;
+}
+function setUint32(buffer2, offset, value2, littleEndian) {
+  if (littleEndian) {
+    buffer2[offset] = value2;
+    buffer2[offset + 1] = value2 >> 8;
+    buffer2[offset + 2] = value2 >> 16;
+    buffer2[offset + 3] = value2 >> 24;
+  } else {
+    buffer2[offset] = value2 >> 24;
+    buffer2[offset + 1] = value2 >> 16;
+    buffer2[offset + 2] = value2 >> 8;
+    buffer2[offset + 3] = value2;
+  }
+}
+function getUint64BigEndian(buffer2, offset) {
+  return BigInt(buffer2[offset]) << 56n | BigInt(buffer2[offset + 1]) << 48n | BigInt(buffer2[offset + 2]) << 40n | BigInt(buffer2[offset + 3]) << 32n | BigInt(buffer2[offset + 4]) << 24n | BigInt(buffer2[offset + 5]) << 16n | BigInt(buffer2[offset + 6]) << 8n | BigInt(buffer2[offset + 7]);
+}
+function getUint64(buffer2, offset, littleEndian) {
+  return littleEndian ? BigInt(buffer2[offset]) | BigInt(buffer2[offset + 1]) << 8n | BigInt(buffer2[offset + 2]) << 16n | BigInt(buffer2[offset + 3]) << 24n | BigInt(buffer2[offset + 4]) << 32n | BigInt(buffer2[offset + 5]) << 40n | BigInt(buffer2[offset + 6]) << 48n | BigInt(buffer2[offset + 7]) << 56n : BigInt(buffer2[offset]) << 56n | BigInt(buffer2[offset + 1]) << 48n | BigInt(buffer2[offset + 2]) << 40n | BigInt(buffer2[offset + 3]) << 32n | BigInt(buffer2[offset + 4]) << 24n | BigInt(buffer2[offset + 5]) << 16n | BigInt(buffer2[offset + 6]) << 8n | BigInt(buffer2[offset + 7]);
+}
+function setUint64(buffer2, offset, value2, littleEndian) {
+  if (littleEndian) {
+    buffer2[offset] = Number(value2 & 0xffn);
+    buffer2[offset + 1] = Number(value2 >> 8n & 0xffn);
+    buffer2[offset + 2] = Number(value2 >> 16n & 0xffn);
+    buffer2[offset + 3] = Number(value2 >> 24n & 0xffn);
+    buffer2[offset + 4] = Number(value2 >> 32n & 0xffn);
+    buffer2[offset + 5] = Number(value2 >> 40n & 0xffn);
+    buffer2[offset + 6] = Number(value2 >> 48n & 0xffn);
+    buffer2[offset + 7] = Number(value2 >> 56n & 0xffn);
+  } else {
+    buffer2[offset] = Number(value2 >> 56n & 0xffn);
+    buffer2[offset + 1] = Number(value2 >> 48n & 0xffn);
+    buffer2[offset + 2] = Number(value2 >> 40n & 0xffn);
+    buffer2[offset + 3] = Number(value2 >> 32n & 0xffn);
+    buffer2[offset + 4] = Number(value2 >> 24n & 0xffn);
+    buffer2[offset + 5] = Number(value2 >> 16n & 0xffn);
+    buffer2[offset + 6] = Number(value2 >> 8n & 0xffn);
+    buffer2[offset + 7] = Number(value2 & 0xffn);
+  }
+}
+// @__NO_SIDE_EFFECTS__
+function number(size, serialize, deserialize) {
+  const fn2 = () => fn2;
+  Object.assign(fn2, field(size, "byob", serialize, deserialize));
+  return fn2;
+}
+const u8 = /* @__PURE__ */ number(1, (value2, { buffer: buffer2, index: index2 }) => {
+  buffer2[index2] = value2;
+}, function* (then, reader) {
+  const data = yield* then(reader.readExactly(1));
+  return data[0];
+});
+const u32 = /* @__PURE__ */ number(4, (value2, { buffer: buffer2, index: index2, littleEndian }) => {
+  setUint32(buffer2, index2, value2, littleEndian);
+}, function* (then, reader, { littleEndian }) {
+  const data = yield* then(reader.readExactly(4));
+  return /* @__PURE__ */ getUint32(data, 0, littleEndian);
+});
+const s32 = /* @__PURE__ */ number(4, (value2, { buffer: buffer2, index: index2, littleEndian }) => {
+  setInt32(buffer2, index2, value2, littleEndian);
+}, function* (then, reader, { littleEndian }) {
+  const data = yield* then(reader.readExactly(4));
+  return /* @__PURE__ */ getInt32(data, 0, littleEndian);
+});
+const u64 = /* @__PURE__ */ number(8, (value2, { buffer: buffer2, index: index2, littleEndian }) => {
+  setUint64(buffer2, index2, value2, littleEndian);
+}, function* (then, reader, { littleEndian }) {
+  const data = yield* then(reader.readExactly(8));
+  return getUint64(data, 0, littleEndian);
+});
+const { TextEncoder: TextEncoder$1, TextDecoder: TextDecoder$1 } = globalThis;
+const SharedEncoder = /* @__PURE__ */ new TextEncoder$1();
+const SharedDecoder = /* @__PURE__ */ new TextDecoder$1();
+// @__NO_SIDE_EFFECTS__
+function encodeUtf8(input) {
+  return SharedEncoder.encode(input);
+}
+// @__NO_SIDE_EFFECTS__
+function decodeUtf8(buffer2) {
+  return SharedDecoder.decode(buffer2);
+}
+const string = /* @__NO_SIDE_EFFECTS__ */ (lengthOrField) => {
+  const field2 = /* @__PURE__ */ buffer(lengthOrField, {
+    convert: decodeUtf8,
+    back: encodeUtf8
+  });
+  field2.as = () => field2;
+  return field2;
+};
+const { AbortController: AbortController$1 } = globalThis;
+const ReadableStream$1 = /* @__PURE__ */ (() => {
+  const { ReadableStream: ReadableStream2 } = globalThis;
+  if (!ReadableStream2.from) {
+    ReadableStream2.from = function(iterable) {
+      const iterator2 = Symbol.asyncIterator in iterable ? iterable[Symbol.asyncIterator]() : iterable[Symbol.iterator]();
+      return new ReadableStream2({
+        async pull(controller) {
+          const result = await iterator2.next();
+          if (result.done) {
+            controller.close();
+            return;
+          }
+          controller.enqueue(result.value);
+        },
+        async cancel(reason) {
+          await iterator2.return?.(reason);
+        }
+      });
+    };
+  }
+  if (!ReadableStream2.prototype[Symbol.asyncIterator] || !ReadableStream2.prototype.values) {
+    ReadableStream2.prototype.values = async function* (options) {
+      const reader = this.getReader();
+      try {
+        while (true) {
+          const { done, value: value2 } = await reader.read();
+          if (done) {
+            return;
+          }
+          yield value2;
+        }
+      } finally {
+        if (!options?.preventCancel) {
+          await reader.cancel();
+        }
+        reader.releaseLock();
+      }
+    };
+    ReadableStream2.prototype[Symbol.asyncIterator] = // eslint-disable-next-line @typescript-eslint/unbound-method
+    ReadableStream2.prototype.values;
+  }
+  return ReadableStream2;
+})();
+const { WritableStream, TransformStream: TransformStream$1 } = globalThis;
+class TaskQueue {
+  #ready;
+  #disposed = false;
+  enqueue(task, bail = false) {
+    if (this.#disposed) {
+      throw new Error("TaskQueue is disposed");
+    }
+    if (!this.#ready) {
+      try {
+        const result2 = task();
+        if (isPromiseLike(result2)) {
+          this.#ready = result2.then(() => {
+          }, (e2) => {
+            if (bail) {
+              throw e2;
+            }
+          });
+        }
+        return result2;
+      } catch (e2) {
+        if (bail) {
+          const promise2 = Promise.reject(e2);
+          void promise2.catch(() => {
+          });
+          this.#ready = promise2;
+        }
+        throw e2;
+      }
+    }
+    const result = this.#ready.then(() => {
+      if (this.#disposed) {
+        throw new Error("TaskQueue is disposed");
+      }
+      return task();
+    });
+    this.#ready = result.then(() => {
+    }, (e2) => {
+      if (bail || this.#disposed) {
+        throw e2;
+      }
+    });
+    return result;
+  }
+  dispose() {
+    this.#disposed = true;
+  }
+}
+class PushReadableStream extends ReadableStream$1 {
+  /**
+   * Create a new `PushReadableStream` from a source.
+   *
+   * @param source If `source` returns a `Promise`, the stream will be closed
+   * when the `Promise` is resolved, and be errored when the `Promise` is rejected.
+   * @param strategy
+   */
+  constructor(source, strategy, logger) {
+    let controller;
+    const tasks = new TaskQueue();
+    let zeroHighWaterMarkAllowEnqueue = false;
+    let waterMarkLow;
+    const abortController = new AbortController$1();
+    let stopped = false;
+    const enqueue = (chunk) => {
+      logger?.({
+        source: "producer",
+        operation: "enqueue",
+        value: chunk,
+        phase: "start"
+      });
+      if (abortController.signal.aborted) {
+        logger?.({
+          source: "producer",
+          operation: "enqueue",
+          value: chunk,
+          phase: "ignored"
+        });
+        return false;
+      }
+      if (controller.desiredSize === null) {
+        controller.enqueue(chunk);
+        throw new Error("unreachable");
+      }
+      if (zeroHighWaterMarkAllowEnqueue) {
+        zeroHighWaterMarkAllowEnqueue = false;
+        controller.enqueue(chunk);
+        logger?.({
+          source: "producer",
+          operation: "enqueue",
+          value: chunk,
+          phase: "complete"
+        });
+        return true;
+      }
+      if (controller.desiredSize <= 0) {
+        logger?.({
+          source: "producer",
+          operation: "enqueue",
+          value: chunk,
+          phase: "waiting"
+        });
+        waterMarkLow = new PromiseResolver();
+        return waterMarkLow.promise.then(() => {
+          controller.enqueue(chunk);
+          logger?.({
+            source: "producer",
+            operation: "enqueue",
+            value: chunk,
+            phase: "complete"
+          });
+          return true;
+        }, () => {
+          logger?.({
+            source: "producer",
+            operation: "enqueue",
+            value: chunk,
+            phase: "ignored"
+          });
+          return false;
+        });
+      }
+      controller.enqueue(chunk);
+      logger?.({
+        source: "producer",
+        operation: "enqueue",
+        value: chunk,
+        phase: "complete"
+      });
+      return true;
+    };
+    const close = (explicit) => {
+      logger?.({
+        source: "producer",
+        operation: "close",
+        explicit,
+        phase: "start"
+      });
+      if (abortController.signal.aborted || stopped && !explicit) {
+        logger?.({
+          source: "producer",
+          operation: "close",
+          explicit,
+          phase: "ignored"
+        });
+        return;
+      }
+      controller.close();
+      stopped = true;
+      waterMarkLow?.reject();
+      logger?.({
+        source: "producer",
+        operation: "close",
+        explicit,
+        phase: "complete"
+      });
+    };
+    const error = (error2, explicit) => {
+      logger?.({
+        source: "producer",
+        operation: "error",
+        explicit,
+        phase: "start"
+      });
+      stopped = true;
+      controller.error(error2);
+      waterMarkLow?.reject();
+      logger?.({
+        source: "producer",
+        operation: "error",
+        explicit,
+        phase: "complete"
+      });
+    };
+    super({
+      start: (controller_) => {
+        controller = controller_;
+        const result = source({
+          abortSignal: abortController.signal,
+          enqueue: async (chunk) => (
+            // Run `enqueue`s in serial
+            // Use `async/await` to always return a `Promise`
+            await tasks.enqueue(() => enqueue(chunk))
+          ),
+          close() {
+            close(true);
+          },
+          error(e2) {
+            error(e2, true);
+          }
+        });
+        if (!stopped && isPromiseLike(result)) {
+          result.then(() => close(false), (e2) => error(e2, false));
+        }
+      },
+      pull: () => {
+        logger?.({
+          source: "consumer",
+          operation: "pull",
+          phase: "start"
+        });
+        if (waterMarkLow) {
+          waterMarkLow.resolve(void 0);
+          waterMarkLow = void 0;
+        } else if (strategy?.highWaterMark === 0) {
+          zeroHighWaterMarkAllowEnqueue = true;
+        }
+        logger?.({
+          source: "consumer",
+          operation: "pull",
+          phase: "complete"
+        });
+      },
+      cancel: (reason) => {
+        logger?.({
+          source: "consumer",
+          operation: "cancel",
+          phase: "start"
+        });
+        stopped = true;
+        abortController.abort(reason);
+        waterMarkLow?.reject();
+        logger?.({
+          source: "consumer",
+          operation: "cancel",
+          phase: "complete"
+        });
+      }
+    }, strategy);
+  }
+}
+function tryClose(value2) {
+  try {
+    const result = value2.close();
+    if (isPromiseLike(result)) {
+      return result.then(() => true, () => false);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function tryCancel(stream) {
+  try {
+    await stream.cancel();
+    return true;
+  } catch {
+    return false;
+  }
+}
+class BufferedReadableStream {
+  #buffered;
+  // PERF: `subarray` is slow
+  // don't use it until absolutely necessary
+  #bufferedOffset = 0;
+  #bufferedLength = 0;
+  #position = 0;
+  get position() {
+    return this.#position;
+  }
+  stream;
+  reader;
+  constructor(stream) {
+    this.stream = stream;
+    this.reader = stream.getReader();
+  }
+  #readBuffered(length) {
+    if (!this.#buffered) {
+      return void 0;
+    }
+    const value2 = this.#buffered.subarray(this.#bufferedOffset, this.#bufferedOffset + length);
+    if (this.#bufferedLength > length) {
+      this.#position += length;
+      this.#bufferedOffset += length;
+      this.#bufferedLength -= length;
+      return value2;
+    }
+    this.#position += this.#bufferedLength;
+    this.#buffered = void 0;
+    this.#bufferedOffset = 0;
+    this.#bufferedLength = 0;
+    return value2;
+  }
+  async #readSource(length) {
+    const { done, value: value2 } = await this.reader.read();
+    if (done) {
+      throw new ExactReadableEndedError();
+    }
+    if (value2.length > length) {
+      this.#buffered = value2;
+      this.#bufferedOffset = length;
+      this.#bufferedLength = value2.length - length;
+      this.#position += length;
+      return value2.subarray(0, length);
+    }
+    this.#position += value2.length;
+    return value2;
+  }
+  iterateExactly(length) {
+    let state = this.#buffered ? 0 : 1;
+    return {
+      next: () => {
+        switch (state) {
+          case 0: {
+            const value2 = this.#readBuffered(length);
+            if (value2.length === length) {
+              state = 2;
+            } else {
+              length -= value2.length;
+              state = 1;
+            }
+            return { done: false, value: value2 };
+          }
+          case 1:
+            state = 3;
+            return {
+              done: false,
+              value: this.#readSource(length).then((value2) => {
+                if (value2.length === length) {
+                  state = 2;
+                } else {
+                  length -= value2.length;
+                  state = 1;
+                }
+                return value2;
+              })
+            };
+          case 2:
+            return { done: true, value: void 0 };
+          case 3:
+            throw new Error("Can't call `next` before previous Promise resolves");
+          default:
+            throw new Error("unreachable");
+        }
+      }
+    };
+  }
+  readExactly = /* @__PURE__ */ bipedal(function* (then, length) {
+    let result;
+    let index2 = 0;
+    const initial = this.#readBuffered(length);
+    if (initial) {
+      if (initial.length === length) {
+        return initial;
+      }
+      result = new Uint8Array(length);
+      result.set(initial, index2);
+      index2 += initial.length;
+      length -= initial.length;
+    } else {
+      result = new Uint8Array(length);
+    }
+    while (length > 0) {
+      const value2 = yield* then(this.#readSource(length));
+      result.set(value2, index2);
+      index2 += value2.length;
+      length -= value2.length;
+    }
+    return result;
+  });
+  /**
+   * Return a readable stream with unconsumed data (if any) and
+   * all data from the wrapped stream.
+   * @returns A `ReadableStream`
+   */
+  release() {
+    if (this.#bufferedLength > 0) {
+      return new PushReadableStream(async (controller) => {
+        const buffered = this.#buffered.subarray(this.#bufferedOffset);
+        await controller.enqueue(buffered);
+        controller.abortSignal.addEventListener("abort", () => {
+          void tryCancel(this.reader);
+        });
+        while (true) {
+          const { done, value: value2 } = await this.reader.read();
+          if (done) {
+            return;
+          }
+          await controller.enqueue(value2);
+        }
+      });
+    } else {
+      this.reader.releaseLock();
+      return this.stream;
+    }
+  }
+  async cancel(reason) {
+    await this.reader.cancel(reason);
+  }
+}
+class BufferedTransformStream {
+  #readable;
+  get readable() {
+    return this.#readable;
+  }
+  #writable;
+  get writable() {
+    return this.#writable;
+  }
+  constructor(transform) {
+    let bufferedStreamController;
+    let writableStreamController;
+    const buffered = new BufferedReadableStream(new PushReadableStream((controller) => {
+      bufferedStreamController = controller;
+    }));
+    this.#readable = new ReadableStream$1({
+      async pull(controller) {
+        try {
+          const value2 = await transform(buffered);
+          controller.enqueue(value2);
+        } catch (e2) {
+          if (e2 instanceof StructEmptyError) {
+            controller.close();
+            return;
+          }
+          throw e2;
+        }
+      },
+      cancel: (reason) => {
+        return writableStreamController.error(reason);
+      }
+    });
+    this.#writable = new WritableStream({
+      start(controller) {
+        writableStreamController = controller;
+      },
+      async write(chunk) {
+        await bufferedStreamController.enqueue(chunk);
+      },
+      abort() {
+        bufferedStreamController.close();
+      },
+      close() {
+        bufferedStreamController.close();
+      }
+    });
+  }
+}
+class ConcatStringStream {
+  // PERF: rope (concat strings) is faster than `[].join('')`
+  #result = "";
+  #resolver = new PromiseResolver();
+  #writable = new WritableStream({
+    write: (chunk) => {
+      this.#result += chunk;
+    },
+    close: () => {
+      this.#resolver.resolve(this.#result);
+      this.#readableController.enqueue(this.#result);
+      this.#readableController.close();
+    },
+    abort: (reason) => {
+      this.#resolver.reject(reason);
+      this.#readableController.error(reason);
+    }
+  });
+  get writable() {
+    return this.#writable;
+  }
+  #readableController;
+  #readable = new ReadableStream$1({
+    start: (controller) => {
+      this.#readableController = controller;
+    }
+  });
+  get readable() {
+    return this.#readable;
+  }
+  constructor() {
+    void Object.defineProperties(this.#readable, {
+      then: {
+        get: () => this.#resolver.promise.then.bind(this.#resolver.promise)
+      },
+      catch: {
+        get: () => this.#resolver.promise.catch.bind(this.#resolver.promise)
+      },
+      finally: {
+        get: () => this.#resolver.promise.finally.bind(this.#resolver.promise)
+      }
+    });
+  }
+}
+class ConcatBufferStream {
+  #segments = [];
+  #resolver = new PromiseResolver();
+  #writable = new WritableStream({
+    write: (chunk) => {
+      this.#segments.push(chunk);
+    },
+    close: () => {
+      let result;
+      let offset = 0;
+      switch (this.#segments.length) {
+        case 0:
+          result = EmptyUint8Array;
+          break;
+        case 1:
+          result = this.#segments[0];
+          break;
+        default:
+          result = new Uint8Array(this.#segments.reduce((prev, item) => prev + item.length, 0));
+          for (const segment of this.#segments) {
+            result.set(segment, offset);
+            offset += segment.length;
+          }
+          break;
+      }
+      this.#resolver.resolve(result);
+      this.#readableController.enqueue(result);
+      this.#readableController.close();
+    },
+    abort: (reason) => {
+      this.#resolver.reject(reason);
+      this.#readableController.error(reason);
+    }
+  });
+  get writable() {
+    return this.#writable;
+  }
+  #readableController;
+  #readable = new ReadableStream$1({
+    start: (controller) => {
+      this.#readableController = controller;
+    }
+  });
+  get readable() {
+    return this.#readable;
+  }
+  constructor() {
+    void Object.defineProperties(this.#readable, {
+      then: {
+        get: () => this.#resolver.promise.then.bind(this.#resolver.promise)
+      },
+      catch: {
+        get: () => this.#resolver.promise.catch.bind(this.#resolver.promise)
+      },
+      finally: {
+        get: () => this.#resolver.promise.finally.bind(this.#resolver.promise)
+      }
+    });
+  }
+}
+class ConsumableReadableStream extends ReadableStream$1 {
+  static async enqueue(controller, chunk) {
+    const output = new Consumable(chunk);
+    controller.enqueue(output);
+    await output.consumed;
+  }
+  constructor(source, strategy) {
+    let wrappedController;
+    let wrappedStrategy;
+    if (strategy) {
+      wrappedStrategy = {};
+      if ("highWaterMark" in strategy) {
+        wrappedStrategy.highWaterMark = strategy.highWaterMark;
+      }
+      if ("size" in strategy) {
+        wrappedStrategy.size = (chunk) => {
+          return strategy.size(chunk.value);
+        };
+      }
+    }
+    super({
+      start(controller) {
+        wrappedController = {
+          enqueue(chunk) {
+            return ConsumableReadableStream.enqueue(controller, chunk);
+          },
+          close() {
+            controller.close();
+          },
+          error(reason) {
+            controller.error(reason);
+          }
+        };
+        return source.start?.(wrappedController);
+      },
+      pull() {
+        return source.pull?.(wrappedController);
+      },
+      cancel(reason) {
+        return source.cancel?.(reason);
+      }
+    }, wrappedStrategy);
+  }
+}
+class ConsumableWrapByteReadableStream extends ReadableStream$1 {
+  constructor(stream, chunkSize, min) {
+    const reader = stream.getReader({ mode: "byob" });
+    let array = new Uint8Array(chunkSize);
+    super({
+      async pull(controller) {
+        const { done, value: value2 } = await reader.read(array, { min });
+        if (done) {
+          controller.close();
+          return;
+        }
+        await ConsumableReadableStream.enqueue(controller, value2);
+        array = new Uint8Array(value2.buffer);
+      },
+      cancel(reason) {
+        return reader.cancel(reason);
+      }
+    });
+  }
+}
+class ConsumableWrapWritableStream extends WritableStream {
+  constructor(stream) {
+    const writer = stream.getWriter();
+    super({
+      write(chunk) {
+        return chunk.tryConsume((chunk2) => writer.write(chunk2));
+      },
+      abort(reason) {
+        return writer.abort(reason);
+      },
+      close() {
+        return writer.close();
+      }
+    });
+  }
+}
+class ConsumableWritableStream extends WritableStream {
+  static async write(writer, value2) {
+    const consumable = new Consumable(value2);
+    await writer.write(consumable);
+    await consumable.consumed;
+  }
+  constructor(sink, strategy) {
+    let wrappedStrategy;
+    if (strategy) {
+      wrappedStrategy = {};
+      if ("highWaterMark" in strategy) {
+        wrappedStrategy.highWaterMark = strategy.highWaterMark;
+      }
+      if ("size" in strategy) {
+        wrappedStrategy.size = (chunk) => {
+          return strategy.size(chunk instanceof Consumable ? chunk.value : chunk);
+        };
+      }
+    }
+    super({
+      start(controller) {
+        return sink.start?.(controller);
+      },
+      write(chunk, controller) {
+        return chunk.tryConsume((chunk2) => sink.write?.(chunk2, controller));
+      },
+      abort(reason) {
+        return sink.abort?.(reason);
+      },
+      close() {
+        return sink.close?.();
+      }
+    }, wrappedStrategy);
+  }
+}
+const { console: console$1 } = globalThis;
+const createTask = /* @__PURE__ */ (() => console$1?.createTask?.bind(console$1) ?? (() => ({
+  run(callback2) {
+    return callback2();
+  }
+})))();
+class Consumable {
+  static WritableStream = ConsumableWritableStream;
+  static WrapWritableStream = ConsumableWrapWritableStream;
+  static ReadableStream = ConsumableReadableStream;
+  static WrapByteReadableStream = ConsumableWrapByteReadableStream;
+  #task;
+  #resolver;
+  value;
+  consumed;
+  constructor(value2) {
+    this.#task = createTask("Consumable");
+    this.value = value2;
+    this.#resolver = new PromiseResolver();
+    this.consumed = this.#resolver.promise;
+  }
+  consume() {
+    this.#resolver.resolve();
+  }
+  error(error) {
+    this.#resolver.reject(error);
+  }
+  tryConsume(callback2) {
+    try {
+      let result = this.#task.run(() => callback2(this.value));
+      if (isPromiseLike(result)) {
+        result = result.then((value2) => {
+          this.#resolver.resolve();
+          return value2;
+        }, (e2) => {
+          this.#resolver.reject(e2);
+          throw e2;
+        });
+      } else {
+        this.#resolver.resolve();
+      }
+      return result;
+    } catch (e2) {
+      this.#resolver.reject(e2);
+      throw e2;
+    }
+  }
+}
+function tryConsume(value2, callback2) {
+  if (value2 instanceof Consumable) {
+    return value2.tryConsume(callback2);
+  } else {
+    return callback2(value2);
+  }
+}
+class MaybeConsumableWritableStream extends WritableStream {
+  constructor(sink, strategy) {
+    let wrappedStrategy;
+    if (strategy) {
+      wrappedStrategy = {};
+      if ("highWaterMark" in strategy) {
+        wrappedStrategy.highWaterMark = strategy.highWaterMark;
+      }
+      if ("size" in strategy) {
+        wrappedStrategy.size = (chunk) => {
+          return strategy.size(chunk instanceof Consumable ? chunk.value : chunk);
+        };
+      }
+    }
+    super({
+      start(controller) {
+        return sink.start?.(controller);
+      },
+      write(chunk, controller) {
+        return tryConsume(chunk, (chunk2) => sink.write?.(chunk2, controller));
+      },
+      abort(reason) {
+        return sink.abort?.(reason);
+      },
+      close() {
+        return sink.close?.();
+      }
+    }, wrappedStrategy);
+  }
+}
+class BufferCombiner {
+  #capacity;
+  #buffer;
+  #offset;
+  #available;
+  constructor(size) {
+    this.#capacity = size;
+    this.#buffer = new Uint8Array(size);
+    this.#offset = 0;
+    this.#available = size;
+  }
+  /**
+   * Pushes data to the combiner.
+   * @param data The input data to be split or combined.
+   * @returns
+   * A generator that yields buffers of specified size.
+   * It may yield the same buffer multiple times, consume the data before calling `next`.
+   */
+  *push(data) {
+    let offset = 0;
+    let available = data.length;
+    if (this.#offset !== 0) {
+      if (available >= this.#available) {
+        this.#buffer.set(data.subarray(0, this.#available), this.#offset);
+        offset += this.#available;
+        available -= this.#available;
+        yield this.#buffer;
+        this.#offset = 0;
+        this.#available = this.#capacity;
+        if (available === 0) {
+          return;
+        }
+      } else {
+        this.#buffer.set(data, this.#offset);
+        this.#offset += available;
+        this.#available -= available;
+        return;
+      }
+    }
+    while (available >= this.#capacity) {
+      const end = offset + this.#capacity;
+      yield data.subarray(offset, end);
+      offset = end;
+      available -= this.#capacity;
+    }
+    if (available > 0) {
+      this.#buffer.set(data.subarray(offset), this.#offset);
+      this.#offset += available;
+      this.#available -= available;
+    }
+  }
+  flush() {
+    if (this.#offset === 0) {
+      return void 0;
+    }
+    const output = this.#buffer.subarray(0, this.#offset);
+    this.#offset = 0;
+    this.#available = this.#capacity;
+    return output;
+  }
+}
+class DistributionStream extends TransformStream$1 {
+  constructor(size, combine = false) {
+    const combiner = combine ? new BufferCombiner(size) : void 0;
+    super({
+      async transform(chunk, controller) {
+        await tryConsume(chunk, async (chunk2) => {
+          if (combiner) {
+            for (const buffer2 of combiner.push(chunk2)) {
+              await Consumable.ReadableStream.enqueue(controller, buffer2);
+            }
+          } else {
+            let offset = 0;
+            let available = chunk2.length;
+            while (available > 0) {
+              const end = offset + size;
+              await Consumable.ReadableStream.enqueue(controller, chunk2.subarray(offset, end));
+              offset = end;
+              available -= size;
+            }
+          }
+        });
+      },
+      flush(controller) {
+        if (combiner) {
+          const data = combiner.flush();
+          if (data) {
+            controller.enqueue(data);
+          }
+        }
+      }
+    });
+  }
+}
+function getWrappedReadableStream(wrapper, controller) {
+  if ("start" in wrapper) {
+    return wrapper.start(controller);
+  } else if (typeof wrapper === "function") {
+    return wrapper(controller);
+  } else {
+    return wrapper;
+  }
+}
+class WrapReadableStream extends ReadableStream$1 {
+  readable;
+  #reader;
+  constructor(wrapper, strategy) {
+    super({
+      start: async (controller) => {
+        const readable = await getWrappedReadableStream(wrapper, controller);
+        this.readable = readable;
+        this.#reader = this.readable.getReader();
+      },
+      pull: async (controller) => {
+        const { done, value: value2 } = await this.#reader.read().catch((e2) => {
+          if ("error" in wrapper) {
+            wrapper.error(e2);
+          }
+          throw e2;
+        });
+        if (done) {
+          controller.close();
+          if ("close" in wrapper) {
+            await wrapper.close?.();
+          }
+        } else {
+          controller.enqueue(value2);
+        }
+      },
+      cancel: async (reason) => {
+        await this.#reader.cancel(reason);
+        if ("cancel" in wrapper) {
+          await wrapper.cancel?.(reason);
+        }
+      }
+    }, strategy);
+  }
+}
+const NOOP$1 = () => {
+};
+class DuplexStreamFactory {
+  #readableControllers = [];
+  #writers = [];
+  #writableClosed = false;
+  get writableClosed() {
+    return this.#writableClosed;
+  }
+  #closed = new PromiseResolver();
+  get closed() {
+    return this.#closed.promise;
+  }
+  #options;
+  constructor(options) {
+    this.#options = options ?? {};
+  }
+  wrapReadable(readable, strategy) {
+    return new WrapReadableStream({
+      start: (controller) => {
+        this.#readableControllers.push(controller);
+        return readable;
+      },
+      cancel: async () => {
+        await this.close();
+      },
+      close: async () => {
+        await this.dispose();
+      }
+    }, strategy);
+  }
+  createWritable(stream) {
+    const writer = stream.getWriter();
+    this.#writers.push(writer);
+    return new WritableStream({
+      write: async (chunk) => {
+        await writer.write(chunk);
+      },
+      abort: async (reason) => {
+        await writer.abort(reason);
+        await this.close();
+      },
+      close: async () => {
+        await writer.close().catch(NOOP$1);
+        await this.close();
+      }
+    });
+  }
+  async close() {
+    if (this.#writableClosed) {
+      return;
+    }
+    this.#writableClosed = true;
+    if (await this.#options.close?.() !== false) {
+      await this.dispose();
+    }
+    for (const writer of this.#writers) {
+      writer.close().catch(NOOP$1);
+    }
+  }
+  async dispose() {
+    this.#writableClosed = true;
+    this.#closed.resolve();
+    for (const controller of this.#readableControllers) {
+      tryClose(controller);
+    }
+    await this.#options.dispose?.();
+  }
+}
+const Global = globalThis;
+const TextDecoderStream = Global.TextDecoderStream;
+function pipeFrom(writable, pair) {
+  const writer = pair.writable.getWriter();
+  const pipe = pair.readable.pipeTo(writable);
+  return new WritableStream({
+    async write(chunk) {
+      await writer.write(chunk);
+    },
+    async close() {
+      await writer.close();
+      await pipe;
+    }
+  });
+}
+class StructDeserializeStream extends BufferedTransformStream {
+  constructor(struct2) {
+    super((stream) => {
+      return struct2.deserialize(stream);
+    });
+  }
+}
+class AutoDisposable {
+  #disposables = [];
+  constructor() {
+    this.dispose = this.dispose.bind(this);
+  }
+  addDisposable(disposable) {
+    this.#disposables.push(disposable);
+    return disposable;
+  }
+  dispose() {
+    for (const disposable of this.#disposables) {
+      disposable.dispose();
+    }
+    this.#disposables = [];
+  }
+}
+class EventEmitter {
+  listeners = [];
+  constructor() {
+    this.event = this.event.bind(this);
+  }
+  addEventListener(info) {
+    this.listeners.push(info);
+    const remove = () => {
+      const index2 = this.listeners.indexOf(info);
+      if (index2 !== -1) {
+        this.listeners.splice(index2, 1);
+      }
+    };
+    remove.dispose = remove;
+    return remove;
+  }
+  event = (listener, thisArg, ...args) => {
+    const info = {
+      listener,
+      thisArg,
+      args
+    };
+    return this.addEventListener(info);
+  };
+  fire(e2) {
+    for (const info of this.listeners.slice()) {
+      info.listener.call(info.thisArg, e2, ...info.args);
+    }
+  }
+  dispose() {
+    this.listeners.length = 0;
+  }
+}
+const Undefined = Symbol("undefined");
+class StickyEventEmitter extends EventEmitter {
+  #value = Undefined;
+  addEventListener(info) {
+    if (this.#value !== Undefined) {
+      info.listener.call(info.thisArg, this.#value, ...info.args);
+    }
+    return super.addEventListener(info);
+  }
+  fire(e2) {
+    this.#value = e2;
+    super.fire(e2);
+  }
+}
+class AdbServiceBase extends AutoDisposable {
+  #adb;
+  get adb() {
+    return this.#adb;
+  }
+  constructor(adb) {
+    super();
+    this.#adb = adb;
+  }
+}
+const Version = /* @__PURE__ */ struct({ version: u32 }, { littleEndian: true });
+const AdbFrameBufferV1 = /* @__PURE__ */ struct({
+  bpp: u32,
+  size: u32,
+  width: u32,
+  height: u32,
+  red_offset: u32,
+  red_length: u32,
+  blue_offset: u32,
+  blue_length: u32,
+  green_offset: u32,
+  green_length: u32,
+  alpha_offset: u32,
+  alpha_length: u32,
+  data: /* @__PURE__ */ buffer("size")
+}, { littleEndian: true });
+const AdbFrameBufferV2 = /* @__PURE__ */ struct({
+  bpp: u32,
+  colorSpace: u32,
+  size: u32,
+  width: u32,
+  height: u32,
+  red_offset: u32,
+  red_length: u32,
+  blue_offset: u32,
+  blue_length: u32,
+  green_offset: u32,
+  green_length: u32,
+  alpha_offset: u32,
+  alpha_length: u32,
+  data: /* @__PURE__ */ buffer("size")
+}, { littleEndian: true });
+class AdbFrameBufferError extends Error {
+  constructor(message, options) {
+    super(message, options);
+  }
+}
+class AdbFrameBufferUnsupportedVersionError extends AdbFrameBufferError {
+  constructor(version2) {
+    super(`Unsupported FrameBuffer version ${version2}`);
+  }
+}
+class AdbFrameBufferForbiddenError extends AdbFrameBufferError {
+  constructor() {
+    super("FrameBuffer is disabled by current app");
+  }
+}
+async function framebuffer(adb) {
+  const socket2 = await adb.createSocket("framebuffer:");
+  const stream = new BufferedReadableStream(socket2.readable);
+  let version2;
+  try {
+    ({ version: version2 } = await Version.deserialize(stream));
+  } catch (e2) {
+    if (e2 instanceof StructEmptyError) {
+      throw new AdbFrameBufferForbiddenError();
+    }
+    throw e2;
+  }
+  switch (version2) {
+    case 1:
+      return await AdbFrameBufferV1.deserialize(stream);
+    case 2:
+      return await AdbFrameBufferV2.deserialize(stream);
+    default:
+      throw new AdbFrameBufferUnsupportedVersionError(version2);
+  }
+}
+class AdbPower extends AdbServiceBase {
+  reboot(mode = "") {
+    return this.adb.createSocketAndWait(`reboot:${mode}`);
+  }
+  bootloader() {
+    return this.reboot("bootloader");
+  }
+  fastboot() {
+    return this.reboot("fastboot");
+  }
+  recovery() {
+    return this.reboot("recovery");
+  }
+  sideload() {
+    return this.reboot("sideload");
+  }
+  /**
+   * Reboot to Qualcomm Emergency Download (EDL) Mode.
+   *
+   * Only works on some Qualcomm devices.
+   */
+  qualcommEdlMode() {
+    return this.reboot("edl");
+  }
+  powerOff() {
+    return this.adb.subprocess.noneProtocol.spawnWaitText(["reboot", "-p"]);
+  }
+  powerButton(longPress = false) {
+    const args = ["input", "keyevent"];
+    if (longPress) {
+      args.push("--longpress");
+    }
+    args.push("POWER");
+    return this.adb.subprocess.noneProtocol.spawnWaitText(args);
+  }
+  /**
+   * Reboot to Samsung Odin download mode.
+   *
+   * Only works on Samsung devices.
+   */
+  samsungOdin() {
+    return this.reboot("download");
+  }
+}
+function toLocalUint8Array(value2) {
+  if (value2.buffer instanceof ArrayBuffer) {
+    return value2;
+  }
+  const copy = new Uint8Array(value2.length);
+  copy.set(value2);
+  return copy;
+}
+class AutoResetEvent {
+  #set;
+  #queue = [];
+  constructor(initialSet = false) {
+    this.#set = initialSet;
+  }
+  wait() {
+    if (!this.#set) {
+      this.#set = true;
+      if (this.#queue.length === 0) {
+        return Promise.resolve();
+      }
+    }
+    const resolver = new PromiseResolver();
+    this.#queue.push(resolver);
+    return resolver.promise;
+  }
+  notifyOne() {
+    if (this.#queue.length !== 0) {
+      this.#queue.pop().resolve();
+    } else {
+      this.#set = false;
+    }
+  }
+  dispose() {
+    for (const item of this.#queue) {
+      item.reject(new Error("The AutoResetEvent has been disposed"));
+    }
+    this.#queue.length = 0;
+  }
+}
+const [charToIndex, indexToChar, paddingChar] = /* @__PURE__ */ (() => {
+  const charToIndex2 = [];
+  const indexToChar2 = [];
+  const paddingChar2 = "=".charCodeAt(0);
+  function addRange(start, end) {
+    const charCodeStart = start.charCodeAt(0);
+    const charCodeEnd = end.charCodeAt(0);
+    for (let charCode = charCodeStart; charCode <= charCodeEnd; charCode += 1) {
+      charToIndex2[charCode] = indexToChar2.length;
+      indexToChar2.push(charCode);
+    }
+  }
+  addRange("A", "Z");
+  addRange("a", "z");
+  addRange("0", "9");
+  addRange("+", "+");
+  addRange("/", "/");
+  return [charToIndex2, indexToChar2, paddingChar2];
+})();
+function calculateBase64EncodedLength(inputLength) {
+  const remainder = inputLength % 3;
+  const paddingLength = remainder !== 0 ? 3 - remainder : 0;
+  return [(inputLength + paddingLength) / 3 * 4, paddingLength];
+}
+function encodeBase64(input, output) {
+  const [outputLength, paddingLength] = calculateBase64EncodedLength(input.length);
+  if (!output) {
+    output = new Uint8Array(outputLength);
+    encodeForward(input, output, paddingLength);
+    return output;
+  } else {
+    if (output.length < outputLength) {
+      throw new TypeError("output buffer is too small");
+    }
+    output = output.subarray(0, outputLength);
+    if (input.buffer !== output.buffer) {
+      encodeForward(input, output, paddingLength);
+    } else if (output.byteOffset + output.length - (paddingLength + 1) <= input.byteOffset + input.length) {
+      encodeForward(input, output, paddingLength);
+    } else if (output.byteOffset >= input.byteOffset - 1) {
+      encodeBackward(input, output, paddingLength);
+    } else {
+      throw new TypeError("input and output cannot overlap");
+    }
+    return outputLength;
+  }
+}
+function encodeForward(input, output, paddingLength) {
+  let inputIndex = 0;
+  let outputIndex = 0;
+  while (inputIndex < input.length - 2) {
+    const x2 = input[inputIndex];
+    inputIndex += 1;
+    const y2 = input[inputIndex];
+    inputIndex += 1;
+    const z2 = input[inputIndex];
+    inputIndex += 1;
+    output[outputIndex] = indexToChar[x2 >> 2];
+    outputIndex += 1;
+    output[outputIndex] = indexToChar[(x2 & 3) << 4 | y2 >> 4];
+    outputIndex += 1;
+    output[outputIndex] = indexToChar[(y2 & 15) << 2 | z2 >> 6];
+    outputIndex += 1;
+    output[outputIndex] = indexToChar[z2 & 63];
+    outputIndex += 1;
+  }
+  if (paddingLength === 2) {
+    const x2 = input[inputIndex];
+    inputIndex += 1;
+    output[outputIndex] = indexToChar[x2 >> 2];
+    outputIndex += 1;
+    output[outputIndex] = indexToChar[(x2 & 3) << 4];
+    outputIndex += 1;
+    output[outputIndex] = paddingChar;
+    outputIndex += 1;
+    output[outputIndex] = paddingChar;
+  } else if (paddingLength === 1) {
+    const x2 = input[inputIndex];
+    inputIndex += 1;
+    const y2 = input[inputIndex];
+    inputIndex += 1;
+    output[outputIndex] = indexToChar[x2 >> 2];
+    outputIndex += 1;
+    output[outputIndex] = indexToChar[(x2 & 3) << 4 | y2 >> 4];
+    outputIndex += 1;
+    output[outputIndex] = indexToChar[(y2 & 15) << 2];
+    outputIndex += 1;
+    output[outputIndex] = paddingChar;
+  }
+}
+function encodeBackward(input, output, paddingLength) {
+  let inputIndex = input.length - 1;
+  let outputIndex = output.length - 1;
+  if (paddingLength === 2) {
+    const x2 = input[inputIndex];
+    inputIndex -= 1;
+    output[outputIndex] = paddingChar;
+    outputIndex -= 1;
+    output[outputIndex] = paddingChar;
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[(x2 & 3) << 4];
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[x2 >> 2];
+    outputIndex -= 1;
+  } else if (paddingLength === 1) {
+    const y2 = input[inputIndex];
+    inputIndex -= 1;
+    const x2 = input[inputIndex];
+    inputIndex -= 1;
+    output[outputIndex] = paddingChar;
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[(y2 & 15) << 2];
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[(x2 & 3) << 4 | y2 >> 4];
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[x2 >> 2];
+    outputIndex -= 1;
+  }
+  while (inputIndex >= 0) {
+    const z2 = input[inputIndex];
+    inputIndex -= 1;
+    const y2 = input[inputIndex];
+    inputIndex -= 1;
+    const x2 = input[inputIndex];
+    inputIndex -= 1;
+    output[outputIndex] = indexToChar[z2 & 63];
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[(y2 & 15) << 2 | z2 >> 6];
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[(x2 & 3) << 4 | y2 >> 4];
+    outputIndex -= 1;
+    output[outputIndex] = indexToChar[x2 >> 2];
+    outputIndex -= 1;
+  }
+}
+function hexCharToNumber(char) {
+  if (char < 48) {
+    throw new TypeError(`Invalid hex char ${char}`);
+  }
+  if (char < 58) {
+    return char - 48;
+  }
+  if (char < 65) {
+    throw new TypeError(`Invalid hex char ${char}`);
+  }
+  if (char < 71) {
+    return char - 55;
+  }
+  if (char < 97) {
+    throw new TypeError(`Invalid hex char ${char}`);
+  }
+  if (char < 103) {
+    return char - 87;
+  }
+  throw new TypeError(`Invalid hex char ${char}`);
+}
+function hexToNumber(data) {
+  let result = 0;
+  for (let i2 = 0; i2 < data.length; i2 += 1) {
+    result = result << 4 | hexCharToNumber(data[i2]);
+  }
+  return result;
+}
+const NOOP = /* @__NO_SIDE_EFFECTS__ */ () => {
+};
+function unreachable(...args) {
+  throw new Error("Unreachable. Arguments:\n" + args.join("\n"));
+}
+function sequenceEqual(a2, b2) {
+  if (a2.length !== b2.length) {
+    return false;
+  }
+  for (let i2 = 0; i2 < a2.length; i2 += 1) {
+    if (a2[i2] !== b2[i2]) {
+      return false;
+    }
+  }
+  return true;
+}
+const AdbReverseStringResponse = /* @__PURE__ */ struct({
+  length: /* @__PURE__ */ string(4),
+  content: /* @__PURE__ */ string({
+    field: "length",
+    convert(value2) {
+      return Number.parseInt(value2, 16);
+    },
+    back(value2) {
+      return value2.toString(16).padStart(4, "0");
+    }
+  })
+}, { littleEndian: true });
+class AdbReverseError extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+class AdbReverseNotSupportedError extends AdbReverseError {
+  constructor() {
+    super("ADB reverse tunnel is not supported on this device when connected wirelessly.");
+  }
+}
+const AdbReverseErrorResponse = /* @__PURE__ */ extend(AdbReverseStringResponse, {}, {
+  postDeserialize(value2) {
+    if (value2.content === "more than one device/emulator") {
+      throw new AdbReverseNotSupportedError();
+    } else {
+      throw new AdbReverseError(value2.content);
+    }
+  }
+});
+function decimalToNumber(buffer2) {
+  let value2 = 0;
+  for (const byte of buffer2) {
+    if (byte < 48 || byte > 57) {
+      return value2;
+    }
+    value2 = value2 * 10 + byte - 48;
+  }
+  return value2;
+}
+const OKAY = /* @__PURE__ */ encodeUtf8("OKAY");
+class AdbReverseService extends AdbServiceBase {
+  #deviceAddressToLocalAddress = /* @__PURE__ */ new Map();
+  async createBufferedStream(service) {
+    const socket2 = await this.adb.createSocket(service);
+    return new BufferedReadableStream(socket2.readable);
+  }
+  async sendRequest(service) {
+    const stream = await this.createBufferedStream(service);
+    const response = await stream.readExactly(4);
+    if (!sequenceEqual(response, OKAY)) {
+      await AdbReverseErrorResponse.deserialize(stream);
+    }
+    return stream;
+  }
+  /**
+   * Get a list of all reverse port forwarding on the device.
+   */
+  async list() {
+    const stream = await this.createBufferedStream("reverse:list-forward");
+    const response = await AdbReverseStringResponse.deserialize(stream);
+    return response.content.split("\n").filter((line) => !!line).map((line) => {
+      const [deviceSerial, localName, remoteName] = line.split(" ");
+      return { deviceSerial, localName, remoteName };
+    });
+  }
+  /**
+   * Add a reverse port forwarding for a program that already listens on a port.
+   */
+  async addExternal(deviceAddress, localAddress) {
+    const stream = await this.sendRequest(`reverse:forward:${deviceAddress};${localAddress}`);
+    if (deviceAddress.startsWith("tcp:")) {
+      const position = stream.position;
+      try {
+        const length = hexToNumber(await stream.readExactly(4));
+        const port = decimalToNumber(await stream.readExactly(length));
+        deviceAddress = `tcp:${port}`;
+      } catch (e2) {
+        if (e2 instanceof ExactReadableEndedError && stream.position === position) ;
+        else {
+          throw e2;
+        }
+      }
+    }
+    return deviceAddress;
+  }
+  /**
+   * Add a reverse port forwarding.
+   */
+  async add(deviceAddress, handler, localAddress) {
+    localAddress = await this.adb.transport.addReverseTunnel(handler, localAddress);
+    try {
+      deviceAddress = await this.addExternal(deviceAddress, localAddress);
+      this.#deviceAddressToLocalAddress.set(deviceAddress, localAddress);
+      return deviceAddress;
+    } catch (e2) {
+      await this.adb.transport.removeReverseTunnel(localAddress);
+      throw e2;
+    }
+  }
+  /**
+   * Remove a reverse port forwarding.
+   */
+  async remove(deviceAddress) {
+    const localAddress = this.#deviceAddressToLocalAddress.get(deviceAddress);
+    if (localAddress) {
+      await this.adb.transport.removeReverseTunnel(localAddress);
+    }
+    await this.sendRequest(`reverse:killforward:${deviceAddress}`);
+  }
+  /**
+   * Remove all reverse port forwarding, including the ones added by other programs.
+   */
+  async removeAll() {
+    await this.adb.transport.clearReverseTunnels();
+    this.#deviceAddressToLocalAddress.clear();
+    await this.sendRequest(`reverse:killforward-all`);
+  }
+}
+class AdbNoneProtocolProcessImpl {
+  #socket;
+  get stdin() {
+    return this.#socket.writable;
+  }
+  get output() {
+    return this.#socket.readable;
+  }
+  #exited;
+  get exited() {
+    return this.#exited;
+  }
+  constructor(socket2, signal) {
+    this.#socket = socket2;
+    if (signal) {
+      const exited = new PromiseResolver();
+      this.#socket.closed.then(() => exited.resolve(void 0), (e2) => exited.reject(e2));
+      signal.addEventListener("abort", () => {
+        exited.reject(signal.reason);
+        this.#socket.close();
+      });
+      this.#exited = exited.promise;
+    } else {
+      this.#exited = this.#socket.closed;
+    }
+  }
+  kill() {
+    return this.#socket.close();
+  }
+}
+class AdbNoneProtocolPtyProcess {
+  #socket;
+  #writer;
+  #input;
+  get input() {
+    return this.#input;
+  }
+  get output() {
+    return this.#socket.readable;
+  }
+  get exited() {
+    return this.#socket.closed;
+  }
+  constructor(socket2) {
+    this.#socket = socket2;
+    this.#writer = this.#socket.writable.getWriter();
+    this.#input = new MaybeConsumableWritableStream({
+      write: (chunk) => this.#writer.write(chunk)
+    });
+  }
+  sigint() {
+    return this.#writer.write(new Uint8Array([3]));
+  }
+  kill() {
+    return this.#socket.close();
+  }
+}
+function escapeArg(s2) {
+  let result = "";
+  result += `'`;
+  let base = 0;
+  while (true) {
+    const found = s2.indexOf(`'`, base);
+    if (found === -1) {
+      result += s2.substring(base);
+      break;
+    }
+    result += s2.substring(base, found);
+    result += String.raw`'\''`;
+    base = found + 1;
+  }
+  result += `'`;
+  return result;
+}
+function splitCommand(command) {
+  const result = [];
+  let quote;
+  let isEscaped = false;
+  let start = 0;
+  for (let i2 = 0, len = command.length; i2 < len; i2 += 1) {
+    if (isEscaped) {
+      isEscaped = false;
+      continue;
+    }
+    const char = command.charAt(i2);
+    switch (char) {
+      case " ":
+        if (!quote && i2 !== start) {
+          result.push(command.substring(start, i2));
+          start = i2 + 1;
+        }
+        break;
+      case "'":
+      case '"':
+        if (!quote) {
+          quote = char;
+        } else if (char === quote) {
+          quote = void 0;
+        }
+        break;
+      case "\\":
+        isEscaped = true;
+        break;
+    }
+  }
+  if (start < command.length) {
+    result.push(command.substring(start));
+  }
+  return result;
+}
+class AdbNoneProtocolSpawner {
+  #spawn;
+  constructor(spawn) {
+    this.#spawn = spawn;
+  }
+  spawn(command, signal) {
+    signal?.throwIfAborted();
+    if (typeof command === "string") {
+      command = splitCommand(command);
+    }
+    return this.#spawn(command, signal);
+  }
+  async spawnWait(command) {
+    const process2 = await this.spawn(command);
+    return await process2.output.pipeThrough(new ConcatBufferStream());
+  }
+  async spawnWaitText(command) {
+    const process2 = await this.spawn(command);
+    return await process2.output.pipeThrough(new TextDecoderStream()).pipeThrough(new ConcatStringStream());
+  }
+}
+class AdbNoneProtocolSubprocessService extends AdbNoneProtocolSpawner {
+  #adb;
+  get adb() {
+    return this.#adb;
+  }
+  constructor(adb) {
+    super(async (command, signal) => {
+      const socket2 = await this.#adb.createSocket(`exec:${command.join(" ")}`);
+      if (signal?.aborted) {
+        await socket2.close();
+        throw signal.reason;
+      }
+      return new AdbNoneProtocolProcessImpl(socket2, signal);
+    });
+    this.#adb = adb;
+  }
+  async pty(command) {
+    if (command === void 0) {
+      command = "";
+    } else if (Array.isArray(command)) {
+      command = command.join(" ");
+    }
+    return new AdbNoneProtocolPtyProcess(
+      // https://github.com/microsoft/typescript/issues/17002
+      await this.#adb.createSocket(`shell:${command}`)
+    );
+  }
+}
+const AdbFeature = {
+  ShellV2: "shell_v2",
+  Cmd: "cmd",
+  StatV2: "stat_v2",
+  ListV2: "ls_v2",
+  FixedPushMkdir: "fixed_push_mkdir",
+  Abb: "abb",
+  AbbExec: "abb_exec",
+  SendReceiveV2: "sendrecv_v2",
+  DelayedAck: "delayed_ack"
+};
+const AdbShellProtocolId = {
+  Stdin: 0,
+  Stdout: 1,
+  Stderr: 2,
+  Exit: 3,
+  CloseStdin: 4,
+  WindowSizeChange: 5
+};
+const AdbShellProtocolPacket = /* @__PURE__ */ struct({
+  id: u8(),
+  data: /* @__PURE__ */ buffer(u32)
+}, { littleEndian: true });
+class AdbShellProtocolProcessImpl {
+  #socket;
+  #writer;
+  #stdin;
+  get stdin() {
+    return this.#stdin;
+  }
+  #stdout;
+  get stdout() {
+    return this.#stdout;
+  }
+  #stderr;
+  get stderr() {
+    return this.#stderr;
+  }
+  #exited;
+  get exited() {
+    return this.#exited;
+  }
+  constructor(socket2, signal) {
+    this.#socket = socket2;
+    let stdoutController;
+    let stderrController;
+    this.#stdout = new PushReadableStream((controller) => {
+      stdoutController = controller;
+    });
+    this.#stderr = new PushReadableStream((controller) => {
+      stderrController = controller;
+    });
+    const exited = new PromiseResolver();
+    this.#exited = exited.promise;
+    socket2.readable.pipeThrough(new StructDeserializeStream(AdbShellProtocolPacket)).pipeTo(new WritableStream({
+      write: async (chunk) => {
+        switch (chunk.id) {
+          case AdbShellProtocolId.Exit:
+            exited.resolve(chunk.data[0]);
+            break;
+          case AdbShellProtocolId.Stdout:
+            await stdoutController.enqueue(chunk.data);
+            break;
+          case AdbShellProtocolId.Stderr:
+            await stderrController.enqueue(chunk.data);
+            break;
+        }
+      }
+    })).then(() => {
+      stdoutController.close();
+      stderrController.close();
+      exited.reject(new Error("Socket ended without exit message"));
+    }, (e2) => {
+      stdoutController.error(e2);
+      stderrController.error(e2);
+      exited.reject(e2);
+    });
+    if (signal) {
+      signal.addEventListener("abort", () => {
+        exited.reject(signal.reason);
+        this.#socket.close();
+      });
+    }
+    this.#writer = this.#socket.writable.getWriter();
+    this.#stdin = new MaybeConsumableWritableStream({
+      write: async (chunk) => {
+        await this.#writer.write(AdbShellProtocolPacket.serialize({
+          id: AdbShellProtocolId.Stdin,
+          data: chunk
+        }));
+      },
+      close: () => (
+        // Only shell protocol + raw mode supports closing stdin
+        this.#writer.write(AdbShellProtocolPacket.serialize({
+          id: AdbShellProtocolId.CloseStdin,
+          data: EmptyUint8Array
+        }))
+      )
+    });
+  }
+  kill() {
+    return this.#socket.close();
+  }
+}
+class AdbShellProtocolPtyProcess {
+  #socket;
+  #writer;
+  #input;
+  get input() {
+    return this.#input;
+  }
+  #stdout;
+  get output() {
+    return this.#stdout;
+  }
+  #exited = new PromiseResolver();
+  get exited() {
+    return this.#exited.promise;
+  }
+  constructor(socket2) {
+    this.#socket = socket2;
+    let stdoutController;
+    this.#stdout = new PushReadableStream((controller) => {
+      stdoutController = controller;
+    });
+    socket2.readable.pipeThrough(new StructDeserializeStream(AdbShellProtocolPacket)).pipeTo(new WritableStream({
+      write: async (chunk) => {
+        switch (chunk.id) {
+          case AdbShellProtocolId.Exit:
+            this.#exited.resolve(chunk.data[0]);
+            break;
+          case AdbShellProtocolId.Stdout:
+            await stdoutController.enqueue(chunk.data);
+            break;
+        }
+      }
+    })).then(() => {
+      stdoutController.close();
+      this.#exited.reject(new Error("Socket ended without exit message"));
+    }, (e2) => {
+      stdoutController.error(e2);
+      this.#exited.reject(e2);
+    });
+    this.#writer = this.#socket.writable.getWriter();
+    this.#input = new MaybeConsumableWritableStream({
+      write: (chunk) => this.#writeStdin(chunk)
+    });
+  }
+  #writeStdin(chunk) {
+    return this.#writer.write(AdbShellProtocolPacket.serialize({
+      id: AdbShellProtocolId.Stdin,
+      data: chunk
+    }));
+  }
+  async resize(rows, cols) {
+    await this.#writer.write(AdbShellProtocolPacket.serialize({
+      id: AdbShellProtocolId.WindowSizeChange,
+      // The "correct" format is `${rows}x${cols},${x_pixels}x${y_pixels}`
+      // However, according to https://linux.die.net/man/4/tty_ioctl
+      // `x_pixels` and `y_pixels` are unused, so always sending `0` should be fine.
+      data: /* @__PURE__ */ encodeUtf8(`${rows}x${cols},0x0\0`)
+    }));
+  }
+  sigint() {
+    return this.#writeStdin(new Uint8Array([3]));
+  }
+  kill() {
+    return this.#socket.close();
+  }
+}
+class AdbShellProtocolSpawner {
+  #spawn;
+  constructor(spawn) {
+    this.#spawn = spawn;
+  }
+  spawn(command, signal) {
+    signal?.throwIfAborted();
+    if (typeof command === "string") {
+      command = splitCommand(command);
+    }
+    return this.#spawn(command, signal);
+  }
+  async spawnWait(command) {
+    const process2 = await this.spawn(command);
+    const [stdout, stderr, exitCode] = await Promise.all([
+      process2.stdout.pipeThrough(new ConcatBufferStream()),
+      process2.stderr.pipeThrough(new ConcatBufferStream()),
+      process2.exited
+    ]);
+    return { stdout, stderr, exitCode };
+  }
+  async spawnWaitText(command) {
+    const process2 = await this.spawn(command);
+    const [stdout, stderr, exitCode] = await Promise.all([
+      process2.stdout.pipeThrough(new TextDecoderStream()).pipeThrough(new ConcatStringStream()),
+      process2.stderr.pipeThrough(new TextDecoderStream()).pipeThrough(new ConcatStringStream()),
+      process2.exited
+    ]);
+    return { stdout, stderr, exitCode };
+  }
+}
+class AdbShellProtocolSubprocessService extends AdbShellProtocolSpawner {
+  #adb;
+  get adb() {
+    return this.#adb;
+  }
+  get isSupported() {
+    return this.#adb.canUseFeature(AdbFeature.ShellV2);
+  }
+  constructor(adb) {
+    super(async (command, signal) => {
+      const socket2 = await this.#adb.createSocket(`shell,v2,raw:${command.join(" ")}`);
+      if (signal?.aborted) {
+        await socket2.close();
+        throw signal.reason;
+      }
+      return new AdbShellProtocolProcessImpl(socket2, signal);
+    });
+    this.#adb = adb;
+  }
+  async pty(options) {
+    let service = "shell,v2,pty";
+    if (options?.terminalType) {
+      service += `,TERM=` + options.terminalType;
+    }
+    service += ":";
+    if (options) {
+      if (typeof options.command === "string") {
+        service += options.command;
+      } else if (Array.isArray(options.command)) {
+        service += options.command.join(" ");
+      }
+    }
+    return new AdbShellProtocolPtyProcess(await this.#adb.createSocket(service));
+  }
+}
+class AdbSubprocessService {
+  #adb;
+  get adb() {
+    return this.#adb;
+  }
+  #noneProtocol;
+  get noneProtocol() {
+    return this.#noneProtocol;
+  }
+  #shellProtocol;
+  get shellProtocol() {
+    return this.#shellProtocol;
+  }
+  constructor(adb) {
+    this.#adb = adb;
+    this.#noneProtocol = new AdbNoneProtocolSubprocessService(adb);
+    if (adb.canUseFeature(AdbFeature.ShellV2)) {
+      this.#shellProtocol = new AdbShellProtocolSubprocessService(adb);
+    }
+  }
+}
+function encodeAsciiUnchecked(value2) {
+  const result = new Uint8Array(value2.length);
+  for (let i2 = 0; i2 < value2.length; i2 += 1) {
+    result[i2] = value2.charCodeAt(i2);
+  }
+  return result;
+}
+// @__NO_SIDE_EFFECTS__
+function adbSyncEncodeId(value2) {
+  const buffer2 = encodeAsciiUnchecked(value2);
+  return /* @__PURE__ */ getUint32LittleEndian(buffer2, 0);
+}
+const AdbSyncResponseId = {
+  Entry: /* @__PURE__ */ adbSyncEncodeId("DENT"),
+  Entry2: /* @__PURE__ */ adbSyncEncodeId("DNT2"),
+  Lstat: /* @__PURE__ */ adbSyncEncodeId("STAT"),
+  Stat: /* @__PURE__ */ adbSyncEncodeId("STA2"),
+  Lstat2: /* @__PURE__ */ adbSyncEncodeId("LST2"),
+  Done: /* @__PURE__ */ adbSyncEncodeId("DONE"),
+  Data: /* @__PURE__ */ adbSyncEncodeId("DATA"),
+  Ok: /* @__PURE__ */ adbSyncEncodeId("OKAY"),
+  Fail: /* @__PURE__ */ adbSyncEncodeId("FAIL")
+};
+class AdbSyncError extends Error {
+}
+const AdbSyncFailResponse = /* @__PURE__ */ struct({ message: /* @__PURE__ */ string(u32) }, {
+  littleEndian: true,
+  postDeserialize(value2) {
+    throw new AdbSyncError(value2.message);
+  }
+});
+async function adbSyncReadResponse(stream, id2, type) {
+  if (typeof id2 === "string") {
+    id2 = /* @__PURE__ */ adbSyncEncodeId(id2);
+  }
+  const buffer2 = await stream.readExactly(4);
+  switch (/* @__PURE__ */ getUint32LittleEndian(buffer2, 0)) {
+    case AdbSyncResponseId.Fail:
+      await AdbSyncFailResponse.deserialize(stream);
+      throw new Error("Unreachable");
+    case id2:
+      return await type.deserialize(stream);
+    default:
+      throw new Error(`Expected '${id2}', but got '${/* @__PURE__ */ decodeUtf8(buffer2)}'`);
+  }
+}
+async function* adbSyncReadResponses(stream, id2, type) {
+  if (typeof id2 === "string") {
+    id2 = /* @__PURE__ */ adbSyncEncodeId(id2);
+  }
+  while (true) {
+    const buffer2 = await stream.readExactly(4);
+    switch (/* @__PURE__ */ getUint32LittleEndian(buffer2, 0)) {
+      case AdbSyncResponseId.Fail:
+        await AdbSyncFailResponse.deserialize(stream);
+        unreachable();
+      case AdbSyncResponseId.Done:
+        await stream.readExactly(type.size);
+        return;
+      case id2:
+        yield await type.deserialize(stream);
+        break;
+      default:
+        throw new Error(`Expected '${id2}' or '${AdbSyncResponseId.Done}', but got '${/* @__PURE__ */ decodeUtf8(buffer2)}'`);
+    }
+  }
+}
+const AdbSyncRequestId = {
+  List: /* @__PURE__ */ adbSyncEncodeId("LIST"),
+  ListV2: /* @__PURE__ */ adbSyncEncodeId("LIS2"),
+  Send: /* @__PURE__ */ adbSyncEncodeId("SEND"),
+  SendV2: /* @__PURE__ */ adbSyncEncodeId("SND2"),
+  Lstat: /* @__PURE__ */ adbSyncEncodeId("STAT"),
+  Stat: /* @__PURE__ */ adbSyncEncodeId("STA2"),
+  LstatV2: /* @__PURE__ */ adbSyncEncodeId("LST2"),
+  Data: /* @__PURE__ */ adbSyncEncodeId("DATA"),
+  Done: /* @__PURE__ */ adbSyncEncodeId("DONE"),
+  Receive: /* @__PURE__ */ adbSyncEncodeId("RECV")
+};
+const AdbSyncNumberRequest = /* @__PURE__ */ struct({ id: u32, arg: u32 }, { littleEndian: true });
+async function adbSyncWriteRequest(writable, id2, value2) {
+  if (typeof id2 === "string") {
+    id2 = /* @__PURE__ */ adbSyncEncodeId(id2);
+  }
+  if (typeof value2 === "number") {
+    await writable.write(AdbSyncNumberRequest.serialize({ id: id2, arg: value2 }));
+    return;
+  }
+  if (typeof value2 === "string") {
+    value2 = /* @__PURE__ */ encodeUtf8(value2);
+  }
+  await writable.write(AdbSyncNumberRequest.serialize({ id: id2, arg: value2.length }));
+  await writable.write(value2);
+}
+const LinuxFileType = {
+  File: 8
+};
+const AdbSyncLstatResponse = /* @__PURE__ */ struct({ mode: u32, size: u32, mtime: u32 }, {
+  littleEndian: true,
+  extra: {
+    get type() {
+      return this.mode >> 12;
+    },
+    get permission() {
+      return this.mode & 4095;
+    }
+  },
+  postDeserialize(value2) {
+    if (value2.mode === 0 && value2.size === 0 && value2.mtime === 0) {
+      throw new Error("lstat error");
+    }
+    return value2;
+  }
+});
+const AdbSyncStatErrorCode = {
+  SUCCESS: 0,
+  EACCES: 13,
+  EEXIST: 17,
+  EFAULT: 14,
+  EFBIG: 27,
+  EINTR: 4,
+  EINVAL: 22,
+  EIO: 5,
+  EISDIR: 21,
+  ELOOP: 40,
+  EMFILE: 24,
+  ENAMETOOLONG: 36,
+  ENFILE: 23,
+  ENOENT: 2,
+  ENOMEM: 12,
+  ENOSPC: 28,
+  ENOTDIR: 20,
+  EOVERFLOW: 75,
+  EPERM: 1,
+  EROFS: 30,
+  ETXTBSY: 26
+};
+const AdbSyncStatErrorName = /* @__PURE__ */ (() => Object.fromEntries(Object.entries(AdbSyncStatErrorCode).map(([key, value2]) => [
+  value2,
+  key
+])))();
+const AdbSyncStatResponse = /* @__PURE__ */ struct({
+  error: u32(),
+  dev: u64,
+  ino: u64,
+  mode: u32,
+  nlink: u32,
+  uid: u32,
+  gid: u32,
+  size: u64,
+  atime: u64,
+  mtime: u64,
+  ctime: u64
+}, {
+  littleEndian: true,
+  extra: {
+    get type() {
+      return this.mode >> 12;
+    },
+    get permission() {
+      return this.mode & 4095;
+    }
+  },
+  postDeserialize(value2) {
+    if (value2.error) {
+      throw new Error(AdbSyncStatErrorName[value2.error]);
+    }
+    return value2;
+  }
+});
+async function adbSyncLstat(socket2, path, v2) {
+  const locked = await socket2.lock();
+  try {
+    if (v2) {
+      await adbSyncWriteRequest(locked, AdbSyncRequestId.LstatV2, path);
+      return await adbSyncReadResponse(locked, AdbSyncResponseId.Lstat2, AdbSyncStatResponse);
+    } else {
+      await adbSyncWriteRequest(locked, AdbSyncRequestId.Lstat, path);
+      const response = await adbSyncReadResponse(locked, AdbSyncResponseId.Lstat, AdbSyncLstatResponse);
+      return {
+        mode: response.mode,
+        // Convert to `BigInt` to make it compatible with `AdbSyncStatResponse`
+        size: BigInt(response.size),
+        mtime: BigInt(response.mtime),
+        get type() {
+          return response.type;
+        },
+        get permission() {
+          return response.permission;
+        }
+      };
+    }
+  } finally {
+    locked.release();
+  }
+}
+async function adbSyncStat(socket2, path) {
+  const locked = await socket2.lock();
+  try {
+    await adbSyncWriteRequest(locked, AdbSyncRequestId.Stat, path);
+    return await adbSyncReadResponse(locked, AdbSyncResponseId.Stat, AdbSyncStatResponse);
+  } finally {
+    locked.release();
+  }
+}
+const AdbSyncEntryResponse = /* @__PURE__ */ extend(AdbSyncLstatResponse, {
+  name: /* @__PURE__ */ string(u32)
+});
+const AdbSyncEntry2Response = /* @__PURE__ */ extend(AdbSyncStatResponse, {
+  name: /* @__PURE__ */ string(u32)
+});
+async function* adbSyncOpenDirV2(socket2, path) {
+  const locked = await socket2.lock();
+  try {
+    await adbSyncWriteRequest(locked, AdbSyncRequestId.ListV2, path);
+    for await (const item of adbSyncReadResponses(locked, AdbSyncResponseId.Entry2, AdbSyncEntry2Response)) {
+      if (item.error !== AdbSyncStatErrorCode.SUCCESS) {
+        continue;
+      }
+      yield item;
+    }
+  } finally {
+    locked.release();
+  }
+}
+async function* adbSyncOpenDirV1(socket2, path) {
+  const locked = await socket2.lock();
+  try {
+    await adbSyncWriteRequest(locked, AdbSyncRequestId.List, path);
+    for await (const item of adbSyncReadResponses(locked, AdbSyncResponseId.Entry, AdbSyncEntryResponse)) {
+      yield item;
+    }
+  } finally {
+    locked.release();
+  }
+}
+async function* adbSyncOpenDir(socket2, path, v2) {
+  if (v2) {
+    yield* adbSyncOpenDirV2(socket2, path);
+  } else {
+    for await (const item of adbSyncOpenDirV1(socket2, path)) {
+      yield {
+        mode: item.mode,
+        size: BigInt(item.size),
+        mtime: BigInt(item.mtime),
+        get type() {
+          return item.type;
+        },
+        get permission() {
+          return item.permission;
+        },
+        name: item.name
+      };
+    }
+  }
+}
+const AdbSyncDataResponse = /* @__PURE__ */ struct({ data: /* @__PURE__ */ buffer(u32) }, { littleEndian: true });
+async function* adbSyncPullGenerator(socket2, path) {
+  const locked = await socket2.lock();
+  let done = false;
+  try {
+    await adbSyncWriteRequest(locked, AdbSyncRequestId.Receive, path);
+    for await (const packet of adbSyncReadResponses(locked, AdbSyncResponseId.Data, AdbSyncDataResponse)) {
+      yield packet.data;
+    }
+    done = true;
+  } catch (e2) {
+    done = true;
+    throw e2;
+  } finally {
+    if (!done) {
+      for await (const packet of adbSyncReadResponses(locked, AdbSyncResponseId.Data, AdbSyncDataResponse)) {
+      }
+    }
+    locked.release();
+  }
+}
+function adbSyncPull(socket2, path) {
+  return ReadableStream$1.from(adbSyncPullGenerator(socket2, path));
+}
+const ADB_SYNC_MAX_PACKET_SIZE = 64 * 1024;
+const AdbSyncOkResponse = /* @__PURE__ */ struct({ unused: u32 }, { littleEndian: true });
+async function pipeFileData(locked, file, packetSize, mtime) {
+  const abortController = new AbortController$1();
+  file.pipeThrough(new DistributionStream(packetSize, true)).pipeTo(new MaybeConsumableWritableStream({
+    write(chunk) {
+      return adbSyncWriteRequest(locked, AdbSyncRequestId.Data, chunk);
+    }
+  }), { signal: abortController.signal }).then(async () => {
+    await adbSyncWriteRequest(locked, AdbSyncRequestId.Done, mtime);
+    await locked.flush();
+  }, NOOP);
+  await adbSyncReadResponse(locked, AdbSyncResponseId.Ok, AdbSyncOkResponse).catch((e2) => {
+    abortController.abort();
+    throw e2;
+  });
+}
+async function adbSyncPushV1({ socket: socket2, filename, file, type = LinuxFileType.File, permission = 438, mtime = Date.now() / 1e3 | 0, packetSize = ADB_SYNC_MAX_PACKET_SIZE }) {
+  const locked = await socket2.lock();
+  try {
+    const mode = type << 12 | permission;
+    const pathAndMode = `${filename},${mode.toString()}`;
+    await adbSyncWriteRequest(locked, AdbSyncRequestId.Send, pathAndMode);
+    await pipeFileData(locked, file, packetSize, mtime);
+  } finally {
+    locked.release();
+  }
+}
+const AdbSyncSendV2Flags = {
+  None: 0,
+  Brotli: 1,
+  /**
+   * 2
+   */
+  Lz4: 1 << 1,
+  /**
+   * 4
+   */
+  Zstd: 1 << 2,
+  DryRun: 2147483648
+};
+const AdbSyncSendV2Request = /* @__PURE__ */ struct({ id: u32, mode: u32, flags: u32() }, { littleEndian: true });
+async function adbSyncPushV2({ socket: socket2, filename, file, type = LinuxFileType.File, permission = 438, mtime = Date.now() / 1e3 | 0, packetSize = ADB_SYNC_MAX_PACKET_SIZE, dryRun = false }) {
+  const locked = await socket2.lock();
+  try {
+    await adbSyncWriteRequest(locked, AdbSyncRequestId.SendV2, filename);
+    const mode = type << 12 | permission;
+    let flags = AdbSyncSendV2Flags.None;
+    if (dryRun) {
+      flags |= AdbSyncSendV2Flags.DryRun;
+    }
+    await locked.write(AdbSyncSendV2Request.serialize({
+      id: AdbSyncRequestId.SendV2,
+      mode,
+      flags
+    }));
+    await pipeFileData(locked, file, packetSize, mtime);
+  } finally {
+    locked.release();
+  }
+}
+function adbSyncPush(options) {
+  if (options.v2) {
+    return adbSyncPushV2(options);
+  }
+  if (options.dryRun) {
+    throw new Error("dryRun is not supported in v1");
+  }
+  return adbSyncPushV1(options);
+}
+class AdbSyncSocketLocked {
+  #writer;
+  #readable;
+  #socketLock;
+  #writeLock = new AutoResetEvent();
+  #combiner;
+  get position() {
+    return this.#readable.position;
+  }
+  constructor(writer, readable, bufferSize, lock) {
+    this.#writer = writer;
+    this.#readable = readable;
+    this.#socketLock = lock;
+    this.#combiner = new BufferCombiner(bufferSize);
+  }
+  #write(buffer2) {
+    return Consumable.WritableStream.write(this.#writer, buffer2);
+  }
+  async flush() {
+    try {
+      await this.#writeLock.wait();
+      const buffer2 = this.#combiner.flush();
+      if (buffer2) {
+        await this.#write(buffer2);
+      }
+    } finally {
+      this.#writeLock.notifyOne();
+    }
+  }
+  async write(data) {
+    try {
+      await this.#writeLock.wait();
+      for (const buffer2 of this.#combiner.push(data)) {
+        await this.#write(buffer2);
+      }
+    } finally {
+      this.#writeLock.notifyOne();
+    }
+  }
+  async readExactly(length) {
+    await this.flush();
+    return await this.#readable.readExactly(length);
+  }
+  release() {
+    this.#combiner.flush();
+    this.#socketLock.notifyOne();
+  }
+  async close() {
+    await this.#readable.cancel();
+  }
+}
+class AdbSyncSocket {
+  #lock = new AutoResetEvent();
+  #socket;
+  #locked;
+  constructor(socket2, bufferSize) {
+    this.#socket = socket2;
+    this.#locked = new AdbSyncSocketLocked(socket2.writable.getWriter(), new BufferedReadableStream(socket2.readable), bufferSize, this.#lock);
+  }
+  async lock() {
+    await this.#lock.wait();
+    return this.#locked;
+  }
+  async close() {
+    await this.#locked.close();
+    await this.#socket.close();
+  }
+}
+function dirname(path) {
+  const end = path.lastIndexOf("/");
+  if (end === -1) {
+    throw new Error(`Invalid path`);
+  }
+  if (end === 0) {
+    return "/";
+  }
+  return path.substring(0, end);
+}
+class AdbSync {
+  _adb;
+  _socket;
+  #supportsStat;
+  #supportsListV2;
+  #fixedPushMkdir;
+  #supportsSendReceiveV2;
+  #needPushMkdirWorkaround;
+  get supportsStat() {
+    return this.#supportsStat;
+  }
+  get supportsListV2() {
+    return this.#supportsListV2;
+  }
+  get fixedPushMkdir() {
+    return this.#fixedPushMkdir;
+  }
+  get supportsSendReceiveV2() {
+    return this.#supportsSendReceiveV2;
+  }
+  get needPushMkdirWorkaround() {
+    return this.#needPushMkdirWorkaround;
+  }
+  constructor(adb, socket2) {
+    this._adb = adb;
+    this._socket = new AdbSyncSocket(socket2, adb.maxPayloadSize);
+    this.#supportsStat = adb.canUseFeature(AdbFeature.StatV2);
+    this.#supportsListV2 = adb.canUseFeature(AdbFeature.ListV2);
+    this.#fixedPushMkdir = adb.canUseFeature(AdbFeature.FixedPushMkdir);
+    this.#supportsSendReceiveV2 = adb.canUseFeature(AdbFeature.SendReceiveV2);
+    this.#needPushMkdirWorkaround = this._adb.canUseFeature(AdbFeature.ShellV2) && !this.fixedPushMkdir;
+  }
+  /**
+   * Gets information of a file or folder.
+   *
+   * If `path` points to a symbolic link, the returned information is about the link itself (with `type` being `LinuxFileType.Link`).
+   */
+  async lstat(path) {
+    return await adbSyncLstat(this._socket, path, this.#supportsStat);
+  }
+  /**
+   * Gets the information of a file or folder.
+   *
+   * If `path` points to a symbolic link, it will be resolved and the returned information is about the target (with `type` being `LinuxFileType.File` or `LinuxFileType.Directory`).
+   */
+  async stat(path) {
+    if (!this.#supportsStat) {
+      throw new Error("Not supported");
+    }
+    return await adbSyncStat(this._socket, path);
+  }
+  /**
+   * Checks if `path` is a directory, or a symbolic link to a directory.
+   *
+   * This uses `lstat` internally, thus works on all Android versions.
+   */
+  async isDirectory(path) {
+    try {
+      await this.lstat(path + "/");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  opendir(path) {
+    return adbSyncOpenDir(this._socket, path, this.supportsListV2);
+  }
+  async readdir(path) {
+    const results = [];
+    for await (const entry of this.opendir(path)) {
+      results.push(entry);
+    }
+    return results;
+  }
+  /**
+   * Reads the content of a file on device.
+   *
+   * @param filename The full path of the file on device to read.
+   * @returns A `ReadableStream` that contains the file content.
+   */
+  read(filename) {
+    return adbSyncPull(this._socket, filename);
+  }
+  /**
+   * Writes a file on device. If the file name already exists, it will be overwritten.
+   *
+   * @param options The content and options of the file to write.
+   */
+  async write(options) {
+    if (this.needPushMkdirWorkaround) {
+      await this._adb.subprocess.noneProtocol.spawnWait([
+        "mkdir",
+        "-p",
+        escapeArg(dirname(options.filename))
+      ]);
+    }
+    await adbSyncPush({
+      v2: this.supportsSendReceiveV2,
+      socket: this._socket,
+      ...options
+    });
+  }
+  lockSocket() {
+    return this._socket.lock();
+  }
+  dispose() {
+    return this._socket.close();
+  }
+}
+function parsePort(value2) {
+  if (!value2 || value2 === "0") {
+    return void 0;
+  }
+  return Number.parseInt(value2, 10);
+}
+class AdbTcpIpService extends AdbServiceBase {
+  async getListenAddresses() {
+    const serviceListenAddresses = await this.adb.getProp("service.adb.listen_addrs");
+    const servicePort = await this.adb.getProp("service.adb.tcp.port");
+    const persistPort = await this.adb.getProp("persist.adb.tcp.port");
+    return {
+      serviceListenAddresses: serviceListenAddresses != "" ? serviceListenAddresses.split(",") : [],
+      servicePort: parsePort(servicePort),
+      persistPort: parsePort(persistPort)
+    };
+  }
+  async setPort(port) {
+    if (port <= 0) {
+      throw new TypeError(`Invalid port ${port}`);
+    }
+    const output = await this.adb.createSocketAndWait(`tcpip:${port}`);
+    if (output !== `restarting in TCP mode port: ${port}
+`) {
+      throw new Error(output);
+    }
+    return output;
+  }
+  async disable() {
+    const output = await this.adb.createSocketAndWait("usb:");
+    if (output !== "restarting in USB mode\n") {
+      throw new Error(output);
+    }
+    return output;
+  }
+}
+class Adb {
+  #transport;
+  get transport() {
+    return this.#transport;
+  }
+  get serial() {
+    return this.#transport.serial;
+  }
+  get maxPayloadSize() {
+    return this.#transport.maxPayloadSize;
+  }
+  get banner() {
+    return this.#transport.banner;
+  }
+  get disconnected() {
+    return this.#transport.disconnected;
+  }
+  get clientFeatures() {
+    return this.#transport.clientFeatures;
+  }
+  get deviceFeatures() {
+    return this.banner.features;
+  }
+  subprocess;
+  power;
+  reverse;
+  tcpip;
+  constructor(transport) {
+    this.#transport = transport;
+    this.subprocess = new AdbSubprocessService(this);
+    this.power = new AdbPower(this);
+    this.reverse = new AdbReverseService(this);
+    this.tcpip = new AdbTcpIpService(this);
+  }
+  canUseFeature(feature) {
+    return this.clientFeatures.includes(feature) && this.deviceFeatures.includes(feature);
+  }
+  /**
+   * Creates a new ADB Socket to the specified service or socket address.
+   */
+  async createSocket(service) {
+    return this.#transport.connect(service);
+  }
+  async createSocketAndWait(service) {
+    const socket2 = await this.createSocket(service);
+    return await socket2.readable.pipeThrough(new TextDecoderStream()).pipeThrough(new ConcatStringStream());
+  }
+  getProp(key) {
+    return this.subprocess.noneProtocol.spawnWaitText(["getprop", key]).then((output) => output.trim());
+  }
+  rm(filenames, options) {
+    const args = ["rm"];
+    if (options?.recursive) {
+      args.push("-r");
+    }
+    if (options?.force) {
+      args.push("-f");
+    }
+    if (Array.isArray(filenames)) {
+      for (const filename of filenames) {
+        args.push(escapeArg(filename));
+      }
+    } else {
+      args.push(escapeArg(filenames));
+    }
+    args.push("</dev/null");
+    return this.subprocess.noneProtocol.spawnWaitText(args);
+  }
+  async sync() {
+    const socket2 = await this.createSocket("sync:");
+    return new AdbSync(this, socket2);
+  }
+  async framebuffer() {
+    return framebuffer(this);
+  }
+  async close() {
+    await this.#transport.close();
+  }
+}
+const AdbBannerKey = {
+  Product: "ro.product.name",
+  Model: "ro.product.model",
+  Device: "ro.product.device",
+  Features: "features"
+};
+class AdbBanner {
+  static parse(banner) {
+    let state;
+    let product;
+    let model;
+    let device;
+    let features = [];
+    const pieces = banner.split("::");
+    if (pieces.length > 1) {
+      state = pieces[0].trim() || void 0;
+      const props = pieces[1];
+      for (const prop of props.split(";")) {
+        if (!prop) {
+          continue;
+        }
+        const keyValue = prop.split("=");
+        if (keyValue.length !== 2) {
+          continue;
+        }
+        const [key, value2] = keyValue;
+        switch (key) {
+          case AdbBannerKey.Product:
+            product = value2;
+            break;
+          case AdbBannerKey.Model:
+            model = value2;
+            break;
+          case AdbBannerKey.Device:
+            device = value2;
+            break;
+          case AdbBannerKey.Features:
+            features = value2.split(",");
+            break;
+        }
+      }
+    }
+    return new AdbBanner(state, product, model, device, features);
+  }
+  #state;
+  get state() {
+    return this.#state;
+  }
+  #product;
+  get product() {
+    return this.#product;
+  }
+  #model;
+  get model() {
+    return this.#model;
+  }
+  #device;
+  get device() {
+    return this.#device;
+  }
+  #features = [];
+  get features() {
+    return this.#features;
+  }
+  // eslint-disable-next-line @typescript-eslint/max-params
+  constructor(state, product, model, device, features) {
+    this.#state = state;
+    this.#product = product;
+    this.#model = model;
+    this.#device = device;
+    this.#features = features;
+  }
+}
+function getBigUint(array, byteOffset, length) {
+  let result = 0n;
+  for (let i2 = byteOffset; i2 < byteOffset + length; i2 += 8) {
+    result <<= 64n;
+    const value2 = getUint64BigEndian(array, i2);
+    result |= value2;
+  }
+  return result;
+}
+function setBigUint(array, byteOffset, length, value2, littleEndian) {
+  if (littleEndian) {
+    while (value2 > 0n) {
+      setInt64LittleEndian(array, byteOffset, value2);
+      byteOffset += 8;
+      value2 >>= 64n;
+    }
+  } else {
+    let position = byteOffset + length - 8;
+    while (value2 > 0n) {
+      setInt64BigEndian(array, position, value2);
+      position -= 8;
+      value2 >>= 64n;
+    }
+  }
+}
+const RsaPrivateKeyNOffset = 38;
+const RsaPrivateKeyNLength = 2048 / 8;
+const RsaPrivateKeyDOffset = 303;
+const RsaPrivateKeyDLength = 2048 / 8;
+function rsaParsePrivateKey(key) {
+  const n2 = getBigUint(key, RsaPrivateKeyNOffset, RsaPrivateKeyNLength);
+  const d2 = getBigUint(key, RsaPrivateKeyDOffset, RsaPrivateKeyDLength);
+  return [n2, d2];
+}
+function nonNegativeMod(m2, d2) {
+  const r2 = m2 % d2;
+  if (r2 > 0) {
+    return r2;
+  }
+  return r2 + d2;
+}
+function modInverse(a2, m2) {
+  a2 = nonNegativeMod(a2, m2);
+  if (!a2 || m2 < 2) {
+    return NaN;
+  }
+  const s2 = [];
+  let b2 = m2;
+  while (b2) {
+    [a2, b2] = [b2, a2 % b2];
+    s2.push({ a: a2, b: b2 });
+  }
+  if (a2 !== 1) {
+    return NaN;
+  }
+  let x2 = 1;
+  let y2 = 0;
+  for (let i2 = s2.length - 2; i2 >= 0; i2 -= 1) {
+    [x2, y2] = [y2, x2 - y2 * Math.floor(s2[i2].a / s2[i2].b)];
+  }
+  return nonNegativeMod(y2, m2);
+}
+const ModulusLengthInBytes = 2048 / 8;
+const ModulusLengthInWords = ModulusLengthInBytes / 4;
+function adbGetPublicKeySize() {
+  return 4 + 4 + ModulusLengthInBytes + ModulusLengthInBytes + 4;
+}
+function adbGeneratePublicKey(privateKey, output) {
+  let outputType;
+  const outputLength = adbGetPublicKeySize();
+  if (!output) {
+    output = new Uint8Array(outputLength);
+    outputType = "Uint8Array";
+  } else {
+    if (output.length < outputLength) {
+      throw new TypeError("output buffer is too small");
+    }
+    outputType = "number";
+  }
+  const outputView = new DataView(output.buffer, output.byteOffset, output.length);
+  let outputOffset = 0;
+  outputView.setUint32(outputOffset, ModulusLengthInWords, true);
+  outputOffset += 4;
+  const [n2] = rsaParsePrivateKey(privateKey);
+  const n0inv = -modInverse(Number(n2 % 2n ** 32n), 2 ** 32);
+  outputView.setInt32(outputOffset, n0inv, true);
+  outputOffset += 4;
+  setBigUint(output, outputOffset, ModulusLengthInBytes, n2, true);
+  outputOffset += ModulusLengthInBytes;
+  const rr = 2n ** 4096n % n2;
+  setBigUint(output, outputOffset, ModulusLengthInBytes, rr, true);
+  outputOffset += ModulusLengthInBytes;
+  outputView.setUint32(outputOffset, 65537, true);
+  outputOffset += 4;
+  if (outputType === "Uint8Array") {
+    return output;
+  } else {
+    return outputLength;
+  }
+}
+function powMod(base, exponent, modulus) {
+  if (modulus === 1n) {
+    return 0n;
+  }
+  let r2 = 1n;
+  base = base % modulus;
+  while (exponent > 0n) {
+    if (BigInt.asUintN(1, exponent) === 1n) {
+      r2 = r2 * base % modulus;
+    }
+    base = base * base % modulus;
+    exponent >>= 1n;
+  }
+  return r2;
+}
+const SHA1_DIGEST_LENGTH = 20;
+const ASN1_SEQUENCE = 48;
+const ASN1_OCTET_STRING = 4;
+const ASN1_NULL = 5;
+const ASN1_OID = 6;
+const SHA1_DIGEST_INFO = new Uint8Array([
+  ASN1_SEQUENCE,
+  13 + SHA1_DIGEST_LENGTH,
+  ASN1_SEQUENCE,
+  9,
+  // SHA-1 (1 3 14 3 2 26)
+  ASN1_OID,
+  5,
+  1 * 40 + 3,
+  14,
+  3,
+  2,
+  26,
+  ASN1_NULL,
+  0,
+  ASN1_OCTET_STRING,
+  SHA1_DIGEST_LENGTH
+]);
+function rsaSign(privateKey, data) {
+  const [n2, d2] = rsaParsePrivateKey(privateKey);
+  const padded = new Uint8Array(256);
+  let index2 = 0;
+  padded[index2] = 0;
+  index2 += 1;
+  padded[index2] = 1;
+  index2 += 1;
+  const fillLength = padded.length - SHA1_DIGEST_INFO.length - data.length - 1;
+  while (index2 < fillLength) {
+    padded[index2] = 255;
+    index2 += 1;
+  }
+  padded[index2] = 0;
+  index2 += 1;
+  padded.set(SHA1_DIGEST_INFO, index2);
+  index2 += SHA1_DIGEST_INFO.length;
+  padded.set(data, index2);
+  const signature = powMod(getBigUint(padded, 0, padded.length), d2, n2);
+  setBigUint(padded, 0, padded.length, signature, false);
+  return padded;
+}
+const AdbCommand = {
+  Auth: 1213486401,
+  // 'AUTH'
+  Close: 1163086915,
+  // 'CLSE'
+  Connect: 1314410051,
+  // 'CNXN'
+  Okay: 1497451343,
+  // 'OKAY'
+  Open: 1313165391,
+  // 'OPEN'
+  Write: 1163154007
+  // 'WRTE'
+};
+const AdbPacketHeader = /* @__PURE__ */ struct({
+  command: u32,
+  arg0: u32,
+  arg1: u32,
+  payloadLength: u32,
+  checksum: u32,
+  magic: s32
+}, { littleEndian: true });
+function calculateChecksum(payload) {
+  return payload.reduce((result, item) => result + item, 0);
+}
+class AdbPacketSerializeStream extends TransformStream$1 {
+  constructor() {
+    const headerBuffer = new Uint8Array(AdbPacketHeader.size);
+    super({
+      transform: async (chunk, controller) => {
+        await chunk.tryConsume(async (chunk2) => {
+          const init = chunk2;
+          init.payloadLength = init.payload.length;
+          AdbPacketHeader.serialize(init, headerBuffer);
+          await Consumable.ReadableStream.enqueue(controller, headerBuffer);
+          if (init.payloadLength) {
+            await Consumable.ReadableStream.enqueue(controller, init.payload);
+          }
+        });
+      }
+    });
+  }
+}
+const AdbAuthType = {
+  Token: 1,
+  Signature: 2,
+  PublicKey: 3
+};
+const AdbSignatureAuthenticator = async function* (credentialStore, getNextRequest) {
+  for await (const key of credentialStore.iterateKeys()) {
+    const packet = await getNextRequest();
+    if (packet.arg0 !== AdbAuthType.Token) {
+      return;
+    }
+    const signature = rsaSign(key.buffer, packet.payload);
+    yield {
+      command: AdbCommand.Auth,
+      arg0: AdbAuthType.Signature,
+      arg1: 0,
+      payload: signature
+    };
+  }
+};
+const AdbPublicKeyAuthenticator = async function* (credentialStore, getNextRequest) {
+  const packet = await getNextRequest();
+  if (packet.arg0 !== AdbAuthType.Token) {
+    return;
+  }
+  let privateKey;
+  for await (const key of credentialStore.iterateKeys()) {
+    privateKey = key;
+    break;
+  }
+  if (!privateKey) {
+    privateKey = await credentialStore.generateKey();
+  }
+  const publicKeyLength = adbGetPublicKeySize();
+  const [publicKeyBase64Length] = calculateBase64EncodedLength(publicKeyLength);
+  const nameBuffer = privateKey.name?.length ? /* @__PURE__ */ encodeUtf8(privateKey.name) : EmptyUint8Array;
+  const publicKeyBuffer = new Uint8Array(publicKeyBase64Length + (nameBuffer.length ? nameBuffer.length + 1 : 0) + // Space character + name
+  1);
+  adbGeneratePublicKey(privateKey.buffer, publicKeyBuffer);
+  encodeBase64(publicKeyBuffer.subarray(0, publicKeyLength), publicKeyBuffer);
+  if (nameBuffer.length) {
+    publicKeyBuffer[publicKeyBase64Length] = 32;
+    publicKeyBuffer.set(nameBuffer, publicKeyBase64Length + 1);
+  }
+  yield {
+    command: AdbCommand.Auth,
+    arg0: AdbAuthType.PublicKey,
+    arg1: 0,
+    payload: publicKeyBuffer
+  };
+};
+const ADB_DEFAULT_AUTHENTICATORS = [
+  AdbSignatureAuthenticator,
+  AdbPublicKeyAuthenticator
+];
+class AdbAuthenticationProcessor {
+  authenticators;
+  #credentialStore;
+  #pendingRequest = new PromiseResolver();
+  #iterator;
+  constructor(authenticators, credentialStore) {
+    this.authenticators = authenticators;
+    this.#credentialStore = credentialStore;
+  }
+  #getNextRequest = () => {
+    return this.#pendingRequest.promise;
+  };
+  async *#invokeAuthenticator() {
+    for (const authenticator of this.authenticators) {
+      for await (const packet of authenticator(this.#credentialStore, this.#getNextRequest)) {
+        this.#pendingRequest = new PromiseResolver();
+        yield packet;
+      }
+    }
+  }
+  async process(packet) {
+    if (!this.#iterator) {
+      this.#iterator = this.#invokeAuthenticator();
+    }
+    this.#pendingRequest.resolve(packet);
+    const result = await this.#iterator.next();
+    if (result.done) {
+      throw new Error("No authenticator can handle the request");
+    }
+    return result.value;
+  }
+  dispose() {
+    void this.#iterator?.return?.();
+  }
+}
+class AdbDaemonSocketController {
+  #dispatcher;
+  localId;
+  remoteId;
+  localCreated;
+  service;
+  #readable;
+  #readableController;
+  get readable() {
+    return this.#readable;
+  }
+  #writableController;
+  writable;
+  #closed = false;
+  #closedPromise = new PromiseResolver();
+  get closed() {
+    return this.#closedPromise.promise;
+  }
+  #socket;
+  get socket() {
+    return this.#socket;
+  }
+  #availableWriteBytesChanged;
+  /**
+   * When delayed ack is disabled, returns `Infinity` if the socket is ready to write
+   * (exactly one packet can be written no matter how large it is), or `-1` if the socket
+   * is waiting for ack message.
+   *
+   * When delayed ack is enabled, returns a non-negative finite number indicates the number of
+   * bytes that can be written to the socket before waiting for ack message.
+   */
+  #availableWriteBytes = 0;
+  constructor(options) {
+    this.#dispatcher = options.dispatcher;
+    this.localId = options.localId;
+    this.remoteId = options.remoteId;
+    this.localCreated = options.localCreated;
+    this.service = options.service;
+    this.#readable = new PushReadableStream((controller) => {
+      this.#readableController = controller;
+    });
+    this.writable = new MaybeConsumableWritableStream({
+      start: (controller) => {
+        this.#writableController = controller;
+        controller.signal.addEventListener("abort", () => {
+          this.#availableWriteBytesChanged?.reject(controller.signal.reason);
+        });
+      },
+      write: async (data) => {
+        const size = data.length;
+        const chunkSize = this.#dispatcher.options.maxPayloadSize;
+        for (let start = 0, end = chunkSize; start < size; start = end, end += chunkSize) {
+          const chunk = data.subarray(start, end);
+          await this.#writeChunk(chunk);
+        }
+      }
+    });
+    this.#socket = new AdbDaemonSocket(this);
+    this.#availableWriteBytes = options.availableWriteBytes;
+  }
+  async #writeChunk(data) {
+    const length = data.length;
+    while (this.#availableWriteBytes < length) {
+      const resolver = new PromiseResolver();
+      this.#availableWriteBytesChanged = resolver;
+      await resolver.promise;
+    }
+    if (this.#availableWriteBytes === Infinity) {
+      this.#availableWriteBytes = -1;
+    } else {
+      this.#availableWriteBytes -= length;
+    }
+    await this.#dispatcher.sendPacket(AdbCommand.Write, this.localId, this.remoteId, data);
+  }
+  async enqueue(data) {
+    await this.#readableController.enqueue(data);
+  }
+  ack(bytes) {
+    this.#availableWriteBytes += bytes;
+    this.#availableWriteBytesChanged?.resolve();
+  }
+  async close() {
+    if (this.#closed) {
+      return;
+    }
+    this.#closed = true;
+    this.#availableWriteBytesChanged?.reject(new Error("Socket closed"));
+    try {
+      this.#writableController.error(new Error("Socket closed"));
+    } catch {
+    }
+    await this.#dispatcher.sendPacket(AdbCommand.Close, this.localId, this.remoteId, EmptyUint8Array);
+  }
+  dispose() {
+    this.#readableController.close();
+    this.#closedPromise.resolve(void 0);
+  }
+}
+class AdbDaemonSocket {
+  #controller;
+  get localId() {
+    return this.#controller.localId;
+  }
+  get remoteId() {
+    return this.#controller.remoteId;
+  }
+  get localCreated() {
+    return this.#controller.localCreated;
+  }
+  get service() {
+    return this.#controller.service;
+  }
+  get readable() {
+    return this.#controller.readable;
+  }
+  get writable() {
+    return this.#controller.writable;
+  }
+  get closed() {
+    return this.#controller.closed;
+  }
+  constructor(controller) {
+    this.#controller = controller;
+  }
+  close() {
+    return this.#controller.close();
+  }
+}
+class AdbPacketDispatcher {
+  // ADB socket id starts from 1
+  // (0 means open failed)
+  #initializers = new AsyncOperationManager(1);
+  /**
+   * Socket local ID to the socket controller.
+   */
+  #sockets = /* @__PURE__ */ new Map();
+  #writer;
+  options;
+  #closed = false;
+  #disconnected = new PromiseResolver();
+  get disconnected() {
+    return this.#disconnected.promise;
+  }
+  #incomingSocketHandlers = /* @__PURE__ */ new Map();
+  #readAbortController = new AbortController$1();
+  constructor(connection, options) {
+    this.options = options;
+    if (this.options.initialDelayedAckBytes < 0) {
+      this.options.initialDelayedAckBytes = 0;
+    }
+    connection.readable.pipeTo(new WritableStream({
+      write: async (packet, controller) => {
+        switch (packet.command) {
+          case AdbCommand.Close:
+            await this.#handleClose(packet);
+            break;
+          case AdbCommand.Okay:
+            this.#handleOkay(packet);
+            break;
+          case AdbCommand.Open:
+            await this.#handleOpen(packet);
+            break;
+          case AdbCommand.Write:
+            this.#handleWrite(packet).catch((e2) => {
+              controller.error(e2);
+            });
+            break;
+          default:
+            throw new Error(`Unknown command: ${packet.command.toString(16)}`);
+        }
+      }
+    }), {
+      preventCancel: options.preserveConnection ?? false,
+      signal: this.#readAbortController.signal
+    }).then(() => {
+      this.#dispose();
+    }, (e2) => {
+      if (!this.#closed) {
+        this.#disconnected.reject(e2);
+      }
+      this.#dispose();
+    });
+    this.#writer = connection.writable.getWriter();
+  }
+  async #handleClose(packet) {
+    if (packet.arg0 === 0 && this.#initializers.reject(packet.arg1, new Error("Socket open failed"))) {
+      return;
+    }
+    const socket2 = this.#sockets.get(packet.arg1);
+    if (socket2) {
+      await socket2.close();
+      socket2.dispose();
+      this.#sockets.delete(packet.arg1);
+      return;
+    }
+  }
+  #handleOkay(packet) {
+    let ackBytes;
+    if (this.options.initialDelayedAckBytes !== 0) {
+      if (packet.payload.length !== 4) {
+        throw new Error("Invalid OKAY packet. Payload size should be 4");
+      }
+      ackBytes = /* @__PURE__ */ getUint32LittleEndian(packet.payload, 0);
+    } else {
+      if (packet.payload.length !== 0) {
+        throw new Error("Invalid OKAY packet. Payload size should be 0");
+      }
+      ackBytes = Infinity;
+    }
+    if (this.#initializers.resolve(packet.arg1, {
+      remoteId: packet.arg0,
+      availableWriteBytes: ackBytes
+    })) {
+      return;
+    }
+    const socket2 = this.#sockets.get(packet.arg1);
+    if (socket2) {
+      socket2.ack(ackBytes);
+      return;
+    }
+    void this.sendPacket(AdbCommand.Close, packet.arg1, packet.arg0, EmptyUint8Array);
+  }
+  #sendOkay(localId, remoteId, ackBytes) {
+    let payload;
+    if (this.options.initialDelayedAckBytes !== 0) {
+      payload = new Uint8Array(4);
+      setUint32LittleEndian(payload, 0, ackBytes);
+    } else {
+      payload = EmptyUint8Array;
+    }
+    return this.sendPacket(AdbCommand.Okay, localId, remoteId, payload);
+  }
+  async #handleOpen(packet) {
+    const [localId] = this.#initializers.add();
+    this.#initializers.resolve(localId, void 0);
+    const remoteId = packet.arg0;
+    let availableWriteBytes = packet.arg1;
+    let service = /* @__PURE__ */ decodeUtf8(packet.payload);
+    if (service.endsWith("\0")) {
+      service = service.substring(0, service.length - 1);
+    }
+    if (this.options.initialDelayedAckBytes === 0) {
+      if (availableWriteBytes !== 0) {
+        throw new Error("Invalid OPEN packet. arg1 should be 0");
+      }
+      availableWriteBytes = Infinity;
+    } else {
+      if (availableWriteBytes === 0) {
+        throw new Error("Invalid OPEN packet. arg1 should be greater than 0");
+      }
+    }
+    const handler = this.#incomingSocketHandlers.get(service);
+    if (!handler) {
+      await this.sendPacket(AdbCommand.Close, 0, remoteId, EmptyUint8Array);
+      return;
+    }
+    const controller = new AdbDaemonSocketController({
+      dispatcher: this,
+      localId,
+      remoteId,
+      localCreated: false,
+      service,
+      availableWriteBytes
+    });
+    try {
+      await handler(controller.socket);
+      this.#sockets.set(localId, controller);
+      await this.#sendOkay(localId, remoteId, this.options.initialDelayedAckBytes);
+    } catch {
+      await this.sendPacket(AdbCommand.Close, 0, remoteId, EmptyUint8Array);
+    }
+  }
+  async #handleWrite(packet) {
+    const socket2 = this.#sockets.get(packet.arg1);
+    if (!socket2) {
+      throw new Error(`Unknown local socket id: ${packet.arg1}`);
+    }
+    let handled = false;
+    const promises = [
+      (async () => {
+        await socket2.enqueue(packet.payload);
+        await this.#sendOkay(packet.arg1, packet.arg0, packet.payload.length);
+        handled = true;
+      })()
+    ];
+    if (this.options.readTimeLimit) {
+      promises.push((async () => {
+        await delay(this.options.readTimeLimit);
+        if (!handled) {
+          throw new Error(`readable of \`${socket2.service}\` has stalled for ${this.options.readTimeLimit} milliseconds`);
+        }
+      })());
+    }
+    await Promise.race(promises);
+  }
+  async createSocket(service) {
+    if (this.options.appendNullToServiceString) {
+      service += "\0";
+    }
+    const [localId, initializer] = this.#initializers.add();
+    await this.sendPacket(AdbCommand.Open, localId, this.options.initialDelayedAckBytes, service);
+    const { remoteId, availableWriteBytes } = await initializer;
+    const controller = new AdbDaemonSocketController({
+      dispatcher: this,
+      localId,
+      remoteId,
+      localCreated: true,
+      service,
+      availableWriteBytes
+    });
+    this.#sockets.set(localId, controller);
+    return controller.socket;
+  }
+  addReverseTunnel(service, handler) {
+    this.#incomingSocketHandlers.set(service, handler);
+  }
+  removeReverseTunnel(address) {
+    this.#incomingSocketHandlers.delete(address);
+  }
+  clearReverseTunnels() {
+    this.#incomingSocketHandlers.clear();
+  }
+  async sendPacket(command, arg0, arg1, payload) {
+    if (typeof payload === "string") {
+      payload = /* @__PURE__ */ encodeUtf8(payload);
+    }
+    if (payload.length > this.options.maxPayloadSize) {
+      throw new TypeError("payload too large");
+    }
+    await Consumable.WritableStream.write(this.#writer, {
+      command,
+      arg0,
+      arg1,
+      payload,
+      checksum: this.options.calculateChecksum ? calculateChecksum(payload) : 0,
+      magic: command ^ 4294967295
+    });
+  }
+  async close() {
+    await Promise.all(Array.from(this.#sockets.values(), (socket2) => socket2.close()));
+    this.#closed = true;
+    this.#readAbortController.abort();
+    if (this.options.preserveConnection) {
+      this.#writer.releaseLock();
+    } else {
+      await this.#writer.close();
+    }
+  }
+  #dispose() {
+    for (const socket2 of this.#sockets.values()) {
+      socket2.dispose();
+    }
+    this.#disconnected.resolve();
+  }
+}
+const ADB_DAEMON_VERSION_OMIT_CHECKSUM = 16777217;
+const ADB_DAEMON_DEFAULT_FEATURES = /* @__PURE__ */ (() => [
+  AdbFeature.ShellV2,
+  AdbFeature.Cmd,
+  AdbFeature.StatV2,
+  AdbFeature.ListV2,
+  AdbFeature.FixedPushMkdir,
+  "apex",
+  AdbFeature.Abb,
+  // only tells the client the symlink timestamp issue in `adb push --sync` has been fixed.
+  // No special handling required.
+  "fixed_push_symlink_timestamp",
+  AdbFeature.AbbExec,
+  "remount_shell",
+  "track_app",
+  AdbFeature.SendReceiveV2,
+  "sendrecv_v2_brotli",
+  "sendrecv_v2_lz4",
+  "sendrecv_v2_zstd",
+  "sendrecv_v2_dry_run_send",
+  AdbFeature.DelayedAck
+])();
+const ADB_DAEMON_DEFAULT_INITIAL_PAYLOAD_SIZE = 32 * 1024 * 1024;
+class AdbDaemonTransport {
+  /**
+   * Authenticate with the ADB Daemon and create a new transport.
+   */
+  static async authenticate({ serial, connection, credentialStore, authenticators = ADB_DEFAULT_AUTHENTICATORS, features = ADB_DAEMON_DEFAULT_FEATURES, initialDelayedAckBytes = ADB_DAEMON_DEFAULT_INITIAL_PAYLOAD_SIZE, ...options }) {
+    let version2 = 16777217;
+    let maxPayloadSize = 1024 * 1024;
+    const resolver = new PromiseResolver();
+    const authProcessor = new AdbAuthenticationProcessor(authenticators, credentialStore);
+    const abortController = new AbortController$1();
+    const pipe = connection.readable.pipeTo(new WritableStream({
+      async write(packet) {
+        switch (packet.command) {
+          case AdbCommand.Connect:
+            version2 = Math.min(version2, packet.arg0);
+            maxPayloadSize = Math.min(maxPayloadSize, packet.arg1);
+            resolver.resolve(/* @__PURE__ */ decodeUtf8(packet.payload));
+            break;
+          case AdbCommand.Auth: {
+            const response = await authProcessor.process(packet);
+            await sendPacket(response);
+            break;
+          }
+        }
+      }
+    }), {
+      // Don't cancel the source ReadableStream on AbortSignal abort.
+      preventCancel: true,
+      signal: abortController.signal
+    }).then(() => {
+      resolver.reject(new Error("Connection closed unexpectedly"));
+    }, (e2) => {
+      resolver.reject(e2);
+    });
+    const writer = connection.writable.getWriter();
+    async function sendPacket(init) {
+      init.checksum = calculateChecksum(init.payload);
+      init.magic = init.command ^ 4294967295;
+      await Consumable.WritableStream.write(writer, init);
+    }
+    const actualFeatures = features.slice();
+    if (initialDelayedAckBytes <= 0) {
+      const index2 = features.indexOf(AdbFeature.DelayedAck);
+      if (index2 !== -1) {
+        actualFeatures.splice(index2, 1);
+      }
+    }
+    let banner;
+    try {
+      await sendPacket({
+        command: AdbCommand.Connect,
+        arg0: version2,
+        arg1: maxPayloadSize,
+        // The terminating `;` is required in formal definition
+        // But ADB daemon (all versions) can still work without it
+        payload: /* @__PURE__ */ encodeUtf8(`host::features=${actualFeatures.join(",")}`)
+      });
+      banner = await resolver.promise;
+    } finally {
+      abortController.abort();
+      writer.releaseLock();
+      await pipe;
+    }
+    return new AdbDaemonTransport({
+      serial,
+      connection,
+      version: version2,
+      maxPayloadSize,
+      banner,
+      features: actualFeatures,
+      initialDelayedAckBytes,
+      ...options
+    });
+  }
+  #connection;
+  get connection() {
+    return this.#connection;
+  }
+  #dispatcher;
+  #serial;
+  get serial() {
+    return this.#serial;
+  }
+  #protocolVersion;
+  get protocolVersion() {
+    return this.#protocolVersion;
+  }
+  get maxPayloadSize() {
+    return this.#dispatcher.options.maxPayloadSize;
+  }
+  #banner;
+  get banner() {
+    return this.#banner;
+  }
+  get disconnected() {
+    return this.#dispatcher.disconnected;
+  }
+  #clientFeatures;
+  get clientFeatures() {
+    return this.#clientFeatures;
+  }
+  constructor({ serial, connection, version: version2, banner, features = ADB_DAEMON_DEFAULT_FEATURES, initialDelayedAckBytes, ...options }) {
+    this.#serial = serial;
+    this.#connection = connection;
+    this.#banner = AdbBanner.parse(banner);
+    this.#clientFeatures = features;
+    if (features.includes(AdbFeature.DelayedAck)) {
+      if (initialDelayedAckBytes <= 0) {
+        throw new TypeError("`initialDelayedAckBytes` must be greater than 0 when DelayedAck feature is enabled.");
+      }
+      if (!this.#banner.features.includes(AdbFeature.DelayedAck)) {
+        initialDelayedAckBytes = 0;
+      }
+    } else {
+      initialDelayedAckBytes = 0;
+    }
+    let calculateChecksum2;
+    let appendNullToServiceString;
+    if (version2 >= ADB_DAEMON_VERSION_OMIT_CHECKSUM) {
+      calculateChecksum2 = false;
+      appendNullToServiceString = false;
+    } else {
+      calculateChecksum2 = true;
+      appendNullToServiceString = true;
+    }
+    this.#dispatcher = new AdbPacketDispatcher(connection, {
+      calculateChecksum: calculateChecksum2,
+      appendNullToServiceString,
+      initialDelayedAckBytes,
+      ...options
+    });
+    this.#protocolVersion = version2;
+  }
+  connect(service) {
+    return this.#dispatcher.createSocket(service);
+  }
+  addReverseTunnel(handler, address) {
+    if (!address) {
+      const id2 = Math.random().toString().substring(2);
+      address = `localabstract:reverse_${id2}`;
+    }
+    this.#dispatcher.addReverseTunnel(address, handler);
+    return address;
+  }
+  removeReverseTunnel(address) {
+    this.#dispatcher.removeReverseTunnel(address);
+  }
+  clearReverseTunnels() {
+    this.#dispatcher.clearReverseTunnels();
+  }
+  close() {
+    return this.#dispatcher.close();
+  }
+}
+function unorderedRemove(array, index2) {
+  if (index2 < 0 || index2 >= array.length) {
+    return;
+  }
+  array[index2] = array[array.length - 1];
+  array.length -= 1;
+}
+class DeviceBusyError extends Error {
+  constructor(cause) {
+    super("The device is already in used by another program", {
+      cause
+    });
+  }
+}
+function isErrorName(e2, name) {
+  return typeof e2 === "object" && e2 !== null && "name" in e2 && e2.name === name;
+}
+function isUsbInterfaceFilter(filter2) {
+  return filter2.classCode !== void 0 && filter2.subclassCode !== void 0 && filter2.protocolCode !== void 0;
+}
+function matchUsbInterfaceFilter(alternate, filter2) {
+  return alternate.interfaceClass === filter2.classCode && alternate.interfaceSubclass === filter2.subclassCode && alternate.interfaceProtocol === filter2.protocolCode;
+}
+function findUsbInterface(device, filter2) {
+  for (const configuration of device.configurations) {
+    for (const interface_ of configuration.interfaces) {
+      for (const alternate of interface_.alternates) {
+        if (matchUsbInterfaceFilter(alternate, filter2)) {
+          return { configuration, interface_, alternate };
+        }
+      }
+    }
+  }
+  return void 0;
+}
+function padNumber(value2) {
+  return value2.toString(16).padStart(4, "0");
+}
+function getSerialNumber(device) {
+  if (device.serialNumber) {
+    return device.serialNumber;
+  }
+  return padNumber(device.vendorId) + "x" + padNumber(device.productId);
+}
+function findUsbEndpoints(endpoints) {
+  if (endpoints.length === 0) {
+    throw new TypeError("No endpoints given");
+  }
+  let inEndpoint;
+  let outEndpoint;
+  for (const endpoint of endpoints) {
+    switch (endpoint.direction) {
+      case "in":
+        inEndpoint = endpoint;
+        if (outEndpoint) {
+          return { inEndpoint, outEndpoint };
+        }
+        break;
+      case "out":
+        outEndpoint = endpoint;
+        if (inEndpoint) {
+          return { inEndpoint, outEndpoint };
+        }
+        break;
+    }
+  }
+  if (!inEndpoint) {
+    throw new TypeError("No input endpoint found.");
+  }
+  if (!outEndpoint) {
+    throw new TypeError("No output endpoint found.");
+  }
+  throw new Error("unreachable");
+}
+function matchFilter(device, filter2) {
+  if (filter2.vendorId !== void 0 && device.vendorId !== filter2.vendorId) {
+    return false;
+  }
+  if (filter2.productId !== void 0 && device.productId !== filter2.productId) {
+    return false;
+  }
+  if (filter2.serialNumber !== void 0 && getSerialNumber(device) !== filter2.serialNumber) {
+    return false;
+  }
+  if (isUsbInterfaceFilter(filter2)) {
+    return findUsbInterface(device, filter2) || false;
+  }
+  return true;
+}
+function matchFilters(device, filters, exclusionFilters) {
+  if (exclusionFilters && exclusionFilters.length > 0) {
+    if (matchFilters(device, exclusionFilters)) {
+      return false;
+    }
+  }
+  for (const filter2 of filters) {
+    const result = matchFilter(device, filter2);
+    if (result) {
+      return result;
+    }
+  }
+  return false;
+}
+const AdbDefaultInterfaceFilter = {
+  classCode: 255,
+  subclassCode: 66,
+  protocolCode: 1
+};
+function mergeDefaultAdbInterfaceFilter(filters) {
+  if (!filters || filters.length === 0) {
+    return [AdbDefaultInterfaceFilter];
+  } else {
+    return filters.map((filter2) => ({
+      ...filter2,
+      classCode: filter2.classCode ?? AdbDefaultInterfaceFilter.classCode,
+      subclassCode: filter2.subclassCode ?? AdbDefaultInterfaceFilter.subclassCode,
+      protocolCode: filter2.protocolCode ?? AdbDefaultInterfaceFilter.protocolCode
+    }));
+  }
+}
+class AdbDaemonWebUsbConnection {
+  #device;
+  get device() {
+    return this.#device;
+  }
+  #inEndpoint;
+  get inEndpoint() {
+    return this.#inEndpoint;
+  }
+  #outEndpoint;
+  get outEndpoint() {
+    return this.#outEndpoint;
+  }
+  #readable;
+  get readable() {
+    return this.#readable;
+  }
+  #writable;
+  get writable() {
+    return this.#writable;
+  }
+  constructor(device, inEndpoint, outEndpoint, usbManager) {
+    this.#device = device;
+    this.#inEndpoint = inEndpoint;
+    this.#outEndpoint = outEndpoint;
+    let closed2 = false;
+    const duplex = new DuplexStreamFactory({
+      close: async () => {
+        try {
+          closed2 = true;
+          await device.raw.close();
+        } catch {
+        }
+      },
+      dispose: () => {
+        closed2 = true;
+        usbManager.removeEventListener("disconnect", handleUsbDisconnect);
+      }
+    });
+    function handleUsbDisconnect(e2) {
+      if (e2.device === device.raw) {
+        duplex.dispose().catch(unreachable);
+      }
+    }
+    usbManager.addEventListener("disconnect", handleUsbDisconnect);
+    this.#readable = duplex.wrapReadable(new ReadableStream$1({
+      pull: async (controller) => {
+        const packet = await this.#transferIn();
+        if (packet) {
+          controller.enqueue(packet);
+        } else {
+          controller.close();
+        }
+      }
+    }, { highWaterMark: 0 }));
+    const zeroMask = outEndpoint.packetSize - 1;
+    this.#writable = pipeFrom(duplex.createWritable(new MaybeConsumableWritableStream({
+      write: async (chunk) => {
+        try {
+          await device.raw.transferOut(outEndpoint.endpointNumber, toLocalUint8Array(chunk));
+          if (zeroMask && (chunk.length & zeroMask) === 0) {
+            await device.raw.transferOut(outEndpoint.endpointNumber, EmptyUint8Array);
+          }
+        } catch (e2) {
+          if (closed2) {
+            return;
+          }
+          throw e2;
+        }
+      }
+    })), new AdbPacketSerializeStream());
+  }
+  async #transferIn() {
+    try {
+      while (true) {
+        const result = await this.#device.raw.transferIn(this.#inEndpoint.endpointNumber, this.#inEndpoint.packetSize);
+        if (result.data.byteLength !== 24) {
+          continue;
+        }
+        const buffer2 = new Uint8Array(result.data.buffer);
+        const stream = new Uint8ArrayExactReadable(buffer2);
+        const packet = AdbPacketHeader.deserialize(stream);
+        if (packet.magic !== (packet.command ^ 4294967295)) {
+          continue;
+        }
+        if (packet.payloadLength !== 0) {
+          const result2 = await this.#device.raw.transferIn(this.#inEndpoint.endpointNumber, packet.payloadLength);
+          packet.payload = new Uint8Array(result2.data.buffer);
+        } else {
+          packet.payload = EmptyUint8Array;
+        }
+        return packet;
+      }
+    } catch (e2) {
+      if (isErrorName(e2, "NetworkError")) {
+        await new Promise((resolve2) => {
+          setTimeout(() => {
+            resolve2();
+          }, 100);
+        });
+        if (closed) {
+          return void 0;
+        }
+      }
+      throw e2;
+    }
+  }
+}
+class AdbDaemonWebUsbDevice {
+  static DeviceBusyError = DeviceBusyError;
+  #interface;
+  #usbManager;
+  #raw;
+  get raw() {
+    return this.#raw;
+  }
+  #serial;
+  get serial() {
+    return this.#serial;
+  }
+  get name() {
+    return this.#raw.productName;
+  }
+  /**
+   * Create a new instance of `AdbDaemonWebUsbConnection` using a specified `USBDevice` instance
+   *
+   * @param device The `USBDevice` instance obtained elsewhere.
+   * @param filters The filters to use when searching for ADB interface. Defaults to {@link ADB_DEFAULT_DEVICE_FILTER}.
+   */
+  constructor(device, interface_, usbManager) {
+    this.#raw = device;
+    this.#serial = getSerialNumber(device);
+    this.#interface = interface_;
+    this.#usbManager = usbManager;
+  }
+  async #claimInterface() {
+    if (!this.#raw.opened) {
+      await this.#raw.open();
+    }
+    const { configuration, interface_, alternate } = this.#interface;
+    if (this.#raw.configuration?.configurationValue !== configuration.configurationValue) {
+      await this.#raw.selectConfiguration(configuration.configurationValue);
+    }
+    if (!interface_.claimed) {
+      try {
+        await this.#raw.claimInterface(interface_.interfaceNumber);
+      } catch (e2) {
+        if (isErrorName(e2, "NetworkError")) {
+          throw new AdbDaemonWebUsbDevice.DeviceBusyError(e2);
+        }
+        throw e2;
+      }
+    }
+    if (interface_.alternate.alternateSetting !== alternate.alternateSetting) {
+      await this.#raw.selectAlternateInterface(interface_.interfaceNumber, alternate.alternateSetting);
+    }
+    return findUsbEndpoints(alternate.endpoints);
+  }
+  /**
+   * Open the device and create a new connection to the ADB Daemon.
+   */
+  async connect() {
+    const { inEndpoint, outEndpoint } = await this.#claimInterface();
+    return new AdbDaemonWebUsbConnection(this, inEndpoint, outEndpoint, this.#usbManager);
+  }
+}
+class AdbDaemonWebUsbDeviceObserver {
+  static async create(usb, options = {}) {
+    const devices = await usb.getDevices();
+    return new AdbDaemonWebUsbDeviceObserver(usb, devices, options);
+  }
+  #filters;
+  #exclusionFilters;
+  #usbManager;
+  #onDeviceAdd = new EventEmitter();
+  onDeviceAdd = this.#onDeviceAdd.event;
+  #onDeviceRemove = new EventEmitter();
+  onDeviceRemove = this.#onDeviceRemove.event;
+  #onListChange = new StickyEventEmitter();
+  onListChange = this.#onListChange.event;
+  current = [];
+  constructor(usb, initial, options = {}) {
+    this.#filters = mergeDefaultAdbInterfaceFilter(options.filters);
+    this.#exclusionFilters = options.exclusionFilters;
+    this.#usbManager = usb;
+    this.current = initial.map((device) => this.#convertDevice(device)).filter((device) => !!device);
+    this.#onListChange.fire(this.current);
+    this.#usbManager.addEventListener("connect", this.#handleConnect);
+    this.#usbManager.addEventListener("disconnect", this.#handleDisconnect);
+  }
+  #convertDevice(device) {
+    const interface_ = matchFilters(device, this.#filters, this.#exclusionFilters);
+    if (!interface_) {
+      return void 0;
+    }
+    return new AdbDaemonWebUsbDevice(device, interface_, this.#usbManager);
+  }
+  #handleConnect = (e2) => {
+    const device = this.#convertDevice(e2.device);
+    if (!device) {
+      return;
+    }
+    if (this.current.some((item) => item.raw === device.raw)) {
+      return;
+    }
+    const next = this.current.slice();
+    next.push(device);
+    this.current = next;
+    this.#onDeviceAdd.fire([device]);
+    this.#onListChange.fire(this.current);
+  };
+  #handleDisconnect = (e2) => {
+    const index2 = this.current.findIndex((device) => device.raw === e2.device);
+    if (index2 !== -1) {
+      const device = this.current[index2];
+      const next = this.current.slice();
+      unorderedRemove(next, index2);
+      this.current = next;
+      this.#onDeviceRemove.fire([device]);
+      this.#onListChange.fire(this.current);
+    }
+  };
+  stop() {
+    this.#usbManager.removeEventListener("connect", this.#handleConnect);
+    this.#usbManager.removeEventListener("disconnect", this.#handleDisconnect);
+    this.#onDeviceAdd.dispose();
+    this.#onDeviceRemove.dispose();
+    this.#onListChange.dispose();
+  }
+}
+class AdbDaemonWebUsbDeviceManager {
+  /**
+   * Gets the instance of {@link AdbDaemonWebUsbDeviceManager} using browser WebUSB implementation.
+   *
+   * May be `undefined` if current runtime does not support WebUSB.
+   */
+  static BROWSER = /* @__PURE__ */ (() => typeof globalThis.navigator !== "undefined" && globalThis.navigator.usb ? new AdbDaemonWebUsbDeviceManager(globalThis.navigator.usb) : void 0)();
+  #usbManager;
+  /**
+   * Create a new instance of {@link AdbDaemonWebUsbDeviceManager} using the specified WebUSB implementation.
+   * @param usbManager A WebUSB compatible interface.
+   */
+  constructor(usbManager) {
+    this.#usbManager = usbManager;
+  }
+  /**
+   * Call `USB#requestDevice()` to prompt the user to select a device.
+   */
+  async requestDevice(options = {}) {
+    const filters = mergeDefaultAdbInterfaceFilter(options.filters);
+    try {
+      const device = await this.#usbManager.requestDevice({
+        filters,
+        exclusionFilters: options.exclusionFilters
+      });
+      const interface_ = matchFilters(device, filters, options.exclusionFilters);
+      if (!interface_) {
+        return void 0;
+      }
+      this.#usbManager.dispatchEvent(new USBConnectionEvent("connect", { device }));
+      return new AdbDaemonWebUsbDevice(device, interface_, this.#usbManager);
+    } catch (e2) {
+      if (isErrorName(e2, "NotFoundError")) {
+        return void 0;
+      }
+      throw e2;
+    }
+  }
+  /**
+   * Get all connected and requested devices that match the specified filters.
+   */
+  async getDevices(options = {}) {
+    const filters = mergeDefaultAdbInterfaceFilter(options.filters);
+    const devices = await this.#usbManager.getDevices();
+    const result = [];
+    for (const device of devices) {
+      const interface_ = matchFilters(device, filters, options.exclusionFilters);
+      if (interface_) {
+        result.push(new AdbDaemonWebUsbDevice(device, interface_, this.#usbManager));
+      }
+    }
+    return result;
+  }
+  trackDevices(options = {}) {
+    return AdbDaemonWebUsbDeviceObserver.create(this.#usbManager, options);
+  }
+}
+function openDatabase() {
+  return new Promise((resolve2, reject) => {
+    const request = indexedDB.open("Tango", 1);
+    request.onerror = () => {
+      reject(request.error);
+    };
+    request.onupgradeneeded = () => {
+      const db2 = request.result;
+      db2.createObjectStore("Authentication", { autoIncrement: true });
+    };
+    request.onsuccess = () => {
+      const db2 = request.result;
+      resolve2(db2);
+    };
+  });
+}
+async function saveKey(key) {
+  const db2 = await openDatabase();
+  return new Promise((resolve2, reject) => {
+    const transaction = db2.transaction("Authentication", "readwrite");
+    const store2 = transaction.objectStore("Authentication");
+    const putRequest = store2.add(key);
+    putRequest.onerror = () => {
+      reject(putRequest.error);
+    };
+    putRequest.onsuccess = () => {
+      resolve2();
+    };
+    transaction.onerror = () => {
+      reject(transaction.error);
+    };
+    transaction.oncomplete = () => {
+      db2.close();
+    };
+  });
+}
+async function getAllKeys() {
+  const db2 = await openDatabase();
+  return new Promise((resolve2, reject) => {
+    const transaction = db2.transaction("Authentication", "readonly");
+    const store2 = transaction.objectStore("Authentication");
+    const getRequest = store2.getAll();
+    getRequest.onerror = () => {
+      reject(getRequest.error);
+    };
+    getRequest.onsuccess = () => {
+      resolve2(getRequest.result);
+    };
+    transaction.onerror = () => {
+      reject(transaction.error);
+    };
+    transaction.oncomplete = () => {
+      db2.close();
+    };
+  });
+}
+class AdbWebCredentialStore {
+  #appName;
+  constructor(appName = "Tango") {
+    this.#appName = appName;
+  }
+  /**
+   * Generates a RSA private key and store it into LocalStorage.
+   *
+   * Calling this method multiple times will overwrite the previous key.
+   *
+   * @returns The private key in PKCS #8 format.
+   */
+  async generateKey() {
+    const { privateKey: cryptoKey } = await crypto.subtle.generateKey({
+      name: "RSASSA-PKCS1-v1_5",
+      modulusLength: 2048,
+      // 65537
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-1"
+    }, true, ["sign", "verify"]);
+    const privateKey = new Uint8Array(await crypto.subtle.exportKey("pkcs8", cryptoKey));
+    await saveKey(privateKey);
+    return {
+      buffer: privateKey,
+      name: `${this.#appName}@${globalThis.location.hostname}`
+    };
+  }
+  /**
+   * Yields the stored RSA private key.
+   *
+   * This method returns a generator, so `for await...of...` loop should be used to read the key.
+   */
+  async *iterateKeys() {
+    for (const key of await getAllKeys()) {
+      yield {
+        buffer: key,
+        name: `${this.#appName}@${globalThis.location.hostname}`
+      };
+    }
+  }
+}
+function TabletScreen({ refreshMs = 1e3, floating = false }) {
+  const api = typeof window !== "undefined" ? window.electronAPI : null;
+  const [connected, setConnected] = reactExports.useState(false);
+  const [statusText, setStatusText] = reactExports.useState("Sin conectar");
+  const [imgUrl, setImgUrl] = reactExports.useState(null);
+  const [responseRerenceState, setResponseRerenceState] = reactExports.useState([]);
+  const [inferenceTime, setInferenceTime] = reactExports.useState(null);
+  const [pipWindow, setPipWindow] = reactExports.useState(null);
+  const canPopOut = api?.isElectron || typeof window !== "undefined" && "documentPictureInPicture" in window;
+  const adbRef = reactExports.useRef(null);
+  const intervalRef = reactExports.useRef(null);
+  const lastUrlRef = reactExports.useRef(null);
+  const prompt = "respondeme solo con lista de objetos de cada ticket que vez en la imagen , con las siguientes propiedades, tiket: es un digito que empueza con #, table: este seria el número de la mesa pero en algunas opcaciones no tiene mesa si no el nombre del mesero, # tiempo: que es el que lleva preparandose en el formato HH:MM:SS la cual seria 00:12:14, dish que sea un array con los nombre del plato en nameDish, en el caso de no haber nada en la imagen devuelve en arreglo vacio";
+  const token = "sk-lm-L5PlZvDm:8ovTMhDIQ6pzM70Kr2Vl";
+  const handdlerConnect = async () => {
+    try {
+      setStatusText("Solicitando dispositivo...");
+      const manager = AdbDaemonWebUsbDeviceManager.BROWSER;
+      if (!manager) return setStatusText("Este navegador no soporta WebUSB (usa Chrome/Edge)");
+      const device = await manager.requestDevice();
+      if (!device) return setStatusText("No se seleccionó ningún dispositivo");
+      const connection = await device.connect();
+      setStatusText("Autorizando... acepta el aviso en la tablet");
+      const transport = await AdbDaemonTransport.authenticate({
+        serial: device.serial,
+        connection,
+        credentialStore: new AdbWebCredentialStore()
+      });
+      adbRef.current = new Adb(transport);
+      setConnected(true);
+      setStatusText("Conectado");
+    } catch (error) {
+      console.log(error);
+      setStatusText("Error: " + error.message);
+    }
+  };
+  const handdlerDisconnect = async () => {
+    try {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (adbRef.current) await adbRef.current.close();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      adbRef.current = null;
+      setConnected(false);
+      setImgUrl(null);
+      setStatusText("Sin conectar");
+    }
+  };
+  const togglePip = async () => {
+    if (api?.isElectron) return api.openTabletWindow();
+    if (pipWindow) return pipWindow.close();
+    if (!("documentPictureInPicture" in window)) {
+      return setStatusText("Tu navegador no soporta ventanas flotantes (usa Chrome/Edge)");
+    }
+    try {
+      const pip = await window.documentPictureInPicture.requestWindow({ width: 360, height: 620 });
+      copiarEstilos(pip);
+      pip.document.body.style.margin = "0";
+      pip.document.body.style.background = "#01122c";
+      pip.addEventListener("pagehide", () => setPipWindow(null));
+      setPipWindow(pip);
+    } catch (error) {
+      console.log(error);
+      setStatusText("No se pudo abrir la ventana flotante: " + error.message);
+    }
+  };
+  const capturarPantalla = async () => {
+    try {
+      if (!adbRef.current) return;
+      const png = await adbRef.current.subprocess.noneProtocol.spawnWait(["screencap", "-p"]);
+      const blob = new Blob([png], { type: "image/png" });
+      const url2 = URL.createObjectURL(blob);
+      if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current);
+      lastUrlRef.current = url2;
+      setImgUrl(url2);
+      const base64 = await new Promise((resolve2) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve2(reader.result);
+        reader.readAsDataURL(blob);
+      });
+      sendImg(base64);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const sendImg = async (img) => {
+    try {
+      const body = {
+        model: "google/gemma-4-12b-qat",
+        input: [
+          {
+            type: "text",
+            content: prompt
+          },
+          {
+            type: "image",
+            data_url: img
+          }
+        ],
+        reasoning: "off",
+        context_length: 8e3,
+        temperature: 0
+      };
+      const header = {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      };
+      const start = performance.now();
+      const response = await axios.post("http://72.68.60.171:1234/api/v1/chat", body, header);
+      setInferenceTime(((performance.now() - start) / 1e3).toFixed(1));
+      const content = response?.data?.output?.[0]?.content ?? "";
+      console.log(content);
+      const tickets = parseTickets(content);
+      if (tickets.length > 0) setResponseRerenceState([...responseRerenceState, tickets]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  reactExports.useEffect(() => {
+    if (!connected) return;
+    capturarPantalla();
+    intervalRef.current = setInterval(capturarPantalla, refreshMs);
+    return () => clearInterval(intervalRef.current);
+  }, [connected, refreshMs]);
+  reactExports.useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current);
+      if (adbRef.current) adbRef.current.close();
+    };
+  }, []);
+  reactExports.useEffect(() => {
+    return () => {
+      if (pipWindow) pipWindow.close();
+    };
+  }, [pipWindow]);
+  console.log(responseRerenceState);
+  const rootClass = floating || pipWindow ? "flex flex-col w-screen h-screen overflow-hidden bg-[#01122c]" : `absolute bottom-[60px] left-[20px] z-[1000] resize overflow-auto w-[340px] min-w-[240px] rounded-xl border border-[#0a3a66] bg-[#01122c] shadow-[0_0_40px_rgba(0,120,255,0.15)] ${connected ? "h-auto" : "h-[64px] overflow-hidden"} `;
+  const contenido = /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: rootClass, children: [
+    floating && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { WebkitAppRegion: "drag" }, className: "flex items-center justify-between h-8 px-3 bg-[#021326] border-b border-[#0a3a66] select-none shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold tracking-[0.4px] text-[#aecbf0]", children: "Pantalla Tablet" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          style: { WebkitAppRegion: "no-drag" },
+          onClick: () => api?.close(),
+          className: "h-full w-9 flex items-center justify-center text-[#aecbf0] hover:bg-[#c0392b] hover:text-white",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "11", height: "11", viewBox: "0 0 11 11", stroke: "currentColor", strokeWidth: "1.2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "1", y1: "1", x2: "10", y2: "10" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "10", y1: "1", x2: "1", y2: "10" })
+          ] })
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sticky top-0 z-10 flex items-center justify-between gap-2 px-3 py-2 bg-[#021a38] border-b border-[#0a3a66] shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold uppercase tracking-[0.6px] text-[#5e7ba0] truncate", children: statusText }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 shrink-0", children: [
+        !floating && canPopOut && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2 py-1 rounded-md text-[11px] font-bold text-white bg-[#3a5a00] hover:bg-[#4e8300]", onClick: togglePip, title: pipWindow ? "Regresar a la pestaña" : "Abrir en ventana flotante", children: pipWindow ? "⤡" : "⧉" }),
+        !connected ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]", onClick: handdlerConnect, children: "Conectar" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#7a1f2b] hover:bg-[#9a2533]", onClick: handdlerDisconnect, children: "Desconectar" })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-[32%] flex items-center justify-center border-b border-[#0a3a66] bg-black/20", children: imgUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx("img", { className: "w-full h-full object-contain", src: imgUrl, alt: "pantalla tablet", draggable: false }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[12px] text-[#33486a] px-4 text-center", children: "Conecta la tablet para ver su pantalla" }) })
+  ] });
+  if (pipWindow) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      reactDomExports.createPortal(contenido, pipWindow.document.body),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-[60px] left-[20px] z-[1000] w-[340px] flex items-center justify-between gap-2 px-3 py-3 rounded-xl border border-[#0a3a66] bg-[#01122c]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold text-[#5e7ba0]", children: "📺 En ventana flotante" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: togglePip, className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]", children: "Regresar" })
+      ] })
+    ] });
+  }
+  return contenido;
+}
+function copiarEstilos(pip) {
+  [...document.styleSheets].forEach((sheet) => {
+    try {
+      const css = [...sheet.cssRules].map((r2) => r2.cssText).join("");
+      const style = pip.document.createElement("style");
+      style.textContent = css;
+      pip.document.head.appendChild(style);
+    } catch {
+      if (sheet.href) {
+        const link = pip.document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = sheet.href;
+        pip.document.head.appendChild(link);
+      }
+    }
+  });
+}
+function parseTickets(content) {
+  try {
+    const match = content.match(/```json\s*([\s\S]*?)```/);
+    const raw = match ? match[1] : content.slice(content.indexOf("["), content.lastIndexOf("]") + 1);
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.log("No se pudo parsear la respuesta:", error);
+    return [];
+  }
+}
 const root = client.createRoot(document.getElementById("root"));
-root.render(
-  /* @__PURE__ */ jsxRuntimeExports.jsxs(e$3.StrictMode, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(TitleBar, {}),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Provider, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
-  ] })
-);
+const view = new URLSearchParams(window.location.search).get("view");
+if (view === "tablet") {
+  root.render(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(e$3.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TabletScreen, { floating: true }) })
+  );
+} else {
+  root.render(
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(e$3.StrictMode, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TitleBar, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Provider, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
+    ] })
+  );
+}
 export {
   IP$1 as I,
+  TabletScreen as T,
   URL$2 as U,
   axiosInstance as a,
   axios as b,
@@ -36159,8 +40965,7 @@ export {
   deleteNotifications as k,
   setLocals as l,
   setEstablishment as m,
-  establishment as n,
-  createIo as o,
+  createIo as n,
   pushNotifications as p,
   reactExports as r,
   socketAppManager as s,

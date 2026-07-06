@@ -6,6 +6,8 @@ import axios from 'axios';
 
 
 
+
+
 export function TabletScreen({ refreshMs = 1000 }) {
 
 
@@ -26,6 +28,8 @@ export function TabletScreen({ refreshMs = 1000 }) {
     const prompt = 'respondeme solo con lista de objetos de cada ticket que vez en la imagen , con las siguientes propiedades, tiket: es un digito que empueza con #, table: este seria el número de la mesa pero en algunas opcaciones no tiene mesa si no el nombre del mesero, # tiempo: que es el que lleva preparandose en el formato HH:MM:SS la cual seria 00:12:14, dish que sea un array con los nombre del plato en nameDish, en el caso de no haber nada en la imagen devuelve en arreglo vacio'
     const token = 'sk-lm-L5PlZvDm:8ovTMhDIQ6pzM70Kr2Vl'
 
+
+
     //  CONECTAR CON LA TABLET (debe ejecutarse dentro de un click del usuario)
     const handdlerConnect = async () => {
         try {
@@ -33,7 +37,7 @@ export function TabletScreen({ refreshMs = 1000 }) {
 
             const manager = AdbDaemonWebUsbDeviceManager.BROWSER;
             if (!manager) return setStatusText('Este navegador no soporta WebUSB (usa Chrome/Edge)');
-
+            const UNISOC_ADB_VID = 0x18d1;
             const device = await manager.requestDevice();
             if (!device) return setStatusText('No se seleccionó ningún dispositivo');
 
@@ -186,7 +190,7 @@ export function TabletScreen({ refreshMs = 1000 }) {
 
 
     return (
-        <div className='absolute bottom-[60px] left-[20px] z-[1000] resize overflow-auto w-[340px] h-[560px] min-w-[240px] min-h-[320px] rounded-xl border border-[#0a3a66] bg-[#01122c] shadow-[0_0_40px_rgba(0,120,255,0.15)]'>
+        <div className='absolute bottom-[60px] left-[20px] z-[1000] resize overflow-auto w-[340px] h-auto min-w-[240px] min-h-[320px] rounded-xl border border-[#0a3a66] bg-[#01122c] shadow-[0_0_40px_rgba(0,120,255,0.15)]'>
 
 
             {/*  BARRA SUPERIOR (estado + botón)  */}
@@ -218,13 +222,6 @@ export function TabletScreen({ refreshMs = 1000 }) {
                         :
                         <p className='text-[12px] text-[#33486a] px-4 text-center'>Conecta la tablet para ver su pantalla</p>
                 }
-            </div>
-
-
-            {/*  PANEL ANALÍTICO DE TICKETS  */}
-            <div className='w-full h-[calc(68%-44px)] flex flex-col'>
-
-
             </div>
 
 

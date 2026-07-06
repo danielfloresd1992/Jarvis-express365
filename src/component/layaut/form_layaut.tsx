@@ -42,7 +42,7 @@ export default function FormLayaut({
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
                 boxShadow: '0 0 40px rgba(0, 119, 255, 0.34), 0 25px 70px rgba(0, 0, 0, 0.66)',
-                
+                padding: '0 0 3rem 0',
             }}
         >
             <div style={{

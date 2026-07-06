@@ -12,6 +12,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     maximize: () => ipcRenderer.send('window:maximize'),
     close:    () => ipcRenderer.send('window:close'),
 
+    //  Abre TabletScreen como ventana flotante del sistema
+    openTabletWindow: () => ipcRenderer.send('tablet:open'),
+
     //  Suscripción al cambio maximizado/restaurado (devuelve función para desuscribir)
     onMaximizeChange: (callback) => {
         const handler = (e, isMax) => callback(isMax);

@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "set NODE_ENV=development&&node index.js",
-    "electron-dev": "cross-env NO_SANDBOX=1 electron-vite dev",
+    "electron-dev": "cross-env NO_SANDBOX=1 ELECTRON_OZONE_PLATFORM_HINT=x11 electron-vite dev",
     "electron-build": "electron-vite build && electron-builder"
   },
   "dependencies": {

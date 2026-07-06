@@ -87,21 +87,37 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
+/* Cadena de altura: todo cuelga de aquí. Nada de min-height:100vh ni absolutes. */
+html,
+body,
+#root {
+    height: 100%;
+}
+
 body {
     margin: 0;
-    display: flex;
-    place-items: center;
+}
 
-    min-height: 100vh;
+/* #root es la columna raíz: barra de título (Electron) + la app */
+#root {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .App {
-    min-height: 100%;
+    flex: 1;
+    min-height: 0;          /* clave: permite que los hijos hagan scroll interno */
     width: 100%;
-    top: 0;
+    display: flex;
+    flex-direction: column;
     background-color: #010c18;
-    position: absolute;
 }
+
+/* Altura de la barra de título personalizada (solo Electron).
+   La usan los overlays con position:fixed (sidebar, paneles flotantes). */
+:root        { --titlebar-h: 0px;  }
+.is-electron { --titlebar-h: 32px; }
 
 h1 {
     font-size: 3.2em;
