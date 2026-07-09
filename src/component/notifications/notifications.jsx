@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { pushNotifications, deleteNotifications } from '../../store/slices/alert_line';
 import data from '../../libs/dataexaple';
 import AlertUpdateCard from './templates/AlertUpdateCard';
-import { requestNotificationPermission, notifyAlertUpdate } from '../../libs/osNotification';
+import { requestNotificationPermission, notifyAlertUpdate, pushOSNotification } from '../../libs/osNotification';
 import { socketAppManager } from '../../store/slices/socketio';
 import { v4 as uuidv4 } from 'uuid';
 import { isMobile } from 'react-device-detect';
@@ -47,9 +47,33 @@ export default function Notifications() {
 
 
 
+    // Push cuando un usuario ENVÍA una nueva alerta/novedad (evento created_Alert)
+    const pushCreatedAlert = (payload) => {
+        const doc = payload?.doc;
+        if (!doc) return;
+
+        // No notificar la alerta que envió el propio usuario
+        const senderId = doc?.sharedByUser?.user?.id?._id;
+        if (senderId && user?._id === senderId) return;
+
+        const localName = doc?.local?.localName || doc?.local?.name || '';
+        const icon = doc?.imageToShare || doc?.imageUrl?.[0]?.url || undefined;
+
+        pushOSNotification({
+            title: `Nueva alerta — ${doc?.title || 'Novedad'}`,
+            body: [localName && `📍 ${localName}`, '→ Por validar'].filter(Boolean).join('\n'),
+            icon,
+            tag: doc?._id,
+        });
+    };
+
+
+
+
     useEffect(() => {
         let subcript = true;
         !isMobile && subcript && socketAppManager.on('document_updated', pushData);
+        !isMobile && subcript && socketAppManager.on('created_Alert', pushCreatedAlert);
 
         /*
 
