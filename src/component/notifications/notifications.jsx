@@ -46,34 +46,9 @@ export default function Notifications() {
 
 
 
-
-    // Push cuando un usuario ENVÍA una nueva alerta/novedad (evento created_Alert)
-    const pushCreatedAlert = (payload) => {
-        const doc = payload?.doc;
-        if (!doc) return;
-
-        // No notificar la alerta que envió el propio usuario
-        const senderId = doc?.sharedByUser?.user?.id?._id;
-        if (senderId && user?._id === senderId) return;
-
-        const localName = doc?.local?.localName || doc?.local?.name || '';
-        const icon = doc?.imageToShare || doc?.imageUrl?.[0]?.url || undefined;
-
-        pushOSNotification({
-            title: `Nueva alerta — ${doc?.title || 'Novedad'}`,
-            body: [localName && `📍 ${localName}`, '→ Por validar'].filter(Boolean).join('\n'),
-            icon,
-            tag: doc?._id,
-        });
-    };
-
-
-
-
     useEffect(() => {
         let subcript = true;
         !isMobile && subcript && socketAppManager.on('document_updated', pushData);
-        !isMobile && subcript && socketAppManager.on('created_Alert', pushCreatedAlert);
 
         /*
 
@@ -96,7 +71,6 @@ export default function Notifications() {
 
 
 
-
     return (
         <div className='absolute h-[240px] bottom-[0] right-[0] p-[3rem] flex items-center gap-[1rem] pointer-events-none z-1000 '>
             {
@@ -116,7 +90,6 @@ export default function Notifications() {
 
 function CardNotifications({ id, children }) {
 
-
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -127,7 +100,6 @@ function CardNotifications({ id, children }) {
 
         return () => clearTimeout(timeOut);
     }, []);
-
 
 
 
