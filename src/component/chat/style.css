@@ -238,15 +238,20 @@
 /* Timestamp */
 .msm-time {
     font-size: 0.61rem;
-    color: rgba(134, 150, 160, 0.75);
+    color: rgba(237, 248, 255, 0.822);
     margin: 0.18rem 0 0;
     align-self: flex-end;
     white-space: nowrap;
     letter-spacing: 0.1px;
 }
 
-.myText .msm-time {
+.myText  {
     color: rgba(134, 209, 176, 0.65);
+}
+
+.msm-time{
+    color: rgb(173, 255, 218);
+    font-size: 0.65rem;
 }
 
 /* ── Botón cargar más mensajes ── */
@@ -370,7 +375,7 @@
 
 /* ── Botón responder (aparece al hover del mensaje) ── */
 .msm-reply-btn {
-    position: absolute;
+     position: absolute;
     top: 2px;
     right: 4px;
     border: none;
@@ -378,13 +383,16 @@
     color: #8696a0;
     width: 20px;
     height: 20px;
-    border-radius: 50%;
     font-size: 0.8rem;
     line-height: 1;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     opacity: 0;
     transition: opacity 0.12s ease, color 0.12s ease;
 }
+
 .msm-contain:hover .msm-reply-btn { opacity: 1; }
 .msm-reply-btn:hover { color: #25d366; }
 

@@ -97,6 +97,7 @@ function Chat() {
     const getChat = useCallback((numberPge) => {
         getMessageForChat({ page: numberPge, limit: 10 })
             .then(response => {
+                console.log(response);
                 setChatState([...chatState, ...response.data.result]);
             })
             .catch(error => {
@@ -174,8 +175,11 @@ function Chat() {
         });
 
         const isMe = message.submittedByUser?.userId === userSeled?._id;
-        const alert = message.sharedAlert;
-        const sticker = !alert && isEmojiOnly(message.message);
+        const alertNovelty = message.sharedAlert;
+        const sticker = !alertNovelty && isEmojiOnly(message.message);
+
+
+            console.log(alertNovelty);
 
         return (
             <div
@@ -185,12 +189,19 @@ function Chat() {
             >
                 <button className='msm-reply-btn' type='button' title='Responder' onClick={() => setReplyingTo(message)}>↩</button>
 
-                {!isMe && !sticker && (
-                    <p className="msm-name">
-                        {message?.submittedByUser?.name?.toLowerCase()}
-                        {message?.establishment?.name ? ` · ${message.establishment.name.toLowerCase()}` : ''}
-                    </p>
-                )}
+                    <div className='flex items-center gap-[.5rem] w-full p-[0rem_.3rem_.5rem_0rem]'>
+                        {
+                            message?.submittedUser?.img && (
+                                <div className='rounded-full overflow-hidden'>
+                                    <img draggable={false} className='w-[30px] h-[30px] object-cover' src={message?.submittedUser?.img} alt='image-logo-user' />
+                                </div>
+                            )
+                        }
+                        <p className="msm-name">
+                            {isMe ? 'Yo' : message?.submittedByUser?.name?.toLowerCase()}
+                            {message?.establishment?.name ? ` · ${message.establishment.name.toLowerCase()}` : ''}
+                        </p>
+                    </div>
 
                 {/* Cita del mensaje respondido */}
                 {message.replyTo && (message.replyTo.message || message.replyTo.name) && (
@@ -201,18 +212,16 @@ function Chat() {
                 )}
 
                 {/* Alerta del muro compartida */}
-                {alert && (
+                {alertNovelty && (
                     <div className='msm-alert'>
-                        {alert.image && <img src={alert.image} alt='alerta compartida' className='msm-alert-img' loading='lazy' />}
+                        {alertNovelty.image && <img src={alertNovelty.image} alt='alerta compartida' className='msm-alert-img' loading='lazy' />}
                         <div className='msm-alert-body'>
                             <div className='msm-alert-head'>
-                                <b>{alert.title || 'Alerta'}</b>
-                                <span className={`msm-alert-badge ${alert.validation === 'true' ? 'ok' : alert.validation === 'false' ? 'no' : 'pend'}`}>
-                                    {alert.validation === 'true' ? 'Aprobada' : alert.validation === 'false' ? 'Rechazada' : 'Pendiente'}
-                                </span>
+                                <b>{alertNovelty.title || 'Alerta'}</b>
+
                             </div>
-                            {alert.localName && <span className='msm-alert-local'>{alert.localName}</span>}
-                            {alert.menu && <p className='msm-alert-menu'>{alert.menu}</p>}
+                            {alertNovelty.localName && <span className='msm-alert-local'>{alertNovelty.localName}</span>}
+                            {alertNovelty.menu && <p className='msm-alert-menu'>{alertNovelty.menu}</p>}
                         </div>
                     </div>
                 )}
@@ -229,6 +238,7 @@ function Chat() {
 
 
 
+    
     return (
         isDesktop ?
             <>
