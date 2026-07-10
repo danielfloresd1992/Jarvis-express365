@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { socketAppManager } from '../../store/slices/socketio.js';
 import { getMessageForChat, setMessageForChat } from '../../libs/fetch_data/chatFetch.js';
+import { requestNotificationPermission, pushOSNotification } from '../../libs/osNotification.js';
 
 
 
@@ -52,7 +53,24 @@ function Chat() {
 
     useEffect(() => {
         getChat(refPaginate.current);
+        requestNotificationPermission();
     }, []);
+
+
+
+    // Notificación push del OS solo si el mensaje es de otro usuario
+    const notifyIncomingMessage = message => {
+        const isMe = message?.submittedByUser?.userId === userSeled?._id;
+        if (isMe) return;
+
+        pushOSNotification({
+            title: `💬 ${message?.submittedByUser?.name || 'Chat Jarvis'}`,
+            body: message?.message || message?.sharedAlert?.title || 'Nuevo mensaje',
+            icon: '/logo-page-removebg.png',
+            tag: message?._id, // evita duplicar la notificación del mismo mensaje
+            onClick: () => setWindowState(true)
+        });
+    };
 
 
 
@@ -62,6 +80,7 @@ function Chat() {
             if (key) {
                 setChatState([message, ...chatState]);
                 setWindowState(true);
+                notifyIncomingMessage(message);
             }
         };
         socketAppManager.on('receive_message', recibeData);
