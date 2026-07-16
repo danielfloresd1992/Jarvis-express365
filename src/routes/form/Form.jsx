@@ -37,7 +37,6 @@ function LoginUser() {
             const response = await axiosInstance.post(`${URL}/user/login`, data);
             if (response.status !== 200) return;
             console.log('Login response:', response.data);
-            return null;
             // ── Control de asistencia ──────────────────────────────────────
             // El empleado debe haber registrado su jornada laboral hoy antes de
             // poder entrar. Con el dni de la respuesta consultamos el endpoint;
@@ -50,7 +49,7 @@ function LoginUser() {
                 blocked = check?.data?.authenticated === false;
             }
             catch (checkErr) {
-                console.log('No se pudo verificar el control de asistencia:', checkErr);
+                setError('No se pudo verificar el control de asistencia:', checkErr);
             }
 
             if (blocked) {
