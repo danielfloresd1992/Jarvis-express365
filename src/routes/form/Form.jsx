@@ -27,29 +27,63 @@ function LoginUser() {
 
     useEffect(() => {
         localStorage.removeItem('local_appExpress');
-       
+
     }, []);
 
 
 
-    const loggin = data => {
-        axiosInstance.post(`${URL}/user/login`, data)
-            .then(response => {
-                if (response.status === 200) {
-                    dispatch(setUser(response.data));
-                    window.sessionStorage.setItem('session', JSON.stringify(response.data))
-                    navigate('/home');
+    const loggin = async data => {
+        try {
+            const response = await axiosInstance.post(`${URL}/user/login`, data);
+            if (response.status !== 200) return;
+
+            // ── Control de asistencia ──────────────────────────────────────
+            // El empleado debe haber registrado su jornada laboral hoy antes de
+            // poder entrar. Con el dni de la respuesta consultamos el endpoint;
+            // si authenticated=false se bloquea el acceso. Ante un fallo del
+            // chequeo (red/servidor) NO se bloquea el login (fail-open).
+            const dni = response.data?.dni;
+            if (dni) {
+                let blocked = false;
+                try {
+                    const check = await axiosInstance.get(`${URL}/user/attendance/authenticated/${dni}`);
+                    blocked = check?.data?.authenticated === false;
                 }
-            })
-            .catch(err => {
-                console.log(err)
-                if (err?.response?.data) {
-                    setError(err?.response?.data?.error ?? 'error');
+                catch (checkErr) {
+                    console.log('No se pudo verificar el control de asistencia:', checkErr);
                 }
-            });
+
+                if (blocked) {
+                    // Invalidar la sesión recién creada en el backend y no entrar.
+                    try { await axiosInstance.get(`${URL}/user/logout`); } catch (e) { /* noop */ }
+                    setError('Primero debes registrar tu jornada laboral en el control de asistencia.');
+                    return;
+                }
+
+                dispatch(setUser(response.data));
+                window.sessionStorage.setItem('session', JSON.stringify(response.data));
+                navigate('/home');
+            }
+            else {
+                // La respuesta de login no trae dni: no se puede validar la
+                // asistencia. Invalidar la sesión creada en el backend, igual
+                // que en la rama de bloqueo, y no entrar.
+                try { await axiosInstance.get(`${URL}/user/logout`); } catch (e) { /* noop */ }
+                setError('El usuario no tiene DNI configurado, no se pudo validar el control de asistencia.');
+                return;
+            }
+
+
+        }
+        catch (err) {
+            console.log(err);
+            if (err?.response?.data) {
+                setError(err?.response?.data?.error ?? 'error');
+            }
+        }
     };
 
-    
+
 
     return (
         <>
@@ -68,7 +102,7 @@ function LoginUser() {
             <div className='auth-page'>
                 {/* Full-screen animated background */}
                 <div className='auth-page__brand'>
-                
+
                 </div>
 
                 {/* Remix-style two-column shell */}
