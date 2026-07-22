@@ -34,41 +34,21 @@ function LoginUser() {
 
     const loggin = async data => {
         try {
+            // El control de asistencia lo hace el backend (middleware
+            // checkLaboralEntry en /user/login): si el empleado no registró su
+            // entrada laboral hoy, responde 403 y cae al catch — sin crear sesión
+            // ni necesitar una segunda llamada/logout.
             const response = await axiosInstance.post(`${URL}/user/login`, data);
             if (response.status !== 200) return;
-            console.log('Login response:', response.data);
-            // ── Control de asistencia ──────────────────────────────────────
-            // El empleado debe haber registrado su jornada laboral hoy antes de
-            // poder entrar. Con el dni de la respuesta consultamos el endpoint;
-            // si authenticated=false se bloquea el acceso. Ante un fallo del
-            // chequeo (red/servidor) NO se bloquea el login (fail-open).
-
-            let blocked = false;
-            try {
-                const check = await axiosInstance.get(`${URL}/user/attendance/authenticated/${dni}`);
-                blocked = check?.data?.authenticated === false;
-            }
-            catch (checkErr) {
-                setError('No se pudo verificar el control de asistencia:', checkErr);
-            }
-
-            if (blocked) {
-                // Invalidar la sesión recién creada en el backend y no entrar.
-                try { await axiosInstance.get(`${URL}/user/logout`); } catch (e) { /* noop */ }
-                setError('Primero debes registrar tu jornada laboral en el control de asistencia. Comunicarse con RRHH para más información.');
-                return;
-            }
 
             dispatch(setUser(response.data));
             window.sessionStorage.setItem('session', JSON.stringify(response.data));
             navigate('/home');
-
         }
         catch (err) {
             console.log(err);
-            if (err?.response?.data) {
-                setError(err?.response?.data?.error ?? 'error');
-            }
+            const resData = err?.response?.data;
+            setError(resData?.message ?? resData?.error ?? 'error');
         }
     };
 
