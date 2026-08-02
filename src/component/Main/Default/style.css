@@ -38,6 +38,9 @@
     );
     pointer-events: none;
     z-index: 0;
+    /* transform+opacity solamente: el compositor lo anima sin repintar.
+       will-change lo promueve a su propia capa desde el inicio. */
+    will-change: transform, opacity;
     animation: dw-glow 6s ease-in-out infinite;
 }
 @keyframes dw-glow {
@@ -67,23 +70,30 @@
         0 4px 12px rgba(0, 0, 0, 0.4);
     animation: dw-icon-float 4.5s ease-in-out infinite;
 }
+/* Solo transform: animar box-shadow repinta el elemento en cada frame
+   (era una de las causas del consumo de CPU en reposo). La sombra base
+   queda estática en el elemento; el refuerzo del glow vive en ::after
+   y se anima por opacity (compositado, sin repintado). */
 @keyframes dw-icon-float {
-    0%, 100% {
-        transform: translateY(0);
-        box-shadow:
-            inset 1px 1px 0 rgba(120, 220, 255, 0.25),
-            inset 0 -2px 6px rgba(0, 10, 40, 0.5),
-            0 0 24px rgba(0, 185, 255, 0.18),
-            0 12px 30px rgba(0, 5, 30, 0.55);
-    }
-    50% {
-        transform: translateY(-6px);
-        box-shadow:
-            inset 1px 1px 0 rgba(120, 220, 255, 0.3),
-            inset 0 -2px 6px rgba(0, 10, 40, 0.5),
-            0 0 34px rgba(0, 185, 255, 0.28),
-            0 22px 44px rgba(0, 5, 30, 0.6);
-    }
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+
+.default-welcome__icon-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+        0 0 34px rgba(0, 185, 255, 0.28),
+        0 22px 44px rgba(0, 5, 30, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    animation: dw-icon-glow 4.5s ease-in-out infinite;
+}
+@keyframes dw-icon-glow {
+    0%, 100% { opacity: 0; }
+    50%      { opacity: 1; }
 }
 
 .default-welcome__icon {

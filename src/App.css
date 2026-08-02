@@ -278,23 +278,12 @@
     animation: title-ray 5s ease-in-out infinite;
 }
 
+/* Solo opacity (compositada): antes se interpolaban 5 capas de text-shadow
+   por frame — repintado continuo del titular. El shadow queda estático en
+   el elemento y el pulso lo da una respiración leve de opacidad. */
 @keyframes title-ray {
-    0%, 100% {
-        text-shadow:
-            -1px -1px 0 rgba(255, 255, 255, 0.22),
-            0 0 12px rgba(0, 185, 255, 0.5),
-            0 0 26px rgba(0, 185, 255, 0.22),
-            0 4px 10px rgba(0, 0, 40, 0.55),
-            0 0 38px rgba(0, 220, 160, 0.07);
-    }
-    50% {
-        text-shadow:
-            -1px -1px 0 rgba(255, 255, 255, 0.35),
-            0 0 18px rgba(0, 185, 255, 0.75),
-            0 0 38px rgba(0, 185, 255, 0.38),
-            0 4px 12px rgba(0, 0, 40, 0.65),
-            0 0 55px rgba(0, 220, 160, 0.12);
-    }
+    0%, 100% { opacity: 0.92; }
+    50%      { opacity: 1; }
 }
 
 .auth-card__subtitle {
@@ -611,7 +600,9 @@
     font-size: 1.5rem;
     font-weight: 700;
     text-align: center;
-    animation: textError 1s ease-in infinite;
+    /* steps(2): el parpadeo salta entre 2 valores por tramo en vez de
+       interpolar el color en cada frame (repintado continuo del texto). */
+    animation: textError 1s steps(2, jump-none) infinite;
 }
 
 .auth-error-overlay__text {
@@ -665,8 +656,10 @@
 .local-selectComponent::after {
     content: '';
     position: absolute;
-    left: 0; width: 100%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,185,255,0.45), rgba(57,255,20,0.3), transparent);
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* Línea de 1px en el borde superior; el barrido lo hace fp-scan por
+       transform (ver .fp-scanline). */
+    background: linear-gradient(90deg, transparent, rgba(0,185,255,0.45), rgba(57,255,20,0.3), transparent) 0 0 / 100% 1px no-repeat;
     animation: fp-scan 6s linear infinite;
     pointer-events: none;
     z-index: 1;
@@ -1334,31 +1327,12 @@
 .inbox-panel--open {
     transform: translateX(0);
     pointer-events: all;
-    /* Sombra lateral pulsante — simula fuente de luz dinámica (ray tracing) */
-    animation: inbox-panel-ray 4.5s ease-in-out infinite;
-}
-
-@keyframes inbox-panel-ray {
-    0%, 100% {
-        box-shadow:
-            /* sombra proyectada lateral principal */
-            -6px 0 30px rgba(0, 0, 0, 0.65),
-            /* neon edge glow cyan */
-            -1px 0 0 rgba(0, 185, 255, 0.08),
-            /* ambient glow (global illumination) */
-            0 0 40px rgba(0, 80, 200, 0.04);
-    }
-    50% {
-        box-shadow:
-            /* sombra más larga y suave (penumbra) */
-            -12px 0 55px rgba(0, 0, 0, 0.72),
-            /* neon edge más brillante */
-            -2px 0 0 rgba(0, 185, 255, 0.32),
-            /* GI bounce cyan en el muro */
-            0 0 60px rgba(0, 120, 255, 0.08),
-            /* toque verde secundario */
-            -4px 0 20px rgba(0, 220, 160, 0.05);
-    }
+    /* Sombra estática: la versión pulsante animaba box-shadow y repintaba
+       el panel entero en cada frame (mismo criterio que el botón de arriba). */
+    box-shadow:
+        -8px 0 40px rgba(0, 0, 0, 0.68),
+        -1px 0 0 rgba(0, 185, 255, 0.18),
+        0 0 50px rgba(0, 100, 230, 0.06);
 }
 
 /* ── Panel header ── */
@@ -3239,24 +3213,28 @@ hr {
 .fp-corner--bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
 .fp-corner--br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
 
-/* ── Scan line ── */
+/* ── Scan line ──
+   El elemento ocupa todo el alto del contenedor y dibuja la línea de 1px
+   en su borde superior; el barrido es translateY(0→100%) del propio
+   elemento. Antes se animaba `top` (layout + repintado en cada frame);
+   transform lo mueve el compositor sin repintar. */
 .fp-scanline {
     position: absolute;
-    left: 0; width: 100%; height: 1px;
+    top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(90deg,
         transparent 0%,
         rgba(0,185,255,0.55) 35%,
         rgba(57,255,20,0.4) 65%,
-        transparent 100%);
+        transparent 100%) 0 0 / 100% 1px no-repeat;
     animation: fp-scan 6.5s linear infinite;
     pointer-events: none;
     z-index: 3;
 }
 @keyframes fp-scan {
-    0%   { top: 0%; opacity: 0; }
+    0%   { transform: translateY(0); opacity: 0; }
     4%   { opacity: 1; }
     94%  { opacity: 1; }
-    100% { top: 100%; opacity: 0; }
+    100% { transform: translateY(100%); opacity: 0; }
 }
 
 /* ══════════════════════════════════════
@@ -3622,21 +3600,23 @@ hr {
 /* ── Scan line ── */
 .lp-scanline {
     position: absolute;
-    left: 0; width: 100%; height: 1px;
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* Línea de 1px en el borde superior; barrido por transform — animar
+       `top` forzaba layout + repintado en cada frame. */
     background: linear-gradient(90deg,
         transparent 0%,
         rgba(0,185,255,0.5) 35%,
         rgba(57,255,20,0.35) 65%,
-        transparent 100%);
+        transparent 100%) 0 0 / 100% 1px no-repeat;
     animation: lp-scan 5.5s linear infinite;
     z-index: 2;
     pointer-events: none;
 }
 @keyframes lp-scan {
-    0%   { top: 0%;   opacity: 0; }
+    0%   { transform: translateY(0); opacity: 0; }
     4%   { opacity: 1; }
     94%  { opacity: 1; }
-    100% { top: 100%; opacity: 0; }
+    100% { transform: translateY(100%); opacity: 0; }
 }
 
 /* ── Corner brackets ── */
@@ -3786,18 +3766,15 @@ hr {
     filter:
         drop-shadow(0 0 8px rgba(0,185,255,0.7))
         drop-shadow(0 0 20px rgba(0,185,255,0.3));
-    animation: lp-gear-spin 12s linear infinite, lp-gear-glow 3s ease-in-out infinite;
+    /* Solo el giro (transform). Animar filter/color re-rasterizaba el
+       engranaje en cada frame; el filtro queda estático y el pulso del
+       glow lo hace el halo .lp-gear-glow por opacity. */
+    animation: lp-gear-spin 12s linear infinite;
 }
 @keyframes lp-gear-spin { to { transform: rotate(360deg); } }
 @keyframes lp-gear-glow {
-    0%, 100% {
-        filter: drop-shadow(0 0 8px rgba(0,185,255,0.7)) drop-shadow(0 0 20px rgba(0,185,255,0.3));
-        color: rgba(0,185,255,0.55);
-    }
-    50% {
-        filter: drop-shadow(0 0 14px rgba(0,185,255,1)) drop-shadow(0 0 32px rgba(0,185,255,0.5)) drop-shadow(0 0 4px rgba(57,255,20,0.4));
-        color: rgba(0,210,255,0.75);
-    }
+    0%, 100% { opacity: 0.55; }
+    50%      { opacity: 1; }
 }
 
 .lp-gear-glow {
@@ -3922,14 +3899,17 @@ hr {
 }
 .lp-progress-fill {
     height: 100%;
+    width: 100%;
     border-radius: 4px;
     background: linear-gradient(90deg, #00b9ff 0%, #39ff14 100%);
     box-shadow: 0 0 8px rgba(0,185,255,0.6), 0 0 16px rgba(57,255,20,0.3);
+    /* scaleX en vez de width: animar width recalcula layout en cada frame. */
+    transform-origin: left center;
     animation: lp-progress 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 .lp-progress-glow {
     position: absolute;
-    top: -3px; bottom: -3px;
+    top: -3px; bottom: -3px; left: 0;
     border-radius: 4px;
     pointer-events: none;
     background: linear-gradient(90deg, transparent, rgba(0,200,255,0.35), transparent);
@@ -3937,17 +3917,19 @@ hr {
     animation: lp-progress-glow 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 @keyframes lp-progress {
-    0%   { width: 0%;   opacity: 1; }
-    80%  { width: 100%; opacity: 1; }
-    95%  { width: 100%; opacity: 0; }
-    100% { width: 0%;   opacity: 0; }
+    0%   { transform: scaleX(0); opacity: 1; }
+    80%  { transform: scaleX(1); opacity: 1; }
+    95%  { transform: scaleX(1); opacity: 0; }
+    100% { transform: scaleX(0); opacity: 0; }
 }
+/* translateX en vez de left: mover `left` recalcula layout en cada frame.
+   La pista mide 220px y el brillo 40px → recorrido de 180px. */
 @keyframes lp-progress-glow {
-    0%   { left: 0; opacity: 0; }
+    0%   { transform: translateX(0); opacity: 0; }
     10%  { opacity: 1; }
-    80%  { left: calc(100% - 40px); opacity: 1; }
+    80%  { transform: translateX(180px); opacity: 1; }
     95%  { opacity: 0; }
-    100% { left: 0; opacity: 0; }
+    100% { transform: translateX(0); opacity: 0; }
 }
 
 /* Sub-status */
@@ -4103,8 +4085,9 @@ hr {
 
 .sc-scanline {
     position: absolute;
-    left: 0; width: 100%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,185,255,0.4), rgba(57,255,20,0.25), transparent);
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* Línea de 1px en el borde superior; barrido por transform (fp-scan). */
+    background: linear-gradient(90deg, transparent, rgba(0,185,255,0.4), rgba(57,255,20,0.25), transparent) 0 0 / 100% 1px no-repeat;
     animation: fp-scan 4s linear infinite;
     pointer-events: none;
     z-index: 1;

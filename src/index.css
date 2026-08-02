@@ -131,13 +131,15 @@ button:focus-visible {
     from { opacity: 0; transform: translateX(40px) scale(0.93) rotateY(-4deg); }
     to   { opacity: 1; transform: translateX(0)    scale(1)    rotateY(0deg);  }
 }
+/* Solo transform+opacity (compositadas). Animar box-shadow o filter
+   repinta el elemento en cada frame — era parte del consumo de CPU. */
 @keyframes notif-pulse-dot {
-    0%, 100% { opacity: 1;   transform: scale(1);    box-shadow: 0 0 0 0 currentColor; }
-    50%      { opacity: 0.7; transform: scale(1.2);  box-shadow: 0 0 6px 2px currentColor; }
+    0%, 100% { opacity: 1;   transform: scale(1); }
+    50%      { opacity: 0.7; transform: scale(1.2); }
 }
 @keyframes notif-glow-green {
-    0%, 100% { filter: drop-shadow(0 0 3px #10b981); }
-    50%      { filter: drop-shadow(0 0 8px #10b981) drop-shadow(0 0 14px #10b98155); }
+    0%, 100% { opacity: 0.72; }
+    50%      { opacity: 1; }
 }
 @keyframes notif-badge-pop {
     0%   { transform: scale(0.6) translateY(-4px); opacity: 0; }
@@ -151,6 +153,8 @@ button:focus-visible {
     animation: notif-pulse-dot 2s ease-in-out infinite;
 }
 .notif-icon-active {
+    /* Glow estático (se pinta una vez); el pulso lo da la opacidad. */
+    filter: drop-shadow(0 0 6px #10b981);
     animation: notif-glow-green 2.2s ease-in-out infinite;
 }
 .notif-badge {
@@ -177,4 +181,14 @@ button:focus-visible {
     transition: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+}
+
+/* Ventana no visible (minimizada u otra app al frente): pausa total de
+   animaciones. Electron con backgroundThrottling desactivado sigue
+   pintando en segundo plano si no se corta acá. La clase la pone
+   main.jsx escuchando visibilitychange. */
+.app-hidden *,
+.app-hidden *::before,
+.app-hidden *::after {
+    animation-play-state: paused !important;
 }

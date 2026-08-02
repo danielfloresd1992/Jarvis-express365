@@ -112,9 +112,11 @@
     margin-left: auto;
 }
 
+/* Solo opacity (compositada): la sombra queda estática en el elemento;
+   animar box-shadow repintaba en cada frame. */
 @keyframes boxModal-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0,185,255,0.8); }
-    50%       { opacity: 0.4; box-shadow: 0 0 4px rgba(0,185,255,0.3); }
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
 }
 
 .boxModal-title {
