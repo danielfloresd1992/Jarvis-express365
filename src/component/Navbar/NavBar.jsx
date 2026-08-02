@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '../../store/slices/user.js';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { desconnectIo } from '../../store/slices/socketio';
+import { desconnectIo, socketAppManager } from '../../store/slices/socketio';
 import ListNovelties from './listNovelties.jsx';
 import { socket } from '../../libs/socket/io.js';
 import URL from '../../libs/fetch_data/api_conexion.js';
@@ -26,11 +26,21 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
     useEffect(() => {
         let key = true;
 
-        const closeSession = () => {
-            if (key) {
-                boxModal.open('Aviso', 'El administrador ha decidido que esta sessión ha caducado');
-                closeSesscion();
-            }
+        const closeSession = (payload) => {
+            if (!key) return;
+
+            // Payload nuevo desde ava bot: { userId } — si trae un _id y no
+            // es el de ESTA sesión, el cierre no va dirigido a este cliente.
+            // El formato viejo ('close') o un userId vacío cierran todas las
+            // sesiones, como siempre.
+            const targetUserId = (payload && typeof payload === 'object') ? payload.userId : null;
+            if (targetUserId && String(targetUserId) !== String(userSelet?._id)) return;
+
+            boxModal.open({
+                title: 'Aviso',
+                description: 'El administrador ha decidido que esta sessión ha caducado'
+            });
+            closeSesscion();
         };
         const resetApp = () => {
             if (key) {
@@ -44,10 +54,37 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
 
 
         return () => {
+            key = false;
             socket.off('close-session-express', closeSession);
             socket.off('reset-session-express', resetApp);
         }
-    }, []);
+    }, [userSelet?._id]);
+
+
+
+    // Cierre de sesión remoto: cuando el usuario marca su SALIDA laboral en
+    // bioJarvis, jarvis_api emite 'close-session-user' con su _id por el
+    // socket de jarvis (socketAppManager). Si es el usuario de ESTA sesión,
+    // se reutiliza el mismo closeSesscion del botón de cerrar sesión.
+    useEffect(() => {
+        const sessionUserId = userSelet?._id;
+        if (!sessionUserId) return;
+
+        const closeIfCurrentUser = (payload) => {
+            if (String(payload?.userId) === String(sessionUserId)) {
+                boxModal.open({
+                    title: 'Fin de la jornada',
+                    description: 'Marcaste tu salida: la sesión se cerró automáticamente.'
+                });
+                closeSesscion();
+            }
+        };
+
+        socketAppManager.on('close-session-user', closeIfCurrentUser);
+        return () => {
+            socketAppManager.off('close-session-user', closeIfCurrentUser);
+        };
+    }, [userSelet?._id]);
 
 
 
