@@ -13,6 +13,7 @@ import { Servises } from './servise/servise.jsx';
 import { TabletDelay } from './tablet/tablet.jsx';
 import TabletTouch from './tabletTouch/tablet_touch.jsx';
 import ErrorTiket from './error_tiket/ErrorTiket.jsx'
+import NoComanda from './no_comanda/NoComanda.jsx'
 
 
 
@@ -34,6 +35,7 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
             case 'tablet': return <TabletDelay awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[4]} />;
             case 'tablet-touch': return <TabletTouch awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '67893e1e35aa90710e005d09')} />
             case 'tablet-tiket': return <ErrorTiket awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '67fe7590e3a4f498308de7e1')} />;
+            case 'tablet-no-comanda': return <NoComanda awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '6a70d377003e6d1c9effbc76')} />;
             default: null;
                 break;
         }

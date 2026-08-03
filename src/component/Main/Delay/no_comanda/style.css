@@ -1,0 +1,54 @@
+/* ── Mueca dorada "Componente creado por AI" ─────────────────────────────
+   Oro brillante: base con degradado + luz superior (inset), y un destello
+   diagonal que recorre la etiqueta cada ~3s. El destello anima SOLO
+   transform (compositado en GPU, sin repintados por frame — mismo criterio
+   de la optimización de CPU en reposo) y se pausa solo en .lite-mode. */
+
+.ai-badge {
+    position: relative;
+    overflow: hidden;
+    align-self: center;
+    margin: 0 auto 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    width: fit-content;
+    background: linear-gradient(135deg, #ffce3d 0%, #f0a500 45%, #d98e04 100%);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(140, 90, 0, 0.45);
+    box-shadow:
+        0 2px 8px rgba(240, 165, 0, 0.35),
+        inset 0 1px 0 rgba(255, 240, 190, 0.65),
+        inset 0 -1px 2px rgba(150, 95, 0, 0.35);
+}
+
+/* Destello: franja de luz inclinada que cruza y descansa entre pasadas */
+.ai-badge::after {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: 0;
+    width: 55%;
+    height: 140%;
+    background: linear-gradient(105deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.20) 40%,
+        rgba(255, 246, 214, 0.85) 50%,
+        rgba(255, 255, 255, 0.20) 60%,
+        transparent 80%);
+    transform: translateX(-160%) skewX(-18deg);
+    animation: ai-badge-shine 3.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes ai-badge-shine {
+    0%   { transform: translateX(-160%) skewX(-18deg); }
+    45%  { transform: translateX(320%) skewX(-18deg); }
+    100% { transform: translateX(320%) skewX(-18deg); }
+}
