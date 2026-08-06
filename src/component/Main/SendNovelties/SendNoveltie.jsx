@@ -68,7 +68,12 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
 
 
-    if (videoState) saveVideo(videoState).then((url) => console.log(url))
+    // OJO: acá había un `if (videoState) saveVideo(videoState).then(...)` suelto
+    // en el cuerpo del componente. Al no estar dentro de un efecto ni de un
+    // handler, se ejecutaba en CADA render: cada tecla escrita en la nota, la
+    // mesa o la hora subía el video entero de nuevo (y con StrictMode, dos
+    // veces por render). El resultado además se descartaba en un console.log.
+    // La subida real ya ocurre una sola vez en handlerSubmit.
 
 
 

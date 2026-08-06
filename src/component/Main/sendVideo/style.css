@@ -67,6 +67,17 @@
     margin: 0;
 }
 
+/* Aclaración bajo el número: "más rápido", "se unen en orden".
+   El valor solo no decía nada a quien entra por primera vez. */
+.vc-control__hint {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: rgba(150, 195, 235, 0.7);
+    margin: 0;
+    text-align: center;
+}
+
 .vc-stepper {
     display: flex;
     align-items: center;
@@ -188,6 +199,79 @@
     gap: 1rem;
 }
 
+/* ══════════════════════════════════════════════════════════
+   ZONA DE CARGA (estado vacío)
+   Es lo primero que ve alguien que nunca usó el componente, así
+   que dice las tres cosas que necesita: qué hacer, que además se
+   puede hacer clic, y qué archivos acepta.
+   ══════════════════════════════════════════════════════════ */
+.vc-dropzone {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 14px;
+    border: 1.5px dashed rgba(0, 185, 255, 0.32);
+    background: rgba(2, 12, 28, 0.55);
+    transition: border-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+                background 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vc-dropzone:hover,
+.vc-dropzone:focus-visible {
+    border-color: rgba(0, 185, 255, 0.65);
+    background: rgba(0, 185, 255, 0.05);
+    box-shadow: 0 0 26px rgba(0, 185, 255, 0.14);
+    outline: none;
+}
+
+/* Arrastrando encima: verde neón, el mismo "sí, suéltalo acá" que
+   ya usan los recuadros múltiples (.vc-drop.ondrop) */
+.vc-dropzone.is-over {
+    border-style: solid;
+    border-color: rgba(57, 255, 20, 0.65);
+    background: rgba(57, 255, 20, 0.05);
+    box-shadow: 0 0 30px rgba(57, 255, 20, 0.2);
+}
+
+.vc-dropzone__icon {
+    width: 46px;
+    height: 46px;
+    color: rgba(0, 185, 255, 0.6);
+    margin-bottom: 0.3rem;
+}
+
+.vc-dropzone__title {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: rgba(225, 242, 255, 0.95);
+}
+
+.vc-dropzone__action {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(0, 200, 255, 0.85);
+}
+
+.vc-dropzone__meta {
+    margin: 0.5rem 0 0;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    max-width: 34ch;
+    color: rgba(150, 195, 235, 0.75);
+}
+
 /* ── Reproductor principal ── */
 .vc-player-wrap {
     width: 100%;
@@ -290,7 +374,21 @@
     box-shadow: 0 0 26px rgba(57, 255, 20, 0.2);
 }
 
-/* Capa de bloqueo (orden de carga) */
+/* Recuadro bloqueado: no invita a hacer clic */
+.vc-drop.is-locked { cursor: default; }
+.vc-drop.is-locked:hover {
+    border-color: rgba(0, 185, 255, 0.3);
+    box-shadow: none;
+}
+
+/* Foco por teclado en el recuadro habilitado */
+.vc-drop:focus-visible {
+    outline: none;
+    border-color: rgba(0, 185, 255, 0.65);
+    box-shadow: 0 0 0 3px rgba(0, 185, 255, 0.25);
+}
+
+/* Capa de bloqueo (orden de carga): ahora dice POR QUÉ está bloqueado */
 .vc-drop__lock {
     position: absolute;
     inset: 0;
@@ -298,10 +396,20 @@
     background: rgba(1, 8, 18, 0.72);
     backdrop-filter: blur(2px);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    text-align: center;
 }
 .vc-drop__lock svg { width: 26px; height: 26px; color: rgba(0, 185, 255, 0.4); }
+.vc-drop__lock-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: rgba(160, 200, 235, 0.8);
+}
 
 /* Placeholder de drop */
 .vc-drop__placeholder {
@@ -322,6 +430,12 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+}
+.vc-drop__hint {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: rgba(150, 195, 235, 0.6);
 }
 
 .vc-drop__video {

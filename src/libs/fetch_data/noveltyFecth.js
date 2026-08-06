@@ -14,7 +14,11 @@ export const setNovelty = dataForRequest => {
 
 export const saveVideo = (file) => {
     return new Promise((resolve, reject) => {
-        if (!file) resolve(null);
+        // Faltaba el `return`: resolver la promesa no corta la ejecución, así
+        // que sin archivo se enviaba igual un POST con el FormData vacío.
+        // Hoy queda tapado porque los llamadores comprueban antes, pero
+        // cualquier llamador nuevo mandaría una petición inválida.
+        if (!file) return resolve(null);
         const formData = new FormData();
         formData.append('video', file);
         axiosInstance.post(`${IP}/novelty/video`, formData)
