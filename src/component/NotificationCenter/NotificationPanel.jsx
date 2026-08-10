@@ -12,7 +12,7 @@ import NotificationItem from './NotificationItem';
  */
 
 export default function NotificationPanel({
-    open, onClose, notifications, unread, loading, loadingMore, error, hasMore,
+    open, onClose, notifications, unread, loading, loadingMore, error, hasMore, nextCount = 0,
     onLoadMore, onRetry, onMarkRead, onMarkAllRead, textOf, onDecide, deciding, isAdmin,
 }) {
     const ref = useRef(null);
@@ -48,7 +48,7 @@ export default function NotificationPanel({
             ref={ref}
             role='dialog'
             aria-label='Notificaciones'
-            className='notif-panel absolute right-0 top-[calc(100%+10px)] z-[1200] w-[370px] max-w-[calc(100vw-24px)] max-h-[70vh] flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden'
+            className='notif-panel absolute right-0 top-[calc(100%+10px)] z-[1200] w-[370px] max-w-[calc(100vw-24px)] flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden'
             style={{ boxShadow: '0 12px 34px -6px rgba(15,23,42,0.30)' }}
         >
             {/* Cabecera */}
@@ -70,8 +70,13 @@ export default function NotificationPanel({
                 )}
             </div>
 
-            {/* Lista */}
-            <div className='flex-1 min-h-0 overflow-y-auto'>
+            {/*
+              Lista con ALTO FIJO (notif-panel__list) y no elástico: cada tanda
+              que se carga se va al scroll en vez de estirar la bandeja. Sin
+              esto, pulsar "ver más" empujaba el panel hacia abajo y el botón se
+              escapaba de donde estaba el cursor.
+            */}
+            <div className='notif-panel__list overflow-y-auto'>
                 {loading && notifications.length === 0 && (
                     <p className='px-4 py-8 text-center text-xs text-gray-400'>Cargando…</p>
                 )}
@@ -126,7 +131,7 @@ export default function NotificationPanel({
                         disabled={loadingMore}
                         className='w-full py-3 text-[11px] font-bold text-[#1f9a08] hover:bg-gray-50 transition-colors disabled:opacity-60'
                     >
-                        {loadingMore ? 'Cargando…' : 'Ver más'}
+                        {loadingMore ? 'Cargando…' : (nextCount ? `Ver ${nextCount} más` : 'Ver más')}
                     </button>
                 )}
             </div>

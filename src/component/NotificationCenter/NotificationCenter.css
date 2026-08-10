@@ -129,3 +129,20 @@
     .notif-item { opacity: 1; transform: none; }
     .notif-badge-halo { opacity: .35; }
 }
+
+
+/* ── Alto de la bandeja ─────────────────────────────────────────────── */
+/* La lista mide SIEMPRE lo mismo y lo que sobra se desplaza. Da para las
+   siete de la primera tanda; a partir de ahí cada "ver más" se va al
+   scroll.
+
+   Antes crecía con el contenido (max-h-[70vh] en el panel): cargar otra
+   tanda estiraba la bandeja hacia abajo y el botón se escapaba de donde
+   estaba el cursor.
+
+   El max-height gana en pantallas bajas, donde 432px no caben. La barra de
+   navegación y el margen superior se descuentan ahí. */
+.notif-panel__list {
+    height: 432px;
+    max-height: calc(100vh - 150px);
+}

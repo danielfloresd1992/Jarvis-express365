@@ -18,7 +18,7 @@ import './NotificationCenter.css';
 
 export default function NotificationBell() {
     const {
-        notifications, unread, loading, loadingMore, error, hasMore,
+        notifications, unread, loading, loadingMore, error, hasMore, nextCount,
         load, loadMore, markRead, markAllRead, decide, deciding,
         textOf, pulseKey, hasNew, markSeen, isAdmin,
     } = useNotifications();
@@ -134,6 +134,7 @@ export default function NotificationBell() {
                 loadingMore={loadingMore}
                 error={error}
                 hasMore={hasMore}
+                nextCount={nextCount}
                 onLoadMore={loadMore}
                 onRetry={load}
                 onMarkRead={markRead}
