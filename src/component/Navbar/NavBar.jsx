@@ -9,6 +9,7 @@ import ListNovelties from './listNovelties.jsx';
 import { socket } from '../../libs/socket/io.js';
 import URL from '../../libs/fetch_data/api_conexion.js';
 import { confirmAuthentication } from '../../libs/fetch_data/authFetch.js';
+import NotificationBell from '../NotificationCenter';
 
 
 
@@ -126,6 +127,14 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
             
 
             <ul className='nav-bar__actions'>
+                {/* Centro de notificaciones: se monta entero desde su módulo.
+                    También en móvil, a diferencia de los otros accesos: un aviso
+                    de que te cambiaron el horario importa igual desde el
+                    teléfono. */}
+                <li>
+                    <NotificationBell />
+                </li>
+
                 {!isMobile && (
                     <>
                         <li>

@@ -1,0 +1,131 @@
+/* ══════════════════════════════════════════════════════════════════════
+   CENTRO DE NOTIFICACIONES — animaciones
+   ══════════════════════════════════════════════════════════════════════
+   TODO anima SOLO transform y opacity, que el navegador resuelve en el
+   compositor sin repintar.
+
+   No es preferencia: animar box-shadow y width dejó a esta misma app
+   consumiendo 20% de CPU en reposo, y corre en Electron sobre las
+   estaciones de monitoreo, encendida toda la jornada.
+
+   La campana además NO suena en bucle: el ciclo dura 5s y el movimiento
+   ocupa el primer 12%. El resto son fotogramas quietos, así que el
+   compositor no tiene trabajo entre repique y repique. */
+
+/* ── Repique periódico mientras haya sin leer ───────────────────────── */
+@keyframes notifBellRing {
+    0%   { transform: rotate(0deg); }
+    2%   { transform: rotate(14deg); }
+    4%   { transform: rotate(-11deg); }
+    6%   { transform: rotate(8deg); }
+    8%   { transform: rotate(-6deg); }
+    10%  { transform: rotate(3deg); }
+    12%,
+    100% { transform: rotate(0deg); }
+}
+
+.notif-bell--alert {
+    animation: notifBellRing 5s ease-in-out infinite;
+    transform-origin: 50% 15%;   /* pivota desde el asa, como una campana */
+    will-change: transform;
+}
+
+/* ── Sacudida al LLEGAR una notificación ────────────────────────────── */
+/* Se dispara remontando el nodo (key en React): una sola pasada y termina. */
+@keyframes notifBellShake {
+    0%   { transform: rotate(0deg) scale(1); }
+    15%  { transform: rotate(-22deg) scale(1.14); }
+    30%  { transform: rotate(18deg) scale(1.14); }
+    45%  { transform: rotate(-14deg) scale(1.08); }
+    60%  { transform: rotate(10deg) scale(1.05); }
+    75%  { transform: rotate(-6deg) scale(1.02); }
+    100% { transform: rotate(0deg) scale(1); }
+}
+
+.notif-bell--shake {
+    animation: notifBellShake .7s cubic-bezier(.36, .07, .19, .97) 1;
+    transform-origin: 50% 15%;
+}
+
+/* ── Halo del contador ──────────────────────────────────────────────── */
+@keyframes notifBadgePulse {
+    0%   { transform: scale(1); opacity: .55; }
+    70%  { transform: scale(2.1); opacity: 0; }
+    100% { transform: scale(2.1); opacity: 0; }
+}
+
+.notif-badge-halo {
+    animation: notifBadgePulse 2.4s cubic-bezier(0, 0, .2, 1) infinite;
+}
+
+/* Golpe del número cuando sube la cuenta.
+   Sin sobreimpulso: la salida exponencial arranca rápido y frena suave, y
+   eso ya llama la atención. Un rebote sobre una insignia de 9px se lee
+   juguetón y desentona con el resto de la barra. */
+@keyframes notifBadgePop {
+    0%   { transform: scale(.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.notif-badge-pop {
+    animation: notifBadgePop .32s cubic-bezier(.16, 1, .3, 1) 1;
+}
+
+/* ── Entrada de la bandeja ──────────────────────────────────────────── */
+@keyframes notifPanelIn {
+    from { opacity: 0; transform: translateY(-10px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.notif-panel {
+    animation: notifPanelIn .22s cubic-bezier(.16, 1, .3, 1) 1;
+    transform-origin: top right;   /* cuelga del navbar, no de un riel */
+}
+
+/* ── Entrada escalonada de cada notificación ────────────────────────── */
+@keyframes notifItemIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.notif-item {
+    animation: notifItemIn .26s ease-out both;
+}
+
+/* El escalonado se corta al 8º: más allá el usuario ya está haciendo
+   scroll y solo agregaría espera. */
+.notif-item:nth-child(1) { animation-delay: .02s; }
+.notif-item:nth-child(2) { animation-delay: .05s; }
+.notif-item:nth-child(3) { animation-delay: .08s; }
+.notif-item:nth-child(4) { animation-delay: .11s; }
+.notif-item:nth-child(5) { animation-delay: .14s; }
+.notif-item:nth-child(6) { animation-delay: .17s; }
+.notif-item:nth-child(7) { animation-delay: .20s; }
+.notif-item:nth-child(n+8) { animation-delay: .22s; }
+
+/* ── Punto de "no leída": latido lento ──────────────────────────────── */
+@keyframes notifDotBreath {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.35); }
+}
+
+.notif-dot {
+    animation: notifDotBreath 2.6s ease-in-out infinite;
+}
+
+/* ── Accesibilidad ──────────────────────────────────────────────────── */
+/* No se ocultan los indicadores, solo se detienen: quien desactiva el
+   movimiento sigue necesitando saber que tiene notificaciones. */
+@media (prefers-reduced-motion: reduce) {
+    .notif-bell--alert,
+    .notif-bell--shake,
+    .notif-badge-halo,
+    .notif-badge-pop,
+    .notif-panel,
+    .notif-item,
+    .notif-dot {
+        animation: none;
+    }
+    .notif-item { opacity: 1; transform: none; }
+    .notif-badge-halo { opacity: .35; }
+}
