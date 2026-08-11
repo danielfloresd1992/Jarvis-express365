@@ -81,7 +81,10 @@ export default function NotificationItem({
                         : `notif-dot ${LEVEL_DOT[n.level] || LEVEL_DOT.info}`}`}
                     />
 
-                    <NotificationAvatar n={n} />
+                    {/* Una familia puede pintar a las personas por su cuenta en
+                        su detalle; ahí el avatar chico de al lado sería la
+                        misma cara repetida. Lo decide la vista. */}
+                    {!view.hideAvatar && <NotificationAvatar n={n} />}
 
                     <div className='min-w-0 flex-1'>
                         <p className={`text-[12.5px] leading-snug ${n.read ? 'font-semibold text-gray-600' : 'font-bold text-gray-800'}`}>
