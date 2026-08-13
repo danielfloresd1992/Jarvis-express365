@@ -632,3 +632,64 @@
 }
 
 .notif-arrow { color: rgba(0, 185, 255, 0.35); }
+
+
+/* ══ QUÉ CAMBIÓ EN EL HORARIO ═════════════════════════════════════════ */
+/* Un día por línea: fecha, lo que le pusieron y —si el tipo las lleva— sus
+   horas. Los tonos son los de la grilla del horario, aclarados para el fondo
+   oscuro: quien reconoce una falta en rojo en la grilla la reconoce acá. */
+
+.notif-days {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.notif-day {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .719rem;
+}
+
+.notif-day__date {
+    color: var(--nc-ink);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.notif-day__tag {
+    flex-shrink: 0;
+    padding: .05rem .32rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-size: .625rem;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.notif-day__hours {
+    color: var(--nc-meta);
+    font-size: .625rem;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.notif-day__more {
+    color: var(--nc-meta);
+    font-size: .656rem;
+    padding-top: .1rem;
+}
+
+/* Falta en rojo pleno, como en la grilla: es el estado que hay que ver. */
+.notif-day--falta      { color: #fff;    background: #d64545; border-color: #e86a6a; }
+.notif-day--extra      { color: #7ee08a; background: rgba(62, 207, 74, 0.14);  border-color: rgba(62, 207, 74, 0.34); }
+.notif-day--libre      { color: #c3d3e0; background: rgba(160, 200, 230, 0.12); border-color: rgba(160, 200, 230, 0.28); }
+.notif-day--permiso    { color: #ffc95c; background: rgba(255, 176, 32, 0.14);  border-color: rgba(255, 176, 32, 0.34); }
+.notif-day--vacaciones { color: #7fe0ea; background: rgba(45, 212, 191, 0.14);  border-color: rgba(45, 212, 191, 0.34); }
+.notif-day--laboral    { color: var(--nc-body); background: rgba(0, 185, 255, 0.1); border-color: var(--nc-border); }
+.notif-day--guardia    { color: #7fe0ea; background: rgba(45, 212, 191, 0.16);  border-color: rgba(45, 212, 191, 0.36); }
+.notif-day--auxiliar   { color: #b3b9ff; background: rgba(129, 140, 248, 0.16); border-color: rgba(129, 140, 248, 0.36); }

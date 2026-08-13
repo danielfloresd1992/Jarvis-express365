@@ -21,6 +21,7 @@ export { default as NotificationPanel } from './NotificationPanel';
 export { default as NotificationItem } from './NotificationItem';
 export { default as NotificationAvatar } from './NotificationAvatar';
 export { default as AttendanceDetail } from './AttendanceDetail';
+export { default as ScheduleDetail } from './ScheduleDetail';
 export { default as useNotifications, NOTIFICATION_EVENT } from './useNotifications';
 export { viewOf } from './notificationViews';
 

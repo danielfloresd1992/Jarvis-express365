@@ -4,6 +4,15 @@ import App from "./App";
 import store from "./store";
 import { Provider } from "react-redux";
 
+// El CSS global se carga acá y no solo dentro de App: la pantalla de "solo
+// escritorio" se pinta EN LUGAR de App y también necesita sus variables.
+import "./index.css";
+import { puedeEjecutarse } from "./libs/entorno/esEscritorio";
+import SoloEscritorio from "./component/SoloEscritorio/SoloEscritorio";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+
+
 // ── Ahorro de CPU en reposo ─────────────────────────────────────────
 // 1. Ventana oculta (minimizada u otra app al frente): .app-hidden pausa
 //    todas las animaciones (regla en index.css). Electron con
@@ -23,20 +32,37 @@ const resetIdleTimer = () => {
     idleTimer = setTimeout(enterLiteMode, IDLE_MS);
 };
 
-['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'].forEach(eventName =>
-    window.addEventListener(eventName, resetIdleTimer, { passive: true })
-);
-resetIdleTimer();
+const arrancarAhorroDeCpu = () => {
+    ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'].forEach(eventName =>
+        window.addEventListener(eventName, resetIdleTimer, { passive: true })
+    );
+    resetIdleTimer();
 
-document.addEventListener('visibilitychange', () => {
-    rootElement.classList.toggle('app-hidden', document.hidden);
-});
+    document.addEventListener('visibilitychange', () => {
+        rootElement.classList.toggle('app-hidden', document.hidden);
+    });
+};
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <App />
-        </Provider>
-    </React.StrictMode>
-);
+
+// ── Arranque ────────────────────────────────────────────────────────
+// Reportes Express solo trabaja dentro de la aplicación de escritorio. Fuera
+// de ahí se pinta el aviso y NO se monta nada más.
+//
+// La comprobación va ANTES de todo lo demás a propósito: el ahorro de CPU deja
+// temporizadores y escuchas puestas, y App abre la sesión y el socket al
+// montarse. Decidir después dejaría el aviso en pantalla con la aplicación
+// funcionando por detrás.
+if (puedeEjecutarse()) {
+    arrancarAhorroDeCpu();
+
+    root.render(
+        <React.StrictMode>
+            <Provider store={store}>
+                <App />
+            </Provider>
+        </React.StrictMode>
+    );
+}
+else {
+    root.render(<SoloEscritorio />);
+}

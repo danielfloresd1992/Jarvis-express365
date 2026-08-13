@@ -1,5 +1,6 @@
 import AttendanceDetail from './AttendanceDetail';
 import CommentDetail from './CommentDetail';
+import ScheduleDetail from './ScheduleDetail';
 
 // ══════════════════════════════════════════════════════════════════════
 // VISTAS POR FAMILIA — el espejo en el cliente del patrón del backend
@@ -107,6 +108,9 @@ const VIEWS = {
         rgb: '62 207 74',
         watermark: Calendar,
         showTarget: true,
+        // Cada día que cambió, con lo que le pusieron. El cuerpo del aviso lo
+        // resume; esto lo desglosa y lo resalta.
+        detail: (n) => <ScheduleDetail n={n} />,
         glyph: CalendarGlyph,
         fallbackIcon: CalendarGlyph,
     },
