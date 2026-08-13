@@ -43,29 +43,23 @@ const fechaLarga = (fecha) => {
 
 /** Foto del marcaje con su etiqueta y su hora. */
 function Marca({ label, url, time, tone }) {
-    const paleta = tone === 'in'
-        ? { box: 'bg-emerald-50 border-emerald-200', tag: 'text-emerald-700', val: 'text-emerald-900' }
-        : { box: 'bg-orange-50 border-orange-200', tag: 'text-orange-700', val: 'text-orange-900' };
-
     return (
-        <div className={`rounded-lg border p-2 ${paleta.box}`}>
-            <p className={`text-[9px] font-bold uppercase tracking-wider ${paleta.tag}`}>{label}</p>
-            <p className={`text-[12px] font-bold leading-tight ${paleta.val}`}>{time || '—'}</p>
+        <div className={`notif-mark notif-mark--${tone}`}>
+            <p className='notif-mark__label'>{label}</p>
+            <p className='notif-mark__time'>{time || '—'}</p>
 
             {url ? (
                 <img
                     src={url}
                     alt={label}
                     loading='lazy'
-                    className='w-full h-[62px] object-cover rounded mt-1.5 bg-white'
+                    className='notif-mark__photo'
                     /* La foto vive en el servidor de imágenes: si se cayó o la
                        borraron, esconderla es mejor que dejar el cuadro roto. */
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
             ) : (
-                <div className='w-full h-[62px] rounded mt-1.5 bg-white/70 border border-dashed border-current opacity-40 flex items-center justify-center'>
-                    <span className='text-[9px] font-semibold'>sin foto</span>
-                </div>
+                <div className='notif-mark__empty'>sin foto</div>
             )}
         </div>
     );
@@ -73,18 +67,8 @@ function Marca({ label, url, time, tone }) {
 
 
 /** Etiqueta corta de consecuencia: puntual, retardo, unidades, día extra… */
-function Chip({ text, tone }) {
-    const tonos = {
-        ok: 'bg-[#29c50c]/10 text-[#1f9a08] border-[#29c50c]/30',
-        warn: 'bg-amber-100 text-amber-700 border-amber-300',
-        bad: 'bg-rose-100 text-rose-700 border-rose-300',
-        info: 'bg-blue-50 text-blue-700 border-blue-200',
-    };
-    return (
-        <span className={`inline-flex items-center px-1.5 py-[1px] rounded border text-[9.5px] font-bold ${tonos[tone]}`}>
-            {text}
-        </span>
-    );
+function Tag({ text, tone }) {
+    return <span className={`notif-tag notif-tag--${tone}`}>{text}</span>;
 }
 
 
@@ -99,9 +83,7 @@ export default function AttendanceDetail({ n }) {
         <div className='mt-2'>
             {/* La fecha de la JORNADA, que no siempre es la de la notificación:
                 el turno nocturno se cierra en la madrugada del día siguiente. */}
-            <p className='text-[10px] text-gray-400 mb-1.5 capitalize'>
-                {fechaLarga(m.date || m.checkIn)}
-            </p>
+            <p className='notif-detail__day'>{fechaLarga(m.date || m.checkIn)}</p>
 
             <div className='grid grid-cols-2 gap-1.5'>
                 <Marca label='Entrada' url={m.photoIn} time={hora(m.checkIn)} tone='in' />
@@ -110,19 +92,19 @@ export default function AttendanceDetail({ n }) {
 
             <div className='flex flex-wrap items-center gap-1 mt-1.5'>
                 {m.isLate
-                    ? <Chip tone='bad' text={`${m.minutesLate || 0} min tarde`} />
-                    : <Chip tone='ok' text='Puntual' />}
+                    ? <Tag tone='bad' text={`${m.minutesLate || 0} min tarde`} />
+                    : <Tag tone='ok' text='Puntual' />}
 
                 {unidades > 0 && (
-                    <Chip tone='warn' text={`${unidades} ${unidades === 1 ? 'unidad' : 'unidades'} desc.`} />
+                    <Tag tone='warn' text={`${unidades} ${unidades === 1 ? 'unidad' : 'unidades'} desc.`} />
                 )}
 
-                {m.isExtraDay && <Chip tone='info' text='Día extra' />}
+                {m.isExtraDay && <Tag tone='info' text='Día extra' />}
 
-                {m.workedLabel && <Chip tone='info' text={`Trabajó ${m.workedLabel}`} />}
+                {m.workedLabel && <Tag tone='info' text={`Trabajó ${m.workedLabel}`} />}
 
                 {extras > 0 && (
-                    <Chip
+                    <Tag
                         /* Aprobadas en verde, pendientes en ámbar: son dos
                            realidades distintas para quien las trabajó. */
                         tone={m.overtimeStatus === 'approved' ? 'ok' : 'warn'}
@@ -131,7 +113,7 @@ export default function AttendanceDetail({ n }) {
                 )}
 
                 {m.startTime && (
-                    <span className='text-[9.5px] text-gray-400'>pautado {m.startTime}</span>
+                    <span className='notif-meta'>pautado {m.startTime}</span>
                 )}
             </div>
         </div>

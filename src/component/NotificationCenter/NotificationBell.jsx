@@ -49,7 +49,7 @@ export default function NotificationBell() {
     }, [open, markSeen]);
 
     return (
-        <div className='relative'>
+        <div className='notif-center relative'>
             <button
                 type='button'
                 data-notif-bell
@@ -59,8 +59,15 @@ export default function NotificationBell() {
                 title={hasUnread
                     ? `Tienes ${unread} notificación${unread === 1 ? '' : 'es'} sin leer${hasNew ? ' · hay novedades' : ''}`
                     : 'Sin notificaciones nuevas'}
-                className={`nav-bar__action-btn relative ${hasNew ? 'text-rose-600' : ''}`}
+                className={`nav-bar__action-btn notif-bell ${hasNew ? 'notif-bell--new' : hasUnread ? 'notif-bell--seen' : ''}`}
             >
+                {/* Onda que sale del botón al llegar algo. Va remontada con
+                    `key`, igual que la sacudida: es lo único que relanza una
+                    animación CSS ya terminada. */}
+                {hasNew && pulseKey > 0 && (
+                    <span key={`wave-${pulseKey}`} className='notif-bell__wave' aria-hidden='true' />
+                )}
+
                 <span className='relative inline-flex'>
                     {/*
                       DOS CAPAS, no una con dos animaciones: ambas animan
@@ -99,8 +106,8 @@ export default function NotificationBell() {
                         novedad sin ver. */}
                     {hasNew && (
                         <span className='absolute -top-1 -right-1 flex h-[8px] w-[8px]' aria-hidden='true'>
-                            <span className='notif-badge-halo absolute inline-flex h-full w-full rounded-full bg-rose-400'></span>
-                            <span className='relative inline-flex rounded-full h-[8px] w-[8px] bg-rose-500 ring-2 ring-white'></span>
+                            <span className='notif-badge-halo absolute inline-flex h-full w-full rounded-full'></span>
+                            <span className='notif-badge-dot relative inline-flex rounded-full h-[8px] w-[8px]'></span>
                         </span>
                     )}
                 </span>
@@ -116,9 +123,7 @@ export default function NotificationBell() {
                     // la cuenta, no solo al aparecer.
                     <span
                         key={unread}
-                        className={`ml-auto text-[10px] font-black text-white rounded-full px-1.5 py-0.5 leading-none transition-colors ${hasNew
-                            ? 'notif-badge-pop bg-rose-500'
-                            : 'bg-gray-400'}`}
+                        className={`notif-badge-count ml-auto ${hasNew ? 'notif-badge-pop' : 'notif-badge-count--seen'}`}
                     >
                         {unread > 99 ? '99+' : unread}
                     </span>

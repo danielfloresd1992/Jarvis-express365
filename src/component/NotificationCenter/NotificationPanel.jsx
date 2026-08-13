@@ -48,14 +48,13 @@ export default function NotificationPanel({
             ref={ref}
             role='dialog'
             aria-label='Notificaciones'
-            className='notif-panel absolute right-0 top-[calc(100%+10px)] z-[1200] w-[370px] max-w-[calc(100vw-24px)] flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden'
-            style={{ boxShadow: '0 12px 34px -6px rgba(15,23,42,0.30)' }}
+            className='notif-center notif-panel absolute right-0 top-[calc(100%+10px)] z-[1200] w-[370px] max-w-[calc(100vw-24px)] flex flex-col rounded-xl overflow-hidden'
         >
             {/* Cabecera */}
-            <div className='shrink-0 flex items-center gap-2 px-4 py-3 border-b border-gray-100'>
-                <p className='text-sm font-bold text-gray-800'>Notificaciones</p>
+            <div className='notif-panel__head shrink-0 flex items-center gap-2 px-4 py-3'>
+                <p className='notif-panel__title'>Notificaciones</p>
                 {unread > 0 && (
-                    <span className='text-[10px] font-black text-white bg-rose-500 rounded-full px-1.5 py-0.5 leading-none'>
+                    <span className='notif-panel__count'>
                         {unread}
                     </span>
                 )}
@@ -63,7 +62,7 @@ export default function NotificationPanel({
                     <button
                         type='button'
                         onClick={onMarkAllRead}
-                        className='ml-auto text-[11px] font-bold text-[#1f9a08] hover:underline'
+                        className='notif-panel__action ml-auto'
                     >
                         Marcar todas como leídas
                     </button>
@@ -78,7 +77,7 @@ export default function NotificationPanel({
             */}
             <div className='notif-panel__list overflow-y-auto'>
                 {loading && notifications.length === 0 && (
-                    <p className='px-4 py-8 text-center text-xs text-gray-400'>Cargando…</p>
+                    <p className='notif-empty__hint px-4 py-8 text-center'>Cargando…</p>
                 )}
 
                 {/*
@@ -87,12 +86,12 @@ export default function NotificationPanel({
                 */}
                 {error && notifications.length === 0 && (
                     <div className='px-4 py-8 text-center'>
-                        <p className='text-sm font-semibold text-rose-600'>No se pudieron cargar</p>
-                        <p className='text-[11px] text-gray-400 mt-1'>{error}</p>
+                        <p className='notif-error__title'>No se pudieron cargar</p>
+                        <p className='notif-empty__hint'>{error}</p>
                         <button
                             type='button'
                             onClick={onRetry}
-                            className='mt-3 h-8 px-4 rounded-lg text-[11px] font-bold text-white bg-[#29c50c] hover:bg-[#1f9a08] transition-colors'
+                            className='notif-action notif-action--accept mt-3 px-4'
                         >
                             Reintentar
                         </button>
@@ -101,8 +100,8 @@ export default function NotificationPanel({
 
                 {vacia && (
                     <div className='px-4 py-10 text-center'>
-                        <p className='text-sm font-semibold text-gray-500'>Sin notificaciones</p>
-                        <p className='text-[11px] text-gray-400 mt-1'>
+                        <p className='notif-empty__title'>Sin notificaciones</p>
+                        <p className='notif-empty__hint'>
                             Acá aparecerán los cambios del sistema.
                         </p>
                     </div>
@@ -129,7 +128,7 @@ export default function NotificationPanel({
                         type='button'
                         onClick={onLoadMore}
                         disabled={loadingMore}
-                        className='w-full py-3 text-[11px] font-bold text-[#1f9a08] hover:bg-gray-50 transition-colors disabled:opacity-60'
+                        className='notif-panel__action w-full py-3'
                     >
                         {loadingMore ? 'Cargando…' : (nextCount ? `Ver ${nextCount} más` : 'Ver más')}
                     </button>

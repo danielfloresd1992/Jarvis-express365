@@ -20,14 +20,14 @@ const FOTO = 50;
 const nombreDe = (p) => `${p?.name || ''} ${p?.surName || ''}`.trim();
 
 
-/** Cara de 50px. Sin foto, la inicial sobre el gris de siempre. */
-function Cara({ persona, titulo, anillo }) {
+/** Cara de 50px. Sin foto, la inicial. */
+function Cara({ persona, titulo, variante }) {
     const nombre = nombreDe(persona);
 
     return (
         <div className='flex flex-col items-center gap-1 shrink-0' style={{ width: FOTO }}>
             <div
-                className={`rounded-full overflow-hidden bg-slate-200 flex items-center justify-center ring-2 ${anillo}`}
+                className={`notif-person notif-person--${variante}`}
                 style={{ width: FOTO, height: FOTO }}
                 title={`${titulo}: ${nombre || 'sin nombre'}`}
             >
@@ -43,11 +43,9 @@ function Cara({ persona, titulo, anillo }) {
                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
                     )
-                    : <span className='text-[15px] font-black text-slate-500'>{nombre[0] || '?'}</span>}
+                    : <span className='notif-person__initial'>{nombre[0] || '?'}</span>}
             </div>
-            <span className='text-[9px] font-bold uppercase tracking-tighter text-gray-400 leading-none'>
-                {titulo}
-            </span>
+            <span className='notif-detail__label'>{titulo}</span>
         </div>
     );
 }
@@ -60,37 +58,31 @@ export default function CommentDetail({ n }) {
     return (
         <div className='mt-2'>
             <div className='flex items-start gap-3'>
-                <Cara persona={n.actor} titulo='Escribió' anillo='ring-[#29c50c]' />
+                <Cara persona={n.actor} titulo='Escribió' variante='author' />
 
                 {/* Flecha de "sobre": deja claro quién comenta a quién sin
                     repetir los nombres, que ya están en el cuerpo del texto. */}
-                <div className='flex flex-col items-center justify-center pt-[15px] text-gray-300'>
+                <div className='notif-arrow flex items-center justify-center pt-[15px]'>
                     <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' className='w-4 h-4'>
                         <path d='M5 12h14M13 6l6 6-6 6' />
                     </svg>
                 </div>
 
-                <Cara persona={n.target} titulo='Sobre' anillo='ring-blue-400' />
+                <Cara persona={n.target} titulo='Sobre' variante='target' />
 
                 {/* Día del horario comentado. Es dato distinto de la fecha del
                     aviso —que va abajo, en la fila de metadatos—: se puede
                     comentar hoy el turno de la semana pasada. */}
                 {m.dayLabel && (
                     <div className='flex-1 min-w-0 pt-[2px] text-right'>
-                        <p className='text-[9px] font-bold uppercase tracking-tighter text-gray-400 leading-none'>
-                            Día del horario
-                        </p>
-                        <p className='text-[12px] font-black text-gray-700 leading-tight mt-0.5'>
-                            {m.dayLabel}
-                        </p>
+                        <p className='notif-detail__label'>Día del horario</p>
+                        <p className='notif-detail__value mt-0.5'>{m.dayLabel}</p>
                     </div>
                 )}
             </div>
 
-            <blockquote className='mt-2 pl-2.5 border-l-[3px] border-amber-300 bg-amber-50/60 rounded-r py-1.5 pr-2'>
-                <p className='text-[11.5px] text-gray-700 leading-snug italic break-words'>
-                    “{m.message}”
-                </p>
+            <blockquote className='notif-quote'>
+                <p className='notif-quote__text'>“{m.message}”</p>
             </blockquote>
         </div>
     );

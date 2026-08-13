@@ -8,14 +8,21 @@ import { viewOf } from './notificationViews';
  * rutas de Client365 (/user, /clients&manasgement) que en Reportes Express no
  * existen: seguirlas llevaría a una pantalla en blanco. Al hacer clic solo se
  * marca como leída.
+ *
+ * EL COLOR DE LA FAMILIA VIAJA COMO VARIABLE CSS
+ *
+ * La fila declara `--fam-rgb` con el tono de su familia y el resto —la
+ * insignia, el chip, el fondo al pasar el ratón— lo deriva de ahí. Así el color
+ * de una familia se define UNA vez, en notificationViews, y no repartido en
+ * clases por todo el componente.
  */
 
 // Color del punto según la importancia que le dio la estrategia del backend.
 const LEVEL_DOT = {
-    success: 'bg-[#29c50c]',
-    warning: 'bg-amber-500',
-    danger: 'bg-rose-500',
-    info: 'bg-blue-500',
+    success: 'notif-level--success',
+    warning: 'notif-level--warning',
+    danger: 'notif-level--danger',
+    info: 'notif-level--info',
 };
 
 /**
@@ -58,28 +65,26 @@ export default function NotificationItem({
     const view = viewOf(n);
 
     return (
-        <div className='notif-item border-b border-gray-50'>
+        <div className='notif-item' style={{ '--fam-rgb': view.rgb }}>
             <button
                 type='button'
                 onClick={() => onMarkRead(n._id)}
-                className={`relative block w-full text-left px-4 py-3 overflow-hidden transition-colors duration-150 active:scale-[.99] ${n.read
-                    ? 'hover:bg-gray-50'
-                    : `${view.unreadBg} ${view.unreadHoverBg}`}`}
+                /* El nombre de la familia también acá: el ratón puede caer en
+                   cualquier punto de la fila, no solo sobre la insignia. */
+                title={`${view.label} · ${n.read ? 'leída' : 'sin leer'}`}
+                className={`notif-row ${n.read ? '' : 'notif-row--unread'}`}
             >
-                {/* Franja lateral con el color de la familia */}
-                <span
-                    aria-hidden='true'
-                    className={`absolute left-0 top-0 bottom-0 w-[3px] ${view.accent} ${n.read ? 'opacity-30' : ''}`}
-                />
-
-                {view.watermark}
+                {/* La familia se reconoce por la INSIGNIA del avatar y por su
+                    nombre escrito abajo, no por una franja de color al borde:
+                    una barra lateral gruesa es adorno, y con seis familias la
+                    bandeja se convierte en un semáforo. */}
+                <span className='notif-row__watermark' aria-hidden='true'>
+                    {view.watermark}
+                </span>
 
                 <div className='relative flex items-start gap-2.5'>
                     {/* Punto de nivel; hace de indicador de no leída */}
-                    <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.read
-                        ? 'bg-gray-200'
-                        : `notif-dot ${LEVEL_DOT[n.level] || LEVEL_DOT.info}`}`}
-                    />
+                    <span className={`notif-level ${n.read ? 'notif-level--read' : `notif-dot ${LEVEL_DOT[n.level] || LEVEL_DOT.info}`}`} />
 
                     {/* Una familia puede pintar a las personas por su cuenta en
                         su detalle; ahí el avatar chico de al lado sería la
@@ -87,14 +92,14 @@ export default function NotificationItem({
                     {!view.hideAvatar && <NotificationAvatar n={n} />}
 
                     <div className='min-w-0 flex-1'>
-                        <p className={`text-[12.5px] leading-snug ${n.read ? 'font-semibold text-gray-600' : 'font-bold text-gray-800'}`}>
+                        <p className={`notif-title ${n.read ? 'notif-title--read' : ''}`}>
                             {title}
                         </p>
-                        <p className='text-[11.5px] text-gray-500 leading-snug mt-0.5'>{body}</p>
+                        <p className='notif-body'>{body}</p>
 
                         {/* Qué campos cambiaron */}
                         {(n.changes?.length ?? 0) > 0 && (
-                            <p className='text-[10.5px] text-gray-400 mt-1'>
+                            <p className='notif-meta mt-1'>
                                 {n.changes.slice(0, 3).map(c => c.label || c.field).join(' · ')}
                                 {n.changes.length > 3 && ` +${n.changes.length - 3}`}
                             </p>
@@ -104,9 +109,9 @@ export default function NotificationItem({
                             el cuerpo ya lo dice, pero al ojear se busca el
                             nombre, no la frase. */}
                         {view.showTarget && target && (
-                            <p className='text-[10.5px] text-gray-500 mt-1'>
-                                <span className='font-bold text-gray-700'>{target}</span>
-                                <span className='text-gray-400'> · lo cambió {actor || 'el sistema'}</span>
+                            <p className='notif-meta mt-1'>
+                                <span className='notif-target'>{target}</span>
+                                <span> · lo cambió {actor || 'el sistema'}</span>
                             </p>
                         )}
 
@@ -115,21 +120,26 @@ export default function NotificationItem({
                             su vista. */}
                         {view.detail?.(n)}
 
-                        <div className='flex items-center gap-2 mt-1'>
-                            <span className='text-[10px] text-gray-400'>{desde(n.createdAt)}</span>
+                        <div className='flex items-center gap-2 mt-1.5 flex-wrap'>
+                            {/* El nombre de la familia, escrito. El color por sí
+                                solo no dice de qué es el aviso. */}
+                            <span className='notif-chip-family'>{view.label}</span>
+
+                            <span className='notif-meta'>{desde(n.createdAt)}</span>
+
                             {n.scope === 'personal' && (
-                                <span className='text-[9px] font-bold uppercase tracking-wider text-blue-500'>para ti</span>
+                                <span className='notif-scope notif-scope--personal'>para ti</span>
                             )}
                             {n.scope === 'admin' && (
-                                <span className='text-[9px] font-bold uppercase tracking-wider text-amber-600'>solo admin</span>
+                                <span className='notif-scope notif-scope--admin'>solo admin</span>
                             )}
                             {actor && !view.showTarget && (
-                                <span className='text-[10px] text-gray-300 truncate'>· {actor}</span>
+                                <span className='notif-meta truncate'>· {actor}</span>
                             )}
                         </div>
 
                         {resuelta && (
-                            <p className={`text-[10.5px] font-bold mt-1.5 ${n.request.status === 'approved' ? 'text-[#1f9a08]' : 'text-rose-600'}`}>
+                            <p className={`notif-resolved ${n.request.status === 'approved' ? 'notif-resolved--ok' : 'notif-resolved--no'}`}>
                                 {n.request.status === 'approved' ? 'Aprobada' : 'Rechazada'}
                                 {typeof n.request.decidedBy === 'object' && n.request.decidedBy?.name
                                     ? ` por ${n.request.decidedBy.name} ${n.request.decidedBy.surName || ''}`.trimEnd()
@@ -146,7 +156,7 @@ export default function NotificationItem({
                         type='button'
                         disabled={deciding}
                         onClick={() => onDecide(n._id, 'approved')}
-                        className='flex-1 h-8 rounded-lg text-[11px] font-bold text-white bg-[#29c50c] hover:bg-[#1f9a08] transition-colors disabled:opacity-60'
+                        className='notif-action notif-action--accept'
                     >
                         {deciding ? 'Procesando…' : 'Aceptar'}
                     </button>
@@ -154,7 +164,7 @@ export default function NotificationItem({
                         type='button'
                         disabled={deciding}
                         onClick={() => onDecide(n._id, 'rejected')}
-                        className='flex-1 h-8 rounded-lg text-[11px] font-bold border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-60'
+                        className='notif-action notif-action--cancel'
                     >
                         Cancelar
                     </button>
@@ -162,9 +172,7 @@ export default function NotificationItem({
             )}
 
             {pendiente && !canDecide && (
-                <p className='px-4 pb-3 -mt-1 text-[10.5px] font-bold text-amber-600'>
-                    Pendiente por aprobar
-                </p>
+                <p className='notif-pending'>Pendiente por aprobar</p>
             )}
         </div>
     );

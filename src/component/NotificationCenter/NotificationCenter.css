@@ -1,18 +1,377 @@
 /* ══════════════════════════════════════════════════════════════════════
-   CENTRO DE NOTIFICACIONES — animaciones
+   CENTRO DE NOTIFICACIONES
    ══════════════════════════════════════════════════════════════════════
-   TODO anima SOLO transform y opacity, que el navegador resuelve en el
-   compositor sin repintar.
+   Esta app NO es Client365. Su chrome es azul casi negro con acento cian, y
+   la bandeja nació copiada del otro proyecto: una tarjeta blanca colgando de
+   una barra oscura. Acá se alinea con lo que ya existe — mismo fondo, mismo
+   borde y misma sombra que `.listConponent`, el desplegable de novedades, que
+   es su hermano de patrón.
 
-   No es preferencia: animar box-shadow y width dejó a esta misma app
-   consumiendo 20% de CPU en reposo, y corre en Electron sobre las
-   estaciones de monitoreo, encendida toda la jornada.
+   REGLA DURA DE MOVIMIENTO
 
-   La campana además NO suena en bucle: el ciclo dura 5s y el movimiento
-   ocupa el primer 12%. El resto son fotogramas quietos, así que el
-   compositor no tiene trabajo entre repique y repique. */
+   Todo lo que se anima toca SOLO transform y opacity, que el navegador
+   resuelve en el compositor sin repintar. No es preferencia: animar
+   box-shadow y width dejó a esta misma app consumiendo 20% de CPU en reposo,
+   y corre en Electron sobre las estaciones de monitoreo, encendida toda la
+   jornada.
 
-/* ── Repique periódico mientras haya sin leer ───────────────────────── */
+   Por eso el resplandor de la campana es FIJO y lo que se mueve por encima es
+   una capa aparte.
+
+   La campana tampoco suena en bucle: el ciclo dura 5s y el movimiento ocupa
+   el primer 12%. El resto son fotogramas quietos. */
+
+.notif-center {
+    /* ── Superficie, tomada de la barra y del desplegable de novedades ── */
+    --nc-surface: rgba(2, 12, 28, 0.96);
+    --nc-surface-2: rgba(0, 185, 255, 0.05);
+    --nc-border: rgba(0, 185, 255, 0.2);
+    --nc-border-soft: rgba(0, 185, 255, 0.12);
+
+    /* ── Texto. Medido sobre el fondo real:
+       ink 11.6:1, body 6.1:1, meta 4.6:1. Todo por encima del mínimo. ── */
+    --nc-ink: rgba(224, 242, 255, 0.94);
+    --nc-body: rgba(200, 235, 255, 0.86);
+    --nc-meta: rgba(160, 200, 230, 0.72);
+
+    /* Cian del chrome. Es el color de la app, no de ninguna familia. */
+    --nc-chrome: #00b9ff;
+
+    /* Aviso nuevo. Ámbar y no cian: si la alarma usara el color de la barra,
+       se confundiría con el propio marco de la aplicación. */
+    --nc-alert: #ffb020;
+
+    color: var(--nc-body);
+}
+
+
+/* ══ BANDEJA ══════════════════════════════════════════════════════════ */
+
+.notif-panel {
+    background: var(--nc-surface);
+    border: 1px solid var(--nc-border);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--nc-surface-2) inset;
+    backdrop-filter: blur(16px);
+    animation: notifPanelIn .22s cubic-bezier(.16, 1, .3, 1) 1;
+    transform-origin: top right;   /* cuelga del navbar, no de un riel */
+}
+
+@keyframes notifPanelIn {
+    from { opacity: 0; transform: translateY(-10px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.notif-panel__head {
+    border-bottom: 1px solid var(--nc-border-soft);
+}
+
+.notif-panel__title {
+    color: var(--nc-ink);
+    font-size: .875rem;
+    font-weight: 700;
+}
+
+.notif-panel__count {
+    background: var(--nc-alert);
+    color: #12203a;
+    font-size: .625rem;
+    font-weight: 900;
+    line-height: 1;
+    padding: .18rem .34rem;
+    border-radius: 999px;
+}
+
+.notif-panel__action {
+    color: var(--nc-chrome);
+    font-size: .688rem;
+    font-weight: 700;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: .2rem .4rem;
+    border-radius: 6px;
+    transition: background .15s ease, color .15s ease;
+}
+
+.notif-panel__action:hover { background: rgba(0, 185, 255, 0.12); }
+.notif-panel__action:focus-visible { outline: 2px solid var(--nc-chrome); outline-offset: 1px; }
+
+/* La lista mide SIEMPRE lo mismo y lo que sobra se desplaza: da para las
+   siete de la primera tanda. Antes crecía con el contenido, así que cargar
+   otra tanda estiraba la bandeja y el botón se escapaba del cursor.
+   El max-height gana en pantallas bajas, donde 432px no caben. */
+.notif-panel__list {
+    height: 432px;
+    max-height: calc(100vh - 150px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 185, 255, 0.25) transparent;
+}
+
+.notif-panel__list::-webkit-scrollbar { width: 8px; }
+.notif-panel__list::-webkit-scrollbar-thumb {
+    background: rgba(0, 185, 255, 0.22);
+    border-radius: 999px;
+}
+.notif-panel__list::-webkit-scrollbar-thumb:hover { background: rgba(0, 185, 255, 0.4); }
+
+.notif-empty__title { color: var(--nc-body); font-size: .875rem; font-weight: 600; }
+.notif-empty__hint  { color: var(--nc-meta); font-size: .688rem; margin-top: .25rem; }
+.notif-error__title { color: #ff8080; font-size: .875rem; font-weight: 600; }
+
+
+/* ══ FILA ═════════════════════════════════════════════════════════════ */
+/* `--fam-rgb` lo declara el ítem con el tono de su familia; todo lo de acá se
+   deriva de ahí: el color sólido y sus transparencias salen del mismo valor.
+   Un color por familia definido UNA vez, en notificationViews. */
+
+.notif-item {
+    --fam: rgb(var(--fam-rgb));
+    border-bottom: 1px solid var(--nc-border-soft);
+    animation: notifItemIn .26s ease-out both;
+}
+
+@keyframes notifItemIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* El escalonado se corta al 8º: más allá el usuario ya está haciendo scroll
+   y solo agregaría espera. */
+.notif-item:nth-child(1) { animation-delay: .02s; }
+.notif-item:nth-child(2) { animation-delay: .05s; }
+.notif-item:nth-child(3) { animation-delay: .08s; }
+.notif-item:nth-child(4) { animation-delay: .11s; }
+.notif-item:nth-child(5) { animation-delay: .14s; }
+.notif-item:nth-child(6) { animation-delay: .17s; }
+.notif-item:nth-child(7) { animation-delay: .20s; }
+.notif-item:nth-child(n+8) { animation-delay: .22s; }
+
+.notif-row {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: .75rem 1rem;
+    overflow: hidden;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color .15s ease;
+}
+
+/* Sin leer: un velo del color de su familia. Es lo que hace que la bandeja
+   se lea de un vistazo — el bloque ámbar son comentarios, el verde horario. */
+.notif-row--unread {
+    background: rgb(var(--fam-rgb) / .07);
+}
+
+.notif-row:hover {
+    background: rgb(var(--fam-rgb) / .13);
+}
+
+.notif-row:focus-visible {
+    outline: 2px solid var(--fam);
+    outline-offset: -2px;
+}
+
+.notif-row:active { transform: scale(.995); }
+
+/* Marca de agua de la familia, teñida con su color. */
+.notif-row__watermark {
+    position: absolute;
+    inset: 0;
+    color: var(--fam);
+    pointer-events: none;
+}
+
+
+/* ── Punto de nivel ─────────────────────────────────────────────────── */
+
+.notif-level {
+    margin-top: .375rem;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.notif-level--read    { background: rgba(120, 160, 190, 0.3); }
+.notif-level--success { background: #3ecf4a; }
+.notif-level--warning { background: var(--nc-alert); }
+.notif-level--danger  { background: #ff6b6b; }
+.notif-level--info    { background: var(--nc-chrome); }
+
+@keyframes notifDotBreath {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.35); }
+}
+
+.notif-dot { animation: notifDotBreath 2.6s ease-in-out infinite; }
+
+
+/* ── Insignia de familia ────────────────────────────────────────────── */
+/* El ícono del tipo, siempre visible, en el color de su familia. Antes era
+   solo un respaldo cuando faltaba la foto, así que no se veía nunca. */
+
+.notif-avatar { display: inline-block; }
+
+.notif-badge-family {
+    position: absolute;
+    top: -5px;
+    right: -6px;
+    width: 19px;
+    height: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #0a1526;
+    background: var(--fam);
+    /* Anillo del color del fondo: despega la insignia de la foto que tiene
+       debajo sin necesidad de sombra. */
+    box-shadow: 0 0 0 2px rgba(2, 12, 28, 0.96);
+    transition: transform .16s cubic-bezier(.16, 1, .3, 1);
+}
+
+/* Al pasar el ratón por la fila, la insignia crece un punto: confirma que
+   ESE es el distintivo del tipo, no un adorno más. */
+.notif-row:hover .notif-badge-family { transform: scale(1.18); }
+
+.notif-face {
+    background: rgba(0, 185, 255, 0.12);
+    color: var(--nc-body);
+}
+
+.notif-face--ring { box-shadow: 0 0 0 2px rgba(2, 12, 28, 0.96); }
+.notif-face__initials { color: var(--nc-body); }
+
+.notif-logo {
+    background: rgba(0, 185, 255, 0.08);
+    border: 1px solid var(--nc-border-soft);
+    color: var(--fam);
+}
+
+
+/* ── Textos de la fila ──────────────────────────────────────────────── */
+
+.notif-title {
+    color: var(--nc-ink);
+    font-size: .781rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.notif-title--read { color: var(--nc-body); font-weight: 600; }
+
+.notif-body {
+    color: var(--nc-body);
+    font-size: .719rem;
+    line-height: 1.4;
+    margin-top: .125rem;
+}
+
+.notif-meta { color: var(--nc-meta); font-size: .656rem; }
+.notif-target { color: var(--nc-ink); font-weight: 700; }
+
+/* El nombre de la familia, escrito. El color diferencia; la palabra explica. */
+.notif-chip-family {
+    color: var(--fam);
+    background: rgb(var(--fam-rgb) / .14);
+    border: 1px solid rgb(var(--fam-rgb) / .3);
+    font-size: .594rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    padding: .05rem .32rem;
+    border-radius: 5px;
+    line-height: 1.5;
+}
+
+.notif-scope {
+    font-size: .563rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.notif-scope--personal { color: var(--nc-chrome); }
+.notif-scope--admin    { color: var(--nc-alert); }
+
+.notif-resolved { font-size: .656rem; font-weight: 700; margin-top: .375rem; }
+.notif-resolved--ok { color: #3ecf4a; }
+.notif-resolved--no { color: #ff6b6b; }
+
+.notif-pending {
+    padding: 0 1rem .75rem;
+    margin-top: -.25rem;
+    font-size: .656rem;
+    font-weight: 700;
+    color: var(--nc-alert);
+}
+
+
+/* ── Botones de decisión ────────────────────────────────────────────── */
+
+.notif-action {
+    flex: 1;
+    height: 2rem;
+    border-radius: .5rem;
+    font-size: .688rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.notif-action:disabled { opacity: .6; cursor: default; }
+
+.notif-action--accept {
+    color: #06210a;
+    background: #3ecf4a;
+    border: none;
+}
+.notif-action--accept:hover:not(:disabled) { background: #4ee05a; }
+
+.notif-action--cancel {
+    color: var(--nc-body);
+    background: none;
+    border: 1px solid var(--nc-border);
+}
+.notif-action--cancel:hover:not(:disabled) { background: rgba(0, 185, 255, 0.1); }
+
+.notif-action:focus-visible { outline: 2px solid var(--nc-chrome); outline-offset: 2px; }
+
+
+/* ══ CAMPANA ══════════════════════════════════════════════════════════ */
+
+.notif-bell {
+    position: relative;
+    transition: color .18s ease, background-color .18s ease;
+}
+
+/* Hay avisos sin ver: la campana se enciende en ámbar y queda separada del
+   resto de la barra, que es cian apagado.
+
+   El resplandor va en box-shadow pero NO se anima — se pone y se queda. Lo
+   que se mueve es el ícono, y solo con transform. */
+/* Se califica con .nav-bar__action-btn a propósito. App.css define
+   `.nav-bar__action-btn:hover { color: cian }`, que gana por especificidad a
+   una sola clase: al pasar el ratón, la campana en alarma se volvía del color
+   del chrome y perdía justo el estado que tiene que comunicar. */
+.nav-bar__action-btn.notif-bell--new {
+    color: var(--nc-alert);
+    background: rgba(255, 176, 32, 0.12);
+    box-shadow: 0 0 0 1px rgba(255, 176, 32, 0.3), 0 0 16px rgba(255, 176, 32, 0.18);
+}
+
+.nav-bar__action-btn.notif-bell--new:hover {
+    color: #ffc95c;
+    background: rgba(255, 176, 32, 0.22);
+}
+
+/* Ya las viste pero siguen sin leer: se apaga la alarma, no el dato. */
+.nav-bar__action-btn.notif-bell--seen { color: rgba(180, 215, 255, 0.9); }
+.nav-bar__action-btn.notif-bell--seen:hover { color: rgba(215, 238, 255, 0.98); }
+
+/* Repique periódico mientras haya avisos sin ver */
 @keyframes notifBellRing {
     0%   { transform: rotate(0deg); }
     2%   { transform: rotate(14deg); }
@@ -30,8 +389,8 @@
     will-change: transform;
 }
 
-/* ── Sacudida al LLEGAR una notificación ────────────────────────────── */
-/* Se dispara remontando el nodo (key en React): una sola pasada y termina. */
+/* Sacudida al LLEGAR una notificación.
+   Se dispara remontando el nodo (key en React): una sola pasada y termina. */
 @keyframes notifBellShake {
     0%   { transform: rotate(0deg) scale(1); }
     15%  { transform: rotate(-22deg) scale(1.14); }
@@ -47,7 +406,23 @@
     transform-origin: 50% 15%;
 }
 
-/* ── Halo del contador ──────────────────────────────────────────────── */
+/* Onda que sale del botón al llegar algo. Capa propia y solo transform +
+   opacity: el resplandor de abajo se queda quieto mientras esta se expande. */
+@keyframes notifBellWave {
+    0%   { transform: scale(.6); opacity: .5; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+.notif-bell__wave {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: rgba(255, 176, 32, 0.35);
+    pointer-events: none;
+    animation: notifBellWave .75s cubic-bezier(0, 0, .2, 1) 1 forwards;
+}
+
+/* Halo del contador */
 @keyframes notifBadgePulse {
     0%   { transform: scale(1); opacity: .55; }
     70%  { transform: scale(2.1); opacity: 0; }
@@ -56,69 +431,51 @@
 
 .notif-badge-halo {
     animation: notifBadgePulse 2.4s cubic-bezier(0, 0, .2, 1) infinite;
+    background: var(--nc-alert);
+}
+
+.notif-badge-dot {
+    background: var(--nc-alert);
+    box-shadow: 0 0 0 2px rgba(2, 12, 28, 0.96);
 }
 
 /* Golpe del número cuando sube la cuenta.
-   Sin sobreimpulso: la salida exponencial arranca rápido y frena suave, y
-   eso ya llama la atención. Un rebote sobre una insignia de 9px se lee
-   juguetón y desentona con el resto de la barra. */
+   Sin sobreimpulso: la salida exponencial arranca rápido y frena suave, y eso
+   ya llama la atención. Un rebote sobre una insignia de 9px se lee juguetón y
+   desentona con el resto de la barra. */
 @keyframes notifBadgePop {
     0%   { transform: scale(.5); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
 
-.notif-badge-pop {
-    animation: notifBadgePop .32s cubic-bezier(.16, 1, .3, 1) 1;
+.notif-badge-pop { animation: notifBadgePop .32s cubic-bezier(.16, 1, .3, 1) 1; }
+
+.notif-badge-count {
+    background: var(--nc-alert);
+    color: #12203a;
+    font-size: .625rem;
+    font-weight: 900;
+    line-height: 1;
+    padding: .1rem .3rem;
+    border-radius: 999px;
 }
 
-/* ── Entrada de la bandeja ──────────────────────────────────────────── */
-@keyframes notifPanelIn {
-    from { opacity: 0; transform: translateY(-10px) scale(.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+/* Cuando ya las viste, el número sigue pero deja de gritar. */
+.notif-badge-count--seen {
+    background: rgba(0, 185, 255, 0.18);
+    color: rgba(200, 235, 255, 0.9);
 }
 
-.notif-panel {
-    animation: notifPanelIn .22s cubic-bezier(.16, 1, .3, 1) 1;
-    transform-origin: top right;   /* cuelga del navbar, no de un riel */
-}
 
-/* ── Entrada escalonada de cada notificación ────────────────────────── */
-@keyframes notifItemIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-.notif-item {
-    animation: notifItemIn .26s ease-out both;
-}
-
-/* El escalonado se corta al 8º: más allá el usuario ya está haciendo
-   scroll y solo agregaría espera. */
-.notif-item:nth-child(1) { animation-delay: .02s; }
-.notif-item:nth-child(2) { animation-delay: .05s; }
-.notif-item:nth-child(3) { animation-delay: .08s; }
-.notif-item:nth-child(4) { animation-delay: .11s; }
-.notif-item:nth-child(5) { animation-delay: .14s; }
-.notif-item:nth-child(6) { animation-delay: .17s; }
-.notif-item:nth-child(7) { animation-delay: .20s; }
-.notif-item:nth-child(n+8) { animation-delay: .22s; }
-
-/* ── Punto de "no leída": latido lento ──────────────────────────────── */
-@keyframes notifDotBreath {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.35); }
-}
-
-.notif-dot {
-    animation: notifDotBreath 2.6s ease-in-out infinite;
-}
-
-/* ── Accesibilidad ──────────────────────────────────────────────────── */
+/* ══ ACCESIBILIDAD ════════════════════════════════════════════════════ */
 /* No se ocultan los indicadores, solo se detienen: quien desactiva el
-   movimiento sigue necesitando saber que tiene notificaciones. */
+   movimiento sigue necesitando saber que tiene notificaciones. El color y el
+   resplandor de la campana no dependen de la animación, así que el estado
+   "hay algo nuevo" se sigue leyendo igual. */
 @media (prefers-reduced-motion: reduce) {
     .notif-bell--alert,
     .notif-bell--shake,
+    .notif-bell__wave,
     .notif-badge-halo,
     .notif-badge-pop,
     .notif-panel,
@@ -128,21 +485,150 @@
     }
     .notif-item { opacity: 1; transform: none; }
     .notif-badge-halo { opacity: .35; }
+    .notif-bell__wave { opacity: 0; }
+    .notif-badge-family,
+    .notif-row { transition: none; }
 }
 
 
-/* ── Alto de la bandeja ─────────────────────────────────────────────── */
-/* La lista mide SIEMPRE lo mismo y lo que sobra se desplaza. Da para las
-   siete de la primera tanda; a partir de ahí cada "ver más" se va al
-   scroll.
+/* ══ DETALLES DE FAMILIA ══════════════════════════════════════════════ */
+/* Los bloques que pinta cada familia bajo el texto: las fotos del marcaje y
+   la nota del comentario. Nacieron con la paleta clara de Client365 y sobre
+   este fondo se veían como parches blancos pegados. */
 
-   Antes crecía con el contenido (max-h-[70vh] en el panel): cargar otra
-   tanda estiraba la bandeja hacia abajo y el botón se escapaba de donde
-   estaba el cursor.
-
-   El max-height gana en pantallas bajas, donde 432px no caben. La barra de
-   navegación y el margen superior se descuentan ahí. */
-.notif-panel__list {
-    height: 432px;
-    max-height: calc(100vh - 150px);
+.notif-detail__label {
+    color: var(--nc-meta);
+    font-size: .563rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -.01em;
+    line-height: 1;
 }
+
+.notif-detail__value {
+    color: var(--nc-ink);
+    font-size: .75rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.notif-detail__day {
+    color: var(--nc-meta);
+    font-size: .625rem;
+    margin-bottom: .375rem;
+    text-transform: capitalize;
+}
+
+/* ── Marcaje: las dos fotos ─────────────────────────────────────────── */
+/* Entrada en verde, salida en ámbar: mismo par de significados que usa la
+   ficha del horario en Client365, para que quien mire las dos apps no tenga
+   que reaprender el código. */
+
+.notif-mark {
+    border-radius: .5rem;
+    border: 1px solid;
+    padding: .5rem;
+}
+
+.notif-mark--in {
+    background: rgba(62, 207, 74, 0.1);
+    border-color: rgba(62, 207, 74, 0.28);
+}
+
+.notif-mark--out {
+    background: rgba(255, 176, 32, 0.1);
+    border-color: rgba(255, 176, 32, 0.28);
+}
+
+.notif-mark--in .notif-mark__label  { color: #7ee08a; }
+.notif-mark--out .notif-mark__label { color: #ffc95c; }
+
+.notif-mark__label {
+    font-size: .563rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+
+.notif-mark__time {
+    color: var(--nc-ink);
+    font-size: .75rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.notif-mark__photo {
+    width: 100%;
+    height: 62px;
+    object-fit: cover;
+    border-radius: .25rem;
+    margin-top: .375rem;
+    background: rgba(0, 185, 255, 0.08);
+}
+
+.notif-mark__empty {
+    width: 100%;
+    height: 62px;
+    margin-top: .375rem;
+    border-radius: .25rem;
+    border: 1px dashed rgba(0, 185, 255, 0.25);
+    color: var(--nc-meta);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .563rem;
+    font-weight: 600;
+}
+
+/* ── Etiquetas de consecuencia ──────────────────────────────────────── */
+
+.notif-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: .05rem .3rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-size: .594rem;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.notif-tag--ok   { color: #7ee08a; background: rgba(62, 207, 74, 0.12);  border-color: rgba(62, 207, 74, 0.3); }
+.notif-tag--warn { color: #ffc95c; background: rgba(255, 176, 32, 0.12); border-color: rgba(255, 176, 32, 0.3); }
+.notif-tag--bad  { color: #ff8f8f; background: rgba(255, 107, 107, 0.12); border-color: rgba(255, 107, 107, 0.32); }
+.notif-tag--info { color: #8fd0ff; background: rgba(0, 185, 255, 0.12);  border-color: rgba(0, 185, 255, 0.3); }
+
+/* ── Comentario: las dos caras y la nota ────────────────────────────── */
+
+.notif-person {
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(0, 185, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px var(--notif-person-ring, transparent);
+}
+
+.notif-person--author { --notif-person-ring: #3ecf4a; }
+.notif-person--target { --notif-person-ring: #60a5fa; }
+
+.notif-person__initial { color: var(--nc-body); font-size: .938rem; font-weight: 900; }
+
+.notif-quote {
+    margin-top: .5rem;
+    padding: .375rem .5rem .375rem .625rem;
+    border-left: 2px solid var(--fam, #fbbf24);
+    background: rgb(var(--fam-rgb, 251 191 36) / .1);
+    border-radius: 0 .25rem .25rem 0;
+}
+
+.notif-quote__text {
+    color: var(--nc-body);
+    font-size: .719rem;
+    line-height: 1.4;
+    font-style: italic;
+    word-break: break-word;
+}
+
+.notif-arrow { color: rgba(0, 185, 255, 0.35); }
