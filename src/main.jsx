@@ -4,6 +4,12 @@ import App from "./App";
 import store from "./store";
 import { Provider } from "react-redux";
 
+// El CSS global se carga acá y no solo dentro de App: la pantalla de "solo
+// escritorio" se pinta EN LUGAR de App y también necesita sus variables.
+import "./index.css";
+import { puedeEjecutarse } from "./libs/entorno/esEscritorio";
+import SoloEscritorio from "./component/SoloEscritorio/SoloEscritorio";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 
@@ -39,12 +45,25 @@ const arrancarAhorroDeCpu = () => {
 
 
 // ── Arranque ────────────────────────────────────────────────────────
-arrancarAhorroDeCpu();
+// En la computadora, Reportes Express solo trabaja dentro de la aplicación de
+// escritorio; en el teléfono, en cualquier navegador. Donde no corresponde se
+// pinta el aviso y NO se monta nada más.
+//
+// La comprobación va ANTES de todo lo demás a propósito: el ahorro de CPU deja
+// temporizadores y escuchas puestas, y App abre la sesión y el socket al
+// montarse. Decidir después dejaría el aviso en pantalla con la aplicación
+// funcionando por detrás.
+if (puedeEjecutarse()) {
+    arrancarAhorroDeCpu();
 
-root.render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <App />
-        </Provider>
-    </React.StrictMode>
-);
+    root.render(
+        <React.StrictMode>
+            <Provider store={store}>
+                <App />
+            </Provider>
+        </React.StrictMode>
+    );
+}
+else {
+    root.render(<SoloEscritorio />);
+}
