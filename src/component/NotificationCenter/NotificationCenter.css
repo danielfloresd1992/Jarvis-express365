@@ -693,3 +693,41 @@
 .notif-day--laboral    { color: var(--nc-body); background: rgba(0, 185, 255, 0.1); border-color: var(--nc-border); }
 .notif-day--guardia    { color: #7fe0ea; background: rgba(45, 212, 191, 0.16);  border-color: rgba(45, 212, 191, 0.36); }
 .notif-day--auxiliar   { color: #b3b9ff; background: rgba(129, 140, 248, 0.16); border-color: rgba(129, 140, 248, 0.36); }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   BONIFICACIÓN — el desglose de qué cambió
+   ══════════════════════════════════════════════════════════════════════
+   Los colores salen de --fam-rgb, que el ítem deja puesta según la familia.
+   Así el bloque es del mismo dorado que el resto del aviso sin repetir el
+   valor acá: el día que el dorado cambie, cambia en un solo lugar.          */
+
+.notif-bonus {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 6px 0 0;
+    padding: 6px 8px;
+    list-style: none;
+    border-radius: 7px;
+    background: rgb(var(--fam-rgb) / .08);
+    border-left: 2px solid rgb(var(--fam-rgb) / .55);
+}
+
+.notif-bonus__linea {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: rgb(var(--fam-rgb) / .95);
+}
+
+.notif-bonus__punto {
+    flex-shrink: 0;
+    width: 4px;
+    height: 4px;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: rgb(var(--fam-rgb));
+}

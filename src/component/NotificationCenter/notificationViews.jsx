@@ -1,6 +1,7 @@
 import AttendanceDetail from './AttendanceDetail';
 import CommentDetail from './CommentDetail';
 import ScheduleDetail from './ScheduleDetail';
+import BonusDetail from './BonusDetail';
 
 // ══════════════════════════════════════════════════════════════════════
 // VISTAS POR FAMILIA — el espejo en el cliente del patrón del backend
@@ -84,6 +85,28 @@ const Spark = (
 );
 
 
+const Tag = (
+    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5'
+        className='absolute -right-2 -bottom-2 w-[86px] h-[86px] opacity-[0.06] pointer-events-none'
+        aria-hidden='true'>
+        <path d='M20.6 13.4 12 22l-8.6-8.6A2 2 0 0 1 2.8 12V4a2 2 0 0 1 2-2h8a2 2 0 0 1 1.4.6l6.4 6.4a2 2 0 0 1 0 2.4z' />
+        <circle cx='7.5' cy='7.5' r='1.5' />
+    </svg>
+);
+
+// La estrella va RELLENA, no de contorno como el resto de las marcas de agua.
+// Es la única así en toda la bandeja: sobre el fondo casi negro, una silueta
+// llena pesa mas que un trazo, y ese peso extra es justamente lo que hace que
+// el aviso de bonificación se encuentre sin leer.
+const Star = (
+    <svg viewBox='0 0 24 24' fill='currentColor'
+        className='absolute -right-2 -bottom-2 w-[86px] h-[86px] opacity-[0.10] pointer-events-none'
+        aria-hidden='true'>
+        <path d='m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z' />
+    </svg>
+);
+
+
 // ── Glifos de la insignia (16px, trazo grueso para que lea en pequeño) ──
 
 const glifo = (paths) => (
@@ -99,6 +122,14 @@ const BubbleGlyph = glifo(<path d='M21 11.5a8.4 8.4 0 0 1-9 8.4 8.9 8.9 0 0 1-4-
 const StoreGlyph = glifo(<><path d='m2 7 4.4-4.4A2 2 0 0 1 7.8 2h8.3a2 2 0 0 1 1.5.6L22 7' /><path d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M2 7h20' /></>);
 const SparkGlyph = glifo(<><path d='M12 3v3M12 18v3M3 12h3M18 12h3' /><circle cx='12' cy='12' r='4' /></>);
 const DotGlyph = glifo(<circle cx='12' cy='12' r='7' />);
+const TagGlyph = glifo(<><path d='M20.6 13.4 12 22l-8.6-8.6A2 2 0 0 1 2.8 12V4a2 2 0 0 1 2-2h8a2 2 0 0 1 1.4.6l6.4 6.4a2 2 0 0 1 0 2.4z' /><circle cx='7.5' cy='7.5' r='1.5' /></>);
+
+// El unico glifo relleno del registro. Ver la nota de la marca de agua Star.
+const StarGlyph = (
+    <svg viewBox='0 0 24 24' fill='currentColor' className='w-[13px] h-[13px]'>
+        <path d='m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z' />
+    </svg>
+);
 
 
 const VIEWS = {
@@ -161,6 +192,34 @@ const VIEWS = {
         showTarget: false,
         glyph: SparkGlyph,
         fallbackIcon: SparkGlyph,
+    },
+
+    // La alerta como tal: se creó, se editó, se eliminó. Gris pizarra: es
+    // información operativa y no debe competir con lo que sí toca dinero.
+    menu: {
+        label: 'Alerta',
+        rgb: '148 163 184',
+        watermark: Tag,
+        showTarget: false,
+        glyph: TagGlyph,
+        fallbackIcon: TagGlyph,
+    },
+
+    // Cambió lo que PAGA una alerta.
+    //
+    // Dorado, y es el único dorado de la bandeja. El ámbar del comentario
+    // (251 191 36) es más amarillo y más claro; este tira a oro viejo y va con
+    // la estrella rellena, así que los dos se distinguen aunque compartan
+    // familia cromática. La distancia importa: uno avisa que alguien escribió
+    // una nota, el otro que cambió lo que se cobra.
+    bonus: {
+        label: 'Bonificación',
+        rgb: '217 164 65',
+        watermark: Star,
+        showTarget: false,
+        detail: (n) => <BonusDetail n={n} />,
+        glyph: StarGlyph,
+        fallbackIcon: StarGlyph,
     },
 
     // Sin familia declarada. Sin marca de agua: es preferible que una
