@@ -167,18 +167,37 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                 const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest);
 
                 if (response.status === 200) {
-                    sendFailedDvr, removeFailedDvr
-                    // falla de conexion con dvr
-                    if (title[0]._id === '640f7c747d44282c3f625d79') {
+
+                    // ── Caída y restablecimiento del DVR ──────────────
+                    // Qué le hace esta alerta a la conexión lo dice el CATÁLOGO,
+                    // en `dvrEffect`. Antes se reconocía por dos `_id` escritos
+                    // acá a mano, de marzo de 2023: el día que alguien recreara
+                    // esas alertas en la base, esto seguiría funcionando y
+                    // sencillamente dejaría de registrar las caídas, sin dar un
+                    // solo error.
+                    //
+                    // Los `_id` quedan de RESPALDO hasta que el catálogo esté
+                    // marcado. Se pueden borrar en cuanto las dos alertas tengan
+                    // su `dvrEffect` cargado.
+                    const efectoDvr = title[0].dvrEffect
+                        ?? (title[0]._id === '640f7c747d44282c3f625d79' ? 'down'
+                            : title[0]._id === '6417181494525c2ce4fc98aa' ? 'up'
+                                : null);
+
+                    if (efectoDvr === 'down') {
                         sendFailedDvr({
                             date: new Date,
                             localName: data.localData.name,
                             idLocal: data.localData.localId,
                             title: title[0].es,
-                            buffer_img: files[0].image[1]
+                            // Con guarda: si la alerta no exige foto, `files[0]`
+                            // no existe y esto reventaba DESPUÉS de haber
+                            // guardado la novedad.
+                            buffer_img: files[0]?.image?.[1] ?? null
                         });
                     }
-                    if (title[0]._id === '6417181494525c2ce4fc98aa') {
+
+                    if (efectoDvr === 'up') {
                         removeFailedDvr({ date: new Date, localName: data.localData.name, idLocal: data.localData.localId, title: title[0].es });
                     }
 
