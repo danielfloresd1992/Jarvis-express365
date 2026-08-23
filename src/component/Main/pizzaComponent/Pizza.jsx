@@ -117,7 +117,16 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
             .catch(err => {
                 console.log(err);
                 awaitWindow.close();
-                boxModal.open({ title: 'Error', description: 'Error al eviar la novedad' });
+
+                // El motivo que dio el servidor, no un texto fijo. El
+                // interceptor de instanceAxios ya dejó en `err.message` lo que
+                // respondió jarvis_api —por ejemplo, que el establecimiento
+                // tiene una caída de DVR y no puede reportar—. Con un texto
+                // fijo el operador no sabe qué pasó y vuelve a intentar.
+                boxModal.open({
+                    title: 'Error',
+                    description: err.message || 'No se pudo enviar la novedad',
+                });
             })
             .finally(() => {
                 awaitWindow.close();
