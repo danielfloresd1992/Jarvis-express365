@@ -24,6 +24,7 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
     const establishment = useSelector(store => store.establishment);
     const [typeDelay, setTypeDelay] = useState({ data: null, type: '' })
+    const [verTablet, setVerTablet] = useState(false);
 
 
 
@@ -141,10 +142,23 @@ export function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
                         </div>
                     )
-                    //<TabletScreen />
-                }
 
-                
+                }
+                <button
+                    className={`fixed z-[901] top-[calc(var(--titlebar-h)+58px)] px-3 py-1.5 rounded-md text-[12px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0] ${verTablet ? 'right-[396px]' : 'right-4'}`}
+                    onClick={() => setVerTablet(!verTablet)} >
+
+                    {verTablet ? 'Ocultar tablet' : 'Ver tablet'}
+                </button>
+
+                <div
+                    className='fixed right-0 w-[380px] z-[900] top-[calc(var(--titlebar-h)+50px)] h-[calc(100%-var(--titlebar-h)-50px)]'
+                    hidden={!verTablet}
+                >
+                    <TabletScreen />
+                </div>
+
+
 
             </main>
 
@@ -261,7 +275,7 @@ function WrapperCell({ classStyles = '', children }) {
 
 
 
-function WrapperText({ classStyles = '', value, updateValue, block=false }) {
+function WrapperText({ classStyles = '', value, updateValue, block = false }) {
 
 
     const [modeEdit, setModeEdit] = useState(false);

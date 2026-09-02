@@ -105,7 +105,7 @@ export function TabletScreen({ refreshMs = 1000 }) {
                 reader.readAsDataURL(blob);
             });
 
-            sendImg(base64);
+            //sendImg(base64);
         }
         catch (error) {
             console.log(error);
@@ -143,11 +143,11 @@ export function TabletScreen({ refreshMs = 1000 }) {
             const start = performance.now();
             const response = await axios.post('http://72.68.60.171:1234/api/v1/chat', body, header);
             setInferenceTime(((performance.now() - start) / 1000).toFixed(1));   // tiempo real de respuesta
-         
+
             const content = response?.data?.output?.[0]?.content ?? '';
-            console.log(content )
+            console.log(content)
             const tickets = parseTickets(content);
-            if(tickets.length > 0)setResponseRerenceState([...responseRerenceState,tickets]);
+            if (tickets.length > 0) setResponseRerenceState([...responseRerenceState, tickets]);
         }
         catch (error) {
             console.log(error);
@@ -190,7 +190,8 @@ export function TabletScreen({ refreshMs = 1000 }) {
 
 
     return (
-        <div className='absolute bottom-[60px] left-[20px] z-[1000] resize overflow-auto w-[340px] h-auto min-w-[240px] min-h-[320px] rounded-xl border border-[#0a3a66] bg-[#01122c] shadow-[0_0_40px_rgba(0,120,255,0.15)]'>
+        <div className='w-full h-full flex flex-col overflow-hidden rounded-xl border border-[#0a3a66] bg-[#01122c]'>
+
 
 
             {/*  BARRA SUPERIOR (estado + botón)  */}
@@ -215,7 +216,8 @@ export function TabletScreen({ refreshMs = 1000 }) {
 
 
             {/*  IMAGEN DE LA TABLET  */}
-            <div className='w-full h-[32%] flex items-center justify-center border-b border-[#0a3a66] bg-black/20'>
+            <div className='w-full flex-1 min-h-0 flex items-center justify-center border-b border-[#0a3a66] bg-black/20'>
+
                 {
                     imgUrl ?
                         <img className='w-full h-full object-contain' src={imgUrl} alt='pantalla tablet' draggable={false} />
