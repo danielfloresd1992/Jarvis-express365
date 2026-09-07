@@ -95,6 +95,66 @@ body {
     min-height: 100vh;
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   ALTURA DE LA BARRA DE TÍTULO
+   ══════════════════════════════════════════════════════════════════════
+   Dentro de la aplicación de escritorio, la ventana se crea SIN el marco de
+   Windows y la barra la pinta la propia web (component/titleBar). Esa barra
+   ocupa 32 px arriba del todo, así que todo lo que va pegado al borde superior
+   —la barra de navegación, el menú lateral, la bandeja del Toast POS— tiene que
+   bajar otro tanto o quedaría por debajo.
+
+   En el navegador no hay barra que dibujar y la variable vale CERO, con lo que
+   cada `calc()` que la usa da exactamente el valor de siempre. Así una sola
+   regla sirve para los dos casos y no hay dos maquetaciones que mantener.
+
+   La marca `is-electron` la pone main.jsx antes de pintar nada. Va ahí y no en
+   un efecto del componente a propósito: si se pusiera después del primer
+   dibujado, la interfaz aparecería arriba y daría un salto de 32 px en cuanto
+   la barra se montara.  */
+:root {
+    --titlebar-h: 0px;
+}
+
+html.is-electron {
+    --titlebar-h: 32px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   VENTANA FLOTANTE DE LA TABLET
+   ══════════════════════════════════════════════════════════════════════
+   La marca `vista-tablet` la pone main.jsx en el <html> cuando la dirección
+   trae `?view=tablet`, que es como la carcasa de escritorio abre esta ventana.
+
+   Hace falta porque la regla de `body` de aquí arriba —resto de la plantilla
+   de Vite— centra su contenido y no da altura a nadie. En Jarvis eso da igual,
+   porque `.App` se estira por su cuenta. Pero la pantalla de la tablet se
+   dimensiona con `w-full h-full`, y un porcentaje necesita que el padre tenga
+   una altura de verdad: sin ella colapsa al tamaño de su contenido y la barra
+   queda flotando en mitad de la ventana, con los bordes vacíos alrededor.
+
+   Va acotado con la marca y no corregido en `body` a propósito: ese `body` lo
+   comparte TODA la aplicación, y cambiarlo movería el encuadre de cada
+   pantalla de Jarvis para arreglar una ventana de 400×300.
+
+   `height` en los tres —html, body y #root— porque un porcentaje se resuelve
+   contra el padre: si uno solo de la cadena se queda en `auto`, los de abajo
+   no tienen contra qué medirse.  */
+html.vista-tablet,
+html.vista-tablet body,
+html.vista-tablet #root {
+    height: 100%;
+    min-height: 0;      /* el `min-height: 100vh` del body forzaría barra de desplazamiento */
+    margin: 0;
+}
+
+html.vista-tablet body {
+    display: block;     /* anula el centrado: acá el contenido manda, no el centro */
+    overflow: hidden;   /* la ventana no se desplaza; lo hace el visor de la imagen */
+}
+
 .App {
     min-height: 100%;
     width: 100%;

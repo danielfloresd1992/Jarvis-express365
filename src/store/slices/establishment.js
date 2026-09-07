@@ -14,3 +14,4 @@ export const establishment = createSlice({
 export const { setEstablishment } = establishment.actions;
 
 export default establishment.reducer;
+

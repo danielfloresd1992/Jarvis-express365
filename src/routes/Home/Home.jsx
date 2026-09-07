@@ -9,6 +9,7 @@ import { createIo, socketAppManager } from '../../store/slices/socketio.js';
 import imgDefault from '../../../public/img/default.png';
 import NavBar from '../../component/Navbar/NavBar.jsx';
 import InboxImg from '../../component/inbox/images_inbox.jsx';
+import TabletButton from '../../component/tabletButton/TabletButton.jsx';
 import AsideBar from '../../component/AsideBar/AsideBar.jsx';
 import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
@@ -105,8 +106,8 @@ export default function Home() {
     const selectNovelty = (value) => {
         if ((typeof value) !== 'string') throw 'Type err, param not string';
         setRenderValue(renderValue = value);
-        if(window?.innerWidth < 721) closeOpenAsideBar();
-        
+        if (window?.innerWidth < 721) closeOpenAsideBar();
+
     };
 
 
@@ -198,7 +199,7 @@ export default function Home() {
 
 
 
-    const orderEstablishment  = useMemo(() => {
+    const orderEstablishment = useMemo(() => {
         return [...localSelector].sort((a, b) => a.name.localeCompare(b.name))
     }, [localSelector]);
 
@@ -211,8 +212,9 @@ export default function Home() {
                     (
                         <div className="homeComponent">
                             <NavBar clearLocal={resetLocal} openCloseSidebar={closeOpenAsideBar} boxModal={configBoxModal} />
-                            <AsideBar clearLocal={resetLocal} localMonitoring={local} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
+                            < AsideBar clearLocal={resetLocal} localMonitoring={local} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
                             <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} />
+                            <TabletButton />
                             <InboxImg />
                             <Chat key='chats' />
                             <Notifications />
@@ -231,7 +233,7 @@ export default function Home() {
                                         >
                                             <option className='local-option' value="">- Selecciones un local -</option>
                                             {
-                                                orderEstablishment.sort((a, b) =>  a.name - b.name).map(local => (
+                                                orderEstablishment.sort((a, b) => a.name - b.name).map(local => (
                                                     <option className='local-option' key={local._id} value={local._id}>{local.name}</option>
                                                 ))
                                             }
