@@ -51,10 +51,14 @@ export default function TabletButton() {
     }, []);
 
 
-    // En el teléfono y en un navegador de producción no se pinta: ahí no hay
-    // carcasa y el botón no podría hacer nada. En desarrollo sí se muestra
-    // —apagado— para poder ver dónde queda sin tener que levantar Electron.
-    if (!hayCarcasa && !import.meta.env.DEV) return null;
+    // O hay carcasa y el botón funciona, o no la hay y no se pinta. Sin
+    // estados intermedios.
+    //
+    // Antes se mostraba apagado cuando faltaba la carcasa, para poder ver dónde
+    // quedaba sin levantar Electron. Se quitó: un botón gris no dice «esto no
+    // es la aplicación de escritorio», dice «esto está roto», y costó una
+    // mañana de buscar el fallo donde no estaba.
+    if (!hayCarcasa) return null;
 
 
     // El desplazamiento con `--titlebar-h` es el mismo que usa el resto de la
@@ -64,18 +68,6 @@ export default function TabletButton() {
     // (Los guiones bajos son la forma de Tailwind de escribir espacios; en
     // `calc` los espacios alrededor del `+` son obligatorios.)
     const clase = 'fixed top-[calc(62px_+_var(--titlebar-h))] right-[320px] z-[1001] px-3 py-1.5 rounded-md text-[12px] font-bold text-white shadow-lg transition-colors';
-
-    if (!hayCarcasa) {
-        return (
-            <button
-                className={`${clase} bg-[#334155] opacity-50 cursor-not-allowed`}
-                disabled
-                title='Solo funciona dentro de la aplicación de escritorio'
-            >
-                Sacar tablet
-            </button>
-        );
-    }
 
     return (
         <button
