@@ -23,7 +23,12 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
     const [files, setFiles] = useState([]);
     const [table, setNumberTable] = useState('');
     const [ticket, setTiket] = useState('');
-    const [setDescription, description] = useState('');
+    //  OJO al orden: `useState` devuelve [valor, función]. Acá estaban al revés
+    //  —`setDescription` guardaba el texto y `description` la función—, y como
+    //  se declaraba con `const`, escribir en la nota lanzaba un TypeError y el
+    //  campo se quedaba muerto. El compilador lo avisa: «This assignment will
+    //  throw because "description" is a constant».
+    const [description, setDescription] = useState('');
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
 
     const saveNoveltie = useSaveNoveltie();
@@ -78,11 +83,24 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
             let text;
 
 
+            //  La nota que escribe el operador, al final del mensaje.
+            //
+            //  Faltaba: el campo «en caso que lo amerite» se pintaba, se podía
+            //  escribir en él, y lo escrito NO llegaba a ninguna parte. El
+            //  `description` que se manda más abajo es un resumen fijo que arma
+            //  el propio formulario, así que la nota se perdía entera.
+            //
+            //  Se añade como en el resto de las demoras: solo si hay algo, en
+            //  minúsculas y precedida de «Nota:».
+            const nota = description !== ''
+                ? (data.LANG === 'es' ? `\nNota: ${description.toLowerCase()}` : `\nNote: ${description.toLowerCase()}`)
+                : '';
+
             if (data.LANG === 'es') {
-                text = `*${data.localData.name}*\nBuenas tardes, tenemos orden #${ticket} en la mesa ${table}, la cual no se encuentra ocupada\n*Enviamos imagen para su verificación, quedamos atentos a sus comentarios.*`;
+                text = `*${data.localData.name}*\nBuenas tardes, tenemos orden #${ticket} en la mesa ${table}, la cual no se encuentra ocupada\n*Enviamos imagen para su verificación, quedamos atentos a sus comentarios.*${nota}`;
             }
             else {
-                text = `*${data.localData.name}*\nGood afternoon, we have order #${ticket} at table ${table}, which is not currently occupied.\n*We are sending an image for verification and await your comments.*`;
+                text = `*${data.localData.name}*\nGood afternoon, we have order #${ticket} at table ${table}, which is not currently occupied.\n*We are sending an image for verification and await your comments.*${nota}`;
             }
 
 
@@ -163,7 +181,13 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
                 </label>
                 <br />
                 <label className='box-label' htmlFor="">Nota
-                    <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
+                    {/*  `setDescription(e.target.value)` a secas. El resto de los
+                         formularios escriben `setDescription(description = ...)`,
+                         que asigna a la variable ADEMÁS de avisar a React —un
+                         truco para poder leer el valor nuevo en la misma vuelta—.
+                         Acá no hace falta: la nota solo se lee al enviar, y para
+                         entonces React ya repintó.  */}
+                    <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(e.target.value)}></textarea>
                 </label>
                 <button className='btnSend' >Enviar</button>
             </div>
