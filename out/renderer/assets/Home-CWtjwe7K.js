@@ -1,4 +1,4 @@
-import { c as commonjsGlobal, r as reactExports, a as axiosInstance, I as IP, j as jsxRuntimeExports, e, u as useSelector, U as URL$2, T as TabletScreen, s as socketAppManager, b as axios, d as useNavigate, f as useDispatch, g as socket, h as setUser, i as desconnectIo, p as pushNotifications, k as deleteNotifications, l as setLocals, m as setEstablishment, n as createIo } from "./index-BFymFLge.js";
+import { c as commonjsGlobal, r as reactExports, a as axiosInstance, I as IP, j as jsxRuntimeExports, e, u as useSelector, U as URL$2, s as socketAppManager, b as axios, d as useNavigate, f as useDispatch, g as socket, h as setUser, i as desconnectIo, p as pushNotifications, k as deleteNotifications, l as setLocals, m as setEstablishment, n as createIo } from "./index-BlYgG2L2.js";
 var lib = {};
 var uaParser_min = { exports: {} };
 (function(module, exports) {
@@ -3157,7 +3157,8 @@ function FormLayaut({
         borderRadius: "18px",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
-        boxShadow: "0 0 40px rgba(0, 119, 255, 0.34), 0 25px 70px rgba(0, 0, 0, 0.66)"
+        boxShadow: "0 0 40px rgba(0, 119, 255, 0.34), 0 25px 70px rgba(0, 0, 0, 0.66)",
+        padding: "0 0 3rem 0"
       },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -3244,7 +3245,7 @@ function returnTimeExceding(time, timelimit) {
   return `${isNaN(hourResult) ? "00" : `0${hourResult}`.substr(-2)}:${isNaN(minuteResult) ? "00" : `0${minuteResult}`.substr(-2)}:${isNaN(secondResult) ? "00" : `0${secondResult}`.substr(-2)}`;
 }
 const trash = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20height='48'%20width='48'%3e%3cpath%20d='M13.05%2042q-1.25%200-2.125-.875T10.05%2039V10.5H8v-3h9.4V6h13.2v1.5H40v3h-2.05V39q0%201.2-.9%202.1-.9.9-2.1.9Zm21.9-31.5h-21.9V39h21.9Zm-16.6%2024.2h3V14.75h-3Zm8.3%200h3V14.75h-3Zm-13.6-24.2V39Z'/%3e%3c/svg%3e";
-const icoEdit = "" + new URL("content_cut-DjBeChSV.svg", import.meta.url).href;
+const icoEdit = "" + new URL("content_cut-B_DVWBiL.svg", import.meta.url).href;
 const reply = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20height='48'%20viewBox='0%20-960%20960%20960'%20width='48'%3e%3cpath%20d='M780-200v-174q0-54-38-92t-92-38H234l154%20154-42%2042-226-226%20226-226%2042%2042-154%20154h416q78%200%20134%2055.5T840-374v174h-60Z'/%3e%3c/svg%3e";
 const save = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20height='48'%20viewBox='0%20-960%20960%20960'%20width='48'%3e%3cpath%20d='M840-683v503q0%2024-18%2042t-42%2018H180q-24%200-42-18t-18-42v-600q0-24%2018-42t42-18h503l157%20157Zm-60%2027L656-780H180v600h600v-476ZM479.765-245Q523-245%20553.5-275.265q30.5-30.264%2030.5-73.5Q584-392%20553.735-422.5q-30.264-30.5-73.5-30.5Q437-453%20406.5-422.735q-30.5%2030.264-30.5%2073.5Q376-306%20406.265-275.5q30.264%2030.5%2073.5%2030.5ZM233-584h358v-143H233v143Zm-53-72v476-600%20124Z'/%3e%3c/svg%3e";
 /*!
@@ -6292,7 +6293,6 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
 function DivAttention({ awaitWindow, boxModal, reset: reset2, title, data }) {
   const user = useSelector((store) => store.user);
   const establishment = useSelector((store) => store.establishment);
-  const saveNoveltie = useSaveNoveltie();
   let [table, setNumberTable] = reactExports.useState(data?.tableNumber || "");
   let [time1, setTime1] = reactExports.useState(data?.customerSeatedTime || "");
   let [time2, setTime2] = reactExports.useState(data?.firtAtenttionTime || "");
@@ -6314,18 +6314,6 @@ function DivAttention({ awaitWindow, boxModal, reset: reset2, title, data }) {
     if (number === 0) file1.current = null;
     if (number === 1) file2.current = null;
   };
-  function catBoxImg() {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "box-imgComponenContent gridx4", ref: htmlAdapterRef, children: hasFinishedState ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ImgBoxImg, { data: title.photos.caption[0], boxModal, setImg: (files) => {
-        file1.current = files;
-      }, deleteImg: () => deleteImg(0), language: establishment?.lang }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ImgBoxImg, { data: title.photos.caption[1], boxModal, setImg: (files) => {
-        file2.current = files;
-      }, deleteImg: () => deleteImg(1), language: establishment?.lang })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ImgBoxImg, { data: { index: 1, es: "En vivo", en: "now" }, boxModal, setImg: (files) => {
-      file1.current = files;
-    }, deleteImg, language: establishment?.lang }) });
-  }
   const sendImg = async (e2) => {
     try {
       e2.preventDefault();
@@ -6432,7 +6420,16 @@ Note: ${description.toLowerCase()}` : ""}`;
       event: (e2) => sendImg(e2),
       description: "Registra el tiempo desde que una mesa se ocupa hasta que recibe su primera atención. Si supera el protocolo, se genera una novedad de incumplimiento",
       children: [
-        catBoxImg(),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "box-imgComponenContent gridx4", ref: htmlAdapterRef, children: hasFinishedState ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ImgBoxImg, { data: title.photos.caption[0], boxModal, setImg: (files) => {
+            file1.current = files;
+          }, deleteImg: () => deleteImg(0), language: establishment?.lang }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ImgBoxImg, { data: title.photos.caption[1], boxModal, setImg: (files) => {
+            file2.current = files;
+          }, deleteImg: () => deleteImg(1), language: establishment?.lang })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ImgBoxImg, { data: { index: 1, es: "En vivo", en: "now" }, boxModal, setImg: (files) => {
+          file1.current = files;
+        }, deleteImg, language: establishment?.lang }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           FieldInput,
           {
@@ -6507,6 +6504,21 @@ Note: ${description.toLowerCase()}` : ""}`;
 function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
   useSelector((store) => store.establishment);
   const [typeDelay, setTypeDelay] = reactExports.useState({ data: null, type: "" });
+  const [tickets, setTickets] = reactExports.useState([]);
+  const [ultimaLectura, setUltimaLectura] = reactExports.useState(null);
+  const [tabletAbierta, setTabletAbierta] = reactExports.useState(false);
+  reactExports.useEffect(() => {
+    const desuscribir = window.electronAPI?.onTabletState?.(setTabletAbierta);
+    window.electronAPI?.preguntarEstadoTablet?.();
+    return desuscribir;
+  }, []);
+  reactExports.useEffect(() => {
+    const desuscribir = window.electronAPI?.onTickets?.((recibidos) => {
+      setTickets(recibidos);
+      setUltimaLectura((/* @__PURE__ */ new Date()).toLocaleTimeString());
+    });
+    return desuscribir;
+  }, []);
   reactExports.useEffect(() => {
     if (isTablet_1 && document.documentElement?.requestFullscreen) {
       document.documentElement.requestFullscreen().then(() => {
@@ -6570,8 +6582,35 @@ function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
         data: typeDelay?.data
       }
     ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(TabletScreen, {})
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        className: `fixed right-4 z-[901] top-[calc(var(--titlebar-h)+58px)] px-3 py-1.5 rounded-md text-[12px] font-bold text-white ${tabletAbierta ? "bg-[#7a1f2b] hover:bg-[#9a2533]" : "bg-[#066ca8] hover:bg-[#0890c0]"}`,
+        onClick: () => {
+          if (tabletAbierta) window.electronAPI?.closeTabletWindow?.();
+          else window.electronAPI?.openTabletWindow?.();
+        },
+        children: tabletAbierta ? "Quitar tablet" : "Sacar tablet"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(PanelTickets, { tickets, hora: ultimaLectura })
   ] }) });
+}
+function PanelTickets({ tickets, hora }) {
+  if (!hora) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed right-4 bottom-4 z-[900] w-[300px] max-h-[45%] overflow-auto rounded-xl border border-[#0a3a66] bg-[#01122c] shadow-[0_0_40px_rgba(0,120,255,0.15)]", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sticky top-0 flex items-center justify-between px-3 py-2 bg-[#021a38] border-b border-[#0a3a66]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold uppercase tracking-[0.6px] text-[#5e7ba0]", children: "Tickets leídos" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-mono text-[#33486a]", children: hora })
+    ] }),
+    tickets.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "px-3 py-3 text-[12px] text-[#33486a]", children: "La tablet no mostraba ningún ticket." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-[#0a3a66]/40", children: tickets.map((t, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "px-3 py-2 flex items-center justify-between gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[12px] font-semibold text-[#aecbf0]", children: [
+        "Mesa ",
+        t?.table ?? "—"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[12px] font-mono tabular-nums text-[#5e7ba0]", children: t?.tiempo ?? "—" })
+    ] }, i2)) })
+  ] });
 }
 function RotationLine({ setDelay }) {
   const [tableNumber, setTableNumber] = reactExports.useState("");

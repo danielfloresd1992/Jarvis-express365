@@ -12,8 +12,29 @@ contextBridge.exposeInMainWorld('electronAPI', {
     maximize: () => ipcRenderer.send('window:maximize'),
     close:    () => ipcRenderer.send('window:close'),
 
-    //  Abre TabletScreen como ventana flotante del sistema
-    openTabletWindow: () => ipcRenderer.send('tablet:open'),
+    //  Abre y cierra TabletScreen como ventana flotante del sistema
+    openTabletWindow:  () => ipcRenderer.send('tablet:open'),
+    closeTabletWindow: () => ipcRenderer.send('tablet:close'),
+
+    //  Saber si la flotante está abierta, para que el botón diga lo correcto.
+    //  'preguntarEstado' se llama al montar; 'onTabletState' escucha los cambios.
+    preguntarEstadoTablet: () => ipcRenderer.send('tablet:preguntarEstado'),
+
+    onTabletState: (callback) => {
+        const handler = (e, abierta) => callback(abierta);
+        ipcRenderer.on('tablet:estado', handler);
+        return () => ipcRenderer.removeListener('tablet:estado', handler);
+    },
+
+    //  TICKETS — la ventana flotante los manda, la de Jarvis los escucha.
+    //  Mismo patrón que onSystemStats: 'send' para mandar, 'on' para recibir.
+    enviarTickets: (tickets) => ipcRenderer.send('tablet:tickets', tickets),
+
+    onTickets: (callback) => {
+        const handler = (e, tickets) => callback(tickets);
+        ipcRenderer.on('tablet:tickets', handler);
+        return () => ipcRenderer.removeListener('tablet:tickets', handler);
+    },
 
     //  Suscripción al cambio maximizado/restaurado (devuelve función para desuscribir)
     onMaximizeChange: (callback) => {

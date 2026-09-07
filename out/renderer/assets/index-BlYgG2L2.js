@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["./Home-DAAebK9K.js","./Home-C8r9xKzu.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["./Home-CWtjwe7K.js","./Home-Bc6ANeMe.css"])))=>i.map(i=>d[i]);
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 function getDefaultExportFromCjs(x2) {
   return x2 && x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
@@ -13809,7 +13809,7 @@ const user = createSlice({
 });
 const { setUser } = user.actions;
 const user$1 = user.reducer;
-const apiUrl = "https://72.68.60.201:3006/api_jarvis/v1";
+const apiUrl = "https://amazona365.ddns.net/api_jarvis/v1";
 const URL$2 = apiUrl;
 console.log("API URL:", apiUrl);
 function LoginUser() {
@@ -13983,7 +13983,7 @@ function LoginUser() {
   ] });
 }
 let IP;
-const URL$1 = "https://72.68.60.201:3006/api_jarvis/v1";
+const URL$1 = "https://amazona365.ddns.net/api_jarvis/v1";
 IP = URL$1;
 const IP$1 = IP;
 const confirmAuthentication = async () => {
@@ -32611,7 +32611,7 @@ function ModalData() {
     ] }) : null
   ] }) });
 }
-const Home = reactExports.lazy(() => __vitePreload(() => import("./Home-DAAebK9K.js"), true ? __vite__mapDeps([0,1]) : void 0, import.meta.url));
+const Home = reactExports.lazy(() => __vitePreload(() => import("./Home-CWtjwe7K.js"), true ? __vite__mapDeps([0,1]) : void 0, import.meta.url));
 const NotFount = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
   "div",
   {
@@ -36019,13 +36019,13 @@ Object.assign(lookup, {
   io: lookup,
   connect: lookup
 });
-const SockedAppManager$1 = "amazona365.ddns.net:3000";
+const SockedAppManager$1 = "wss://amazona365.ddns.net:4000";
 let socket = lookup(SockedAppManager$1);
 socket.on("connect", (socked) => {
   console.log('cliente io conectado al púerto "3000"');
 });
 let dataUser = null;
-const SockedAppManager = "wss://72.68.60.201:3006";
+const SockedAppManager = "wss://amazona365.ddns.net";
 const urlSockedAppManager = SockedAppManager;
 const socketAppManager = lookup(urlSockedAppManager, { secure: true, rejectUnauthorized: false });
 socketAppManager.on("update-user-client-express", (userId) => {
@@ -40731,25 +40731,90 @@ class AdbWebCredentialStore {
     }
   }
 }
-function TabletScreen({ refreshMs = 1e3, floating = false }) {
-  const api = typeof window !== "undefined" ? window.electronAPI : null;
+const ZOOM_MIN = 50;
+const ZOOM_MAX = 400;
+const ZOOM_PASO = 25;
+const CLAVE_ZOOM = "tablet:zoom";
+function leerZoomGuardado() {
+  try {
+    const guardado = Number(localStorage.getItem(CLAVE_ZOOM));
+    if (Number.isFinite(guardado) && guardado >= ZOOM_MIN && guardado <= ZOOM_MAX) return guardado;
+  } catch {
+  }
+  return 100;
+}
+function TabletScreen({ refreshMs = 1e3 }) {
   const [connected, setConnected] = reactExports.useState(false);
   const [statusText, setStatusText] = reactExports.useState("Sin conectar");
   const [imgUrl, setImgUrl] = reactExports.useState(null);
   const [responseRerenceState, setResponseRerenceState] = reactExports.useState([]);
   const [inferenceTime, setInferenceTime] = reactExports.useState(null);
-  const [pipWindow, setPipWindow] = reactExports.useState(null);
-  const canPopOut = api?.isElectron || typeof window !== "undefined" && "documentPictureInPicture" in window;
+  const [ultimoError, setUltimoError] = reactExports.useState(null);
+  const [ticketsLeidos, setTicketsLeidos] = reactExports.useState(null);
+  const [respuestaCruda, setRespuestaCruda] = reactExports.useState("");
+  const [tamanoImagen, setTamanoImagen] = reactExports.useState("");
+  const [zoom2, setZoom] = reactExports.useState(leerZoomGuardado);
+  reactExports.useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_ZOOM, String(zoom2));
+    } catch {
+    }
+  }, [zoom2]);
+  const cambiarZoom = (delta) => {
+    setZoom((actual) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, actual + delta)));
+  };
+  const contenedorImgRef = reactExports.useRef(null);
+  const inicioArrastreRef = reactExports.useRef(null);
+  const [arrastrando, setArrastrando] = reactExports.useState(false);
+  const sePuedeArrastrar = () => {
+    const cont = contenedorImgRef.current;
+    if (!cont) return false;
+    return cont.scrollWidth > cont.clientWidth || cont.scrollHeight > cont.clientHeight;
+  };
+  const empezarArrastre = (e2) => {
+    if (!sePuedeArrastrar()) return;
+    e2.preventDefault();
+    const cont = contenedorImgRef.current;
+    inicioArrastreRef.current = {
+      x: e2.clientX,
+      y: e2.clientY,
+      scrollLeft: cont.scrollLeft,
+      scrollTop: cont.scrollTop
+    };
+    setArrastrando(true);
+  };
+  reactExports.useEffect(() => {
+    if (!arrastrando) return;
+    const mover = (e2) => {
+      const cont = contenedorImgRef.current;
+      const inicio = inicioArrastreRef.current;
+      if (!cont || !inicio) return;
+      cont.scrollLeft = inicio.scrollLeft - (e2.clientX - inicio.x);
+      cont.scrollTop = inicio.scrollTop - (e2.clientY - inicio.y);
+    };
+    const soltar = () => {
+      inicioArrastreRef.current = null;
+      setArrastrando(false);
+    };
+    window.addEventListener("mousemove", mover);
+    window.addEventListener("mouseup", soltar);
+    return () => {
+      window.removeEventListener("mousemove", mover);
+      window.removeEventListener("mouseup", soltar);
+    };
+  }, [arrastrando]);
   const adbRef = reactExports.useRef(null);
   const intervalRef = reactExports.useRef(null);
   const lastUrlRef = reactExports.useRef(null);
-  const prompt = "respondeme solo con lista de objetos de cada ticket que vez en la imagen , con las siguientes propiedades, tiket: es un digito que empueza con #, table: este seria el número de la mesa pero en algunas opcaciones no tiene mesa si no el nombre del mesero, # tiempo: que es el que lleva preparandose en el formato HH:MM:SS la cual seria 00:12:14, dish que sea un array con los nombre del plato en nameDish, en el caso de no haber nada en la imagen devuelve en arreglo vacio";
-  const token = "sk-lm-L5PlZvDm:8ovTMhDIQ6pzM70Kr2Vl";
+  const enVueloRef = reactExports.useRef(false);
+  const ultimoEnvioRef = reactExports.useRef(0);
+  const prompt = "Describe en dos frases que ves en esta imagen. Si hay texto legible, escribe tres ejemplos exactos de lo que alcanzas a leer.";
   const handdlerConnect = async () => {
     try {
       setStatusText("Solicitando dispositivo...");
       const manager = AdbDaemonWebUsbDeviceManager.BROWSER;
       if (!manager) return setStatusText("Este navegador no soporta WebUSB (usa Chrome/Edge)");
+      const UNISOC_ADB_VID = 6353;
       const device = await manager.requestDevice();
       if (!device) return setStatusText("No se seleccionó ningún dispositivo");
       const connection = await device.connect();
@@ -40780,24 +40845,6 @@ function TabletScreen({ refreshMs = 1e3, floating = false }) {
       setStatusText("Sin conectar");
     }
   };
-  const togglePip = async () => {
-    if (api?.isElectron) return api.openTabletWindow();
-    if (pipWindow) return pipWindow.close();
-    if (!("documentPictureInPicture" in window)) {
-      return setStatusText("Tu navegador no soporta ventanas flotantes (usa Chrome/Edge)");
-    }
-    try {
-      const pip = await window.documentPictureInPicture.requestWindow({ width: 360, height: 620 });
-      copiarEstilos(pip);
-      pip.document.body.style.margin = "0";
-      pip.document.body.style.background = "#01122c";
-      pip.addEventListener("pagehide", () => setPipWindow(null));
-      setPipWindow(pip);
-    } catch (error) {
-      console.log(error);
-      setStatusText("No se pudo abrir la ventana flotante: " + error.message);
-    }
-  };
   const capturarPantalla = async () => {
     try {
       if (!adbRef.current) return;
@@ -40812,42 +40859,58 @@ function TabletScreen({ refreshMs = 1e3, floating = false }) {
         reader.onloadend = () => resolve2(reader.result);
         reader.readAsDataURL(blob);
       });
-      sendImg(base64);
+      const ahora = Date.now();
+      if (ahora - ultimoEnvioRef.current >= 15e3) {
+        ultimoEnvioRef.current = ahora;
+        sendImg(base64);
+      }
     } catch (error) {
       console.log(error);
     }
   };
   const sendImg = async (img) => {
+    if (enVueloRef.current) return;
+    enVueloRef.current = true;
     try {
       const body = {
-        model: "google/gemma-4-12b-qat",
-        input: [
+        model: "google/gemma-4-e4b",
+        messages: [
           {
-            type: "text",
-            content: prompt
-          },
-          {
-            type: "image",
-            data_url: img
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: img } }
+            ]
           }
         ],
-        reasoning: "off",
-        context_length: 8e3,
+        max_tokens: 800,
         temperature: 0
       };
-      const header = {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      };
+      const kb2 = Math.round((img?.length ?? 0) / 1024);
+      const cabecera = String(img).slice(0, 30);
+      console.log(`[IA] mandando imagen: ${kb2} KB — empieza por "${cabecera}"`);
+      setTamanoImagen(`${kb2} KB`);
       const start = performance.now();
-      const response = await axios.post("http://72.68.60.171:1234/api/v1/chat", body, header);
+      const url2 = `${"https://72.68.60.171"}/v1/chat/completions`;
+      const response = await axios.post(url2, body);
       setInferenceTime(((performance.now() - start) / 1e3).toFixed(1));
-      const content = response?.data?.output?.[0]?.content ?? "";
+      const content = response?.data?.choices?.[0]?.message?.content ?? "";
       console.log(content);
       const tickets = parseTickets(content);
-      if (tickets.length > 0) setResponseRerenceState([...responseRerenceState, tickets]);
+      setUltimoError(null);
+      setTicketsLeidos(tickets.length);
+      setRespuestaCruda(tickets.length === 0 ? content.trim().slice(0, 200) : "");
+      if (tickets.length > 0) {
+        setResponseRerenceState([...responseRerenceState, tickets]);
+        window.electronAPI?.enviarTickets?.(tickets);
+      }
     } catch (error) {
       console.log(error);
+      const motivo = error?.response?.data?.error?.message ?? error?.response?.data?.error ?? error?.message ?? "error desconocido";
+      setUltimoError(String(motivo));
+      setTicketsLeidos(null);
+    } finally {
+      enVueloRef.current = false;
     }
   };
   reactExports.useEffect(() => {
@@ -40863,65 +40926,114 @@ function TabletScreen({ refreshMs = 1e3, floating = false }) {
       if (adbRef.current) adbRef.current.close();
     };
   }, []);
-  reactExports.useEffect(() => {
-    return () => {
-      if (pipWindow) pipWindow.close();
-    };
-  }, [pipWindow]);
   console.log(responseRerenceState);
-  const rootClass = floating || pipWindow ? "flex flex-col w-screen h-screen overflow-hidden bg-[#01122c]" : `absolute bottom-[60px] left-[20px] z-[1000] resize overflow-auto w-[340px] min-w-[240px] rounded-xl border border-[#0a3a66] bg-[#01122c] shadow-[0_0_40px_rgba(0,120,255,0.15)] ${connected ? "h-auto" : "h-[64px] overflow-hidden"} `;
-  const contenido = /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: rootClass, children: [
-    floating && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { WebkitAppRegion: "drag" }, className: "flex items-center justify-between h-8 px-3 bg-[#021326] border-b border-[#0a3a66] select-none shrink-0", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold tracking-[0.4px] text-[#aecbf0]", children: "Pantalla Tablet" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          style: { WebkitAppRegion: "no-drag" },
-          onClick: () => api?.close(),
-          className: "h-full w-9 flex items-center justify-center text-[#aecbf0] hover:bg-[#c0392b] hover:text-white",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "11", height: "11", viewBox: "0 0 11 11", stroke: "currentColor", strokeWidth: "1.2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "1", y1: "1", x2: "10", y2: "10" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "10", y1: "1", x2: "1", y2: "10" })
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-full flex flex-col overflow-hidden rounded-xl border border-[#0a3a66] bg-[#01122c]", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "sticky top-0 z-10 flex items-center justify-between gap-2 px-3 py-2 bg-[#021a38] border-b border-[#0a3a66] cursor-move select-none",
+        style: { WebkitAppRegion: "drag" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-0 flex-1 text-[11px] font-bold uppercase tracking-[0.6px] text-[#5e7ba0] truncate", children: statusText }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-none flex items-center gap-1.5", style: { WebkitAppRegion: "no-drag" }, children: [
+            !connected ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]", onClick: handdlerConnect, children: "Conectar" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#7a1f2b] hover:bg-[#9a2533]", onClick: handdlerDisconnect, children: "Desconectar" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "flex-none w-6 h-6 flex items-center justify-center rounded-md text-[15px] font-bold text-[#5e7ba0] hover:text-white hover:bg-[#7a1f2b]",
+                onClick: () => window.electronAPI?.closeTabletWindow?.(),
+                title: "Cerrar",
+                children: "✕"
+              }
+            )
           ] })
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sticky top-0 z-10 flex items-center justify-between gap-2 px-3 py-2 bg-[#021a38] border-b border-[#0a3a66] shrink-0", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold uppercase tracking-[0.6px] text-[#5e7ba0] truncate", children: statusText }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 shrink-0", children: [
-        !floating && canPopOut && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2 py-1 rounded-md text-[11px] font-bold text-white bg-[#3a5a00] hover:bg-[#4e8300]", onClick: togglePip, title: pipWindow ? "Regresar a la pestaña" : "Abrir en ventana flotante", children: pipWindow ? "⤡" : "⧉" }),
-        !connected ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]", onClick: handdlerConnect, children: "Conectar" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#7a1f2b] hover:bg-[#9a2533]", onClick: handdlerDisconnect, children: "Desconectar" })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-[32%] flex items-center justify-center border-b border-[#0a3a66] bg-black/20", children: imgUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx("img", { className: "w-full h-full object-contain", src: imgUrl, alt: "pantalla tablet", draggable: false }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[12px] text-[#33486a] px-4 text-center", children: "Conecta la tablet para ver su pantalla" }) })
-  ] });
-  if (pipWindow) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      reactDomExports.createPortal(contenido, pipWindow.document.body),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-[60px] left-[20px] z-[1000] w-[340px] flex items-center justify-between gap-2 px-3 py-3 rounded-xl border border-[#0a3a66] bg-[#01122c]", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold text-[#5e7ba0]", children: "📺 En ventana flotante" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: togglePip, className: "px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]", children: "Regresar" })
-      ] })
-    ] });
-  }
-  return contenido;
-}
-function copiarEstilos(pip) {
-  [...document.styleSheets].forEach((sheet) => {
-    try {
-      const css = [...sheet.cssRules].map((r2) => r2.cssText).join("");
-      const style = pip.document.createElement("style");
-      style.textContent = css;
-      pip.document.head.appendChild(style);
-    } catch {
-      if (sheet.href) {
-        const link = pip.document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = sheet.href;
-        pip.document.head.appendChild(link);
+        ]
       }
-    }
-  });
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        ref: contenedorImgRef,
+        onMouseDown: empezarArrastre,
+        className: `w-full flex-1 min-h-0 overflow-auto flex items-center justify-center border-b border-[#0a3a66] bg-black/20 ${arrastrando ? "cursor-grabbing select-none" : zoom2 > 100 ? "cursor-grab" : ""}`,
+        children: imgUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "img",
+          {
+            className: "object-contain",
+            style: { width: `${zoom2}%`, height: `${zoom2}%`, flex: "none", maxWidth: "none" },
+            src: imgUrl,
+            alt: "pantalla tablet",
+            draggable: false
+          }
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[12px] text-[#33486a] px-4 text-center", children: "Conecta la tablet para ver su pantalla" })
+      }
+    ),
+    connected && (ultimoError || ticketsLeidos !== null) && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: `px-3 py-1 text-[10px] font-mono truncate border-t border-[#0a3a66] ${ultimoError ? "text-[#f08a6a] bg-[#2a0f08]" : "text-[#5e7ba0] bg-[#021a38]"}`,
+        title: ultimoError ?? "",
+        children: ultimoError ? `IA: ${ultimoError}` : ticketsLeidos === 0 && respuestaCruda ? `[img ${tamanoImagen}] IA (${inferenceTime}s) contestó: ${respuestaCruda}` : `[img ${tamanoImagen}] IA: ${ticketsLeidos} ticket${ticketsLeidos === 1 ? "" : "s"} · ${inferenceTime}s`
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex items-center justify-center gap-2 px-3 py-1 bg-[#021a38] select-none",
+        style: { WebkitAppRegion: "no-drag" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "svg",
+            {
+              className: "w-3.5 h-3.5 text-[#5e7ba0]",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2.2",
+              strokeLinecap: "round",
+              "aria-hidden": "true",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "11", cy: "11", r: "7" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "16.5", y1: "16.5", x2: "21", y2: "21" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "w-6 h-6 flex items-center justify-center rounded-md text-[16px] font-bold text-[#aecbf0] bg-[#0a3a66]/50 hover:bg-[#0a3a66] disabled:opacity-30 disabled:hover:bg-[#0a3a66]/50",
+              onClick: () => cambiarZoom(-ZOOM_PASO),
+              disabled: zoom2 <= ZOOM_MIN,
+              title: "Alejar",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block -mt-0.5", children: "−" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "min-w-[52px] text-[11px] font-mono tabular-nums text-[#5e7ba0] hover:text-white",
+              onClick: () => setZoom(100),
+              title: "Volver al 100 %",
+              children: [
+                zoom2,
+                " %"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "w-6 h-6 flex items-center justify-center rounded-md text-[16px] font-bold text-[#aecbf0] bg-[#0a3a66]/50 hover:bg-[#0a3a66] disabled:opacity-30 disabled:hover:bg-[#0a3a66]/50",
+              onClick: () => cambiarZoom(ZOOM_PASO),
+              disabled: zoom2 >= ZOOM_MAX,
+              title: "Acercar",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block -mt-0.5", children: "+" })
+            }
+          )
+        ]
+      }
+    )
+  ] });
 }
 function parseTickets(content) {
   try {
@@ -40950,7 +41062,6 @@ if (view === "tablet") {
 }
 export {
   IP$1 as I,
-  TabletScreen as T,
   URL$2 as U,
   axiosInstance as a,
   axios as b,

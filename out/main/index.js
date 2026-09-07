@@ -1,8 +1,8 @@
-import { ipcMain, BrowserWindow, app, session } from "electron";
+import { ipcMain, BrowserWindow, app, session, screen } from "electron";
+import { existsSync, statSync, createReadStream, writeFileSync, readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import http from "http";
-import { existsSync, statSync, createReadStream } from "fs";
 import os from "os";
 import __cjs_mod__ from "node:module";
 const __filename = import.meta.filename;
@@ -99,27 +99,92 @@ let tabletWindow = null;
 let staticServer = null;
 let stopSystemStats = null;
 let baseUrl = "";
+const ARCHIVO_VENTANA = () => path.join(app.getPath("userData"), "ventana-tablet.json");
+let guardarPendiente = null;
+function leerPosicionGuardada() {
+  try {
+    const datos = JSON.parse(readFileSync(ARCHIVO_VENTANA(), "utf-8"));
+    return posicionVisible(datos) ? datos : null;
+  } catch {
+    return null;
+  }
+}
+function posicionVisible(bounds) {
+  if (!bounds || typeof bounds.x !== "number" || typeof bounds.y !== "number") return false;
+  return screen.getAllDisplays().some(({ workArea: a }) => bounds.x < a.x + a.width && bounds.x + (bounds.width || 0) > a.x && bounds.y < a.y + a.height && bounds.y + (bounds.height || 0) > a.y);
+}
+function guardarPosicion() {
+  if (guardarPendiente) clearTimeout(guardarPendiente);
+  guardarPendiente = setTimeout(() => {
+    guardarPendiente = null;
+    if (!tabletAbierta()) return;
+    try {
+      const { x, y, width, height } = tabletWindow.getBounds();
+      writeFileSync(ARCHIVO_VENTANA(), JSON.stringify({ x, y, width, height }));
+    } catch (error) {
+      console.log("No se pudo guardar la posición de la tablet:", error.message);
+    }
+  }, 500);
+}
 let usbReady = false;
 function setupUsbPermission() {
   if (usbReady) return;
   usbReady = true;
   session.defaultSession.setPermissionCheckHandler(() => true);
   session.defaultSession.setDevicePermissionHandler(() => true);
+  let elegirDispositivo = null;
+  let esperaDispositivo = null;
+  const responderDispositivo = (id) => {
+    if (!elegirDispositivo) return;
+    const responder = elegirDispositivo;
+    elegirDispositivo = null;
+    if (esperaDispositivo) clearTimeout(esperaDispositivo);
+    esperaDispositivo = null;
+    responder(id);
+  };
   session.defaultSession.on("select-usb-device", (event, details, callback) => {
     event.preventDefault();
-    callback(details.deviceList[0]?.deviceId);
+    const lista = details.deviceList ?? [];
+    console.log(`[USB] petición de dispositivo. Vistos: ${lista.length}`);
+    lista.forEach((d) => console.log(`[USB]   · ${d.productName ?? "sin nombre"} — vendorId ${d.vendorId}, productId ${d.productId}`));
+    if (lista[0]) return callback(lista[0].deviceId);
+    console.log("[USB] lista vacía, esperando a que aparezca alguno...");
+    elegirDispositivo = callback;
+    esperaDispositivo = setTimeout(() => {
+      console.log("[USB] no apareció ningún dispositivo en 8 s. Revisa cable y depuración USB.");
+      responderDispositivo(void 0);
+    }, 8e3);
+  });
+  session.defaultSession.on("usb-device-added", (event, device) => {
+    console.log(`[USB] apareció: ${device.productName ?? "sin nombre"} — vendorId ${device.vendorId}`);
+    responderDispositivo(device.deviceId);
   });
 }
+function tabletAbierta() {
+  return !!(tabletWindow && !tabletWindow.isDestroyed());
+}
+function avisarEstadoTablet() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.webContents.send("tablet:estado", tabletAbierta());
+}
+function closeTabletWindow() {
+  if (tabletAbierta()) tabletWindow.close();
+}
 function openTabletWindow() {
-  if (tabletWindow && !tabletWindow.isDestroyed()) {
+  if (tabletAbierta()) {
     tabletWindow.focus();
     return;
   }
+  const guardada = leerPosicionGuardada();
   tabletWindow = new BrowserWindow({
-    width: 360,
-    height: 620,
-    minWidth: 260,
-    minHeight: 340,
+    width: guardada?.width ?? 400,
+    height: guardada?.height ?? 300,
+    ...guardada ? { x: guardada.x, y: guardada.y } : {},
+    //  sin posición previa, Electron la centra
+    minWidth: 280,
+    minHeight: 180,
+    //  por debajo del alto pedido: si no, Electron ignora height
+    resizable: true,
     frame: false,
     alwaysOnTop: true,
     backgroundColor: "#01122c",
@@ -139,9 +204,24 @@ function openTabletWindow() {
   tabletWindow.on("blur", keepOnTop);
   const keepOnTopTimer = process.platform === "linux" ? setInterval(keepOnTop, 1e3) : null;
   tabletWindow.loadURL(`${baseUrl}?view=tablet`);
+  avisarEstadoTablet();
+  if (!app.isPackaged) tabletWindow.webContents.openDevTools({ mode: "detach" });
+  tabletWindow.on("moved", guardarPosicion);
+  tabletWindow.on("resized", guardarPosicion);
+  tabletWindow.on("close", () => {
+    if (guardarPendiente) clearTimeout(guardarPendiente);
+    guardarPendiente = null;
+    try {
+      const { x, y, width, height } = tabletWindow.getBounds();
+      writeFileSync(ARCHIVO_VENTANA(), JSON.stringify({ x, y, width, height }));
+    } catch (error) {
+      console.log("No se pudo guardar la posición de la tablet:", error.message);
+    }
+  });
   tabletWindow.on("closed", () => {
     if (keepOnTopTimer) clearInterval(keepOnTopTimer);
     tabletWindow = null;
+    avisarEstadoTablet();
   });
 }
 async function createWindow() {
@@ -164,6 +244,12 @@ async function createWindow() {
   trackMaximizeState(mainWindow);
   stopSystemStats = startSystemStats(mainWindow);
   ipcMain.on("tablet:open", openTabletWindow);
+  ipcMain.on("tablet:close", closeTabletWindow);
+  ipcMain.on("tablet:preguntarEstado", avisarEstadoTablet);
+  ipcMain.on("tablet:tickets", (event, tickets) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    mainWindow.webContents.send("tablet:tickets", tickets);
+  });
   mainWindow.on("closed", () => {
     if (tabletWindow && !tabletWindow.isDestroyed()) tabletWindow.close();
     mainWindow = null;
