@@ -445,7 +445,7 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
                  la ventana entera. Los botones llevan 'no-drag' porque dentro de una
                  zona arrastrable dejarían de responder al clic.  */}
             <div
-                className='sticky top-0 z-10 flex items-center justify-between gap-2 px-3 py-2 bg-[#021a38] border-b border-[#0a3a66] cursor-move select-none'
+                className='sticky top-0 z-10 flex items-center justify-between gap-2 px-2 py-1 bg-[#021a38] border-b border-[#0a3a66] cursor-move select-none'
                 style={{ WebkitAppRegion: 'drag' }}
                 onMouseDown={onArrastrarBarra}
             >
@@ -461,7 +461,10 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
                         {nombreLocal || 'Tablet'}
                     </span>
 
-                    <span className='flex items-center gap-1.5'>
+                    {/*  'min-w-0' también aquí: sin él esta fila no baja de su ancho
+                         natural y empuja los botones hasta que la ✕ se sale del
+                         panel y el recorte se la come.  */}
+                    <span className='min-w-0 flex items-center gap-1.5'>
                         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${connected ? 'bg-[#7fc79e]' : 'bg-[#33486a]'}`} />
                         <span className='min-w-0 text-[9px] font-bold uppercase tracking-[0.6px] text-[#5e7ba0] truncate'>
                             {statusText}
@@ -473,8 +476,12 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
                      alineada: antes el de conectar se dibujaba con el alto de su
                      texto y el de cerrar con el suyo, y no cuadraban.  */}
                 <div className='flex-none flex items-center gap-1' style={{ WebkitAppRegion: 'no-drag' }}>
+                    {/*  Este sí puede encogerse y recortar su texto. La ✕ no: es la
+                         única forma de cerrar, y perderla deja la ventana atrapada.
+                         Cuando falte sitio, que se acorte "Desconectar".  */}
                     <button
-                        className={`h-6 px-2.5 flex items-center rounded-md text-[10px] font-bold uppercase tracking-[0.4px] text-white transition-colors ${connected ? 'bg-[#7a1f2b] hover:bg-[#9a2533]' : 'bg-[#066ca8] hover:bg-[#0890c0]'}`}
+                        className={`h-6 min-w-0 py-0 px-2.5 flex items-center justify-center rounded-md text-[10px] font-bold uppercase tracking-[0.4px] text-white truncate transition-colors ${connected ? 'bg-[#7a1f2b] hover:bg-[#9a2533]' : 'bg-[#066ca8] hover:bg-[#0890c0]'}`}
+                        style={{ padding: '0 10px' }}
                         onClick={connected ? handdlerDisconnect : handdlerConnect}
                     >
                         {connected ? 'Desconectar' : 'Conectar'}
@@ -484,14 +491,17 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
                          Lleva fondo y borde propios: antes era solo el trazo sobre el
                          azul oscuro de la barra y apenas se distinguía.  */}
                     <button
-                        className='h-6 w-6 shrink-0 flex items-center justify-center rounded-md border border-[#0a3a66] bg-[#0a3a66]/40 text-[#aecbf0] hover:border-[#9a2533] hover:bg-[#7a1f2b] hover:text-white transition-colors'
+                        className='h-6 w-6 shrink-0 p-0 flex items-center justify-center rounded-md border border-[#0a3a66] bg-[#0a3a66]/40 text-[#aecbf0] hover:border-[#9a2533] hover:bg-[#7a1f2b] hover:text-white transition-colors'
+                        style={{ padding: 0 }}
                         onClick={() => (onCerrar ?? window.electronAPI?.closeTabletWindow)?.()}
                         title='Cerrar'
                     >
-                        <svg className='h-3.5 w-3.5' viewBox='0 0 24 24' fill='none' stroke='currentColor'
-                             strokeWidth='3' strokeLinecap='round' aria-hidden='true'>
-                            <line x1='6' y1='6' x2='18' y2='18' />
-                            <line x1='18' y1='6' x2='6' y2='18' />
+                        {/*  El color va puesto en el propio SVG y no heredado del
+                             botón: así se ve seguro, sin depender de la cascada.  */}
+                        <svg className='h-4 w-4 text-[#aecbf0]' viewBox='0 0 24 24' fill='none'
+                             stroke='currentColor' strokeWidth='2' strokeLinecap='round' aria-hidden='true'>
+                            <line x1='5' y1='5' x2='19' y2='19' />
+                            <line x1='19' y1='5' x2='5' y2='19' />
                         </svg>
                     </button>
                 </div>
@@ -539,7 +549,7 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
                  última lectura se muestra aquí: si no, un fallo pasaría inadvertido.  */}
             {
                 connected && (consultando || ultimoError || ticketsLeidos !== null) && (
-                    <div className={`px-3 py-1 text-[10px] font-mono truncate border-t border-[#0a3a66] ${ultimoError ? 'text-[#f08a6a] bg-[#2a0f08]' : 'text-[#5e7ba0] bg-[#021a38]'}`}
+                    <div className={`px-2 py-0.5 text-[10px] font-mono truncate border-t border-[#0a3a66] ${ultimoError ? 'text-[#f08a6a] bg-[#2a0f08]' : 'text-[#5e7ba0] bg-[#021a38]'}`}
                          title={ultimoError ?? ''}>
                         {
                             consultando
@@ -557,7 +567,7 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
 
             {/*  BARRA DE ZOOM  */}
             <div
-                className='flex items-center justify-center gap-2 px-3 py-1 bg-[#021a38] select-none'
+                className='flex items-center justify-center gap-2 px-2 py-0.5 bg-[#021a38] select-none'
                 style={{ WebkitAppRegion: 'no-drag' }}
             >
 
@@ -570,7 +580,8 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
                 {/*  El glifo se centra con flex, no con line-height: así queda igual
                      de centrado sean cuales sean el tipo de letra y el símbolo.  */}
                 <button
-                    className='w-6 h-6 flex items-center justify-center rounded-md text-[16px] font-bold text-[#aecbf0] bg-[#0a3a66]/50 hover:bg-[#0a3a66] disabled:opacity-30 disabled:hover:bg-[#0a3a66]/50'
+                    className='w-6 h-6 p-0 flex items-center justify-center rounded-md text-[16px] font-bold text-[#aecbf0] bg-[#0a3a66]/50 hover:bg-[#0a3a66] disabled:opacity-30 disabled:hover:bg-[#0a3a66]/50'
+                    style={{ padding: 0 }}
                     onClick={() => cambiarZoom(-ZOOM_PASO)}
                     disabled={zoom <= ZOOM_MIN}
                     title='Alejar'
@@ -588,7 +599,8 @@ export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nom
                 </button>
 
                 <button
-                    className='w-6 h-6 flex items-center justify-center rounded-md text-[16px] font-bold text-[#aecbf0] bg-[#0a3a66]/50 hover:bg-[#0a3a66] disabled:opacity-30 disabled:hover:bg-[#0a3a66]/50'
+                    className='w-6 h-6 p-0 flex items-center justify-center rounded-md text-[16px] font-bold text-[#aecbf0] bg-[#0a3a66]/50 hover:bg-[#0a3a66] disabled:opacity-30 disabled:hover:bg-[#0a3a66]/50'
+                    style={{ padding: 0 }}
                     onClick={() => cambiarZoom(ZOOM_PASO)}
                     disabled={zoom >= ZOOM_MAX}
                     title='Acercar'
