@@ -29,7 +29,15 @@ function leerZoomGuardado() {
 }
 
 
-export function TabletScreen({ refreshMs = 1000 }) {
+/*  `onCerrar` y `onArrastrarBarra` solo se usan cuando esto vive dentro de un
+ *  panel de la página, no en la ventana flotante de Electron.
+ *
+ *  En Electron la ventana se arrastra y se cierra sola: `-webkit-app-region` y
+ *  `closeTabletWindow` lo resuelven a nivel del sistema. Un navegador no tiene
+ *  nada de eso, así que quien envuelve al componente tiene que encargarse, y
+ *  para eso necesita saber cuándo se agarra la barra y cuándo se pulsa la ✕.
+ */
+export function TabletScreen({ refreshMs = 1000, onCerrar, onArrastrarBarra, nombreLocal }) {
 
     //  ESTADO DE CONEXIÓN
     const [connected, setConnected] = useState(false);
@@ -439,34 +447,52 @@ export function TabletScreen({ refreshMs = 1000 }) {
             <div
                 className='sticky top-0 z-10 flex items-center justify-between gap-2 px-3 py-2 bg-[#021a38] border-b border-[#0a3a66] cursor-move select-none'
                 style={{ WebkitAppRegion: 'drag' }}
+                onMouseDown={onArrastrarBarra}
             >
 
-                {/*  'min-w-0' es imprescindible: sin él un hijo de flex no baja de su
-                     ancho natural, así que este texto empujaría los botones fuera de
-                     la ventana en lugar de recortarse con puntos suspensivos.  */}
-                <span className='min-w-0 flex-1 text-[11px] font-bold uppercase tracking-[0.6px] text-[#5e7ba0] truncate'>
-                    {statusText}
+                {/*  Nombre del local arriba y estado debajo, en dos líneas.
+                     En una sola, con la ventana estrecha, el nombre empujaba los
+                     botones y la ✕ se salía por el borde.
+
+                     'min-w-0' es imprescindible: sin él un hijo de flex no baja de
+                     su ancho natural y recortar con puntos suspensivos no funciona.  */}
+                <span className='min-w-0 flex-1 flex flex-col gap-0.5 leading-none'>
+                    <span className='min-w-0 text-[11px] font-bold text-[#aecbf0] truncate' title={nombreLocal ?? ''}>
+                        {nombreLocal || 'Tablet'}
+                    </span>
+
+                    <span className='flex items-center gap-1.5'>
+                        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${connected ? 'bg-[#7fc79e]' : 'bg-[#33486a]'}`} />
+                        <span className='min-w-0 text-[9px] font-bold uppercase tracking-[0.6px] text-[#5e7ba0] truncate'>
+                            {statusText}
+                        </span>
+                    </span>
                 </span>
 
-                <div className='flex-none flex items-center gap-1.5' style={{ WebkitAppRegion: 'no-drag' }}>
-                    {
-                        !connected ?
-                            <button className='px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]' onClick={handdlerConnect}>
-                                Conectar
-                            </button>
-                            :
-                            <button className='px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#7a1f2b] hover:bg-[#9a2533]' onClick={handdlerDisconnect}>
-                                Desconectar
-                            </button>
-                    }
-
-                    {/*  Cerrar la propia ventana flotante  */}
+                {/*  Los dos botones comparten alto (h-6) para que la barra quede
+                     alineada: antes el de conectar se dibujaba con el alto de su
+                     texto y el de cerrar con el suyo, y no cuadraban.  */}
+                <div className='flex-none flex items-center gap-1' style={{ WebkitAppRegion: 'no-drag' }}>
                     <button
-                        className='flex-none w-6 h-6 flex items-center justify-center rounded-md text-[15px] font-bold text-[#5e7ba0] hover:text-white hover:bg-[#7a1f2b]'
-                        onClick={() => window.electronAPI?.closeTabletWindow?.()}
+                        className={`h-6 px-2.5 flex items-center rounded-md text-[10px] font-bold uppercase tracking-[0.4px] text-white transition-colors ${connected ? 'bg-[#7a1f2b] hover:bg-[#9a2533]' : 'bg-[#066ca8] hover:bg-[#0890c0]'}`}
+                        onClick={connected ? handdlerDisconnect : handdlerConnect}
+                    >
+                        {connected ? 'Desconectar' : 'Conectar'}
+                    </button>
+
+                    {/*  Cerrar la ventana.
+                         Lleva fondo y borde propios: antes era solo el trazo sobre el
+                         azul oscuro de la barra y apenas se distinguía.  */}
+                    <button
+                        className='h-6 w-6 shrink-0 flex items-center justify-center rounded-md border border-[#0a3a66] bg-[#0a3a66]/40 text-[#aecbf0] hover:border-[#9a2533] hover:bg-[#7a1f2b] hover:text-white transition-colors'
+                        onClick={() => (onCerrar ?? window.electronAPI?.closeTabletWindow)?.()}
                         title='Cerrar'
                     >
-                        ✕
+                        <svg className='h-3.5 w-3.5' viewBox='0 0 24 24' fill='none' stroke='currentColor'
+                             strokeWidth='3' strokeLinecap='round' aria-hidden='true'>
+                            <line x1='6' y1='6' x2='18' y2='18' />
+                            <line x1='18' y1='6' x2='6' y2='18' />
+                        </svg>
                     </button>
                 </div>
 
@@ -480,16 +506,24 @@ export function TabletScreen({ refreshMs = 1000 }) {
             <div
                 ref={contenedorImgRef}
                 onMouseDown={empezarArrastre}
-                className={`w-full flex-1 min-h-0 overflow-auto flex items-center justify-center border-b border-[#0a3a66] bg-black/20 ${arrastrando ? 'cursor-grabbing select-none' : zoom > 100 ? 'cursor-grab' : ''}`}
+                //  'items-start' y no 'items-center': un hijo centrado dentro de un
+                //  contenedor con desplazamiento pierde la parte de arriba, y esa
+                //  franja queda inalcanzable. El centrado se hace con 'margin:auto'
+                //  en la imagen, que sí respeta el desplazamiento.
+                className={`w-full flex-1 min-h-0 overflow-auto flex items-start justify-start border-b border-[#0a3a66] bg-black/20 ${arrastrando ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
             >
 
                 {
                     imgUrl ?
                         <img
-                            className='object-contain'
-                            //  'flex: none' evita que flex encoja la imagen y anule el zoom.
-                            //  'maxWidth: none' quita el tope que trae Tailwind por defecto.
-                            style={{ width: `${zoom}%`, height: `${zoom}%`, flex: 'none', maxWidth: 'none' }}
+                            //  El zoom se aplica SOLO al ancho; el alto va libre para que
+                            //  la imagen no se deforme. Al 100 % ocupa todo el ancho del
+                            //  recuadro —sin bandas negras a los lados— y lo que sobre por
+                            //  arriba o abajo se recorre con el ratón.
+                            //
+                            //  'flex: none' evita que flex la encoja y anule el zoom.
+                            //  'maxWidth: none' quita el tope que Tailwind pone por defecto.
+                            style={{ width: `${zoom}%`, height: 'auto', flex: 'none', maxWidth: 'none', margin: 'auto' }}
                             src={imgUrl}
                             alt='pantalla tablet'
                             draggable={false}
