@@ -633,7 +633,11 @@ export function TabletScreen({ refreshMs = 1000 }) {
                  la ventana entera. Los botones llevan 'no-drag' porque dentro de una
                  zona arrastrable dejarían de responder al clic.  */}
             <div
-                className='sticky top-0 z-10 flex items-center justify-between gap-2 px-3 py-2 bg-[#021a38] border-b border-[#0a3a66] cursor-move select-none'
+                //  Márgenes estrechos —`px-2 py-1` en vez de `px-3 py-2`— y menos
+                //  hueco entre elementos. Cada píxel que se le quita a esta barra
+                //  se lo lleva la imagen de la tablet, que es lo único que
+                //  importa mirar aquí.
+                className='sticky top-0 z-10 flex items-center justify-between gap-1.5 px-2 py-1 bg-[#021a38] border-b border-[#0a3a66] cursor-move select-none'
                 style={{ WebkitAppRegion: 'drag' }}
             >
 
@@ -672,22 +676,38 @@ export function TabletScreen({ refreshMs = 1000 }) {
                                         <path d='M21 12a9 9 0 0 0-9-9' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' />
                                     </svg>
                                     :
-                                    <svg className='w-4 h-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'
-                                        strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'>
-                                        <path d='M3 8.5A1.5 1.5 0 0 1 4.5 7h2.2l1.2-2h8.2l1.2 2h2.2A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z' />
-                                        <circle cx='12' cy='13' r='3.4' />
+                                    //  Cámara dentro de un encuadre. Las cuatro
+                                    //  esquinas son lo que lo distingue de un
+                                    //  icono de «foto» cualquiera: dicen que se
+                                    //  captura LO QUE SE ESTÁ VIENDO, que es
+                                    //  justo lo que hace el botón.
+                                    <svg className='w-[18px] h-[18px]' viewBox='0 0 24 24' fill='none' stroke='currentColor'
+                                        strokeWidth='1.9' strokeLinecap='round' strokeLinejoin='round'>
+                                        {/*  Esquinas del encuadre  */}
+                                        <path d='M3 8V5.5A2.5 2.5 0 0 1 5.5 3H8' />
+                                        <path d='M16 3h2.5A2.5 2.5 0 0 1 21 5.5V8' />
+                                        <path d='M21 16v2.5a2.5 2.5 0 0 1-2.5 2.5H16' />
+                                        <path d='M8 21H5.5A2.5 2.5 0 0 1 3 18.5V16' />
+                                        {/*  Cuerpo de la cámara, con la pestaña del visor  */}
+                                        <path d='M6.5 10.8h1.7l.9-1.3h3.8l.9 1.3h1.7a1 1 0 0 1 1 1v3.4a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-3.4a1 1 0 0 1 1-1z' />
+                                        <circle cx='12' cy='13.5' r='1.7' />
                                     </svg>
                             }
                         </button>
                     )}
 
                     {
+                        //  Botones compactos: `py-0.5` y letra de 10 px. En una
+                        //  ventana de 400 px, «Desconectar» con el tamaño
+                        //  anterior se comía casi la mitad de la barra y
+                        //  arrinconaba el estado, que es lo que de verdad hay
+                        //  que leer de un vistazo.
                         !connected ?
-                            <button className='px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]' onClick={handdlerConnect}>
+                            <button className='px-2 py-0.5 rounded text-[10px] font-bold text-white bg-[#066ca8] hover:bg-[#0890c0]' onClick={handdlerConnect}>
                                 Conectar
                             </button>
                             :
-                            <button className='px-2.5 py-1 rounded-md text-[11px] font-bold text-white bg-[#7a1f2b] hover:bg-[#9a2533]' onClick={handdlerDisconnect}>
+                            <button className='px-2 py-0.5 rounded text-[10px] font-bold text-white bg-[#7a1f2b] hover:bg-[#9a2533]' onClick={handdlerDisconnect}>
                                 Desconectar
                             </button>
                     }

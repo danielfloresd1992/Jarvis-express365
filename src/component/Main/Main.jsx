@@ -10,6 +10,7 @@ import FormTablet from '../for_tablet/FormTablet.jsx';
 import LoadFileForm from '../for_tablet/loadImg.jsx';
 
 
+
 function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
 
 

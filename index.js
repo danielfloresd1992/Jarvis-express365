@@ -9,12 +9,12 @@ import * as url from 'url';
 const app = express();
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
-app.set('port', process.env.PORT || 446);
+app.set('port', process.env.PORT || 3000);
 
 app.use(cors());
 
 
-app.get('/', (req, res) => { 
+app.get('/', (req, res) => {
     console.log(join(__dirname, './dist/index.html'));
     res.sendFile(join(__dirname, './dist/index.html'));
 });
