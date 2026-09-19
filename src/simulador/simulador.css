@@ -1,0 +1,291 @@
+/*  LA APP DEL SIMULADOR DE TOAST
+ *
+ *  Todo va con el prefijo 'sim-' y colgando de 'html.vista-simulador', la marca que
+ *  pone main.jsx: este archivo solo se carga con el simulador, pero index.css es de
+ *  toda la aplicación y trae reglas —el 'body' centrado de la plantilla de Vite, el
+ *  'button {}' global— que aquí hay que deshacer sin tocarlas para los demás.
+ */
+
+html.vista-simulador,
+html.vista-simulador body,
+html.vista-simulador #root {
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+}
+
+html.vista-simulador body {
+    display: block;
+    overflow: hidden;
+    background: #060f1c;
+}
+
+
+.sim-app {
+    --sim-fondo: #060f1c;
+    --sim-panel: #0b1a2d;
+    --sim-panel-2: #0f2238;
+    --sim-borde: #1c3553;
+    --sim-texto: #cfe0f5;
+    --sim-apagado: #8aa0bb;
+    --sim-acento: #38b6e8;
+    --sim-bien: #5fd29a;
+    --sim-aviso: #f2b84b;
+    --sim-mal: #ff7d8a;
+
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--sim-fondo);
+    color: var(--sim-texto);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    text-align: left;
+}
+
+
+/* ── BARRA DE ARRIBA ─────────────────────────────────────────────────────── */
+
+.sim-barra {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 14px;
+    background: var(--sim-panel);
+    border-bottom: 1px solid var(--sim-borde);
+}
+
+.sim-barra h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #eef4fb;
+}
+
+.sim-barra__sub { font-size: 11px; color: var(--sim-apagado); }
+
+.sim-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--sim-borde);
+    background: var(--sim-fondo);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.sim-estado__punto { width: 8px; height: 8px; border-radius: 50%; background: #5e7ba0; }
+.sim-estado--vivo .sim-estado__punto { background: var(--sim-bien); box-shadow: 0 0 0 3px rgba(95, 210, 154, 0.2); }
+
+.sim-reloj { font-family: ui-monospace, Consolas, monospace; font-size: 15px; font-weight: 600; color: #eef4fb; }
+
+.sim-hueco { flex: 1; }
+
+
+/* ── BOTONES ─────────────────────────────────────────────────────────────── */
+
+.sim-boton {
+    height: 30px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    border: 1px solid #22415f;
+    background: #13294a;
+    color: var(--sim-texto);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.sim-boton:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #fff; }
+.sim-boton:disabled { opacity: 0.45; cursor: not-allowed; }
+.sim-boton:focus-visible { outline: 2px solid var(--sim-acento); outline-offset: 2px; }
+
+.sim-boton--principal { background: var(--sim-acento); border-color: var(--sim-acento); color: #04121f; }
+.sim-boton--principal:hover:not(:disabled) { background: #5ec6ef; border-color: #5ec6ef; color: #04121f; }
+
+.sim-boton--activo { background: rgba(56, 182, 232, 0.16); border-color: var(--sim-acento); color: #9adcf8; }
+
+.sim-boton--peligro { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
+.sim-boton--peligro:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
+
+.sim-boton--chico { height: 26px; padding: 0 9px; font-size: 11px; border-radius: 7px; }
+
+
+/* ── CUERPO: PANTALLA + PANEL ────────────────────────────────────────────── */
+
+.sim-cuerpo { flex: 1; min-height: 0; display: flex; }
+
+.sim-pantalla {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    background:
+        radial-gradient(circle at 50% 40%, #0e2036 0%, var(--sim-fondo) 70%);
+}
+
+/*  El marco de la tablet. El lienzo guarda su proporción: mide lo que mide su
+    resolución y aquí solo se le pone techo.  */
+.sim-tablet {
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    padding: 10px;
+    border-radius: 16px;
+    background: #15181d;
+    box-shadow: 0 0 0 1px #2a2f38, 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+.sim-tablet canvas {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    min-height: 0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.sim-panel {
+    flex: none;
+    width: 350px;
+    overflow-y: auto;
+    padding: 12px 14px 20px;
+    background: var(--sim-panel);
+    border-left: 1px solid var(--sim-borde);
+}
+
+.sim-seccion { padding: 10px 0 12px; border-bottom: 1px solid var(--sim-borde); }
+.sim-seccion:last-child { border-bottom: none; }
+
+.sim-seccion h2 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sim-apagado);
+}
+
+.sim-ayuda { margin: 0 0 8px; font-size: 11.5px; line-height: 1.45; color: var(--sim-apagado); }
+
+.sim-fila { display: flex; align-items: center; gap: 8px; min-height: 30px; }
+.sim-fila > label { flex: 1; min-width: 0; color: var(--sim-texto); }
+.sim-fila__valor { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: #eef4fb; min-width: 52px; text-align: right; }
+
+.sim-botones { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.sim-app input[type='range'] { flex: none; width: 118px; accent-color: var(--sim-acento); }
+
+.sim-app select,
+.sim-app input[type='number'],
+.sim-app input[type='text'] {
+    flex: none;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 7px;
+    border: 1px solid #22415f;
+    background: var(--sim-fondo);
+    color: var(--sim-texto);
+    font-size: 12px;
+}
+
+.sim-app input[type='number'] { width: 64px; }
+.sim-app input[type='text'] { width: 150px; }
+.sim-app select { max-width: 190px; }
+
+.sim-interruptor { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.sim-interruptor input { width: 16px; height: 16px; accent-color: var(--sim-acento); }
+
+
+/* ── EL REGISTRO ─────────────────────────────────────────────────────────── */
+
+.sim-registro {
+    flex: none;
+    height: 36%;
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    background: var(--sim-panel);
+    border-top: 1px solid var(--sim-borde);
+}
+
+.sim-registro__cabeza {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--sim-borde);
+}
+
+.sim-registro__cabeza h2 { margin: 0; font-size: 13px; font-weight: 600; color: #eef4fb; }
+.sim-resumen { font-size: 12px; color: var(--sim-apagado); }
+.sim-resumen b { color: var(--sim-texto); font-weight: 600; }
+
+.sim-tabla-caja { flex: 1; min-height: 0; overflow: auto; }
+
+.sim-tabla { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+
+.sim-tabla th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 6px 10px;
+    background: var(--sim-panel-2);
+    border-bottom: 1px solid var(--sim-borde);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--sim-apagado);
+}
+
+.sim-tabla th.sim-grupo { text-align: center; color: var(--sim-texto); border-left: 1px solid var(--sim-borde); }
+.sim-tabla th.sim-grupo--ia { color: #9adcf8; }
+
+.sim-tabla td { padding: 5px 10px; border-bottom: 1px solid rgba(28, 53, 83, 0.55); }
+.sim-tabla td.sim-hora { font-family: ui-monospace, Consolas, monospace; }
+.sim-tabla td.sim-corte { border-left: 1px solid var(--sim-borde); }
+
+.sim-tabla tr.sim-ida td { color: #6f86a3; }
+.sim-tabla tr:hover td { background: rgba(56, 182, 232, 0.06); }
+
+.sim-vacio { padding: 22px 14px; color: var(--sim-apagado); }
+
+.sim-ficha {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 999px;
+    border: 1px solid var(--sim-borde);
+    font-size: 11px;
+    color: var(--sim-apagado);
+}
+
+.sim-ficha--fuego { border-color: #8f2234; color: #ff9aa5; }
+.sim-ficha--pausa { border-color: #6e5a1f; color: #f2cf6b; }
+.sim-ficha--lista { border-color: #1f6b47; color: #7fdcaa; }
+.sim-ficha--despachada { border-color: #2c5577; color: #9adcf8; }
+
+.sim-bien { color: var(--sim-bien); }
+.sim-aviso { color: var(--sim-aviso); }
+.sim-mal { color: var(--sim-mal); }
+
+
+/* ── SOLO LA PANTALLA (para comparar con una captura real) ───────────────── */
+
+.sim-solo { background: #000; height: 100%; }
+.sim-solo canvas { display: block; }

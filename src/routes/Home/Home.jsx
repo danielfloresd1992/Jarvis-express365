@@ -13,6 +13,7 @@ import TabletButton from '../../component/tabletButton/TabletButton.jsx';
 import AsideBar from '../../component/AsideBar/AsideBar.jsx';
 import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
+import { limpiarReporteDemora } from '../../store/slices/reporteDemora.js';
 import { BoxModal } from '../../component/Main/boxModal/BoxModal.jsx';
 import Notifications from '../../component/notifications/notifications.jsx'
 
@@ -205,6 +206,67 @@ export default function Home() {
 
 
 
+    /*  EL REPORTE DE DEMORA QUE MANDA LA VENTANA DE LA TABLET
+     *
+     *  Llega al store desde AppInitializer, que escucha siempre. Aquí se decide qué
+     *  hacer con él, y eso depende de lo que el operador esté haciendo:
+     *
+     *  · Si no tiene nada abierto, se abre el formulario de demoras con los datos
+     *    puestos y listo.
+     *
+     *  · Si está en mitad de OTRO formulario, no se le cambia la pantalla de golpe:
+     *    perdería lo que estuviera escribiendo. El reporte se queda esperando y se le
+     *    avisa para que lo abra cuando termine.
+     *
+     *  En cuanto se abre, el reporte se saca del store. Si se quedara ahí, volvería a
+     *  abrirse solo cada vez que este componente se montara.
+     */
+    const reporteDemora = useSelector(state => state.reporteDemora);
+    const [reporteAbierto, setReporteAbierto] = useState(null);
+
+
+    /*  SOLO SE ABRE SOLO SI NO HAY NADA EMPEZADO
+     *
+     *  Antes esto también aceptaba 'imagen-3', y era un error: desde aquí no se ve qué
+     *  hay DENTRO de Demoras. Si el operador estaba rellenando Limpieza, o una primera
+     *  atención a mano, el reporte le cambiaba el formulario de golpe y se llevaba por
+     *  delante lo que llevara escrito.
+     *
+     *  En cualquier otro caso el reporte espera y se avisa con el botón de abajo, que
+     *  es lo que permite decidir a quien está trabajando.
+     */
+    const puedeAbrirReporte = renderValue === '';
+
+
+    const abrirReporte = useCallback(() => {
+        if (!reporteDemora) return;
+
+        setReporteAbierto(reporteDemora);
+        selectNovelty('imagen-3');
+        dispatch(limpiarReporteDemora());
+    }, [reporteDemora, dispatch]);
+
+
+    useEffect(() => {
+        if (reporteDemora && puedeAbrirReporte) abrirReporte();
+    }, [reporteDemora, puedeAbrirReporte, abrirReporte]);
+
+
+    /*  Y SE SUELTA EN CUANTO SE SALE DE DEMORAS
+     *
+     *  Sin esto el reporte se quedaba pegado: volvía a precargar el formulario cada vez
+     *  que alguien entraba a 'Primera atención' a mano, con la mesa y las horas de un
+     *  reporte de hace rato.
+     *
+     *  El otro camino de salida —terminar el formulario sin moverse de Demoras— lo
+     *  avisa el propio Delay al cerrarse.
+     */
+    useEffect(() => {
+        if (renderValue !== 'imagen-3') setReporteAbierto(null);
+    }, [renderValue]);
+
+
+
     return (
         <>
             {
@@ -213,8 +275,27 @@ export default function Home() {
                         <div className="homeComponent">
                             <NavBar clearLocal={resetLocal} openCloseSidebar={closeOpenAsideBar} boxModal={configBoxModal} />
                             < AsideBar clearLocal={resetLocal} localMonitoring={local} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
-                            <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} />
+                            <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} reporteDemora={reporteAbierto} onReporteCerrado={() => setReporteAbierto(null)} />
                             <TabletButton />
+
+                            {/*  AVISO DE REPORTE EN ESPERA
+                                 Solo aparece cuando llega un reporte de la tablet y el
+                                 operador está en mitad de otro formulario. No se le
+                                 cambia la pantalla por su cuenta: se le ofrece.  */}
+                            {
+                                reporteDemora && !puedeAbrirReporte && (
+                                    <button
+                                        className='fixed left-1/2 -translate-x-1/2 bottom-6 z-[1000] flex items-center gap-2 pl-3 pr-4 py-2 rounded-full border border-[#9a2533]/60 bg-[#7a1f2b] text-[#ffd9dd] text-[12px] font-semibold shadow-lg hover:bg-[#9a2533] transition-colors'
+                                        onClick={abrirReporte}
+                                    >
+                                        <span className='relative flex h-2 w-2 shrink-0'>
+                                            <span className='absolute inline-flex h-full w-full rounded-full bg-[#ff6b7a] opacity-60 animate-ping' />
+                                            <span className='relative inline-flex h-2 w-2 rounded-full bg-[#ff8f9c]' />
+                                        </span>
+                                        Demora de la mesa {reporteDemora.tableNumber || '?'} — abrir reporte
+                                    </button>
+                                )
+                            }
                             <InboxImg />
                             <Chat key='chats' />
                             <Notifications />

@@ -1,0 +1,8 @@
+{
+  "_COMO_SE_USA": "Borra esta linea y las de ejemplo. Una entrada por cada PNG de capturas/, con los tickets cuya CABECERA se ve entera en esa imagen. Lee LEEME.md.",
+
+  "EJEMPLO-tira0.png": [
+    { "mesa": "34",    "ticket": "149", "tiempo": "17:48:36" },
+    { "mesa": "#3",    "ticket": "3",   "tiempo": "3:33:56" }
+  ]
+}

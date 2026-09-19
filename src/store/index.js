@@ -8,6 +8,7 @@ import locals from './slices/locals';
 import establishment from './slices/establishment.js';
 import alert_line from './slices/alert_line.js';
 import socketIo from "./slices/socketio";
+import reporteDemora from './slices/reporteDemora.js';
 
 
 
@@ -20,7 +21,8 @@ export const store = configureStore({
         user: user,
         io: socketIo,
         establishment: establishment,
-        alert_line: alert_line
+        alert_line: alert_line,
+        reporteDemora: reporteDemora
     }
 });
 

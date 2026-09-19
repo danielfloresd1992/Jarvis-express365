@@ -10,7 +10,7 @@ import FormTablet from '../for_tablet/FormTablet.jsx';
 import LoadFileForm from '../for_tablet/loadImg.jsx';
 
 
-function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
+function Main({ value, selectNovelty, awaitWindow, boxModal, menu, reporteDemora, onReporteCerrado }) {
 
 
 
@@ -39,7 +39,7 @@ function Main({ value, selectNovelty, awaitWindow, boxModal, menu }) {
         switch (value) {
             case 'imagen-1': return (<SendNoveltie titlesJson={menu.filter(menu => menu.category !== 'delay' && menu.es !== 'Servicio Pick Up')} awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-1' />);
             case 'imagen-2': return (<Production awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-2' title={menu.filter(menu => menu.es === 'Empleado realiza producción')[0]} />);
-            case 'imagen-3': return (<Delay titlesJson={menu.filter(menu => menu.category === 'delay')} awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} key='imagen-3' />);
+            case 'imagen-3': return (<Delay titlesJson={menu.filter(menu => menu.category === 'delay')} awaitWindow={awaitWindow} boxModal={boxModal} reset={selectNovelty} reporteDemora={reporteDemora} onReporteCerrado={onReporteCerrado} key='imagen-3' />);
             case 'imagen-4': return (<PickUp awaitWindow={awaitWindow} boxModal={boxModal} title={menu.filter(menu => menu.es === 'Servicio Pick Up')[0]} reset={selectNovelty} key='imagen-4' />)
 
             case 'imagen-pizza': return (<Pizza awaitWindow={awaitWindow} boxModal={boxModal} title={menu.filter(menu => menu.es === 'Estándares de calidad')[0]} reset={selectNovelty} key='imagen-4' />)

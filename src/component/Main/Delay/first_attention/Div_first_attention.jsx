@@ -21,7 +21,15 @@ import FieldInput from '../../../inputs/FieldInput.jsx';
 
 
 
-function DivAttention({ awaitWindow, boxModal, reset, title }) {
+/*  @param {object} datosIniciales  cuando el formulario se abre desde la parrilla de
+ *                                  la tablet, trae la mesa y las dos horas ya leídas.
+ *
+ *                                  Solo se usan para arrancar: a partir de ahí el
+ *                                  formulario es el de siempre y se corrige a mano.
+ *                                  Abriéndolo por el camino normal llega vacío y todo
+ *                                  se comporta igual que antes.
+ */
+function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
 
     const users = useSelector(state => state.users);
@@ -34,10 +42,10 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
 
     const user = useRef(null);
     let [local, setLocal] = useState(null);
-    let [table, setNumberTable] = useState('');
+    let [table, setNumberTable] = useState(datosIniciales?.tableNumber ?? '');
 
-    let [time1, setTime1] = useState('');
-    let [time2, setTime2] = useState('');
+    let [time1, setTime1] = useState(datosIniciales?.customerSeatedTime ?? '');
+    let [time2, setTime2] = useState(datosIniciales?.firtAtenttionTime ?? '');
     let timeTotal = calculateTime(time1, time2);
     let [description, setDescription] = useState('');
 
@@ -210,6 +218,17 @@ function DivAttention({ awaitWindow, boxModal, reset, title }) {
                 setTime1(time1 = '');
                 setTime2(time2 = '');
                 boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+
+                /*  DEVOLVER LA TABLET AL FRENTE
+                 *
+                 *  Solo cuando este formulario se abrió desde la parrilla de la tablet.
+                 *  Para dejar ver el formulario, la carcasa le quita a la flotante el
+                 *  'siempre encima'; enviado el reporte, se le pide que la suba otra vez.
+                 *
+                 *  En el flujo manual no se toca nada: nadie la bajó.
+                 */
+                if (datosIniciales) window.electronAPI?.openTabletWindow?.();
+
                 reset();
             }
         }

@@ -9,8 +9,10 @@ import { Provider } from "react-redux";
 import "./index.css";
 import { puedeEjecutarse } from "./libs/entorno/esEscritorio";
 import SoloEscritorio from "./component/SoloEscritorio/SoloEscritorio";
-import { TabletScreen } from "./component/tabletScreen/TabletScreen.jsx";
+import { VentanaTablet } from "./component/tabletScreen/VentanaTablet.jsx";
+import { LimiteDeError } from "./component/LimiteDeError.jsx";
 import TitleBar from "./component/titleBar/TitleBar.jsx";
+import { SIMULACION_DISPONIBLE, VISTA_SIMULADOR } from "./simulador/disponible.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -54,10 +56,38 @@ const arrancarAhorroDeCpu = () => {
 //
 // Se mira `search` y no el hash porque el enrutador de la aplicación usa
 // `HashRouter`: navegar cambia el `#`, pero el `?` se queda donde está.
-const esVistaTablet = new URLSearchParams(window.location.search).get('view') === 'tablet';
+const vistaPedida = new URLSearchParams(window.location.search).get('view');
+
+const esVistaTablet = vistaPedida === 'tablet';
+
+
+// ── ¿Es el simulador de Toast? ──────────────────────────────────────
+// Una tablet de cocina de mentira para probar la lectura de tickets sin tener
+// una enchufada. SOLO existe en desarrollo: en la versión publicada
+// `SIMULACION_DISPONIBLE` es `false` a secas, esta rama es código muerto y el
+// `import()` de abajo —con el simulador entero detrás— no llega al paquete.
+const esVistaSimulador = SIMULACION_DISPONIBLE && vistaPedida === VISTA_SIMULADOR;
 
 
 // ── Arranque ────────────────────────────────────────────────────────
+// El simulador va ANTES que la comprobación de escritorio, y sin pasar por ella:
+// es una herramienta de quien programa, y quien programa la abre también en un
+// navegador cualquiera. No monta Jarvis ni abre sesión, así que no hay nada que
+// proteger.
+if (esVistaSimulador) {
+    document.documentElement.classList.add('vista-simulador');
+
+    import('./simulador/AppSimulador.jsx').then(({ default: AppSimulador }) => {
+        root.render(
+            <React.StrictMode>
+                <LimiteDeError>
+                    <AppSimulador />
+                </LimiteDeError>
+            </React.StrictMode>
+        );
+    });
+}
+
 // En la computadora, Reportes Express solo trabaja dentro de la aplicación de
 // escritorio; en el teléfono, en cualquier navegador. Donde no corresponde se
 // pinta el aviso y NO se monta nada más.
@@ -66,13 +96,18 @@ const esVistaTablet = new URLSearchParams(window.location.search).get('view') ==
 // temporizadores y escuchas puestas, y App abre la sesión y el socket al
 // montarse. Decidir después dejaría el aviso en pantalla con la aplicación
 // funcionando por detrás.
-if (!puedeEjecutarse()) {
+else if (!puedeEjecutarse()) {
     root.render(<SoloEscritorio />);
 }
 
-// La flotante pinta SOLO la pantalla de la tablet. Nada de Provider ni de App:
-// cada ventana de Electron tiene su propio contexto, así que montar Jarvis
-// otra vez abriría un segundo socket y una segunda sesión contra la API.
+// La flotante pinta la pantalla de la tablet ARRIBA y la parrilla ABAJO, partidas
+// por un divisor que se arrastra. Las dos juntas en la misma ventana a propósito:
+// así los tickets que lee la IA bajan a la parrilla como estado de React, sin
+// cruzar de ventana ni pasar por el puente de Electron.
+//
+// Nada de Provider ni de App: cada ventana de Electron tiene su propio contexto,
+// así que montar Jarvis otra vez abriría un segundo socket y una segunda sesión
+// contra la API.
 //
 // Tampoco se arranca el ahorro de CPU: sus temporizadores y escuchas existen
 // para una ventana con la que se trabaja, y acá lo único que se hace es mirar.
@@ -83,9 +118,14 @@ else if (esVistaTablet) {
     // index.css).
     document.documentElement.classList.add('vista-tablet');
 
+    //  El límite de error va DENTRO de StrictMode y envolviendo a la ventana: si el
+    //  pintado revienta, se ve el motivo en el propio panel en vez de un rectángulo
+    //  azul vacío, que es indistinguible de «la tablet no está conectada».
     root.render(
         <React.StrictMode>
-            <TabletScreen />
+            <LimiteDeError>
+                <VentanaTablet />
+            </LimiteDeError>
         </React.StrictMode>
     );
 }

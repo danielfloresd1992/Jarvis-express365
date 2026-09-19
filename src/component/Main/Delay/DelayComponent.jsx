@@ -5,7 +5,7 @@ import food from '../../../../public/ico/food.svg';
 import tablet from '../../../../public/ico/tablet/tablet.svg';
 import touchTablet from '../../../../public/ico/icons8-panel-táctil-100.png';
 import tiketIco from '../../../../public/ico/icons8-boleto-100.png'
-import { useState, createElement } from 'react';
+import { useState, useEffect } from 'react';
 import { DivAttention } from './first_attention/Div_first_attention.jsx';
 import { DelayDish } from './delayDish/DelayDish.jsx';
 import { Divclear } from './clean/DivClear.jsx';
@@ -17,9 +17,46 @@ import NoComanda from './no_comanda/NoComanda.jsx'
 
 
 
-function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
+/*  @param {object} reporteDemora  un reporte que llegó de la ventana de la tablet.
+ *                                 Cuando viene, se abre directamente el formulario de
+ *                                 primera atención con sus datos ya puestos.
+ *
+ *                                 Sin él —el caso de siempre, cuando alguien entra a
+ *                                 Demoras a mano— esto se comporta exactamente igual
+ *                                 que antes: el menú de botones, sin nada elegido.
+ */
+function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onReporteCerrado }) {
 
-    let [title, setTitle] = useState([]);
+    let [title, setTitle] = useState(reporteDemora ? 'primera atención' : []);
+
+
+    /*  DE DÓNDE VINO LO QUE ESTÁ ABIERTO
+     *
+     *  Esto es lo que separa un formulario precargado de uno en blanco, y hace falta
+     *  llevarlo aparte del título: los dos casos abren la MISMA pantalla.
+     *
+     *  Sin esta distinción, después de un reporte desde la tablet cualquier entrada a
+     *  mano en 'Primera atención' salía rellena con la mesa y las horas del reporte
+     *  anterior. Entrar a mano tiene que dar siempre un formulario vacío.
+     */
+    const [reporteActivo, setReporteActivo] = useState(reporteDemora ?? null);
+
+
+    //  Si llega OTRO reporte con el formulario ya abierto, hay que volver a elegir:
+    //  el estado inicial solo se lee al montar, y este componente ya está montado.
+    useEffect(() => {
+        if (!reporteDemora) return;
+        setTitle('primera atención');
+        setReporteActivo(reporteDemora);
+    }, [reporteDemora?.id]);
+
+
+    //  Un clic en cualquiera de los botones es una elección a mano, y por tanto empieza
+    //  de cero: se suelta el reporte que hubiera precargado.
+    const elegirAMano = (id) => {
+        setReporteActivo(null);
+        setTitle(id);
+    };
 
 
 
@@ -28,7 +65,7 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
 
     const render = text => {
         switch (text) {
-            case 'primera atención': return <DivAttention awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[0]} />;
+            case 'primera atención': return <DivAttention key={reporteActivo?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[0]} datosIniciales={reporteActivo} />;
             case 'limpieza': return <Divclear awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[1]} />;
             case 'servicio': return <Servises awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[2]} />;
             case 'plato': return <DelayDish awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[3]} />;
@@ -41,8 +78,16 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
         }
     };
 
+    /*  Cierra el formulario y vuelve al menú de botones.
+     *
+     *  Es el mismo 'resetTitle' de siempre; lo único añadido es avisar arriba de que el
+     *  reporte se consumió. Sin ese aviso, Home seguiría teniéndolo por abierto y el
+     *  formulario se volvería a precargar al entrar la próxima vez.
+     */
     const resetTitle = () => {
         setTitle(title = []);
+        setReporteActivo(null);
+        onReporteCerrado?.();
         render('');
     };
 
@@ -51,14 +96,14 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset }) {
     return (
         <>
             <div className='delay-grid'>
-                <BottonSelection title='Primera atención'              ico={book}        id='primera atención'   event={setTitle} />
-                <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={setTitle} />
-                <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={setTitle} />
-                <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={setTitle} />
-                <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={setTitle} />
-                <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={setTitle} />
-                <BottonSelection title='Error de tiket'                ico={tiketIco}    id='tablet-tiket'       event={setTitle} />
-                <BottonSelection title='Plato no comandado'            ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={setTitle} />
+                <BottonSelection title='Primera atención'              ico={book}        id='primera atención'   event={elegirAMano} />
+                <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={elegirAMano} />
+                <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={elegirAMano} />
+                <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={elegirAMano} />
+                <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={elegirAMano} />
+                <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={elegirAMano} />
+                <BottonSelection title='Error de tiket'                ico={tiketIco}    id='tablet-tiket'       event={elegirAMano} />
+                <BottonSelection title='Plato no comandado'            ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={elegirAMano} />
             </div>
             {render(title)}
         </>

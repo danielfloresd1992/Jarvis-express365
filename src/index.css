@@ -186,6 +186,111 @@ button:focus-visible {
     outline: none;
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   BOTONES DE LA VENTANA DE LA TABLET
+   ══════════════════════════════════════════════════════════════════════
+   La regla `button {}` de aquí arriba no está en ninguna capa, y las
+   utilidades de Tailwind sí (`@layer utilities`): en relleno, borde, radio y
+   tamaño de letra gana ella, así que un `p-0` o un `rounded-lg` en estos
+   botones no hace nada. Estas clases le ganan por especificidad (clase frente
+   a etiqueta) sin tocar ningún otro botón de Jarvis.
+
+   Moverla a `@layer base` lo arreglaría para todos, pero cambiaría el aspecto
+   de cada botón de la aplicación: eso queda para cuando se revise entera.
+
+   Todos son cuadrados de 34 px con un ícono dentro. */
+.vt-icono {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 9px;
+    border: 1px solid #22415f;
+    background: #13294a;
+    color: #cfe0f5;
+    line-height: 1;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.vt-icono:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #ffffff; }
+.vt-icono:active:not(:disabled) { background: #0b1a2e; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4); }
+.vt-icono:disabled { background: #0e1a2b; border-color: #1c2c40; color: #4f6784; cursor: not-allowed; }
+
+/* El `outline: none` de arriba deja sin rastro al que navega con el teclado.
+   Aquí se devuelve, solo con teclado (`focus-visible`), no con el ratón. */
+.vt-icono:focus-visible { outline: 2px solid #38b6e8; outline-offset: 2px; }
+
+/* Conectar: la acción principal cuando no hay tablet. */
+.vt-icono--principal { background: #38b6e8; border-color: #38b6e8; color: #04121f; }
+.vt-icono--principal:hover:not(:disabled) { background: #5ec6ef; border-color: #5ec6ef; color: #04121f; }
+.vt-icono.vt-icono--principal:disabled { background: #2a8fbb; border-color: #2a8fbb; color: #04121f; cursor: progress; }
+
+/* Desconectar. */
+.vt-icono--peligro { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
+.vt-icono--peligro:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
+
+/* Cerrar: sin fondo hasta pasar el ratón, y entonces rojo como en Windows. */
+.vt-icono--fantasma { background: transparent; border-color: transparent; color: #8aa0bb; }
+.vt-icono--fantasma:hover:not(:disabled) { background: #b3303f; border-color: #b3303f; color: #ffffff; }
+
+/* Un interruptor encendido: el modo IA activo. */
+.vt-icono--activo { background: rgba(56, 182, 232, 0.16); border-color: #38b6e8; color: #7fd0f5; }
+.vt-icono--activo:hover:not(:disabled) { background: rgba(56, 182, 232, 0.26); border-color: #5ec6ef; color: #b5e6fb; }
+
+/* Algo que acaba de salir bien, como la captura enviada. */
+.vt-icono--ok,
+.vt-icono--ok:hover:not(:disabled) { background: #0f3a28; border-color: #1f6b47; color: #7fdcaa; }
+
+/* La versión pequeña, para las barras secundarias. */
+.vt-icono--pequeno { width: 28px; height: 28px; border-radius: 7px; }
+
+
+/* El zoom: alejar, porcentaje y acercar en una sola pieza. */
+.vt-zoom {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    border-radius: 9px;
+    border: 1px solid #22415f;
+    background: #13294a;
+    overflow: hidden;
+}
+
+.vt-zoom > button {
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #cfe0f5;
+    font-size: 12px;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.vt-zoom > .vt-zoom__paso { width: 32px; }
+
+.vt-zoom > .vt-zoom__valor {
+    min-width: 58px;
+    padding: 0 8px;
+    border-left: 1px solid #22415f;
+    border-right: 1px solid #22415f;
+    color: #eef4fb;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.vt-zoom > button:hover:not(:disabled) { background: #1a3760; color: #ffffff; }
+.vt-zoom > button:disabled { color: #4f6784; cursor: not-allowed; }
+.vt-zoom > button:focus-visible { outline: 2px solid #38b6e8; outline-offset: -2px; }
+
 /* ── Notification animations ── */
 @keyframes notif-slide-in {
     from { opacity: 0; transform: translateX(40px) scale(0.93) rotateY(-4deg); }
