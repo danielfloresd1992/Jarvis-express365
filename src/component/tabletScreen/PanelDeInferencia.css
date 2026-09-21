@@ -1,0 +1,193 @@
+/*  ─────────────────────────────────────────────────────────────────────────────
+    EL PANEL DEL REGISTRO DE LA INFERENCIA  (solo en desarrollo)
+
+    Va en su propia hoja, con clases 'pi-' (Panel de Inferencia), por dos motivos:
+
+      · La regla global 'button {}' de index.css no está en ninguna capa y les gana a las
+        utilidades de Tailwind en relleno, borde y letra. Una clase le gana a una
+        etiqueta, así que aquí los botones salen como se piden.
+      · El panel se carga con import() solo en desarrollo, y esta hoja viaja con él: a la
+        aplicación publicada no llega ni una línea.
+    ───────────────────────────────────────────────────────────────────────────── */
+
+
+/*  El panel entero: una columna a la derecha de la ventana de la tablet.  */
+.pi-panel {
+    flex: none;
+    width: min(440px, 46vw);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #060f1c;
+    border-left: 1px solid #0a3a66;
+    color: #cfe0f5;
+    font-size: 12px;
+}
+
+
+/*  Plegado se queda en una pestaña estrecha, con el rótulo de lado.  */
+.pi-pestana {
+    flex: none;
+    width: 26px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
+    background: #060f1c;
+    border: none;
+    border-left: 1px solid #0a3a66;
+    border-radius: 0;
+    color: #8aa0bb;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pi-pestana:hover { background: #0b1d38; color: #cfe0f5; }
+
+.pi-pestana__rotulo { writing-mode: vertical-rl; letter-spacing: 0.6px; text-transform: uppercase; }
+
+.pi-pestana__cuenta {
+    min-width: 18px;
+    padding: 1px 4px;
+    border-radius: 9px;
+    background: #13294a;
+    color: #cfe0f5;
+    font-size: 10px;
+    text-align: center;
+}
+
+.pi-pestana__cuenta--fallo { background: #52202c; color: #ffc9d0; }
+
+
+/*  LA CABECERA: título, resumen y botones.  */
+.pi-cabecera {
+    flex: none;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+    background: #021a38;
+    border-bottom: 1px solid #0a3a66;
+}
+
+.pi-cabecera__titulo { margin: 0; font-size: 12.5px; font-weight: 700; color: #e6eef9; }
+
+.pi-cabecera__resumen { color: #8aa0bb; font-size: 11px; }
+
+.pi-hueco { flex: 1; }
+
+.pi-boton {
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px solid #22415f;
+    background: #13294a;
+    color: #cfe0f5;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.pi-boton:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #fff; }
+.pi-boton:disabled { opacity: 0.45; cursor: not-allowed; }
+.pi-boton--activo { background: rgba(56, 182, 232, 0.16); border-color: #38b6e8; color: #9adcf8; }
+
+.pi-boton:focus-visible,
+.pi-pestana:focus-visible,
+.pi-apunte > summary:focus-visible { outline: 2px solid #38b6e8; outline-offset: -2px; }
+
+
+/*  LA LISTA DE APUNTES: es lo único que se desplaza.  */
+.pi-lista {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px 0;
+}
+
+.pi-vacio { margin: 0; padding: 16px 12px; color: #8aa0bb; line-height: 1.5; }
+
+
+/*  UN APUNTE. La raya de la izquierda lleva el color de su tipo.  */
+.pi-apunte {
+    border-left: 3px solid var(--pi-color, #3b526e);
+    border-bottom: 1px solid rgba(10, 58, 102, 0.35);
+}
+
+/*  La primera de cada lectura lleva una separación encima: se ve dónde empieza otra.  */
+.pi-apunte--primero { margin-top: 6px; border-top: 1px solid #0a3a66; }
+
+.pi-apunte > summary,
+.pi-apunte__linea {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 4px 8px;
+    list-style: none;
+}
+
+.pi-apunte > summary { cursor: pointer; }
+.pi-apunte > summary::-webkit-details-marker { display: none; }
+.pi-apunte > summary:hover { background: #0b1d38; }
+
+/*  El triángulo que dice «esto se despliega», girado cuando está abierto.  */
+.pi-apunte > summary::before { content: '▸'; flex: none; width: 8px; color: #5e7ba0; }
+.pi-apunte[open] > summary::before { content: '▾'; }
+.pi-apunte__linea::before { content: ''; flex: none; width: 8px; }
+
+.pi-apunte__hora { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; color: #5e7ba0; }
+
+.pi-apunte__tipo {
+    flex: none;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--pi-color, #3b526e) 22%, transparent);
+    color: var(--pi-color, #8aa0bb);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.pi-apunte__lectura { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; color: #5e7ba0; }
+
+.pi-apunte__titulo { min-width: 0; color: #dbe7f7; line-height: 1.35; overflow-wrap: anywhere; }
+
+
+/*  EL DETALLE: una lista de «dato: valor». Los textos largos van en su caja.  */
+.pi-detalle { margin: 0; padding: 2px 10px 8px 25px; display: grid; grid-template-columns: max-content 1fr; gap: 3px 10px; }
+
+.pi-detalle dt { color: #8aa0bb; white-space: nowrap; }
+
+.pi-detalle dd { margin: 0; min-width: 0; color: #cfe0f5; overflow-wrap: anywhere; }
+
+.pi-detalle pre {
+    margin: 0;
+    padding: 6px 8px;
+    max-height: 260px;
+    overflow: auto;
+    border-radius: 6px;
+    background: #01122c;
+    border: 1px solid #0a3a66;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/*  Los colores de cada tipo de apunte.  */
+.pi-apunte--tablet    { --pi-color: #b49cff; }
+.pi-apunte--tira      { --pi-color: #8aa0bb; }
+.pi-apunte--servidor  { --pi-color: #38b6e8; }
+.pi-apunte--envio     { --pi-color: #f2b84b; }
+.pi-apunte--respuesta { --pi-color: #7fd0f5; }
+.pi-apunte--resultado { --pi-color: #5fd29a; }
+.pi-apunte--fallo     { --pi-color: #ff7d8a; }

@@ -52,14 +52,15 @@ const DESDE_LA_IA = {
     appetizer: 'Entrada',
     appetizers: 'Entrada',
 
-    //  'ENTREE' es como Toast rotula el plato fuerte en la franja de la tarjeta.
+    //  'ENTREE' es como Toast rotula el plato fuerte en la franja de la tarjeta: en
+    //  mayúsculas en la apariencia oscura, «Entree» en la clara. Con acento («Entrée»)
+    //  cae también aquí: 'normalizar' se lo quita antes de buscar.
     fuerte: 'Plato fuerte',
     'plato fuerte': 'Plato fuerte',
     principal: 'Plato fuerte',
     main: 'Plato fuerte',
     entree: 'Plato fuerte',
     entrees: 'Plato fuerte',
-    'entrée': 'Plato fuerte',
 
     postre: 'Postre',
     postres: 'Postre',
@@ -94,7 +95,15 @@ const TIPOS_DE_PEDIDO = {
     'online ordering': 'Online Ordering',
     'online': 'Online Ordering',
     'delivery': 'Delivery',
+
+    //  DoorDash rotula dos tarjetas distintas en la pantalla del expedidor —se ven en
+    //  las capturas de «Expo - 2»—: la que reparte y la que pasan a recoger. Para la
+    //  parrilla son el mismo tipo de pedido, igual que las dos de UberEats. Sin estas
+    //  dos claves el rótulo entero no casaba con 'doordash' a secas, y como esta lista
+    //  es cerrada la columna se quedaba en blanco.
     'doordash': 'DoorDash',
+    'doordash delivery': 'DoorDash',
+    'doordash takeout': 'DoorDash',
     'grubhub': 'Grubhub',
 };
 
@@ -169,7 +178,21 @@ function tipoSegunLaMesa(mesa) {
 
 
 
-//  Deja un valor listo para buscarlo en las tablas de arriba, que van en minúsculas.
+/*  Deja un valor listo para buscarlo en las tablas de arriba, que van en minúsculas.
+ *
+ *  El rótulo llega con la capitalización que tenga la pantalla, y no es una sola: la
+ *  apariencia oscura de Toast escribe «APPETIZER» y la clara «Appetizer». Las dos —y
+ *  «appetizer», si al modelo le da por ahí— tienen que acabar en la misma clave.
+ *
+ *  Se quitan también los acentos y los espacios de más, igual que hace
+ *  'cursoDeTarjeta' en claveDeTicket.js, y no por gusto: los dos sitios tienen que
+ *  reconocer LO MISMO. Si la clave de la fila entiende «Entrée» como plato fuerte y
+ *  esta tabla no, sale una fila con el curso en la clave y la columna del tipo vacía.
+ */
 function normalizar(valor) {
-    return String(valor ?? '').trim().toLowerCase();
+    return String(valor ?? '')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')   //  'Entrée' → 'Entree'
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
 }

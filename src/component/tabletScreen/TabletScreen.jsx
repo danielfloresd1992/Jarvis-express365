@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { Adb, AdbDaemonTransport } from '@yume-chan/adb';
 import { AdbDaemonWebUsbDeviceManager } from '@yume-chan/adb-daemon-webusb';
 import AdbWebCredentialStore from '@yume-chan/adb-credential-web';
-import axios from 'axios';
 import { enviarImagenToastPos } from '../../libs/fetch_data/noveltyFecth.js';
-import { TIRAS_DE_LECTURA, SOLAPE_DE_LECTURA, INTERVALO_LECTURA_MS, tirasParaElAncho } from '../../libs/tickets/configLectura.js';
-import { aSegundosDeCronometro, bandaPorEspera } from '../../libs/tickets/cronometro.js';
-import { PROMPT_DE_LECTURA, ETIQUETAS_DE_PANTALLA, leerCabecera, extraerTickets } from '../../libs/tickets/lecturaDeTickets.js';
-import { claveDeTicket } from '../../libs/tickets/claveDeTicket.js';
+import { TIRAS_DE_LECTURA, SOLAPE_DE_LECTURA, tirasParaElAncho } from '../../libs/tickets/configLectura.js';
 import { SIMULACION_DISPONIBLE } from '../../simulador/disponible.js';
+import { registroDeInferencia, TIPO } from '../../libs/tickets/registroDeInferencia.js';
+import { getTimeoutMs, checkAiServer } from '../../libs/inference/aiServer.js';
+import { getTabletImage, cropStrip } from '../../libs/inference/tabletImage.js';
+import { runInferenceOnce, startInferenceLoop } from '../../libs/inference/inferenceLoop.js';
+import { mergeStripTickets } from '../../libs/inference/mergeStrips.js';
 
 
 //  ══════════════════════════════════════════════════════════════════════
@@ -32,15 +33,6 @@ const localEnCurso = () => {
     }
     catch { return null; }
 };
-
-
-
-
-
-//  El prompt, las etiquetas de pantalla y el parseo de la respuesta viven en
-//  libs/tickets/lecturaDeTickets.js. No es código de React y tiene un segundo
-//  cliente: el banco de pruebas que compara modelos los importa de allí, para medir
-//  exactamente lo que corre en esta ventana y no una copia parecida.
 
 
 //  Límites del zoom. Van fuera del componente porque el valor inicial se lee
@@ -76,10 +68,91 @@ function leerModoIAGuardado() {
 }
 
 
-//  Cuánto se espera a que el modelo conteste una tira. El porqué del número está
-//  junto a la petición, en sendImg. Va en una constante porque el mensaje de error
-//  lo cita: «la IA tardó más de 120 s».
-const TIEMPO_LIMITE_IA_MS = 120000;
+//  EL SERVIDOR DE IA. El '.env' solo dice DÓNDE está y cuánto se le espera:
+//      VITE_AI_URL        su dirección (con su http:// o https://, y su puerto)
+//      VITE_AI_TIMEOUT_S  cuántos segundos se le espera por tira (opcional)
+//  El MODELO no va ni ahí ni aquí: se le pregunta al servidor al abrir la ventana (STEP 0).
+
+// AI_URL = «la dirección del servidor de IA»
+const AI_URL = import.meta.env.VITE_AI_URL;
+
+// AI_TIMEOUT_MS = «tiempo máximo que se espera al modelo por cada tira, en milisegundos»
+const AI_TIMEOUT_MS = getTimeoutMs(import.meta.env.VITE_AI_TIMEOUT_S);
+
+// CHECK_RETRY_MS = «cada cuánto se vuelve a consultar un servidor que no está activo, en milisegundos»
+const CHECK_RETRY_MS = 10000;
+
+// CHECK_AGAIN_DELAY_MS = «cuánto se espera antes de volver a consultarlo tras una inferencia fallida»
+const CHECK_AGAIN_DELAY_MS = 5000;
+
+// MAX_CHECK_AGAIN_DELAY_MS = «lo máximo que se espera antes de volver a consultarlo»
+const MAX_CHECK_AGAIN_DELAY_MS = 60000;
+
+// PAUSE_BETWEEN_ROUNDS_MS = «pausa entre dos vueltas buenas, en milisegundos». Es el ritmo del espejo: así cada
+// vuelta ve una captura nueva. Con un servidor que tarda 45 s por tira no se nota; con uno rápido evita 5 lecturas por segundo.
+const PAUSE_BETWEEN_ROUNDS_MS = 500;
+
+// MAX_CAPTURE_AGE_MS =«la edad máxima de una captura ya leída para volver a leerla, en milisegundos»
+const MAX_CAPTURE_AGE_MS = 15000;
+
+// SILENT_TABLET_ERROR = «el aviso de que la tablet dejó de mandar capturas»
+const SILENT_TABLET_ERROR = 'la tablet no manda capturas desde hace más de 15 s: desconéctala y vuelve a conectarla';
+
+// CAUSES_TO_CHECK_AGAIN = «las causas de fallo que obligan a volver a consultar el servidor»
+// Con cualquiera de ellas puede que el servidor ya no esté, o que le hayan cambiado el modelo.
+const CAUSES_TO_CHECK_AGAIN = ['network', 'cors', 'model-rejected'];
+
+
+
+// buildDiagnosis = «armar el diagnóstico»
+// PURA. Cómo fue una vuelta: viaja con cada entrega, y VentanaTablet lo pinta junto a las pestañas.
+// Recibe: result (el resultado de runInferenceOnce).
+// Devuelve: { tira, tiras, modelo, leidos, descartados, segundos, error }
+// 'leidos' son los objetos que devolvió el modelo; 'descartados', los que no llegaron a ser un ticket.
+function buildDiagnosis(result) {
+    return {
+        tira: result.strip,
+        tiras: result.strips,
+        modelo: result.model,
+        leidos: result.tickets.length + result.discarded.length,
+        descartados: result.discarded.length,
+        segundos: result.seconds,
+        error: result.error,
+    };
+}
+
+
+
+// buildSilentTabletResult = «armar el resultado de una tablet que no contesta»
+// PURA. La vuelta que NO se da porque la tablet dejó de mandar capturas. Con las claves de runInferenceOnce.
+// Recibe: capture (la última captura que llegó), strip, strips (la tira que tocaba, y de cuántas) y model (el modelo).
+// Devuelve: { ok: false, strip, strips, time, model, seconds, tickets, discarded, error, cause: 'silent-tablet' }
+function buildSilentTabletResult(capture, strip, strips, model) {
+    return {
+        ok: false,
+        strip: strip,
+        strips: strips,
+        time: capture.time,
+        model: model,
+        seconds: 0,
+        tickets: [],
+        discarded: [],
+        error: SILENT_TABLET_ERROR,
+        cause: 'silent-tablet',
+    };
+}
+
+
+
+// getCheckAgainDelayMs = «obtener la espera antes de volver a consultar el servidor»
+// PURA. Un modelo rechazado una y otra vez no puede costar una tira subida cada 5 s: la espera crece.
+// Recibe: rejectionsInARow (cuántas veces seguidas ha rechazado el servidor el modelo).
+// Devuelve: 5 s hasta el primer rechazo; desde el segundo, 5 s más por cada uno (10, 15, 20…), hasta un minuto.
+function getCheckAgainDelayMs(rejectionsInARow) {
+    if (rejectionsInARow <= 1) return CHECK_AGAIN_DELAY_MS;
+
+    return Math.min(MAX_CHECK_AGAIN_DELAY_MS, CHECK_AGAIN_DELAY_MS * rejectionsInARow);
+}
 
 
 /*  @param {function} onTickets  por aquí salen los tickets hacia la parrilla que
@@ -89,31 +162,25 @@ const TIEMPO_LIMITE_IA_MS = 120000;
  *  @param {function} onCerrar / onArrastrarBarra  solo hacen falta fuera de Electron,
  *                               donde la ventana no se cierra ni se mueve sola.
  *  @param {string}   nombreLocal  para que la barra diga de qué local es esta tablet.
+ *  @param {function} onSimulacion  recibe true al engancharse a la pantalla de Toast
+ *                               simulada y false al desconectar. Es lo ÚNICO que sale de
+ *                               aquí sobre la simulación: la lectura no sabe nada de ella.
  */
-/*  'refreshMs' es cada cuánto se pide una captura nueva a la tablet — el ritmo del
- *  ESPEJO, no el de la lectura por IA.
- *
- *  A 500 ms la pantalla se ve más fluida. El ciclo se reprograma solo y descuenta lo
- *  que tardó la captura, así que si `screencap` pasa de medio segundo simplemente va
- *  tan rápido como pueda: nunca se apilan dos peticiones contra el mismo ADB.
- *
- *  OJO con lo que NO cambia: los tickets de las parrillas llegan al ritmo que marca
- *  configLectura.js, no este. Bajar esto hace el vídeo más suave,
- *  no los datos más frescos.
+/*  'refreshMs' es cada cuánto se pide una captura nueva a la tablet: el ritmo del ESPEJO,
+ *  no el de la lectura por IA. Bajarlo hace el vídeo más suave, no los datos más frescos:
+ *  el ritmo de la lectura lo pone el servidor de IA (cada vuelta empieza al contestar la anterior).
  */
-export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, nombreLocal }) {
+function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, nombreLocal, onSimulacion }) {
 
-    /*  LA ÚLTIMA VERSIÓN DE 'onTickets'
-     *
-     *  El bucle de captura se arma una vez, al conectar, y se queda con las funciones
-     *  que existían en ese render. Si llamara a la prop directamente, seguiría usando
-     *  la primera versión aunque el padre pasara otra después.
-     *
-     *  Esta referencia se actualiza en cada render, así que el bucle lee siempre la
-     *  buena.
-     */
+    //  LA ÚLTIMA VERSIÓN DE 'onTickets'. El bucle de inferencia se arma una vez y se queda con las
+    //  funciones de ese render: llamando a la prop directamente seguiría usando la primera versión.
+    //  Esta referencia se actualiza en cada render, así que el bucle lee siempre la buena.
     const onTicketsRef = useRef(onTickets);
     useEffect(() => { onTicketsRef.current = onTickets; }, [onTickets]);
+
+    //  Lo mismo con 'onSimulacion': la desconexión también puede dispararla el bucle.
+    const onSimulacionRef = useRef(onSimulacion);
+    useEffect(() => { onSimulacionRef.current = onSimulacion; }, [onSimulacion]);
 
 
     //  De qué local es esta tablet. Manda lo que pase quien nos monte; si no pasa
@@ -126,14 +193,21 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
     const [statusText, setStatusText] = useState('Sin conectar');
     const [imgUrl, setImgUrl] = useState(null);
 
-    const [responseRerenceState, setResponseRerenceState] = useState([]);
-    const [inferenceTime, setInferenceTime] = useState(null);   // segundos que tardó la última inferencia
-    const [ultimoError, setUltimoError] = useState(null);       // qué falló en la última lectura, si falló
-    const [ticketsLeidos, setTicketsLeidos] = useState(null);   // cuántos vio la IA la última vez
-    const [respuestaCruda, setRespuestaCruda] = useState('');   // lo que contestó, para cuando no se entiende
-    const [tamanoImagen, setTamanoImagen] = useState('');       // DIAGNÓSTICO: cuánta imagen se está mandando
-    const [consultando, setConsultando] = useState(false);      // hay una lectura en curso ahora mismo
-    const [tiraEnLectura, setTiraEnLectura] = useState(null);   // la última tira que se mandó al modelo, para la barra
+    //  LO QUE SE PINTA DE LA LECTURA, en la barra de arriba
+    const [ultimoError, setUltimoError] = useState(null);       // qué falló en la última vuelta, si falló
+    const [consultando, setConsultando] = useState(false);      // hay una vuelta en curso ahora mismo
+    const [tiraEnLectura, setTiraEnLectura] = useState(null);   // la última tira que se mandó al modelo
+
+    // aiServer = «el servidor de IA»: lo que contestó checkAiServer (STEP 0). null = todavía no ha contestado.
+    // Va en un estado para pintarlo en la barra, y en una ref para que el bucle lea siempre el último.
+    const [aiServer, setAiServer] = useState(null);
+
+    // aiServerRef = «el servidor de IA, para el bucle»
+    const aiServerRef = useRef(null);
+
+    // serverCheckNumber = «el número de la consulta al servidor»: cuando cambia, se le vuelve a consultar
+    const [serverCheckNumber, setServerCheckNumber] = useState(0);
+
 
     //  Un intento de conexión en curso. El estado pinta el botón girando; la ref es el
     //  cerrojo, porque dos clics en el mismo fotograma verían los dos el estado viejo y
@@ -142,46 +216,31 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
     const conectandoRef = useRef(false);
 
 
-    //  MODO IA. El bucle de captura se arma al conectar y conserva las funciones de ese
-    //  render, así que lee el interruptor por la ref, que siempre tiene el valor actual.
+    //  MODO IA. Es una de las tres condiciones del bucle de inferencia: en pausa, el bucle se para.
     const [modoIA, setModoIA] = useState(leerModoIAGuardado);
-    const modoIARef = useRef(modoIA);
 
     useEffect(() => {
-        modoIARef.current = modoIA;
         try { localStorage.setItem(CLAVE_MODO_IA, modoIA ? '1' : '0'); }
         catch { /* es una comodidad: sin almacenamiento, vale para esta sesión */ }
     }, [modoIA]);
 
 
-    //  RECORRIDO DE LA PANTALLA POR CUADRANTES
-    //
-    //  La pantalla entera lleva unos 30 tickets con letra minúscula, y el
-    //  modelo la encoge antes de mirarla: el texto se pierde. Mandando un trozo
-    //  cada vez, a cada ticket le tocan muchos más píxeles y sí se lee.
-    //
-    //  Los tiras se van turnando en orden y vuelven al primero, así que
-    //  cada RECORRIDO_COMPLETO_MS se ha mirado la pantalla entera.
-    //  La cuadrícula y el intervalo viven juntos en configLectura.js: si se cambia uno
-    //  sin el otro, el recorrido de la pantalla se alarga sin que nadie lo note.
+    //  EL RECORRIDO DE LA PANTALLA POR TIRAS
+    //  La pantalla entera lleva unos 30 tickets con letra minúscula, y el modelo la encoge antes de
+    //  mirarla: se le manda una tira cada vez, por turno (el porqué largo está en configLectura.js).
 
-    const tiraRef = useRef(0);
+    // stripRef = «la tira que toca leer»
+    const stripRef = useRef(0);
 
-    //  En cuántas tiras se corta ESTA pantalla. Depende de su ancho y se sabe al llegar
-    //  la primera captura: una tablet de 1024 px se corta en menos que una pantalla
-    //  ancha (el porqué, en configLectura.js). La ref es para el bucle de captura; el
-    //  estado, para pintar las marcas de la barra.
-    const tirasRef = useRef(TIRAS_DE_LECTURA);
+    // stripsRef = «en cuántas tiras se corta ESTA pantalla». Depende de su ancho: se sabe con la primera captura.
+    const stripsRef = useRef(TIRAS_DE_LECTURA);
+
+    //  Lo mismo que 'stripsRef', como estado, para pintar las marcas de la barra.
     const [tiras, setTiras] = useState(TIRAS_DE_LECTURA);
 
-    //  Los tickets vistos, guardados por número de mesa. Como cada lectura solo
-    //  ve un cuarto de pantalla, hay que ir juntándolos: si se reemplazara la
-    //  lista entera en cada vuelta, solo quedarían los del último tira.
-    const ticketsPorMesaRef = useRef(new Map());
-
-    //  La hora que marcaba la tablet en la última captura. Con ella se calcula el
-    //  tiempo de vida de cada pedido.
-    const horaTabletRef = useRef('');
+    // accumulatedRef = «el acumulado»: los tickets de TODAS las tiras (Map clave → ticket).
+    // Cada vuelta solo ve una tira: sin juntarlos, en la parrilla solo quedarían los de la última.
+    const accumulatedRef = useRef(new Map());
 
     //  ZOOM de la imagen, en porcentaje. 100 = la pantalla entera cabe en la ventana.
     //  Arranca con el último valor que usó esta máquina, para no tener que volver
@@ -204,21 +263,14 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
     };
 
 
-    /*  GUARDA LA CAPTURA ACTUAL Y LAS TIRAS QUE SE LE MANDAN AL MODELO
-     *
-     *  Para el banco de pruebas. Guardar las TIRAS y no solo la pantalla completa no es
-     *  un capricho: el banco tiene que mandarle al modelo exactamente la misma imagen
-     *  que recibe en marcha. Si el banco recortara por su cuenta compararía modelos
-     *  sobre imágenes parecidas pero distintas, y el resultado no serviría para decidir.
-     *
-     *  Así el banco no necesita ninguna librería de imagen: lee PNG y los manda.
-     */
+    //  GUARDA LA CAPTURA ACTUAL Y LAS TIRAS QUE SE LE MANDAN AL MODELO — para el banco de pruebas.
+    //  Se guardan las TIRAS y no solo la pantalla completa para que el banco mande al modelo exactamente
+    //  la misma imagen que recibe en marcha: recortando por su cuenta compararía imágenes distintas.
     const guardarCapturaYTiras = async () => {
-        const captura = ultimaCapturaRef.current;
+        const captura = lastCaptureRef.current?.blob;
         if (!captura) return setStatusText('Todavía no hay ninguna captura');
 
-        //  Un sello por captura, para que las tiras de una misma foto queden juntas al
-        //  ordenar por nombre y no se mezclen con las de otra.
+        //  Un sello por captura, para que las tiras de una misma foto queden juntas al ordenar por nombre.
         const sello = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 
         const bajar = (dato, nombre) => {
@@ -232,11 +284,11 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
         bajar(urlCompleta, `${sello}-completa.png`);
         URL.revokeObjectURL(urlCompleta);
 
-        for (let i = 0; i < tirasRef.current; i++) {
-            bajar(await recortarTira(captura, tirasRef.current, SOLAPE_DE_LECTURA, i), `${sello}-tira${i}.png`);
+        for (let i = 0; i < stripsRef.current; i++) {
+            bajar(await cropStrip(captura, stripsRef.current, SOLAPE_DE_LECTURA, i), `${sello}-tira${i}.png`);
         }
 
-        setStatusText(`Guardadas: completa + ${tirasRef.current} tiras (${sello})`);
+        setStatusText(`Guardadas: completa + ${stripsRef.current} tiras (${sello})`);
     };
 
 
@@ -323,18 +375,28 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
         };
     }, [arrastrando]);
 
-    //  REFS (cosas que NO disparan render: la conexión, el timer y la url anterior)
+    //  REFS (cosas que NO disparan render: la conexión, el timer del espejo y la url anterior)
     const adbRef = useRef(null);
     const intervalRef = useRef(null);
     const lastUrlRef = useRef(null);
-    const enVueloRef = useRef(false);
-    const ultimoEnvioRef = useRef(0);
-    const ultimaCapturaRef = useRef(null);   //  el PNG que se está viendo, para mandarlo a Jarvis
 
-    //  La petición a la IA que está en curso, para poder cancelarla al desconectar.
-    //  Sin esto, una lectura lanzada justo antes de desconectar llegaba después y
-    //  volvía a llenar la parrilla recién vaciada.
-    const lecturaEnVueloRef = useRef(null);
+    // lastCaptureRef = «la última captura del espejo»: { png, blob, time, width } de getTabletImage.
+    // De aquí lee el bucle de inferencia y de aquí sale lo que se manda a Jarvis. Va en una ref y no en el
+    // estado porque cambia dos veces por segundo y no se pinta: en el estado sería un render de más cada vez.
+    const lastCaptureRef = useRef(null);
+
+    // lastCaptureAtRef = «cuándo llegó la última captura» (Date.now()). Con la tablet muerta deja de avanzar.
+    const lastCaptureAtRef = useRef(0);
+
+    // lastReadCaptureRef = «la última captura que leyó el bucle», para saber si la que hay ya se leyó.
+    const lastReadCaptureRef = useRef(null);
+
+    // modelRejectionsRef = «las veces seguidas que el servidor ha rechazado el modelo». Una vuelta buena la pone a cero.
+    const modelRejectionsRef = useRef(0);
+
+    // roundControllerRef = «el cancelador de la vuelta en vuelo». Sin cancelarla, una lectura lanzada justo
+    // antes de desconectar llegaba después y volvía a llenar la parrilla recién vaciada.
+    const roundControllerRef = useRef(null);
 
 
     //  ══════════════════════════════════════════════════════════════════
@@ -389,7 +451,8 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
             return mostrarAviso(false, 'Elige primero un local en la ventana de Jarvis');
         }
 
-        const captura = ultimaCapturaRef.current;
+        //  Es exactamente el fotograma que se está mirando: lo que la persona cree estar mandando.
+        const captura = lastCaptureRef.current?.blob;
         if (!captura) {
             return mostrarAviso(false, 'Todavía no hay ninguna captura que enviar');
         }
@@ -421,16 +484,6 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
 
 
 
-    //  PROMPT
-    //
-    //  El texto vive en libs/tickets/lecturaDeTickets.js, junto al parser de lo que
-    //  conteste. Están juntos porque cambian juntos: tocar el prompt sin tocar el
-    //  parser es el camino más corto a leer bien y entender mal.
-    const prompt = PROMPT_DE_LECTURA;
-
-
-
-
     //  CONECTAR CON LA TABLET (debe ejecutarse dentro de un click del usuario)
     const handdlerConnect = async () => {
         if (conectandoRef.current) return;
@@ -459,10 +512,14 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
 
             setConnected(true);
             setStatusText('Conectado');
+
+            registroDeInferencia.apuntar(TIPO.TABLET, 'Tablet conectada por USB', { serie: device.serial });
         }
         catch (error) {
             console.log(error);
             setStatusText('Error: ' + error.message);
+
+            registroDeInferencia.apuntar(TIPO.FALLO, `No se pudo conectar con la tablet: ${error.message}`);
         }
         finally {
             conectandoRef.current = false;
@@ -473,17 +530,11 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
 
 
 
-    /*  CONECTAR CON UNA TABLET DE MENTIRA — solo en desarrollo
-     *
-     *  En lugar del USB, se engancha al simulador de Toast: otra ventana que pinta una
-     *  pantalla de cocina y la sirve como si fuera el 'screencap'. Lo que se guarda en
-     *  'adbRef' tiene la misma forma que un Adb de verdad, así que de aquí para abajo
-     *  NADA sabe que es una simulación: el bucle de captura, las tiras, la lectura, el
-     *  acumulado y las parrillas son los de siempre. Es justo lo que se quiere probar.
-     *
-     *  Se carga con import() y detrás de la constante para que el simulador no entre
-     *  en el paquete de la versión publicada.
-     */
+    //  CONECTAR CON UNA TABLET DE MENTIRA — solo en desarrollo
+    //  En lugar del USB se engancha al simulador de Toast. Lo que se guarda en 'adbRef' tiene la misma
+    //  forma que un Adb de verdad, así que de aquí para abajo NADA sabe que es una simulación: el espejo,
+    //  el bucle de inferencia y las parrillas son los de siempre. El simulador solo PINTA; leer, lee la IA.
+    //  Se carga con import() y detrás de la constante para que no entre en el paquete publicado.
     const conectarSimulador = async () => {
         if (!SIMULACION_DISPONIBLE || conectandoRef.current) return;
         conectandoRef.current = true;
@@ -498,10 +549,17 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
 
             setConnected(true);
             setStatusText(`SIMULACIÓN · ${adbRef.current.nombre}`);
+
+            //  A quien nos monta: lo que venga a partir de ahora no es de ninguna cocina.
+            onSimulacionRef.current?.(true);
+
+            registroDeInferencia.apuntar(TIPO.TABLET, `Conectada a la pantalla de Toast simulada («${adbRef.current.nombre}»)`);
         }
         catch (error) {
             console.log(error);
             setStatusText('Error: ' + error.message);
+
+            registroDeInferencia.apuntar(TIPO.FALLO, `No se pudo conectar con el simulador: ${error.message}`);
         }
         finally {
             conectandoRef.current = false;
@@ -517,11 +575,10 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
         try {
             if (intervalRef.current) clearTimeout(intervalRef.current);
 
-            //  Se cancela la lectura en vuelo ANTES de cerrar: su respuesta ya no
-            //  tiene dónde caer, y cancelarla es además la única forma de que el
-            //  servidor deje de calcularla.
-            lecturaEnVueloRef.current?.abort();
-            lecturaEnVueloRef.current = null;
+            //  La vuelta en vuelo se aborta ANTES de cerrar: su respuesta ya no tiene dónde caer, y
+            //  cancelarla es además la única forma de que el servidor deje de calcularla.
+            roundControllerRef.current?.abort();
+            roundControllerRef.current = null;
 
             if (adbRef.current) await adbRef.current.close();
         }
@@ -532,31 +589,25 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
             setImgUrl(null);
             setStatusText('Sin conectar');
 
-            /*  Y SE BORRA LO LEÍDO EN ESTA SESIÓN
-             *
-             *  Sin esto, al volver a conectar la parrilla seguía enseñando los tickets
-             *  de la vez anterior —mesas que hace rato que se fueron— hasta que cada
-             *  tira volviera a pasar. Es decir, hasta un minuto mostrando el
-             *  estado de otro momento como si fuera el de ahora.
-             *
-             *  El contador de tiras y el reloj también vuelven a cero, para que la
-             *  sesión nueva empiece por el primer tira y lea de inmediato.
-             */
-            ticketsPorMesaRef.current.clear();
-            tiraRef.current = 0;
-            ultimoEnvioRef.current = 0;
+            registroDeInferencia.apuntar(TIPO.TABLET, 'Tablet desconectada: se borra lo leído en esta sesión');
+
+            //  SE BORRA LO LEÍDO EN ESTA SESIÓN. Sin esto, al volver a conectar la parrilla enseñaba los
+            //  tickets de la vez anterior hasta que cada tira volviera a pasar. La sesión nueva empieza
+            //  por la primera tira y con una captura nueva.
+            accumulatedRef.current = new Map();
+            stripRef.current = 0;
+            lastCaptureRef.current = null;
+            lastReadCaptureRef.current = null;
+
             setTiraEnLectura(null);
-
-            setResponseRerenceState([]);
-            setTicketsLeidos(null);
             setUltimoError(null);
-            setRespuestaCruda('');
+            setConsultando(false);
 
-            //  Vacía la parrilla de abajo — pero avisando de que es una DESCONEXIÓN. Una
-            //  lista vacía a secas es lo mismo que manda una pantalla sin tickets, y el
-            //  seguimiento daría todos los pedidos abiertos por desaparecidos, sellándoles
-            //  un «Listo en tablet» con la hora en que alguien soltó el cable.
+            //  Vacía la parrilla de abajo, pero avisando de que es una DESCONEXIÓN. Una lista vacía a secas
+            //  es lo que manda una pantalla sin tickets, y el seguimiento daría todos los pedidos abiertos
+            //  por desaparecidos, sellándoles un «Listo en tablet» con la hora en que alguien soltó el cable.
             onTicketsRef.current?.([], '', { desconexion: true });
+            onSimulacionRef.current?.(false);            //  la próxima tablet puede ser la de verdad
             window.electronAPI?.enviarTickets?.([]);     //  y la de la ventana principal, si la hay
         }
     };
@@ -564,83 +615,118 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
 
 
 
-    //  CAPTURAR LA PANTALLA ('screencap -p' devuelve un PNG por la salida del proceso)
-    const capturarPantalla = async () => {
-        try {
-            if (!adbRef.current) return;
+    //  ══════════════════════════════════════════════════════════════════════════════════════
+    //  LA LECTURA DE TICKETS, PASO A PASO
+    //
+    //    STEP 0  checkAiServer        al abrir la ventana: ¿está activo el servidor de IA? ¿qué modelo tiene?
+    //    STEP 1  getTabletImage       el espejo: una captura de la tablet cada medio segundo
+    //    STEP 2  cropStrip            ┐
+    //    STEP 3  requestInference     ├─ runInferenceOnce: UNA vuelta del bucle de inferencia
+    //    STEP 4  parseModelResponse   ┘
+    //    STEP 5  mergeStripTickets    los tickets de esa tira se juntan con los de las demás
+    //    STEP 6  updateProcessGrid    la parrilla de procesos (la llama useSeguimientoTickets al recibir 'onTickets')
+    //  ══════════════════════════════════════════════════════════════════════════════════════
 
-            const png = await adbRef.current.subprocess.noneProtocol.spawnWait(['screencap', '-p']);
 
-            /*  Y DE PASO, LA HORA DE LA TABLET
-             *
-             *  El tiempo de vida de un pedido es la hora de la tablet menos la hora a
-             *  la que entró el ticket. Tiene que ser la hora de la TABLET, no la del
-             *  equipo: son dos relojes distintos y basta un minuto de diferencia para
-             *  que todas las cuentas salgan torcidas.
-             *
-             *  Se pide junto con la captura, en la misma vuelta: así las dos cosas
-             *  corresponden al mismo instante.
-             */
-            horaTabletRef.current = await leerHoraDeLaTablet(adbRef.current);
-            const blob = new Blob([png], { type: 'image/png' });
+    //  STEP 0 · LA PRIMERA CONEXIÓN AL SERVIDOR DE IA
+    //  Al abrir la ventana se le pregunta si está activo y qué modelo tiene, y la respuesta se guarda.
+    //  YA NO se le pregunta en cada lectura. Si no está activo, se reintenta cada 10 s hasta que lo esté.
+    useEffect(() => {
 
-            //  El ancho de la captura decide en cuántas tiras se lee. Si cambia —otra
-            //  tablet, o la misma girada— el recorrido vuelve a empezar por la primera.
-            const tirasDeEstaPantalla = tirasParaElAncho(anchoDelPng(png));
-            if (tirasDeEstaPantalla !== tirasRef.current) {
-                tirasRef.current = tirasDeEstaPantalla;
-                tiraRef.current = 0;
-                setTiras(tirasDeEstaPantalla);
+        // controller = «el cancelador de la consulta», por si la ventana se cierra a mitad
+        const controller = new AbortController();
+
+        // timer = «el temporizador de la consulta siguiente»
+        let timer = null;
+
+        // askServer = «preguntar al servidor»
+        const askServer = async () => {
+
+            // result = «lo que contestó»: { active: true, model, models, ms }  o  { active: false, cause, error, ms }
+            const result = await checkAiServer(AI_URL, controller.signal);
+
+            if (controller.signal.aborted) return;
+
+            //  Al registro de la inferencia solo va lo que CAMBIA: con el servidor caído se pregunta
+            //  cada 10 s, y el mismo fallo repetido llenaría el panel.
+            // previous = «lo que había contestado la vez anterior»
+            const previous = aiServerRef.current;
+
+            if (result.active && previous?.model !== result.model) {
+                registroDeInferencia.apuntar(TIPO.SERVIDOR, `El servidor de IA está activo: se leerá con «${result.model}»`, {
+                    direccion: AI_URL,
+                    modelo: result.model,
+                    modelos: result.models,
+                    milisegundos: result.ms,
+                });
             }
 
-            //  Se guarda la última captura para el botón de enviar a Jarvis.
-            //  Va en una `ref` y no en el estado a propósito: cambia una vez por
-            //  segundo y no se pinta en ningún sitio, así que meterla en el
-            //  estado provocaría un render por segundo sin que se vea nada
-            //  distinto. Es exactamente el fotograma que se está mirando, que es
-            //  lo que la persona cree estar mandando cuando pulsa.
-            ultimaCapturaRef.current = blob;
-            const url = URL.createObjectURL(blob);
+            if (!result.active && previous?.error !== result.error) {
+                registroDeInferencia.apuntar(TIPO.FALLO, `IA sin conexión: ${result.error}`, { direccion: AI_URL, causa: result.cause });
+            }
 
+            //  EL MODELO SE GUARDA EN UNA VARIABLE: la ref para el bucle, el estado para pintarlo en la barra.
+            aiServerRef.current = result;
+            setAiServer(result);
+
+            if (!result.active) timer = setTimeout(askServer, CHECK_RETRY_MS);
+        };
+
+        // firstDelay = «la espera antes de la primera pregunta». Al abrir la ventana, ninguna. Cuando se vuelve
+        // a preguntar por una inferencia fallida, unos segundos: sin ellos, un fallo que se repite daría vueltas sin freno.
+        let firstDelay = 0;
+        if (serverCheckNumber > 0) firstDelay = getCheckAgainDelayMs(modelRejectionsRef.current);
+
+        //  Con setTimeout también la primera: si el efecto se desmonta al momento (StrictMode lo hace
+        //  en desarrollo), la pregunta ni llega a salir.
+        timer = setTimeout(askServer, firstDelay);
+
+        return () => {
+            controller.abort();
+            clearTimeout(timer);
+        };
+    }, [serverCheckNumber]);
+
+
+
+
+    // captureScreen = «capturar la pantalla»
+    //  STEP 1 · EL ESPEJO: una captura de la pantalla, con la hora que marcaba la tablet.
+    //  Solo guarda y pinta la captura. YA NO dispara lecturas: de eso se encarga el bucle de inferencia.
+    const captureScreen = async () => {
+        try {
+            // adb = «la tablet a la que se le pide la captura»
+            const adb = adbRef.current;
+            if (!adb) return;
+
+            // capture = «la captura»: { png, blob, time, width }
+            const capture = await getTabletImage(adb);
+
+            //  Desconectaron mientras llegaba: es una captura de la sesión anterior (a veces a medias) y no se guarda.
+            //  Guardada, el bucle la leía al volver a conectar.
+            if (adbRef.current !== adb) return;
+
+            //  El ancho de la captura decide en cuántas tiras se lee. Si cambia (otra tablet, o la misma
+            //  girada) el recorrido vuelve a empezar por la primera.
+            // screenStrips = «las tiras de esta pantalla»
+            const screenStrips = tirasParaElAncho(capture.width);
+
+            if (screenStrips !== stripsRef.current) {
+                stripsRef.current = screenStrips;
+                stripRef.current = 0;
+                setTiras(screenStrips);
+            }
+
+            lastCaptureRef.current = capture;
+            lastCaptureAtRef.current = Date.now();
+
+            // url =«la dirección de la captura, para pintarla»
+            const url = URL.createObjectURL(capture.blob);
 
             if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current);   // libera la imagen anterior
             lastUrlRef.current = url;
 
             setImgUrl(url);
-
-            //  La captura corre a 500 ms (espejo fluido), pero a la IA solo se
-            //  le manda un tira cada INTERVALO_LECTURA_MS: es cara y lenta.
-            //
-            //  Con el modo IA en pausa no se manda nada y el turno no avanza: al
-            //  reanudar, la lectura sigue por la tira que tocaba.
-            const ahora = Date.now();
-            if (modoIARef.current && !enVueloRef.current && ahora - ultimoEnvioRef.current >= INTERVALO_LECTURA_MS) {
-                ultimoEnvioRef.current = ahora;
-
-                //  Le toca a un tira distinto cada vez
-                const tira = tiraRef.current;
-                tiraRef.current = (tira + 1) % tirasRef.current;
-                setTiraEnLectura(tira);
-
-                //  SIN `await`: la lectura por IA es lo que rompía el segundo.
-                //
-                //  Recortar el tira y mandarlo al modelo tarda lo suyo, y
-                //  esperarlo aquí dentro congelaba el espejo hasta que el
-                //  modelo contestara. En cada turno de lectura la imagen se
-                //  quedaba clavada un rato — justo mientras se leía «Leyendo
-                //  tira N… (puede tardar un minuto)».
-                //
-                //  Soltándolo, la captura sigue su ritmo y la lectura avanza
-                //  por su cuenta. `sendImg` ya se protege de solaparse consigo
-                //  misma con `enVueloRef`.
-                //  La hora se apunta AHORA, con la foto: es la de esta captura, no la que
-                //  marque el reloj cuando el modelo termine de leerla.
-                const horaDeLaCaptura = horaTabletRef.current;
-
-                recortarTira(blob, tirasRef.current, SOLAPE_DE_LECTURA, tira)
-                    .then(recorte => sendImg(recorte, tira, horaDeLaCaptura))
-                    .catch(error => console.log(error));
-            }
         }
         catch (error) {
             console.log(error);
@@ -648,424 +734,10 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
     };
 
 
-
-
-
-    /*  @param {string} horaDeLaCaptura  la hora de la tablet CUANDO SE HIZO LA FOTO que se
-     *                                   manda a leer. Es la que acompaña al resultado.
-     *
-     *  No vale leer el reloj al terminar. La toma de orden es «hora − cronómetro», y el
-     *  cronómetro es el de la foto: restárselo a la hora de cuando CONTESTA el modelo
-     *  retrasa todas las tomas de orden justo lo que tarde la lectura. Con un modelo
-     *  que responde en 5 s son 5 s de error en cada fila; con uno que tarda 3 minutos,
-     *  3 minutos. Y lo mismo le pasaba a «Listo en tablet», que se sella con esta hora.
-     */
-    const sendImg = async (img, tira = 0, horaDeLaCaptura = horaTabletRef.current) => {
-        if (enVueloRef.current) return;
-        enVueloRef.current = true;
-        setConsultando(true);      //  para que la ventana no se quede muda mientras espera
-
-        //  Fuera del 'try' porque también la usa el 'catch', para decir a qué servidor
-        //  no se pudo llegar.
-        const url = `${import.meta.env.VITE_AI_URL}/api/v1/chat`;
-
-        //  Lo que viaja en cada entrega además de los tickets. 'simulacion' avisa a la
-        //  ventana de que esto NO es la cocina de verdad: con ella bloquea lo que
-        //  saldría hacia Jarvis, como reportar una demora.
-        const diagnostico = (datos) => ({ tira, simulacion: Boolean(adbRef.current?.simulado), ...datos });
-
-        try {
-            //  Se usa la API PROPIA de LM Studio (/api/v1/chat), no la compatible
-            //  con OpenAI, por un motivo concreto: es la única que deja apagar el
-            //  razonamiento del modelo.
-            //
-            //  Este modelo "piensa" antes de responder, y ese pensamiento gasta
-            //  tiempo y presupuesto. Con la otra API tardaba 29 segundos por
-            //  lectura y a veces se quedaba sin tokens antes de contestar.
-            //  Con reasoning en "off": 0,7 segundos y cero tokens desperdiciados.
-            //
-            //  Para leer tickets no hace falta que razone — solo que copie lo
-            //  que ve.
-            const body = {
-                model: 'google/gemma-4-e4b',
-                input: [
-                    { type: 'text', content: prompt },
-                    { type: 'image', data_url: img }
-                ],
-                reasoning: 'off',
-                temperature: 0
-            };
-
-            //  DIAGNÓSTICO TEMPORAL: cuánta imagen se está mandando de verdad.
-            //  El servidor acepta hasta 4 MB sin problema (probado), así que si
-            //  el modelo dice que no recibe imagen, el fallo está de este lado.
-            const kb = Math.round((img?.length ?? 0) / 1024);
-            const cabecera = String(img).slice(0, 30);
-            console.log(`[IA] mandando imagen: ${kb} KB — empieza por "${cabecera}"`);
-            setTamanoImagen(`${kb} KB`);
-
-            const start = performance.now();
-            /*  CON TIEMPO LÍMITE, Y NO ES OPCIONAL
-             *
-             *  Sin él, una conexión que se queda colgada —el servidor de la IA cae, la
-             *  red se va a medias— deja 'enVueloRef' en true para siempre. Y ese
-             *  cerrojo es justo el que impide lanzar la siguiente lectura: la ventana
-             *  se queda mirando la tablet sin volver a leer nada, sin error y sin más
-             *  salida que desconectar y conectar otra vez.
-             *
-             *  EL NÚMERO SUBIÓ DE 60 A 120 SEGUNDOS, y no por capricho.
-             *
-             *  Con los cuadrantes pequeños una lectura tardaba 0,7 s y 60 sobraban. Al
-             *  pasar a tiras de altura completa entran seis tarjetas por imagen, y al
-             *  pedir la cabecera transcrita cada una genera bastante texto: el modelo
-             *  local se pasaba de los 60 y la vuelta se perdía ENTERA.
-             *
-             *  Perder la vuelta es lo peor que puede pasar: se tira el trabajo ya hecho
-             *  y esa parte de la pantalla se queda sin mirar hasta el recorrido
-             *  siguiente. Vale más esperar de más que descartar.
-             *
-             *  Sigue habiendo límite porque sin él una conexión colgada dejaría
-             *  'enVueloRef' en true para siempre, y ese cerrojo es el que impide lanzar
-             *  la siguiente lectura: la ventana se quedaría mirando la tablet sin leer
-             *  nada, sin error y sin más salida que desconectar y volver a conectar.
-             */
-            const control = new AbortController();
-            lecturaEnVueloRef.current = control;
-
-            /*  ¿QUIÉN LEE ESTA TIRA?
-             *
-             *  Con la tablet de verdad, siempre el servidor de IA. Con la simulada lo
-             *  decide el panel del simulador: puede mandarla al servidor igualmente —y
-             *  entonces 'lecturaSimulada' devuelve null y se sigue por el camino de
-             *  siempre— o contestar él mismo, para probar todo lo que viene después de
-             *  la lectura cuando el servidor está lento o caído.
-             *
-             *  Lo que devuelve es TEXTO con el formato del modelo, no tickets ya hechos:
-             *  pasa por el mismo extraerTickets y el mismo leerCabecera que la respuesta
-             *  real. Si el parser se rompe, la simulación también lo enseña.
-             */
-            const simulada = await adbRef.current?.lecturaSimulada?.({
-                tira,
-                tiras: tirasRef.current,
-                solape: SOLAPE_DE_LECTURA,
-                esperaMs: TIEMPO_LIMITE_IA_MS,
-                senal: control.signal,
-            });
-
-            const response = simulada ? null : await axios.post(url, body, { timeout: TIEMPO_LIMITE_IA_MS, signal: control.signal });
-
-            const segundos = (performance.now() - start) / 1000;
-            setInferenceTime(segundos.toFixed(1));
-
-            //  La API propia devuelve la respuesta en `output`, no en `choices`
-            const content = simulada ? simulada.contenido : response?.data?.output?.[0]?.content ?? '';
-
-            const pensados = response?.data?.stats?.reasoning_output_tokens ?? 0;
-            const cortado = false;   //  sin razonamiento ya no se queda a medias
-
-            console.log(simulada ? '[IA] lectura simulada' : `[IA] ${response?.data?.stats?.total_output_tokens ?? '?'} tokens · razonó ${pensados}`);
-            console.log(content);
-
-            const tickets = extraerTickets(content);
-
-            /*  LECTURA ILEGIBLE: SE DESCARTA LA VUELTA ENTERA
-             *
-             *  'null' quiere decir que el modelo contestó algo que no se entiende. Eso
-             *  NO es lo mismo que una pantalla vacía, y tratarlo igual hacía daño: más
-             *  abajo se borran los tickets de este tira para que los pedidos
-             *  terminados desaparezcan, y con una respuesta ilegible esa limpieza se
-             *  llevaba por delante las mesas que seguían en pantalla.
-             *
-             *  Desaparecían de la parrilla hasta la vuelta siguiente de este tira
-             *  —un minuto— y la vuelta se marcaba además como buena, así que no quedaba
-             *  ni rastro de que algo había fallado.
-             *
-             *  Se sale sin tocar el acumulado y sin entregar nada: la lista anterior
-             *  sigue siendo la mejor que hay. Lo único que se hace es dejar constancia.
-             */
-            if (tickets === null) {
-                setUltimoError('respuesta ilegible, se descarta esta vuelta');
-                setTicketsLeidos(null);
-                setRespuestaCruda(content.trim().slice(0, 200) || 'respuesta vacía');
-
-                //  Los tickets NO se tocan —esta vuelta se descarta entera—, pero el fallo
-                //  sí sube: callarlo es lo que hacía imposible distinguir «no hay novedades»
-                //  de «lleva diez minutos sin entender una sola respuesta».
-                onTicketsRef.current?.(null, horaDeLaCaptura, diagnostico({ leidos: 0, descartados: 0, error: 'respuesta ilegible' }));
-                return;
-            }
-
-            //  Esta lectura solo vio un cuarto de pantalla. Se van juntando por
-            //  número de mesa: los de este tira se actualizan, y los de los
-            //  otros tres se conservan de las vueltas anteriores.
-            const acumulado = ticketsPorMesaRef.current;
-
-            //  Una foto de cómo estaba ANTES de limpiar. La regla de «una lectura dudosa
-            //  no pisa a una buena» tiene que comparar contra lo que había, y si mirara
-            //  el acumulado ya limpio no encontraría nada: la mesa buena leída por esta
-            //  misma tira la vuelta anterior se acababa de borrar, y la mala entraba.
-            const previos = new Map(acumulado);
-
-            //  Primero se quitan los que este mismo tira había traído antes:
-            //  si una mesa terminó su pedido, su ticket ya no está en pantalla y
-            //  tiene que desaparecer, no quedarse pegado para siempre.
-            for (const [mesa, t] of acumulado) {
-                if (t.tira === tira) acumulado.delete(mesa);
-            }
-
-            /*  LOS PEDIDOS QUE NO SON DE MESA NECESITAN CLAVE PROPIA
-             *
-             *  La clave era el número de mesa, y con las mesas funciona: son únicas.
-             *  Pero el prompt pide que, cuando el ticket no es de una mesa, se escriba
-             *  el nombre tal cual — "Take Out", "Uber Eats", "Online Ordering"—. Y ahí
-             *  la clave deja de ser única: dos Take Out a la vez comparten texto, el
-             *  segundo pisa al primero en el Map y en la parrilla aparece UNO SOLO.
-             *
-             *  Para esos, la clave lleva además el tira y un contador dentro de
-             *  la lectura, así que dos pedidos iguales son dos filas.
-             *
-             *  La clave viaja dentro del ticket porque la parrilla la necesita para
-             *  identificar la fila: si allí volviera a usar la mesa, los juntaría otra
-             *  vez justo después de haberlos separado aquí.
-             */
-            const repetidos = new Map();
-
-            //  Cuántos objetos de esta lectura NO llegaron a ser un ticket. Se enseña en la
-            //  barra de estado: sin este número, "0 pedidos" no distingue entre una
-            //  pantalla sin novedades y un filtro que se está comiendo todo.
-            let descartados = 0;
-
-            tickets.forEach(t => {
-                /*  LO QUE MANDA ES LA CABECERA TRANSCRITA
-                 *
-                 *  De ella salen mesa, número y cronómetro, los tres del MISMO texto, que
-                 *  es lo que impide que se crucen entre tarjetas.
-                 *
-                 *  Los campos sueltos quedan de respaldo por dos motivos: si el modelo
-                 *  vuelve al formato anterior la ventana sigue funcionando, y si una
-                 *  cabecera sale ilegible todavía se puede aprovechar lo que venga
-                 *  aparte. Nunca pisan a la cabecera: solo rellenan lo que falte.
-                 */
-                const cabecera = leerCabecera(t?.cabecera);
-
-                //  La mesa de la cabecera se usa TAL CUAL: ya viene resuelta, y cuando el
-                //  pedido no tiene mesa es el ticket con su '#'. Pasarla por
-                //  normalizarMesa le quitaría ese '#' y un «#34» sin mesa se confundiría
-                //  con la mesa 34.
-                //
-                //  Los campos sueltos son de prompts viejos (.table. el más antiguo). Se
-                //  aceptan para no descartar una lectura por un cambio de nombre.
-                const mesa = cabecera?.mesa || normalizarMesa(t?.mesa ?? t?.table);
-                if (!mesa) { descartados++; return; }
-
-                /*  ─────────────────────────────────────────────────────────────────
-                 *  DOS PUERTAS QUE SEPARAN UN TICKET DE UN TROZO DE PANTALLA
-                 *
-                 *  Un recorte puede caer entre dos tarjetas y dejar renglones de
-                 *  producto sin cabecera. El prompt ya pide no contestar en ese caso,
-                 *  pero pedirlo no es garantizarlo: en la parrilla llegaron a salir
-                 *  mesas llamadas «Arepa Llanera», «Nestea Limon» y «FIRE».
-                 *
-                 *  1. TIENE QUE TRAER CRONÓMETRO. Es lo que mejor distingue una
-                 *     cabecera de todo lo demás: toda tarjeta lleva uno y ningún
-                 *     renglón de producto lo tiene. Además, sin él no hay ni tiempo de
-                 *     vida ni toma de orden, así que la fila no valdría para nada.
-                 *
-                 *  2. NO PUEDE SER UNA ETIQUETA DE LA PANTALLA. 'FIRE' encabeza el
-                 *     cronómetro de cada tarjeta, y 'DRINKS' y 'ENTREE' separan
-                 *     secciones dentro de un ticket. Son las que más se han colado.
-                 *  ───────────────────────────────────────────────────────────────── */
-                const espera = aSegundosDeCronometro(cabecera?.tiempo || t?.tiempo);
-                if (espera === null) { descartados++; return; }
-
-                if (ETIQUETAS_DE_PANTALLA.has(mesa.trim().toUpperCase())) { descartados++; return; }
-
-                /*  LA IDENTIDAD DE UN PEDIDO
-                 *
-                 *  Manda el NÚMERO DE TICKET, que es lo que Toast imprime en cada
-                 *  tarjeta y lo único verdaderamente único: una mesa puede tener tres
-                 *  pedidos, y con la mesa por clave los tres se pisaban entre sí en el
-                 *  Map — quedaba uno solo, y sus tiempos saltaban de un pedido a otro.
-                 *
-                 *  Es además una identidad ESTABLE entre lecturas, y eso es lo que
-                 *  permite ver que un ticket cambió de color y estampar la hora. Con
-                 *  una clave que depende del texto del plato, una errata del modelo
-                 *  partía el mismo pedido en dos filas.
-                 *
-                 *  Si la pantalla no muestra número —o el modelo no lo lee— se cae a lo
-                 *  de antes: la mesa, y para los pedidos que no son de mesa una clave
-                 *  con el tira y un contador, para que dos «Take Out» simultáneos
-                 *  no se fundan en uno.
-                 */
-                const numeroTicket = textoLimpio(cabecera?.ticket || t?.ticket);
-
-                let clave;
-
-                if (numeroTicket) {
-                    //  Con el curso dentro: en la pantalla del expedidor un mismo ticket
-                    //  sale en varias tarjetas, una por curso. El porqué largo está en
-                    //  claveDeTicket.js.
-                    clave = claveDeTicket(numeroTicket, t?.tipo);
-                }
-                else if (/^\d+$/.test(mesa)) {
-                    //  Una mesa de verdad es solo dígitos.
-                    clave = mesa;
-                }
-                else {
-                    const n = (repetidos.get(mesa) ?? 0) + 1;
-                    repetidos.set(mesa, n);
-                    clave = `${mesa}·c${tira}·${n}`;
-                }
-
-                /*  EL COLOR NO SE PREGUNTA: SE DEDUCE
-                 *
-                 *  La cabecera es amarilla o roja según lo que lleve esperando, y nada
-                 *  más. Teniendo el cronómetro, calcularlo aquí sale gratis y no falla
-                 *  nunca — mientras que preguntárselo al modelo costaba un campo de la
-                 *  lectura y acertaba a medias.
-                 *
-                 *  'rojo' se conserva porque la parrilla de rotación ordena por
-                 *  urgencia con él.
-                 */
-                const color = bandaPorEspera(espera);
-
-                /*  UNA LECTURA DUDOSA NO PISA A UNA BUENA
-                 *
-                 *  El mismo ticket se lee desde DOS tiras —para eso está el solape—, y
-                 *  en una de ellas puede caer cortado por el borde. Ahí el modelo
-                 *  transcribe "6 #34 …" en vez de "Table 16 #34 …", y como las tiras se
-                 *  recorren en orden, la mala llegaba DESPUÉS y sobrescribía a la buena.
-                 *  Así aparecía en la parrilla una mesa «6» que no existe en pantalla.
-                 *
-                 *  Ahora la mesa solo se reemplaza si la nueva lectura es al menos tan
-                 *  fiable como la que ya había. El resto de campos sí se refrescan: de
-                 *  ellos no sabemos cuál es mejor, y el más reciente es el más probable.
-                 */
-                const previo = previos.get(clave);
-                const conservarMesa = previo?.mesaFiable && !cabecera?.mesaFiable;
-
-                acumulado.set(clave, {
-                    ...t,
-                    mesa: conservarMesa ? previo.mesa : mesa,
-                    mesaFiable: conservarMesa ? true : Boolean(cabecera?.mesaFiable),
-                    clave,
-                    tira,
-                    ticket: textoLimpio(cabecera?.ticket || t?.ticket),
-
-                    /*  EL CRONÓMETRO TAMBIÉN SE COPIA DE LA CABECERA, Y ES OBLIGATORIO.
-                     *
-                     *  Faltaba, y costó las dos columnas de tiempo. Al dejar de pedirle
-                     *  'tiempo' al modelo —ahora va dentro de 'cabecera'—, 't.tiempo'
-                     *  quedó en undefined, así que el seguimiento no encontraba ningún
-                     *  cronómetro y se saltaba entero el cálculo. Las filas SÍ salían,
-                     *  porque el filtro de aquí arriba sí mira la cabecera, y por eso el
-                     *  fallo no se parecía a lo que era: parecía un problema del reloj.
-                     *
-                     *  Regla para no repetirlo: lo que se saque de la cabecera hay que
-                     *  ponerlo AQUÍ. Lo que no se ponga, aguas abajo no existe.
-                     */
-                    tiempo: cabecera?.tiempo || textoLimpio(t?.tiempo),
-
-                    plato: textoLimpio(t?.plato),
-                    tipo: textoLimpio(t?.tipo),
-
-                    //  De qué canal es el pedido, si la cabecera lo delataba. Ya no va en
-                    //  'mesa', pero el tipo de plato lo sigue aprovechando.
-                    canal: cabecera?.canal ?? '',
-
-                    listo: t?.listo === true,
-                    color,
-                    rojo: color === 'rojo',
-                });
-            });
-
-            const todos = [...acumulado.values()];
-
-            setUltimoError(null);              //  esta vuelta salió bien
-            setTicketsLeidos(tickets.length);
-
-            //  Si no se entendió nada, guardamos lo que dijo para poder verlo en la
-            //  ventana: sin esto, "0 tickets" no distingue entre "la pantalla estaba
-            //  vacía" y "contestó en prosa y el parser no encontró el JSON".
-            setRespuestaCruda(
-                tickets.length > 0 ? ''
-                    : cortado ? `se quedó sin tokens pensando (${pensados} razonando)`
-                        : content.trim().slice(0, 200) || 'respuesta vacía'
-            );
-
-            setResponseRerenceState(todos);
-
-            /*  ENTREGA DE LA LECTURA
-             *
-             *  Se manda SIEMPRE la lista completa, aunque este tira no haya
-             *  traído nada: si una mesa terminó su pedido, quien la esté mirando
-             *  tiene que enterarse de que ya no está.
-             *
-             *  A la parrilla de abajo, que está en esta misma ventana. Se llama a
-             *  través de la referencia y no a la prop directamente porque el bucle de
-             *  captura se creó en el primer render y conserva las funciones de aquel
-             *  momento: usar la prop aquí congelaría la primera versión para siempre.
-             */
-            onTicketsRef.current?.(todos, horaDeLaCaptura, diagnostico({
-                leidos: tickets.length,
-                descartados,
-                segundos,
-                error: null,
-            }));
-
-            //  Y a la ventana principal, si hay carcasa de escritorio y también
-            //  quiere verlos. En un navegador window.electronAPI no existe, así que
-            //  esta línea simplemente no hace nada. Los de una simulación no salen de
-            //  esta ventana: no son de ninguna cocina.
-            if (!adbRef.current?.simulado) window.electronAPI?.enviarTickets?.(todos);
-        }
-        catch (error) {
-            //  Cancelada desde handdlerDisconnect: no es un fallo y no hay a quién
-            //  avisar, la parrilla ya se vació. ('AbortError' es como cancela el
-            //  lector simulado, que no pasa por axios.)
-            if (axios.isCancel(error) || error?.name === 'AbortError') return;
-
-            console.log(error);
-
-            //  En la barra se lee un motivo en español y no el mensaje de axios:
-            //  «timeout of 120000ms exceeded» o «Network Error» no le dicen a quien
-            //  mira la ventana si la IA está lenta, apagada o rechazada.
-            const motivo = explicarFalloDeIA(error, url);
-
-            setUltimoError(motivo);
-            setTicketsLeidos(null);
-
-            onTicketsRef.current?.(null, horaDeLaCaptura, diagnostico({ leidos: 0, descartados: 0, error: motivo }));
-        }
-        finally {
-            lecturaEnVueloRef.current = null;
-            enVueloRef.current = false;
-            setConsultando(false);
-        }
-    };
-
-
-
-
-    //  ══════════════════════════════════════════════════════════════════
-    //  REFRESCO AUTOMÁTICO MIENTRAS ESTÉ CONECTADO
-    //  ══════════════════════════════════════════════════════════════════
-    //  Un ciclo que se reprograma solo, en lugar de `setInterval`.
-    //
-    //  `setInterval` dispara a su ritmo MIRE O NO si la vuelta anterior
-    //  terminó. Pedirle una captura a la tablet por USB puede pasar del medio
-    //  segundo —pantalla grande, cable con ruido, equipo cargado—, y entonces
-    //  las llamadas se pisan: se le mandan dos `screencap` a la vez al mismo
-    //  ADB, que no está para eso. El resultado son tirones y capturas perdidas,
-    //  justo lo contrario de un espejo fluido.
-    //
-    //  Así se espera SIEMPRE a que termine una antes de programar la siguiente,
-    //  y no puede haber dos en vuelo.
-    //
-    //  Además se descuenta lo que tardó la captura, para que entre imagen e
-    //  imagen pase el intervalo REAL. Con `setTimeout(ciclo, refreshMs)` a
-    //  secas, el ritmo sería ese intervalo MÁS lo que tarde cada captura: con
-    //  400 ms de captura, una imagen cada 900 ms en vez de cada 500.
+    //  EL CICLO DEL ESPEJO, mientras esté conectado. Se reprograma solo en vez de usar setInterval:
+    //  así se espera SIEMPRE a que termine una captura antes de pedir la siguiente, y nunca hay dos
+    //  'screencap' a la vez contra el mismo ADB (lo atascan). Se descuenta lo que tardó la captura,
+    //  para que entre imagen e imagen pase el intervalo real.
     useEffect(() => {
         if (!connected) return;
 
@@ -1074,11 +746,9 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
         const ciclo = async () => {
             const inicio = Date.now();
 
-            await capturarPantalla();
+            await captureScreen();
 
             //  Puede haberse desconectado mientras se esperaba la captura.
-            //  Sin esto se programaría una vuelta más sobre una conexión que
-            //  ya no existe.
             if (!vivo) return;
 
             const espera = Math.max(0, refreshMs - (Date.now() - inicio));
@@ -1092,6 +762,174 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
             clearTimeout(intervalRef.current);
         };
     }, [connected, refreshMs]);
+
+
+
+
+    // markServerAsInactive = «dar el servidor por no activo»
+    // Puede que el servidor ya no esté, o que le hayan cambiado el modelo: se vuelve al STEP 0.
+    // Hasta que conteste, el servidor no cuenta como activo y el bucle se para.
+    // Recibe: result (el resultado de la vuelta fallida).
+    const markServerAsInactive = (result) => {
+
+        //  Un modelo rechazado varias veces seguidas alarga la espera de la consulta siguiente (getCheckAgainDelayMs).
+        if (result.cause === 'model-rejected') modelRejectionsRef.current = modelRejectionsRef.current + 1;
+
+        // inactiveServer = «el servidor, dado por no activo»
+        const inactiveServer = { active: false, cause: result.cause, error: result.error, ms: 0 };
+
+        aiServerRef.current = inactiveServer;
+        setAiServer(inactiveServer);
+        setServerCheckNumber(number => number + 1);
+    };
+
+
+
+    // isTabletSilent = «¿la tablet dejó de mandar capturas?»
+    // Cable suelto, simulador cerrado…: el espejo ya no trae capturas nuevas, y la que hay ya se leyó y es vieja.
+    // Recibe: capture (la última captura del espejo). Devuelve: true / false.
+    const isTabletSilent = (capture) => {
+
+        // captureAge = «la edad de la captura, en milisegundos»
+        const captureAge = Date.now() - lastCaptureAtRef.current;
+
+        return capture === lastReadCaptureRef.current && captureAge > MAX_CAPTURE_AGE_MS;
+    };
+
+
+
+    // reportSilentTablet = «avisar de que la tablet no manda capturas»
+    // La vuelta NO se da, pero el fallo sube: a la barra de arriba y, por 'onTickets', a la ventana (los tickets no se tocan).
+    // Recibe: capture (la última captura), strip y strips (la tira que tocaba, y de cuántas).
+    // Devuelve: el resultado de la vuelta fallida ({ ok: false, … }), para el bucle.
+    const reportSilentTablet = (capture, strip, strips) => {
+
+        // silentResult = «el resultado de la vuelta que no se dio»
+        const silentResult = buildSilentTabletResult(capture, strip, strips, aiServerRef.current.model);
+
+        setUltimoError(silentResult.error);
+        onTicketsRef.current?.(null, silentResult.time, buildDiagnosis(silentResult));
+
+        return silentResult;
+    };
+
+
+
+    // readNextStrip = «leer la tira siguiente»
+    // UNA VUELTA DEL BUCLE DE INFERENCIA: lee una tira, junta sus tickets con los demás y los entrega.
+    // Devuelve: el resultado de runInferenceOnce ({ ok, … }). Con ok: false el bucle espera unos segundos antes de seguir.
+    const readNextStrip = async () => {
+
+        //  De la ÚLTIMA captura del espejo. No se le pide otra al ADB: dos 'screencap' a la vez lo atascan.
+        // capture = «la captura que se va a leer»
+        const capture = lastCaptureRef.current;
+        if (!capture) return { ok: false };
+
+        // strip = «la tira que toca»  ·  strips = «de cuántas»
+        const strip = stripRef.current;
+        const strips = stripsRef.current;
+
+        //  Releer sin fin la misma foto gastaría el servidor de IA en el pasado: la vuelta es fallida, y el fallo sube.
+        if (isTabletSilent(capture)) return reportSilentTablet(capture, strip, strips);
+
+        lastReadCaptureRef.current = capture;
+
+        // controller = «el cancelador de esta vuelta»: desconectar o pausar la IA la abortan
+        const controller = new AbortController();
+        roundControllerRef.current = controller;
+
+        setTiraEnLectura(strip);
+        setConsultando(true);      //  para que la barra lata mientras se espera al modelo
+
+        // note = «apuntar en el registro de la inferencia»: todos los apuntes de esta vuelta van juntos
+        const note = registroDeInferencia.abrirLectura();
+
+        //  STEP 2 · cropStrip, STEP 3 · requestInference y STEP 4 · parseModelResponse
+        // result = «el resultado de la vuelta»: { ok, strip, strips, time, model, seconds, tickets, discarded, error, cause }
+        const result = await runInferenceOnce({
+            capture: capture,
+            strip: strip,
+            strips: strips,
+            overlap: SOLAPE_DE_LECTURA,
+            server: { baseUrl: AI_URL, model: aiServerRef.current.model },
+            timeoutMs: AI_TIMEOUT_MS,
+            signal: controller.signal,
+            note: note,
+        });
+
+        //  Vuelta cancelada: no es un fallo, no se entrega nada y la tira no avanza (se leerá al reanudar).
+        if (result.cause === 'cancelled' || controller.signal.aborted) return result;
+
+        roundControllerRef.current = null;
+        setConsultando(false);
+
+        //  Le toca a la tira siguiente (salvo que la pantalla haya cambiado de ancho a mitad: ahí se empieza de cero).
+        if (stripsRef.current === strips) stripRef.current = (strip + 1) % strips;
+
+        // diagnostico = «cómo fue esta vuelta»: { tira, tiras, modelo, leidos, descartados, segundos, error }
+        const diagnostico = buildDiagnosis(result);
+
+        //  VUELTA FALLIDA: los tickets NO se tocan (se entrega null), pero el fallo sí sube. Callarlo hacía
+        //  imposible distinguir «no hay novedades» de «lleva diez minutos sin entender una respuesta».
+        if (!result.ok) {
+            setUltimoError(result.error);
+            onTicketsRef.current?.(null, result.time, diagnostico);
+
+            if (CAUSES_TO_CHECK_AGAIN.includes(result.cause)) markServerAsInactive(result);
+
+            return result;
+        }
+
+        setUltimoError(null);
+        modelRejectionsRef.current = 0;
+
+        //  STEP 5 · los tickets de esta tira se juntan con los que se conservan de las demás
+        // merged = «lo juntado»: { accumulated: Map nuevo, all: todos los tickets de la pantalla }
+        const merged = mergeStripTickets(accumulatedRef.current, result.tickets, strip);
+        accumulatedRef.current = merged.accumulated;
+
+        //  Al registro de la inferencia: cuántos tickets hay ya en TODA la pantalla, con sus claves.
+        note(TIPO.RESULTADO, `${merged.all.length} tickets en toda la pantalla`, { enTodaLaPantalla: merged.all.map(ticket => ticket.clave) });
+
+        //  STEP 6 · updateProcessGrid NO se llama aquí: aquí solo se ENTREGA la lista. El camino es
+        //  onTickets → VentanaTablet.jsx (la guarda) → useSeguimientoTickets.jsx → updateProcessGrid (processGrid.js),
+        //  que ANALIZA, COMPARA y ACTUALIZA la parrilla de procesos.
+        //  Se manda SIEMPRE la lista completa, aunque esta tira no trajera nada: si un pedido terminó, quien lo
+        //  mire tiene que enterarse. La hora es la de la FOTO (result.time), no la de cuando contestó el modelo.
+        onTicketsRef.current?.(merged.all, result.time, diagnostico);
+
+        //  Y a la ventana principal, si hay carcasa de escritorio (en un navegador electronAPI no existe).
+        window.electronAPI?.enviarTickets?.(merged.all);
+
+        return result;
+    };
+
+
+    //  EL BUCLE DE INFERENCIA (recursivo: cada vuelta empieza cuando ha contestado la anterior).
+    //  Arranca cuando hay tablet conectada (con su primera captura) + servidor de IA activo + modo IA encendido,
+    //  y se para en cuanto falta cualquiera de los tres. El ritmo lo pone el servidor, no un reloj.
+
+    // hasCapture = «ya hay una captura que leer»
+    const hasCapture = imgUrl !== null;
+
+    // serverIsActive = «el servidor de IA está activo»
+    const serverIsActive = aiServer?.active === true;
+
+    useEffect(() => {
+        if (!connected || !hasCapture || !serverIsActive || !modoIA) return;
+
+        // loop = «el bucle»: { stop, getRounds }
+        const loop = startInferenceLoop({ runOnce: readNextStrip, pauseBetweenRoundsMs: PAUSE_BETWEEN_ROUNDS_MS });
+
+        return () => {
+            loop.stop();
+
+            //  La vuelta en vuelo se aborta: nunca puede haber dos a la vez si el bucle vuelve a arrancar.
+            roundControllerRef.current?.abort();
+            roundControllerRef.current = null;
+            setConsultando(false);
+        };
+    }, [connected, hasCapture, serverIsActive, modoIA]);
 
 
 
@@ -1127,6 +965,17 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
         : fallo ? 'text-[#ffb3bc]'
             : conectando ? 'text-[#f2cf6b]'
                 : 'text-[#8aa0bb]';
+
+
+    //  EL ESTADO DE LA IA en la barra: con qué modelo se lee, o por qué no hay conexión (lo dijo el STEP 0).
+    // aiStatusText = «el texto del estado de la IA»
+    let aiStatusText = 'IA: consultando el servidor…';
+    if (aiServer?.active === true) aiStatusText = `IA: ${aiServer.model}`;
+    if (aiServer?.active === false) aiStatusText = `IA sin conexión: ${aiServer.error}`;
+
+    // aiStatusColor = «el color del estado de la IA»: ámbar solo cuando no hay conexión
+    let aiStatusColor = 'text-[#8aa0bb]';
+    if (aiServer?.active === false) aiStatusColor = 'text-[#f2cf6b]';
 
 
 
@@ -1192,8 +1041,15 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
                     <span className='min-w-0 text-[13px] font-semibold text-[#e6eef9] truncate' title={nombreDelLocal}>
                         {nombreDelLocal || 'Tablet'}
                     </span>
-                    <span className={`min-w-0 text-[11px] truncate ${colorDelEstado}`}>
-                        {statusText}
+                    {/*  El estado de la tablet y, a su lado, el de la IA. El de la IA es el que se recorta
+                         si no cabe: entero va en su 'title', al pasar el ratón.  */}
+                    <span className='min-w-0 flex gap-1.5 text-[11px]'>
+                        <span className={`shrink-0 max-w-[70%] truncate ${colorDelEstado}`}>
+                            {statusText}
+                        </span>
+                        <span className={`min-w-0 truncate ${aiStatusColor}`} title={aiStatusText}>
+                            · {aiStatusText}
+                        </span>
                     </span>
                 </span>
 
@@ -1427,20 +1283,6 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
             </div>
 
 
-            {/*  Aquí iba la barra de estado de la lectura por IA — «Leyendo
-                 tira N… (puede tardar un minuto)», el tamaño de la
-                 imagen, los tokens y los segundos que tardó.
-
-                 Se retiró: era información de diagnóstico, escrita mientras se
-                 ajustaba el modelo, y en una ventana de 400×300 se comía una
-                 franja permanente para decir algo que a quien monitorea no le
-                 sirve. La lectura sigue corriendo igual y sus resultados siguen
-                 viajando a Jarvis; lo único que se quitó es el cartel.
-
-                 Si vuelve a hacer falta para depurar, el estado que lo
-                 alimentaba —`consultando`, `ultimoError`, `ticketsLeidos`,
-                 `respuestaCruda`, `tamanoImagen`, `inferenceTime`— sigue vivo, y
-                 todo eso se registra además en la consola.  */}
 
 
             {/*  BARRA DE ZOOM
@@ -1522,14 +1364,6 @@ export function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrar
 
 
 
-/*  Deja el número de mesa en una sola forma.
- *
- *  El modelo devuelve lo que ve, y en la pantalla la misma mesa aparece escrita
- *  de varias maneras: "Table 28", "#26", "34". Sin unificarlo, una mesa leída
- *  dos veces con distinto formato contaría como dos mesas distintas.
- *
- *  Los tickets que no son de mesa (Take Out, Uber Eats) se dejan con su nombre.
- */
 /*  LOS ÍCONOS DE LA VENTANA
  *
  *  Todos del mismo dibujo: caja de 24, trazo de 1,8, puntas redondeadas y sin
@@ -1582,172 +1416,4 @@ function Icono({ nombre, tamano = 18 }) {
 
 
 
-
-/*  Qué le pasó a la petición a la IA, dicho para quien mira la ventana.
- *
- *  Tres casos, y se distinguen porque piden cosas distintas:
- *
- *    · Se agotó el tiempo: el servidor está vivo pero el modelo va lento. Se cita el
- *      tope para que se entienda que no es un fallo de red.
- *    · Contestó con error: el servidor sí llegó a responder, y su mensaje suele
- *      decir qué pasó (modelo no cargado, petición mal formada).
- *    · No hubo respuesta ninguna: el navegador ni siquiera pudo hablar con él. Es
- *      el servidor apagado, la dirección mal puesta o un certificado que el
- *      navegador no acepta — desde aquí no se puede saber cuál, así que se
- *      nombran los tres.
- */
-function explicarFalloDeIA(error, url) {
-    const seAgotoElTiempo = error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message ?? '');
-    if (seAgotoElTiempo) {
-        return `la IA tardó más de ${Math.round(TIEMPO_LIMITE_IA_MS / 1000)} s en contestar`;
-    }
-
-    const respuesta = error?.response;
-    if (respuesta) {
-        const detalle = respuesta.data?.error?.message ?? respuesta.data?.error ?? respuesta.statusText ?? '';
-        return `la IA respondió ${respuesta.status}${detalle ? `: ${String(detalle).slice(0, 120)}` : ''}`;
-    }
-
-    let servidor = '';
-    try { servidor = new URL(url).host; } catch { /* la dirección viene de .env y puede estar vacía */ }
-
-    return `no se pudo conectar con la IA${servidor ? ` en ${servidor}` : ''}: servidor apagado, dirección incorrecta o certificado no aceptado`;
-}
-
-
-
-
-/*  El ancho en píxeles de un PNG, leído de su cabecera y sin decodificar la imagen.
- *
- *  Un PNG empieza siempre igual: ocho bytes de firma y, acto seguido, el bloque IHDR con
- *  el ancho en los bytes 16 a 19. Devuelve 0 si eso no es un PNG — y con 0 quien llama
- *  se queda con el número de tiras de siempre.
- */
-function anchoDelPng(bytes) {
-    if (!bytes || bytes.length < 24) return 0;
-    if (bytes[0] !== 0x89 || bytes[1] !== 0x50 || bytes[2] !== 0x4E || bytes[3] !== 0x47) return 0;
-
-    return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(16);
-}
-
-
-
-
-//  Un campo de texto de la lectura, dejado en algo con lo que se pueda trabajar. El
-//  modelo a veces devuelve null y a veces un número: de aquí sale siempre texto.
-function textoLimpio(valor) {
-    if (valor === null || valor === undefined) return '';
-    return String(valor).trim();
-}
-
-
-/*  La hora que marca la tablet, en 'HH:MM:SS'.
- *
- *  Se le pregunta a ella y no al equipo porque el tiempo de vida de un pedido se
- *  calcula contra las horas que aparecen en SU pantalla. Dos relojes que difieran en
- *  un minuto darían un minuto de error en cada fila.
- *
- *  Si falla, devuelve '' y quien lo use se las arregla con el reloj del equipo: es
- *  peor no calcular nada que calcularlo con un minuto de desfase.
- */
-async function leerHoraDeLaTablet(adb) {
-    try {
-        const salida = await adb.subprocess.noneProtocol.spawnWait(['date', '+%H:%M:%S']);
-        const texto = new TextDecoder().decode(salida).trim();
-
-        /*  Se BUSCA la hora dentro de la salida en vez de exigir que sea toda ella.
-         *
-         *  Antes se comparaba el texto entero contra el patrón, y bastaba cualquier
-         *  cosa alrededor —un aviso del shell, un salto raro, una variante de `date`
-         *  que devuelva la fecha completa— para que se descartara. El resultado era
-         *  una hora vacía y, sin decir nada, todas las filas se sellaban con el reloj
-         *  del equipo: dos horas de diferencia con la tablet.
-         */
-        const encontrada = texto.match(/\b(\d{1,2}:\d{2}:\d{2})\b/);
-
-        if (!encontrada) {
-            console.log('[HORA] la tablet no devolvió una hora reconocible:', JSON.stringify(texto.slice(0, 80)));
-            return '';
-        }
-
-        return encontrada[1];
-    }
-    catch (error) {
-        console.log('[HORA] no se pudo leer el reloj de la tablet:', error?.message ?? error);
-        return '';
-    }
-}
-
-
-
-
-function normalizarMesa(valor) {
-    if (valor === null || valor === undefined) return '';
-
-    const texto = String(valor)
-        .replace(/table/gi, '')     //  "Table 28" -> " 28"
-        .replace(/#/g, '')          //  "#26"      -> "26"
-        .trim();
-
-    return texto;
-}
-
-
-
-
-/*  Recorta una TIRA VERTICAL de la captura y la devuelve lista para mandar.
- *
- *  La pantalla se corta en `tiras` franjas de arriba abajo y se devuelve la número
- *  `indice`, contando de izquierda a derecha:
- *
- *      recortarTira(blob, 4, 0.4, 1)  →  ┌──┬──┬──┬──┐
- *                                        │  │▓▓│  │  │   cada tira va de arriba
- *                                        │  │▓▓│  │  │   abajo, entera
- *                                        └──┴──┴──┴──┘
- *
- *  Antes esto cortaba en cuadrícula, y ahí estaba el fallo: una cuadrícula parte las
- *  tarjetas por la mitad y deja recortes con renglones de producto y ninguna cabecera.
- *  Como las tarjetas se apilan en columnas, una tira de altura completa las contiene
- *  enteras. El porqué largo está en configLectura.js.
- *
- *  `solape` ensancha cada tira hacia sus vecinas —en fracción de su propio ancho— para
- *  que una tarjeta a caballo entre dos aparezca completa al menos en una. En los bordes
- *  de la pantalla se recorta contra el límite, así que las tiras de los extremos salen
- *  algo más estrechas; no importa, ahí no hay nada que se pueda partir.
- *
- *  No se reduce nada de tamaño: el modelo encoge lo que le llega, y cuanto menos
- *  contenido traiga la imagen, más píxeles le tocan a cada letra.
- */
-async function recortarTira(blob, tiras, solape, indice) {
-    const bitmap = await createImageBitmap(blob);
-
-    const paso = bitmap.width / tiras;
-    const margen = paso * solape;
-
-    //  Los bordes se pegan al límite de la imagen: sin esto, la primera y la última
-    //  tira pedirían píxeles que no existen y el lienzo saldría con una banda vacía.
-    const desde = Math.max(0, Math.floor(indice * paso - margen));
-    const hasta = Math.min(bitmap.width, Math.ceil((indice + 1) * paso + margen));
-
-    const ancho = Math.max(1, hasta - desde);
-    const alto = bitmap.height;
-
-    const lienzo = document.createElement('canvas');
-    lienzo.width = ancho;
-    lienzo.height = alto;
-
-    lienzo.getContext('2d').drawImage(
-        bitmap,
-        desde, 0, ancho, alto,   //  de dónde se recorta
-        0, 0, ancho, alto        //  dónde se pega
-    );
-
-    bitmap.close();   //  sin esto la memoria del mapa de bits no se libera
-
-    return lienzo.toDataURL('image/png');
-}
-
-
-
-
-
+export { TabletScreen };

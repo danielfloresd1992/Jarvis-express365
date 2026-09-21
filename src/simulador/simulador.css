@@ -14,11 +14,22 @@ html.vista-simulador #root {
     margin: 0;
 }
 
+/*  La página NO se desplaza nunca: quien se desplaza es el panel, y la tabla del
+    registro dentro de su caja. Con 'overflow: hidden' aquí, nada que se ensanche de
+    más —la tabla tiene veintiuna columnas— puede sacarle una barra a la ventana.  */
 html.vista-simulador body {
     display: block;
     overflow: hidden;
     background: #060f1c;
+
+    /*  El 'place-items: center' del body de index.css sigue mandando aunque ya no sea
+        flex: los Chromium recientes aplican 'justify-items' también en bloque, y #root
+        se encogía a lo que midiera su contenido y se centraba, con una banda vacía a
+        cada lado que además cambiaba de ancho según cuántas columnas tuviera la tabla.  */
+    place-items: normal;
 }
+
+html.vista-simulador #root { width: 100%; justify-self: stretch; }
 
 
 .sim-app {
@@ -34,6 +45,7 @@ html.vista-simulador body {
     --sim-mal: #ff7d8a;
 
     height: 100%;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     background: var(--sim-fondo);
@@ -56,6 +68,8 @@ html.vista-simulador body {
     border-bottom: 1px solid var(--sim-borde);
 }
 
+.sim-barra__titulo { flex: none; }
+
 .sim-barra h1 {
     margin: 0;
     font-size: 15px;
@@ -67,6 +81,7 @@ html.vista-simulador body {
 .sim-barra__sub { font-size: 11px; color: var(--sim-apagado); }
 
 .sim-estado {
+    flex: none;
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -81,7 +96,20 @@ html.vista-simulador body {
 .sim-estado__punto { width: 8px; height: 8px; border-radius: 50%; background: #5e7ba0; }
 .sim-estado--vivo .sim-estado__punto { background: var(--sim-bien); box-shadow: 0 0 0 3px rgba(95, 210, 154, 0.2); }
 
-.sim-reloj { font-family: ui-monospace, Consolas, monospace; font-size: 15px; font-weight: 600; color: #eef4fb; }
+/*  Quién lee las tiras y cómo le va. Es lo único de la barra que puede crecer —con la IA
+    lleva cinco cifras y a veces un motivo de fallo—, así que es lo único que se recorta:
+    el texto entero está en su 'title'.  */
+.sim-lee {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: var(--sim-texto);
+}
+
+.sim-reloj { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 15px; font-weight: 600; color: #eef4fb; }
 
 .sim-hueco { flex: 1; }
 
@@ -107,7 +135,6 @@ html.vista-simulador body {
 
 .sim-boton:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #fff; }
 .sim-boton:disabled { opacity: 0.45; cursor: not-allowed; }
-.sim-boton:focus-visible { outline: 2px solid var(--sim-acento); outline-offset: 2px; }
 
 .sim-boton--principal { background: var(--sim-acento); border-color: var(--sim-acento); color: #04121f; }
 .sim-boton--principal:hover:not(:disabled) { background: #5ec6ef; border-color: #5ec6ef; color: #04121f; }
@@ -117,7 +144,33 @@ html.vista-simulador body {
 .sim-boton--peligro { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
 .sim-boton--peligro:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
 
+.sim-boton--ambar { background: var(--sim-aviso); border-color: var(--sim-aviso); color: #231700; }
+.sim-boton--ambar:hover:not(:disabled) { background: #ffd074; border-color: #ffd074; color: #231700; }
+
 .sim-boton--chico { height: 26px; padding: 0 9px; font-size: 11px; border-radius: 7px; }
+
+/*  Los de las filas del registro: tres por fila en una tabla de veintiuna columnas, así
+    que miden lo justo para acertarles con el ratón sin hacer más altas las filas.  */
+.sim-boton--mini { height: 19px; padding: 0 5px; font-size: 10.5px; border-radius: 5px; }
+
+/*  «Listo» es el que se busca: es el gesto para el que existe el ticket hecho a mano.  */
+.sim-boton--listo { background: rgba(31, 107, 71, 0.35); border-color: #2a8a5c; color: #a9ecc9; }
+.sim-boton--listo:hover:not(:disabled) { background: rgba(31, 107, 71, 0.6); border-color: #5fd29a; color: #fff; }
+
+
+/*  EL FOCO SE VE SIEMPRE. El simulador se maneja mucho con el teclado —las flechas
+    mueven un deslizador con más tino que el ratón—, y sobre este fondo oscuro el anillo
+    por defecto del navegador casi no se distingue.  */
+.sim-boton:focus-visible,
+.sim-app select:focus-visible,
+.sim-app input:focus-visible,
+.sim-seccion > summary:focus-visible,
+.sim-tabla-caja:focus-visible {
+    outline: 2px solid var(--sim-acento);
+    outline-offset: 2px;
+}
+
+.sim-tabla-caja:focus-visible { outline-offset: -2px; }
 
 
 /* ── CUERPO: PANTALLA + PANEL ────────────────────────────────────────────── */
@@ -127,20 +180,105 @@ html.vista-simulador body {
 .sim-pantalla {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px;
+    flex-direction: column;
     background:
         radial-gradient(circle at 50% 40%, #0e2036 0%, var(--sim-fondo) 70%);
 }
 
-/*  El marco de la tablet. El lienzo guarda su proporción: mide lo que mide su
-    resolución y aquí solo se le pone techo.  */
-.sim-tablet {
-    max-width: 100%;
-    max-height: 100%;
+.sim-pantalla__lienzo {
+    flex: 1;
+    min-height: 0;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+
+    /*  El lienzo se mide contra ESTA caja (ver '.sim-tablet canvas'). Su tamaño se lo da
+        el reparto de la columna, no lo que lleva dentro, así que puede ser contenedor.  */
+    container-type: size;
+}
+
+/*  LA FRANJA DE «ESTÁ PARADA». Va encima de la pantalla y en ámbar porque es lo primero
+    que hay que ver: una simulación parada se parece demasiado a una que no funciona.  */
+/*  EL MANDO: «Empezar a recibir tickets» y «Dejar de recibir tickets nuevos».
+
+    Va encima de la pantalla, siempre a la vista, porque es lo primero que hay que tocar:
+    el simulador amanece en blanco. El borde izquierdo dice de un vistazo si están
+    entrando tickets (verde) o no (gris).  */
+.sim-mando {
+    flex: none;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 9px 14px;
+    background: #0b1d38;
+    border-bottom: 1px solid #1a3552;
+    border-left: 4px solid #3b526e;
+}
+
+.sim-mando--entrando { border-left-color: #35c07a; }
+
+.sim-mando__texto {
+    flex: 1 1 320px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--sim-apagado);
+}
+
+.sim-mando__texto b { color: var(--sim-texto); font-size: 13.5px; font-weight: 700; }
+
+.sim-mando__botones { flex: none; display: flex; flex-wrap: wrap; gap: 8px; }
+
+/*  Más altos que el resto: son los dos botones de la ventana.  */
+.sim-boton--empezar,
+.sim-boton--parar { height: 36px; padding: 0 16px; font-size: 13px; border-radius: 9px; }
+
+.sim-boton--empezar { background: #1f8f57; border-color: #35c07a; color: #fff; }
+.sim-boton--empezar:hover:not(:disabled) { background: #27a866; border-color: #6fe3a6; color: #fff; }
+
+.sim-boton--parar { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
+.sim-boton--parar:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
+
+
+.sim-franja {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 7px 14px;
+    background: #38290a;
+    border-bottom: 1px solid #7d5f17;
+    color: #ffe3a3;
+    font-size: 12.5px;
+    line-height: 1.35;
+}
+
+.sim-franja b { color: #fff1cf; font-weight: 600; }
+
+/*  El turno que se acabó no es un problema, es una noticia: en azul, no en ámbar.  */
+.sim-franja--fin { background: #0f2a44; border-bottom-color: #2c5577; color: #cfe6fb; }
+.sim-franja--fin b { color: #eef4fb; }
+
+/*  El marco de la tablet. El lienzo guarda su proporción: mide lo que mide su
+    resolución y aquí solo se le pone techo.
+
+    EL TECHO VA EN MEDIDAS DEL CONTENEDOR, NO EN PORCENTAJES. Con 'max-height: 100%' y
+    el marco en 'flex', al lienzo se le recortaba el alto pero se le quedaba el ancho
+    entero: en una ventana de 1500 × 940 la tablet de 1024 × 768 se veía a 1024 × 502,
+    APLASTADA, con la letra estirada a lo ancho (los toques acertaban igual, porque se
+    convierten eje por eje). Un techo que es una longitud de verdad —'cqw' y 'cqh' lo
+    son— sí hace que el navegador encoja los dos lados a la vez. Los 20 px son el marco.  */
+.sim-tablet {
+    flex: none;
     padding: 10px;
     border-radius: 16px;
     background: #15181d;
@@ -151,27 +289,56 @@ html.vista-simulador body {
     display: block;
     width: auto;
     height: auto;
-    max-width: 100%;
-    max-height: 100%;
-    min-height: 0;
+    max-width: calc(100cqw - 20px);
+    max-height: calc(100cqh - 20px);
     border-radius: 4px;
     cursor: pointer;
 }
 
 .sim-panel {
     flex: none;
-    width: 350px;
+    width: 372px;
     overflow-y: auto;
-    padding: 12px 14px 20px;
+    padding: 6px 14px 20px;
     background: var(--sim-panel);
     border-left: 1px solid var(--sim-borde);
 }
 
-.sim-seccion { padding: 10px 0 12px; border-bottom: 1px solid var(--sim-borde); }
+.sim-seccion { padding: 0 0 4px; border-bottom: 1px solid var(--sim-borde); }
 .sim-seccion:last-child { border-bottom: none; }
+.sim-seccion[open] { padding-bottom: 12px; }
+
+/*  El título de cada grupo es lo que lo pliega. La flecha es propia: la del navegador
+    no se deja alinear con un encabezado dentro.  */
+.sim-seccion > summary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 0 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.sim-seccion > summary::-webkit-details-marker { display: none; }
+
+.sim-seccion > summary::before {
+    content: '';
+    flex: none;
+    width: 0;
+    height: 0;
+    border-left: 5px solid var(--sim-apagado);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    transition: transform 0.12s;
+}
+
+.sim-seccion[open] > summary::before { transform: rotate(90deg); }
+.sim-seccion > summary:hover h2 { color: var(--sim-texto); }
 
 .sim-seccion h2 {
-    margin: 0 0 8px;
+    margin: 0;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -181,13 +348,38 @@ html.vista-simulador body {
 
 .sim-ayuda { margin: 0 0 8px; font-size: 11.5px; line-height: 1.45; color: var(--sim-apagado); }
 
-.sim-fila { display: flex; align-items: center; gap: 8px; min-height: 30px; }
-.sim-fila > label { flex: 1; min-width: 0; color: var(--sim-texto); }
-.sim-fila__valor { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: #eef4fb; min-width: 52px; text-align: right; }
+/*  La explicación que va pegada a UN control, debajo de su fila.  */
+.sim-pista { margin: -3px 0 6px; font-size: 11px; line-height: 1.4; color: var(--sim-apagado); }
+
+/*  Un dato que cambia solo —quién está leyendo—, para que no se confunda con la ayuda.  */
+.sim-dato {
+    margin: 2px 0 8px;
+    padding: 6px 8px;
+    border-radius: 7px;
+    border: 1px solid var(--sim-borde);
+    background: var(--sim-fondo);
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--sim-texto);
+}
+
+/*  El relleno es para los rótulos largos, que se parten en dos renglones: sin él, el
+    segundo renglón de una fila se pega al primero de la siguiente.  */
+.sim-fila { display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 2px 0; }
+.sim-fila > label { flex: 1; min-width: 0; line-height: 1.25; color: var(--sim-texto); }
+.sim-fila__valor { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: #eef4fb; min-width: 64px; text-align: right; white-space: nowrap; }
+
+/*  «Pantalla 1 de 2» con sus dos flechas. El texto se estira, como el rótulo de cualquier
+    otra fila, y las flechas quedan a la derecha, donde están «|←» y «→|» en la tablet.  */
+.sim-paginas { gap: 6px; }
+.sim-paginas__cual { flex: 1; min-width: 0; color: var(--sim-texto); }
+.sim-paginas__cual b { font-family: ui-monospace, Consolas, monospace; font-weight: 600; color: #eef4fb; }
+.sim-paginas .sim-boton { width: 30px; padding: 0; justify-content: center; }
 
 .sim-botones { display: flex; flex-wrap: wrap; gap: 6px; }
+.sim-botones--turno { margin: 0 0 6px; }
 
-.sim-app input[type='range'] { flex: none; width: 118px; accent-color: var(--sim-acento); }
+.sim-app input[type='range'] { flex: none; width: 112px; accent-color: var(--sim-acento); }
 
 .sim-app select,
 .sim-app input[type='number'],
@@ -204,10 +396,100 @@ html.vista-simulador body {
 
 .sim-app input[type='number'] { width: 64px; }
 .sim-app input[type='text'] { width: 150px; }
-.sim-app select { max-width: 190px; }
+.sim-app select { max-width: 200px; }
 
 .sim-interruptor { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 .sim-interruptor input { width: 16px; height: 16px; accent-color: var(--sim-acento); }
+
+
+/* ── EL ESTADO DEL TURNO ─────────────────────────────────────────────────── */
+
+.sim-turno { margin: 0 0 8px; }
+
+.sim-turno__estado { margin: 0 0 6px; font-size: 12px; line-height: 1.4; color: var(--sim-texto); }
+.sim-turno__estado b { color: var(--sim-bien); font-weight: 600; }
+.sim-turno--pausa .sim-turno__estado b { color: var(--sim-aviso); }
+.sim-turno--fin .sim-turno__estado b { color: #9adcf8; }
+
+/*  El relleno son las MESAS que ya entraron; la marca, por dónde va el RELOJ del turno.
+    Con hora pico no van a la par, y verlo de un vistazo es la gracia de tener las dos.  */
+.sim-turno__barra {
+    position: relative;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--sim-fondo);
+    box-shadow: inset 0 0 0 1px var(--sim-borde);
+}
+
+.sim-turno__relleno { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: var(--sim-bien); transition: width 0.4s; }
+.sim-turno--pausa .sim-turno__relleno { background: var(--sim-aviso); }
+.sim-turno--fin .sim-turno__relleno { background: var(--sim-acento); }
+
+.sim-turno__marca { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: #eef4fb; }
+
+.sim-turno__cifras { margin: 7px 0 0; font-size: 11.5px; line-height: 1.4; color: var(--sim-apagado); }
+.sim-turno__cifras b { color: var(--sim-texto); font-weight: 600; }
+.sim-turno__cifras b.sim-mal { color: var(--sim-mal); }
+
+
+/* ── CREAR UN TICKET A MANO ──────────────────────────────────────────────── */
+
+/*  Dos campos cortos en un renglón, cada uno con su rótulo delante: «Mesa nº» y
+    «Ticket #», «Cant.» y «Nota». En '.sim-fila' el rótulo se estira y aquí no puede.  */
+.sim-tm__par { display: flex; align-items: center; gap: 6px; min-height: 30px; padding: 2px 0; }
+.sim-tm__par > label { flex: none; color: var(--sim-texto); }
+.sim-tm__par > label[title] { cursor: help; }
+.sim-tm__par > label:not(:first-child) { margin-left: 6px; }
+.sim-tm__par > input[type='number'] { width: 58px; }
+.sim-tm__par > input.sim-tm__nota { flex: 1; min-width: 0; width: auto; }
+
+.sim-tm__plato { margin: 0; }
+
+/*  El máximo del tipo de plato elegido, pegado a su desplegable.  */
+.sim-tm__maximo { flex: none; min-width: 64px; text-align: right; font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: var(--sim-apagado); white-space: nowrap; cursor: help; }
+.sim-tm .sim-fila > select { max-width: 186px; }
+
+/*  La lista de lo que lleva el ticket. Se parece a una tarjeta de Toast a propósito: la
+    cantidad delante, el plato, y debajo sus modificadores y la nota en cursiva.  */
+.sim-tm__lista {
+    margin: 4px 0 6px;
+    padding: 2px 0;
+    list-style: none;
+    border-radius: 7px;
+    border: 1px solid var(--sim-borde);
+    background: var(--sim-fondo);
+}
+
+.sim-tm__lista li { display: flex; align-items: flex-start; gap: 8px; padding: 4px 6px 4px 9px; }
+.sim-tm__lista li + li { border-top: 1px solid rgba(28, 53, 83, 0.55); }
+
+.sim-tm__cuantos { flex: none; min-width: 14px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 700; line-height: 18px; color: #eef4fb; }
+.sim-tm__nombre { flex: 1; min-width: 0; font-size: 12px; line-height: 18px; color: var(--sim-texto); overflow-wrap: anywhere; }
+.sim-tm__nombre small { display: block; font-size: 10.5px; line-height: 14px; color: var(--sim-apagado); }
+
+.sim-tm__quitar {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--sim-apagado);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.sim-tm__quitar:hover { border-color: #8f2234; background: #3a1620; color: #ffc9d0; }
+.sim-tm__quitar:focus-visible { outline: 2px solid var(--sim-acento); outline-offset: 1px; }
+
+.sim-tm__vacia { margin: 4px 0 6px; padding: 7px 9px; border-radius: 7px; border: 1px dashed var(--sim-borde); font-size: 11.5px; color: var(--sim-apagado); }
+
+/*  Lo que pasó al crear: qué mesa y qué número le tocaron. Vacío no ocupa sitio.  */
+.sim-tm__aviso { margin: 8px 0 6px; font-size: 11.5px; line-height: 1.45; color: var(--sim-bien); }
+.sim-tm__aviso.sim-aviso { color: var(--sim-aviso); }
+.sim-tm__aviso:empty { display: none; }
 
 
 /* ── EL REGISTRO ─────────────────────────────────────────────────────────── */
@@ -216,50 +498,94 @@ html.vista-simulador body {
     flex: none;
     height: 36%;
     min-height: 190px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     background: var(--sim-panel);
     border-top: 1px solid var(--sim-borde);
 }
 
+/*  El resumen ya no cabe en un renglón —turno, demoras, aciertos de Jarvis—: ocupa el
+    sitio que quede entre el título y los botones y se parte en dos si hace falta.  */
 .sim-registro__cabeza {
     flex: none;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 7px 14px;
+    gap: 6px 14px;
+    padding: 6px 14px;
     border-bottom: 1px solid var(--sim-borde);
 }
 
-.sim-registro__cabeza h2 { margin: 0; font-size: 13px; font-weight: 600; color: #eef4fb; }
-.sim-resumen { font-size: 12px; color: var(--sim-apagado); }
+.sim-registro__cabeza h2 { flex: none; margin: 0; font-size: 13px; font-weight: 600; color: #eef4fb; }
+
+.sim-resumen { flex: 1; min-width: 0; font-size: 12px; line-height: 1.4; color: var(--sim-apagado); }
 .sim-resumen b { color: var(--sim-texto); font-weight: 600; }
+.sim-resumen b.sim-bien { color: var(--sim-bien); }
+.sim-resumen b.sim-mal { color: var(--sim-mal); }
 
-.sim-tabla-caja { flex: 1; min-height: 0; overflow: auto; }
+.sim-registro__acciones { flex: none; display: flex; align-items: center; gap: 8px; }
+.sim-etiqueta { font-size: 12px; color: var(--sim-apagado); }
 
-.sim-tabla { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+/*  La tabla se desplaza DENTRO de su caja, en las dos direcciones. A 1500 px de ventana
+    cabe entera o le sobran unos píxeles (según lo largo del veredicto y los botones de
+    la última columna); en una más estrecha la barra horizontal sale aquí y no en la página.  */
+.sim-tabla-caja { flex: 1; min-height: 0; min-width: 0; overflow: auto; }
+
+.sim-tabla { width: 100%; border-collapse: collapse; font-size: 11.5px; white-space: nowrap; }
+
+/*  Se pega arriba la cabecera ENTERA, con sus dos filas. Pegar cada celda por su cuenta
+    obligaba a saber cuánto mide la primera fila para colocar la segunda debajo.  */
+.sim-tabla thead { position: sticky; top: 0; z-index: 1; }
 
 .sim-tabla th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    padding: 6px 10px;
+    padding: 5px 6px;
     background: var(--sim-panel-2);
     border-bottom: 1px solid var(--sim-borde);
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     text-align: left;
     color: var(--sim-apagado);
 }
 
+/*  Los rótulos de la cabecera SÍ se pueden partir en dos renglones («LISTO EN / TABLET»);
+    las celdas, no. Varias columnas de horas son más anchas por su rótulo que por su
+    contenido, y con la columna de acciones y lo inferido relleno la tabla ya no cabía a
+    1500 px: el veredicto quedaba debajo de los botones. Así la tabla recupera ese ancho
+    solo cuando le hace falta; con sitio de sobra no se parte nada.  */
+.sim-tabla th { white-space: normal; }
+
+.sim-tabla th[title] { cursor: help; text-decoration: underline dotted rgba(138, 160, 187, 0.6); text-underline-offset: 3px; }
+
 .sim-tabla th.sim-grupo { text-align: center; color: var(--sim-texto); border-left: 1px solid var(--sim-borde); }
 .sim-tabla th.sim-grupo--ia { color: #9adcf8; }
+.sim-tabla th.sim-corte { border-left: 1px solid var(--sim-borde); }
 
-.sim-tabla td { padding: 5px 10px; border-bottom: 1px solid rgba(28, 53, 83, 0.55); }
-.sim-tabla td.sim-hora { font-family: ui-monospace, Consolas, monospace; }
+.sim-tabla td { padding: 4px 6px; border-bottom: 1px solid rgba(28, 53, 83, 0.55); }
+.sim-tabla td.sim-hora { font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
 .sim-tabla td.sim-corte { border-left: 1px solid var(--sim-borde); }
+
+/*  LA COLUMNA DE ACCIONES VA PEGADA AL BORDE DERECHO DE LA CAJA. Es la última de
+    veintiuna: en cuanto la tabla no cabe —y con tres botones en una fila en pausa, no
+    siempre cabe—, quedaría fuera de la vista justo la única columna que se toca. Pegada,
+    la tabla se desplaza por debajo de ella y los botones están siempre a mano. Por eso
+    lleva fondo opaco, el mismo de la fila, en vez del velo con el que se marca el ratón.  */
+.sim-tabla th.sim-acciones,
+.sim-tabla td.sim-acciones { position: sticky; right: 0; border-left: 1px solid var(--sim-borde); box-shadow: -8px 0 8px -8px rgba(0, 0, 0, 0.7); }
+
+.sim-tabla th.sim-acciones { text-align: center; vertical-align: middle; }
+.sim-tabla td.sim-acciones { padding: 2px 6px; background: var(--sim-panel); }
+.sim-tabla tr:hover td.sim-acciones { background: #0e2338; }
+
+.sim-acciones__botones { display: flex; justify-content: flex-end; gap: 4px; }
+
+/*  Sigue cocinándose: el número todavía se mueve.  */
+.sim-tabla td.sim-en-curso { font-style: italic; color: var(--sim-apagado); }
+
+/*  Una celda con una advertencia en su 'title'.  */
+.sim-tabla td.sim-con-nota { cursor: help; }
+.sim-tabla td.sim-con-nota .sim-ficha { border-style: dashed; }
 
 .sim-tabla tr.sim-ida td { color: #6f86a3; }
 .sim-tabla tr:hover td { background: rgba(56, 182, 232, 0.06); }
@@ -268,10 +594,11 @@ html.vista-simulador body {
 
 .sim-ficha {
     display: inline-block;
-    padding: 1px 7px;
+    padding: 0 6px;
     border-radius: 999px;
     border: 1px solid var(--sim-borde);
-    font-size: 11px;
+    font-size: 10.5px;
+    line-height: 16px;
     color: var(--sim-apagado);
 }
 
@@ -279,6 +606,15 @@ html.vista-simulador body {
 .sim-ficha--pausa { border-color: #6e5a1f; color: #f2cf6b; }
 .sim-ficha--lista { border-color: #1f6b47; color: #7fdcaa; }
 .sim-ficha--despachada { border-color: #2c5577; color: #9adcf8; }
+
+.sim-ficha--demora { border-color: #c93a4a; background: rgba(201, 58, 74, 0.18); color: #ffb3bb; font-family: ui-monospace, Consolas, monospace; }
+.sim-ficha--enplazo { border-color: #1f6b47; background: rgba(31, 107, 71, 0.2); color: #8fe3b6; }
+.sim-ficha--hold { margin-left: 5px; border-color: #6e5a1f; color: #f2cf6b; font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; cursor: help; }
+
+/*  El ticket que creó quien prueba: que se encuentre de un vistazo entre los del turno.  */
+.sim-ficha--amano { border-color: var(--sim-acento); background: rgba(56, 182, 232, 0.14); color: #9adcf8; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; font-weight: 600; cursor: help; }
+
+.sim-marca { margin-left: 4px; font-weight: 700; }
 
 .sim-bien { color: var(--sim-bien); }
 .sim-aviso { color: var(--sim-aviso); }
@@ -289,3 +625,158 @@ html.vista-simulador body {
 
 .sim-solo { background: #000; height: 100%; }
 .sim-solo canvas { display: block; }
+
+
+/* ── EL REGISTRO EN DOS TABLAS ───────────────────────────────────────────── */
+
+/*  LOS MARCADORES: las cuentas que importan, en grande.
+
+    LOS CUATRO VAN SIEMPRE EN UNA LÍNEA. Es una rejilla de cuatro columnas IGUALES, y una
+    rejilla no se parte: si la ventana se estrecha, cada marcador encoge y su texto se
+    recorta con puntos suspensivos (entero sale al pasar el ratón). Antes eran una fila
+    flexible que se partía, y con la ventana a 1140 px el cuarto caía solo a otro renglón.
+
+    Dónde va esa línea depende del ancho (ver más abajo, en la cabecera del registro):
+    en una ventana ancha, entre el título y los botones; en una estrecha, debajo de
+    ellos, a todo lo ancho.  */
+.sim-marcadores {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.sim-marcador {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px 3px 8px;
+    border: 1px solid var(--sim-borde);
+    border-left: 3px solid var(--sim-borde);
+    border-radius: 8px;
+    background: var(--sim-panel-2);
+    cursor: help;
+
+    /*  Sin esto un hijo de rejilla no baja de su ancho natural, y el texto largo
+        ensancharía su columna a costa de las otras tres.  */
+    min-width: 0;
+}
+
+.sim-marcador__numero { flex: none; font-size: 19px; font-weight: 700; line-height: 1; color: var(--sim-texto); font-variant-numeric: tabular-nums; }
+
+.sim-marcador__texto { min-width: 0; display: flex; flex-direction: column; font-size: 10.5px; line-height: 1.25; color: var(--sim-apagado); }
+.sim-marcador__texto b { font-size: 11px; font-weight: 600; color: var(--sim-texto); }
+
+/*  Cada renglón del texto, en UNA línea: lo que no quepa acaba en puntos suspensivos.  */
+.sim-marcador__texto b,
+.sim-marcador__texto span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/*  El color va en el borde y en el número: verde bien, ámbar regular, rojo mal.  */
+.sim-marcador--bien  { border-left-color: var(--sim-bien); }
+.sim-marcador--aviso { border-left-color: var(--sim-aviso); }
+.sim-marcador--mal   { border-left-color: var(--sim-mal); }
+
+.sim-marcador--bien  .sim-marcador__numero { color: var(--sim-bien); }
+.sim-marcador--aviso .sim-marcador__numero { color: var(--sim-aviso); }
+.sim-marcador--mal   .sim-marcador__numero { color: var(--sim-mal); }
+
+/*  LA CABECERA DEL REGISTRO: título, marcadores y botones.
+
+    Ventana ESTRECHA (lo normal): arriba el título y, a la derecha, los botones; debajo,
+    los cuatro marcadores a todo lo ancho. 'order' los coloca así sin tocar el orden en
+    que están escritos en el componente.
+
+    Ventana ANCHA (desde 1400 px): todo en un solo renglón, con los marcadores en medio
+    ocupando lo que sobre.  */
+.sim-registro__cabeza { flex-wrap: wrap; }
+
+.sim-registro__cabeza h2 { order: 1; }
+.sim-registro__acciones  { order: 2; margin-left: auto; }
+.sim-marcadores          { order: 3; flex: 1 1 100%; }
+
+@media (min-width: 1400px) {
+    .sim-marcadores         { order: 2; flex: 1 1 0; }
+    .sim-registro__acciones { order: 3; margin-left: 0; }
+}
+
+
+/*  LAS DOS TABLAS, una al lado de la otra. La primera es algo más ancha: lleva más
+    columnas y los botones. En una ventana estrecha se ponen una encima de la otra.  */
+.sim-dos-tablas {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+@media (max-width: 1150px) {
+    .sim-dos-tablas { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+/*  Un bloque = el título de la tabla + su caja con desplazamiento propio.  */
+.sim-bloque { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+
+.sim-bloque--ia { border-left: 1px solid var(--sim-borde); }
+
+@media (max-width: 1150px) {
+    .sim-bloque--ia { border-left: none; border-top: 1px solid var(--sim-borde); }
+}
+
+.sim-bloque__titulo {
+    flex: none;
+    margin: 0;
+    padding: 5px 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #eef4fb;
+    background: rgba(15, 34, 56, 0.6);
+    border-bottom: 1px solid var(--sim-borde);
+}
+
+.sim-bloque--ia .sim-bloque__titulo { color: #9adcf8; }
+
+.sim-bloque__titulo small { font-size: 11px; font-weight: 400; color: var(--sim-apagado); }
+
+/*  El «1» y el «2»: dicen qué tabla es cuál sin tener que leer el título.  */
+.sim-bloque__numero {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--sim-borde);
+    color: var(--sim-texto);
+    font-size: 10.5px;
+    font-weight: 700;
+    align-self: center;
+}
+
+
+/*  EL RESULTADO de cada ticket reconocido: una ficha con su color.  */
+.sim-resultado {
+    display: inline-block;
+    padding: 0 7px;
+    border-radius: 999px;
+    border: 1px solid var(--sim-borde);
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: help;
+}
+
+.sim-resultado--bien  { border-color: #1f6b47; background: rgba(31, 107, 71, 0.22); color: #8fe3b6; }
+.sim-resultado--aviso { border-color: #6e5a1f; background: rgba(110, 90, 31, 0.22); color: #f2cf6b; }
+.sim-resultado--mal   { border-color: #c93a4a; background: rgba(201, 58, 74, 0.2); color: #ffb3bb; }
+
+/*  Un ticket que NO existe: toda la fila teñida, para que salte a la vista.  */
+.sim-tabla tr.sim-fila--inventada td { background: rgba(201, 58, 74, 0.1); }
+.sim-tabla tr.sim-fila--inventada:hover td { background: rgba(201, 58, 74, 0.16); }
+
+.sim-tenue { color: var(--sim-apagado); }
+
+/*  La ficha «a mano», pegada a la mesa en vez de en una columna propia.  */
+.sim-ficha--pegada { margin-left: 5px; }

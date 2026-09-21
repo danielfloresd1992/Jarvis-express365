@@ -1,10 +1,20 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { TabletScreen } from './TabletScreen.jsx';
 import { Parrilla } from './Parrilla.jsx';
 import { ParrillaProcesos } from './ParrillaProcesos.jsx';
 import { useSeguimientoTickets } from '../../hook/useSeguimientoTickets.jsx';
 import { limiteDeAtencion, limiteDeLimpieza } from '../../libs/limites/limitesDelLocal.js';
 import { SIMULACION_DISPONIBLE } from '../../simulador/disponible.js';
+import { REGISTRO_ACTIVO } from '../../libs/tickets/registroDeInferencia.js';
+
+
+/*  EL PANEL DEL REGISTRO DE LA INFERENCIA — solo en desarrollo
+ *
+ *  Se carga con import() y detrás de la constante, igual que el simulador: en la
+ *  aplicación publicada 'REGISTRO_ACTIVO' es false, Vite ve que esta rama no se alcanza
+ *  nunca y ni el panel ni su hoja de estilos entran en el paquete.
+ */
+const PanelDeInferencia = REGISTRO_ACTIVO ? lazy(() => import('./PanelDeInferencia.jsx')) : null;
 
 
 
@@ -56,26 +66,6 @@ function leerLocal() {
 }
 
 
-/*  Saca el nombre de la mesa de la clave de una fila.
- *
- *      'mesa-28'             → '28'
- *      'mesa-Take Out·c1·1'  → 'Take Out'
- *
- *  Lo de la cola '·c1·1' es el desempate que se le pone a los pedidos que no son de
- *  mesa, para que dos «Take Out» a la vez no se pisen. Aquí sobra: lo que se quiere es
- *  el nombre que se enseña.
- *
- *  ⚠  Y ahí está su punto flojo: esa cola depende del ORDEN en que se leyeron, así que
- *     entre una vuelta y otra el mismo «Take Out» puede cambiar de clave. Lo anotado
- *     en uno podría acabar viéndose en otro. Con mesas numeradas no pasa.
- */
-function mesaDeLaClave(clave) {
-    return String(clave)
-        .replace(/^mesa-/, '')
-        .replace(/·c\d+·\d+$/, '');
-}
-
-
 function leerDivision() {
     try {
         const guardada = Number(localStorage.getItem(CLAVE_DIVISION));
@@ -103,8 +93,9 @@ function leerDivision() {
 export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onReportarDemora, nombreLocal, limiteAtencion }) {
 
 
-    //  Los tickets viven AQUÍ, en el padre común: TabletScreen los escribe y las dos
-    //  parrillas los leen.
+    //  Los tickets viven AQUÍ, en el padre común: TabletScreen los escribe y el
+    //  seguimiento de pedidos los lee. Van SOLO a la parrilla de Procesos; la de
+    //  Rotación se llena a mano y no recibe nada de la lectura.
     const [tickets, setTickets] = useState([]);
 
     //  La hora que marcaba la tablet en la última lectura. Con ella se calcula cuánto
@@ -144,23 +135,33 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
 
     /*  LOS PEDIDOS, CON SUS TIEMPOS
      *
-     *  La misma lectura, vista de otra manera. La parrilla de rotación mira MESAS; esta
-     *  sigue cada PEDIDO por separado: calcula su toma de orden y sella 'Listo en
-     *  tablet' cuando lo ve ponerse verde o desaparecer de la pantalla.
+     *  Es por donde entra en las parrillas TODO lo que lee la IA. Sigue cada PEDIDO por
+     *  separado: calcula su toma de orden y sella 'Listo en tablet' cuando lo ve ponerse
+     *  verde o desaparecer de la pantalla.
      *
      *  Se reinicia al cambiar de local, y saca el tipo de plato de la carta del local.
+     *
+     *  El último dato es en cuántas tiras corta el espejo ESTA pantalla, que viene en
+     *  cada entrega: el censo inicial dura justo eso. Antes eran siempre cinco lecturas,
+     *  y en una tablet de tres tiras las dos de más apartaban pedidos recién llegados.
      */
+    //  STEP 6 de la lectura (el índice de pasos está en TabletScreen.jsx): lo que entregó 'onTickets' entra aquí,
+    //  y el hook llama a updateProcessGrid, que ANALIZA, COMPARA y ACTUALIZA la parrilla de procesos.
     const { pedidos, censando, lecturasDelCenso, lecturasQueDuraElCenso, yaEstaban } =
-        useSeguimientoTickets(tickets, horaTablet, local?._id, local?.dishes, tiraLeida);
+        useSeguimientoTickets(tickets, horaTablet, local?._id, local?.dishes, tiraLeida, lectura?.tiras);
 
 
     /*  ¿LO QUE SE ESTÁ LEYENDO ES UNA TABLET DE MENTIRA?
      *
-     *  Lo dice cada entrega de TabletScreen. Con una simulación en marcha las parrillas
-     *  se llenan de mesas que no existen, y hay una acción que desde aquí SALE hacia
-     *  Jarvis: reportar una demora. Esa se bloquea más abajo.
+     *  Lo dice TabletScreen al CONECTAR —al engancharse a la pantalla de Toast simulada—
+     *  y lo retira al desconectar. No viaja con las lecturas: la lectura es la misma
+     *  con una tablet que con la otra, y no sabe nada de esto.
+     *
+     *  Hace falta saberlo por una sola razón: con una simulación en marcha la parrilla
+     *  de Procesos se llena de pedidos que no existen, y hay una acción que desde esta
+     *  ventana SALE hacia Jarvis: reportar una demora. Esa se bloquea más abajo.
      */
-    const simulando = Boolean(lectura?.simulacion);
+    const [simulando, setSimulando] = useState(false);
 
 
     /*  EN SIMULACIÓN, LO INFERIDO SE LE CUENTA AL SIMULADOR
@@ -181,19 +182,21 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
     /*  LO QUE SE ANOTA A MANO NO SE PIERDE
      *
      *  Antes, cada fila guardaba sus horas en su propio estado. Suena razonable hasta
-     *  que se piensa en qué las hace desaparecer: una mesa que termina su pedido sale
-     *  de la lectura, React desmonta su fila, y con ella se van las horas que alguien
+     *  que se piensa en qué las hace desaparecer: si React desmonta la fila —un pedido
+     *  que sale de la lista, un cambio de local—, con ella se van las horas que alguien
      *  acababa de anotar. Sin aviso y sin forma de recuperarlas.
      *
      *  Ahora las horas viven aquí, en un Map por clave de fila, y las filas solo las
-     *  muestran. Da igual cuántas veces se monten y se desmonten.
+     *  muestran. Da igual cuántas veces se monten y se desmonten. Lo comparten las dos
+     *  parrillas, cada una con sus claves: 'libre-N' las de Rotación, 'pedido-…' y
+     *  'libre-pedido-N' las de Procesos.
      *
      *  Es una ref y no estado porque se escribe en cada tecla: convertirlo en estado
      *  redibujaría la parrilla entera con cada pulsación. Para que la vista sí se
      *  entere, se acompaña de un contador que cambia cuando algo se escribe.
      */
     const anotacionesRef = useRef(new Map());
-    const [versionAnotaciones, forzarPintado] = useState(0);
+    const [, forzarPintado] = useState(0);
 
     const leerAnotacion = (clave) => anotacionesRef.current.get(clave);
 
@@ -203,68 +206,6 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
         forzarPintado(n => n + 1);
     };
 
-
-    /*  Y LAS FILAS CON ANOTACIONES TAMPOCO DESAPARECEN
-     *
-     *  Un ticket que sale de la pantalla de la tablet deja de llegar en la lectura.
-     *  Si esa fila tenía algo escrito, se queda igualmente: lo anotado pesa más que la
-     *  ausencia del ticket.
-     *
-     *  Se le quita el ticket —ya no hay tiempo que enseñar, ni rojo que mirar— pero
-     *  conserva su mesa y su clave, así que sigue siendo la misma fila.
-     */
-    const ticketsVisibles = useMemo(() => {
-        const presentes = new Set(tickets.map(t => `mesa-${t.mesa}`));
-
-        const huerfanas = [];
-
-        for (const [clave, datos] of anotacionesRef.current) {
-
-            /*  LAS FILAS LIBRES NO SON TICKETS AUSENTES
-             *
-             *  Y esto no es un detalle: una anotación guardada bajo 'libre-5' JAMÁS
-             *  está en 'presentes' —ahí solo hay claves 'mesa-'—, así que se volvía
-             *  huérfana para siempre. La parrilla la volvía a prefijar como
-             *  'mesa-libre-5' y dibujaba una SEGUNDA fila que, al buscar sus datos con
-             *  esa clave nueva, no encontraba nada.
-             *
-             *  Resultado: escribías una mesa en una fila libre y aparecía dos veces,
-             *  una con lo escrito y otra en blanco.
-             *
-             *  Las filas libres ya se dibujan siempre por su cuenta; aquí no pintan nada.
-             *
-             *  Y LO MISMO VALE PARA LO ANOTADO EN LA OTRA PARRILLA. Las dos comparten este
-             *  almacén, y las claves de Procesos ('pedido-tk-149') tampoco están nunca en
-             *  'presentes': cada hora marcada allí hacía aparecer aquí una fila fantasma
-             *  llamada «pedido-tk-149». Solo las claves 'mesa-' son filas de esta tabla.
-             */
-            if (!clave.startsWith('mesa-')) continue;
-
-            if (presentes.has(clave)) continue;
-            if (!Object.values(datos).some(v => v)) continue;   //  sin nada escrito, no vale la pena
-
-            /*  LA MESA TIENE QUE SALIR DE ALGÚN SITIO
-             *
-             *  'datos.mesa' solo existe si alguien la escribió a mano, y lo normal es
-             *  justo lo contrario: la mesa la pone la IA y el operador solo sella las
-             *  horas. Así que en el caso habitual quedaba vacía, y la parrilla descarta
-             *  las filas sin mesa — la fila desaparecía con sus horas dentro.
-             *
-             *  Cuando falta, se saca de la propia clave, que siempre la lleva.
-             */
-            huerfanas.push({
-                mesa: datos.mesa || mesaDeLaClave(clave),
-                clave: clave.replace(/^mesa-/, ''),
-                ausente: true,
-            });
-        }
-
-        return [...tickets, ...huerfanas];
-
-        //  La dependencia es el contador de escrituras, NO el tamaño del Map: corregir
-        //  un campo de una anotación que ya existía no cambia el tamaño, y la lista se
-        //  quedaba obsoleta.
-    }, [tickets, versionAnotaciones]);
 
     const [division, setDivision] = useState(leerDivision);
     const [dividiendo, setDividiendo] = useState(false);
@@ -329,9 +270,9 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
         return true;
     });
 
-    //  De una simulación no se reporta nada: abriría en Jarvis un formulario de verdad,
-    //  con una mesa y unas horas inventadas, a un clic de enviarse. Se devuelve el
-    //  motivo como texto y la fila lo enseña.
+    //  De una simulación no se reporta nada: quien simula está probando, y el reporte
+    //  abriría en Jarvis un formulario de verdad, con una mesa y unas horas de prueba,
+    //  a un clic de enviarse. Se devuelve el motivo como texto y la fila lo enseña.
     const reportarDemora = (datos) => (simulando ? 'Es una simulación: no se reporta' : reportarAJarvis(datos));
 
 
@@ -344,10 +285,18 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
          *
          *  Dentro de un panel de la página tiene que ser 'absolute', o taparía la
          *  página entera en vez de quedarse dentro del panel.
+         *
+         *  Es una FILA: a la izquierda la ventana de siempre y, en desarrollo, a la
+         *  derecha el registro de la inferencia. Sin ese panel la fila tiene un solo
+         *  hijo, que la ocupa entera: fuera de desarrollo todo queda como estaba.
          */
+        <div className={`${enPanel ? 'absolute' : 'fixed'} inset-0 flex overflow-hidden bg-[#01122c]`}>
+
+        {/*  LA VENTANA DE SIEMPRE: el espejo arriba y las parrillas abajo. 'min-w-0' la deja
+             encoger cuando el panel de al lado está abierto. El divisor mide ESTE contenedor.  */}
         <div
             ref={contenedorRef}
-            className={`${enPanel ? 'absolute' : 'fixed'} inset-0 flex flex-col overflow-hidden bg-[#01122c] ${dividiendo ? 'select-none cursor-row-resize' : ''}`}
+            className={`relative flex-1 min-w-0 h-full flex flex-col overflow-hidden ${dividiendo ? 'select-none cursor-row-resize' : ''}`}
         >
 
             {/*  ARRIBA — el espejo de la tablet  */}
@@ -356,11 +305,13 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
                 style={{ height: `${division}%`, minHeight: ALTO_MIN_ESPEJO }}
             >
                 <TabletScreen
+                    //  HACIA EL STEP 6: aquí llega la entrega de TabletScreen. Se guarda en 'tickets', 'tiraLeida',
+                    //  'horaTablet' y 'lectura', y de ahí la toma useSeguimientoTickets (más arriba).
                     onTickets={(lista, hora, diagnostico) => {
-                        //  DESCONEXIÓN: la parrilla de mesas se vacía, pero al seguimiento
-                        //  se le dice que NO hubo lectura (tira null). Una lista vacía a
-                        //  secas la tomaría por una pantalla sin tickets y daría todos los
-                        //  pedidos abiertos por despachados, con la hora del desenchufe.
+                        //  DESCONEXIÓN: la lista se vacía, pero al seguimiento se le dice
+                        //  que NO hubo lectura (tira null). Una lista vacía a secas la
+                        //  tomaría por una pantalla sin tickets y daría todos los pedidos
+                        //  abiertos por despachados, con la hora del desenchufe.
                         if (diagnostico?.desconexion) {
                             setTickets([]);
                             setTiraLeida(null);
@@ -383,6 +334,7 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
                         setTiraLeida(diagnostico?.tira ?? null);
                         if (hora) setHoraTablet(hora);
                     }}
+                    onSimulacion={setSimulando}
                     onCerrar={onCerrar}
                     onArrastrarBarra={onArrastrarBarra}
                     nombreLocal={nombre}
@@ -450,8 +402,9 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
                 </div>
 
                 <div className={`w-full flex-1 min-h-0 flex flex-col ${pestana === 'rotacion' ? '' : 'hidden'}`}>
+                    {/*  Sin 'tickets' a propósito: Rotación se llena a mano. Lo que lee
+                         la IA son pedidos y va entero a la parrilla de Procesos.  */}
                     <Parrilla
-                        tickets={ticketsVisibles}
                         leerAnotacion={leerAnotacion}
                         anotar={anotar}
                         limiteAtencion={limite}
@@ -461,14 +414,33 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
                 </div>
 
                 <div className={`w-full flex-1 min-h-0 flex flex-col ${pestana === 'procesos' ? '' : 'hidden'}`}>
+                    {/*  Los datos del censo y de la última lectura son para cuando la
+                         parrilla está VACÍA: con ellos dice por qué, en vez de enseñar
+                         diez filas en blanco que lo mismo son «todo bien» que «no leo».  */}
                     <ParrillaProcesos
                         filas={pedidos}
                         leerAnotacion={leerAnotacion}
                         anotar={anotar}
+                        censando={censando}
+                        lecturasDelCenso={lecturasDelCenso}
+                        lecturasQueDuraElCenso={lecturasQueDuraElCenso}
+                        yaEstaban={yaEstaban.size}
+                        falloDeLectura={lectura?.error || ''}
+                        hayLectura={Boolean(lectura)}
                     />
                 </div>
 
             </div>
+
+        </div>
+
+        {/*  EL REGISTRO DE LA INFERENCIA, a la derecha — solo en desarrollo. 'Suspense' con
+             'fallback' vacío: mientras el panel se descarga no hay nada que enseñar.  */}
+        {PanelDeInferencia && (
+            <Suspense fallback={null}>
+                <PanelDeInferencia />
+            </Suspense>
+        )}
 
         </div>
     );
@@ -496,8 +468,19 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
  *  ───────────────────────────────────────────────────────────────────────────── */
 function BarraDeLectura({ lectura, censando, lecturasDelCenso, lecturasQueDuraElCenso, pedidos }) {
 
-    //  Antes de la primera respuesta no hay nada que contar y la barra estorbaría.
-    if (!lectura && !censando) return null;
+    /*  ANTES DE LA PRIMERA ENTREGA NO SE CUENTA NADA DEL CENSO
+     *
+     *  Aquí se salía solo con «sin lectura Y sin censar», pero el censo está abierto
+     *  desde que se monta la ventana, así que esa salida no se tomaba nunca: sin tablet
+     *  conectada la barra decía «censando lo que ya estaba · 0/5». Ni se estaba censando
+     *  nada, ni el 5 era verdad: es el número de respaldo, y en cuanto llegaba la primera
+     *  entrega de una tablet de tres tiras pasaba a «1/3».
+     *
+     *  Sin lectura se dice eso, que no la hay. Vale igual para el rato que tarda en
+     *  volver la primera tira —con la IA de verdad, cerca de un minuto— y para después de
+     *  desconectar.
+     */
+    const sinLectura = !lectura;
 
     const fallo = lectura?.error;
 
@@ -506,30 +489,40 @@ function BarraDeLectura({ lectura, censando, lecturasDelCenso, lecturasQueDuraEl
     //  Que los dos números coincidan es la señal de que el filtro se está pasando.
     const seDescartaTodo = !fallo && lectura?.leidos > 0 && lectura.descartados === lectura.leidos;
 
+    /*  CUÁNTO TARDÓ LA IA
+     *
+     *  Los segundos de la última lectura importan más de lo que parece: el fallo
+     *  anterior fue un tiempo límite, y verlos acercarse al tope avisa antes de que la
+     *  vuelta se pierda. Lee siempre el servidor de IA, así que se dice con su nombre:
+     *  «IA 43,0 s» contesta de un vistazo a «¿está saliendo la imagen?».
+     */
+    const segundos = lectura?.segundos ? `IA ${lectura.segundos.toFixed(1).replace('.', ',')} s` : '';
+
     //  El motivo viene ya en español desde TabletScreen. Se recorta para que quepa
     //  en la barra; entero va en el 'title', al pasar el ratón.
-    const texto = fallo
-        ? `lectura fallida: ${String(fallo).slice(0, 90)}`
+    const texto = sinLectura ? 'esperando la primera lectura…'
+        : fallo ? `lectura fallida: ${String(fallo).slice(0, 90)}`
         : censando
-            ? `censando lo que ya estaba · ${lecturasDelCenso}/${lecturasQueDuraElCenso}`
+            //  «Apuntando», no «censando»: es lo que se está haciendo, dicho sin jerga.
+            ? [`apuntando lo que ya estaba · ${lecturasDelCenso}/${lecturasQueDuraElCenso}`, segundos].filter(Boolean).join(' · ')
             : [
                 `${pedidos} en seguimiento`,
                 `leídos ${lectura?.leidos ?? 0}`,
                 lectura?.descartados ? `descartados ${lectura.descartados}` : '',
-
-                //  Los segundos de la última lectura importan más de lo que parece: el
-                //  fallo anterior fue un tiempo límite, y verlos acercarse al tope avisa
-                //  antes de que la vuelta se pierda.
-                lectura?.segundos ? `${lectura.segundos.toFixed(1)} s` : '',
+                segundos,
             ].filter(Boolean).join(' · ');
 
-    const ayuda = fallo
-        ? `La última vuelta no llegó a leerse: ${fallo}. Si se repite, mira la consola.`
+    //  Con qué modelo se leyó: no está escrito en ningún sitio, lo dice el servidor de IA
+    //  al abrir la ventana (checkAiServer) y viaja en el diagnóstico de cada vuelta.
+    const deQuien = lectura?.modelo ? ` La leyó el servidor de IA con «${lectura.modelo}».` : ' La leyó el servidor de IA.';
+
+    const ayuda = sinLectura ? 'Todavía no ha vuelto leída ninguna tira de la pantalla. Con la tablet conectada, la primera puede tardar lo que tarde la IA en contestar.'
+        : fallo ? `La última vuelta no llegó a leerse: ${fallo}. Si se repite, mira la consola.`
         : censando
-            ? 'Durante el primer recorrido se apunta lo que ya estaba en pantalla para no contarlo como recién llegado. La parrilla se queda vacía a propósito.'
+            ? `Durante el primer recorrido —una lectura por cada tira en que se corta la pantalla— se apunta lo que ya estaba para no contarlo como recién llegado. La parrilla se queda vacía a propósito.${deQuien}`
             : seDescartaTodo
-                ? 'El modelo contestó, pero nada de lo que dijo parecía un ticket: sin cronómetro legible, o era una etiqueta de la pantalla.'
-                : 'Objetos que devolvió la última lectura, y cuántos no eran tickets.';
+                ? `El modelo contestó, pero nada de lo que dijo parecía un ticket: sin cronómetro legible, o era una etiqueta de la pantalla.${deQuien}`
+                : `Objetos que devolvió la última lectura, y cuántos no eran tickets.${deQuien}`;
 
     return (
         <span

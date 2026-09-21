@@ -16,7 +16,7 @@ import { WrapperCell, WrapperText } from '../cells/GridCells.jsx';
  *  cronómetro del ticket, y 'Listo en tablet' de verlo ponerse verde o desaparecer.
  *  Las otras dos —listo en cocina y entrega— se anotan a mano: las ve el monitorista
  *  por cámara y la tablet no las muestra. El detalle de la regla está en
- *  useSeguimientoTickets.jsx.
+ *  libs/inference/processGrid.js.
  *
  *  En 'Mesa' va el número de mesa y, cuando el pedido no tiene mesa, su número de
  *  ticket con el '#' delante.
@@ -48,8 +48,9 @@ const CAMPOS_MANUALES = ['listoCocina', 'entregaPlato'];
 
 
 //  Los tipos que se sugieren al corregir esa columna. Son los mismos por los que
-//  agrupa el resumen del turno.
-const TIPOS_SUGERIDOS = ['Entrada', 'Plato fuerte', 'Postre', 'Bebida', 'Take Out', 'Pick Up', 'Uber Eats', 'Online Ordering'];
+//  agrupa el resumen del turno, más DoorDash, que la lectura ya reconoce (ver
+//  tipoDePlato.js) y sin él aquí no se podía poner a mano lo que sí salía solo.
+const TIPOS_SUGERIDOS = ['Entrada', 'Plato fuerte', 'Postre', 'Bebida', 'Take Out', 'Pick Up', 'Uber Eats', 'DoorDash', 'Online Ordering'];
 
 
 /*  FILAS LIBRES, PARA ANOTAR LO QUE LA TABLET NO VE
@@ -79,13 +80,80 @@ const COLOR_TICKET = {
 
 
 
-export function ParrillaProcesos({ filas = [], leerAnotacion, anotar }) {
+/*  POR QUÉ ESTÁ VACÍA LA PARRILLA, DICHO EN LA PROPIA PARRILLA
+ *
+ *  Sin ningún pedido, esta tabla son diez filas en blanco, y eso mismo se veía en cinco
+ *  situaciones que no tienen nada que ver: todavía no se ha leído nada, la lectura
+ *  falla, se está apuntando lo que ya había, todo lo que hay en pantalla estaba de
+ *  antes, o sencillamente no ha entrado nadie. Quien estrenaba la ventana veía la
+ *  pantalla de Toast llena arriba y esto vacío abajo, y concluía que no funcionaba.
+ *
+ *  La barra de las pestañas ya lo resume, pero en letra de 9 px y en una esquina. Aquí
+ *  va con todas las letras, donde se está mirando.
+ *
+ *  EL ORDEN IMPORTA: gana la primera que se cumpla. El fallo va antes que el censo
+ *  porque mientras falle no avanza ni el censo: decir «apuntando (0 de 3)» sería
+ *  dar por bueno algo que no está pasando.
+ *
+ *  Devuelve { texto, alerta }; 'alerta' es para lo único que pide mirar algo: el fallo.
+ */
+function motivoDeEstarVacia({ hayLectura, falloDeLectura, censando, lecturasDelCenso, lecturasQueDuraElCenso, yaEstaban }) {
+
+    if (!hayLectura) {
+        return { texto: 'Esperando la primera lectura de la pantalla…', alerta: false };
+    }
+
+    if (falloDeLectura) {
+        return { texto: `La última lectura falló: ${falloDeLectura}. Hasta que una salga bien no entra nada aquí.`, alerta: true };
+    }
+
+    if (censando) {
+        return {
+            texto: `Apuntando lo que ya estaba en pantalla (${lecturasDelCenso} de ${lecturasQueDuraElCenso}). Esos pedidos no se siguen: no se sabe cuándo entraron. Aquí aparecen los que lleguen a partir de ahora.`,
+            alerta: false,
+        };
+    }
+
+    if (yaEstaban > 0) {
+        const cuantas = yaEstaban === 1
+            ? '1 tarjeta ya estaba en pantalla al conectar y no se sigue.'
+            : `${yaEstaban} tarjetas ya estaban en pantalla al conectar y no se siguen.`;
+
+        return { texto: `${cuantas} Esperando al próximo pedido…`, alerta: false };
+    }
+
+    return { texto: 'Esperando al próximo pedido…', alerta: false };
+}
+
+
+
+
+/*  @param {boolean} censando                 el seguimiento sigue apuntando lo que ya estaba
+ *  @param {number}  lecturasDelCenso         cuántas lecturas lleva en ello…
+ *  @param {number}  lecturasQueDuraElCenso   …y cuántas son: las tiras de esta pantalla
+ *  @param {number}  yaEstaban                cuántas tarjetas apartó el censo
+ *  @param {string}  falloDeLectura           el motivo, si la última lectura falló
+ *  @param {boolean} hayLectura               false antes de la primera entrega y tras desconectar
+ *
+ *  Los seis son solo para explicar una parrilla vacía; con pedidos no se usan.
+ */
+export function ParrillaProcesos({
+    filas = [], leerAnotacion, anotar,
+    censando = false, lecturasDelCenso = 0, lecturasQueDuraElCenso = 0, yaEstaban = 0, falloDeLectura = '', hayLectura = false,
+}) {
 
 
     const lineas = useMemo(() => {
         const conPedido = filas.map(fila => ({ clave: `pedido-${fila.clave}`, fila }));
         return [...conPedido, ...FILAS_LIBRES];
     }, [filas]);
+
+
+    //  Solo con la parrilla SIN NINGÚN pedido. En cuanto hay una fila, la tabla se
+    //  explica sola y la franja estorbaría.
+    const vacia = filas.length === 0
+        ? motivoDeEstarVacia({ hayLectura, falloDeLectura, censando, lecturasDelCenso, lecturasQueDuraElCenso, yaEstaban })
+        : null;
 
 
 
@@ -111,6 +179,22 @@ export function ParrillaProcesos({ filas = [], leerAnotacion, anotar }) {
                     ))
                 }
             </div>
+
+            {/*  POR QUÉ NO HAY NADA
+                 Una franja ENCIMA de las filas libres, que no las sustituye: siguen ahí
+                 para anotar a mano lo que la tablet no ve. Discreta, con el color de la
+                 barra de estado; en ámbar solo si la lectura falla. 'role=status' para
+                 que un lector de pantalla la anuncie al cambiar sin interrumpir.  */}
+            {
+                vacia && (
+                    <p
+                        role='status'
+                        className={`w-full m-0 px-3 py-1.5 border-b border-[#0a3a66]/40 bg-[#021a38]/60 text-center text-[11px] leading-[1.35] ${vacia.alerta ? 'text-[#e0b341]' : 'text-[#5e7ba0]'}`}
+                    >
+                        {vacia.texto}
+                    </p>
+                )
+            }
 
             {
                 lineas.map(({ clave, fila }) => (

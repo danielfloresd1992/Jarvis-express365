@@ -14,10 +14,14 @@ import { CURSO } from './carta.js';
  *        de la lectura o de que esta vez tocó una pantalla rara; con una escena, la
  *        respuesta correcta se conoce de antemano.
  *
- *  Una escena para la llegada de pedidos y la cocina: lo que hay en pantalla es lo que
- *  hay, con los cronómetros corriendo. Desde ahí se puede tocar a mano o reanudar.
+ *  Una escena para el turno y la cocina: lo que hay en pantalla es lo que hay, con los
+ *  cronómetros corriendo. Desde ahí se puede tocar a mano o reanudar.
  *
  *  'edadS' es lo que marca el contador de la cabecera; 'edadFuegoS', el del FIRE.
+ *
+ *  Lo que una captura no enseña —cuántos comensales hay tras una ficha que no se
+ *  transcribió, el código de un repartidor— va puesto a ojo y dicho en su escena. Lo que
+ *  SÍ se lee en la cabecera y en los productos va tal cual, porque es lo que se compara.
  *  ───────────────────────────────────────────────────────────────────────────── */
 
 
@@ -176,22 +180,91 @@ export const ESCENAS = {
             },
         ],
     },
+
+
+    //  «Expo - 2» — la mesa 51 con la entrada ya despachada (cabecera congelada en 6:57,
+    //  COCINAR corriendo en 6:59) y su plato fuerte EN PAUSA, con un Uber despachado en
+    //  medio. Es el caso de libro de «un ticket, dos tarjetas»: mismo «Table 51 #230» en
+    //  la primera columna y en la tercera, una en verde y otra sin empezar.
+    //  A ojo: los comensales de la mesa, el código del Uber y el COCINAR de este último
+    //  (de la captura solo se transcribió su cabecera, 7:46).
+    'expo-entrada-lista-fuerte-en-pausa': {
+        nombre: 'Expo - 2 · entrada despachada y su plato fuerte EN PAUSA',
+        ajustes: { tema: 'clara', idioma: 'es', amarilloS: 60, rojoS: min(15) },
+        tarjetas: [
+            {
+                numero: 230, mesa: 51, comensales: 2, mesero: 'Sofia P', tipoOrden: 'mesa',
+                curso: CURSO.ENTRADA, estado: 'despachada', edadS: min(6, 59), tiempoCongeladoS: min(6, 57),
+                items: [p('PARRILLITA FRANCISCA', ['MORCILLA (M-2)', 'CHORIZO (M-1)', nota('Sos')]), p('PAN DE BONO')],
+            },
+            {
+                numero: 231, cliente: 'UBER 7C41D', tipoOrden: 'uber', rotulo: 'UberEats Delivery', pagado: true,
+                estado: 'despachada', edadS: min(7, 52), tiempoCongeladoS: min(7, 46),
+                items: [p('WHOLE CHICKEN', ['WHITE RICE (M)', 'RIPE PLANTAINS (M)']), p('RIPE PLANTAINS SIDE')],
+            },
+            {
+                numero: 230, mesa: 51, comensales: 2, mesero: 'Sofia P', tipoOrden: 'mesa',
+                curso: CURSO.FUERTE, estado: 'pausa', edadS: min(6, 59),
+                items: [
+                    p('FRANCISCA CHICKEN BOWL'),
+                    p('AVOCADO SIDE'),
+                    p('1/2 CHICKEN', ['WHITE RICE (M)', 'BLACK BEANS 6 OZ (M)']),
+                ],
+            },
+        ],
+    },
+
+
+    //  «Bar - Doral» — la tablet del bar: más baja (1024 × 600), en inglés, y solo con
+    //  bebidas, que no son de ningún curso: tarjetas sin franja. El nombre largo de la
+    //  mesera («Joselayne G») es el que obliga a apilar las fichas a la derecha del número.
+    //  A ojo: los comensales de cada mesa.
+    'bar-doral-bebidas': {
+        nombre: 'Bar - Doral · tres mesas con bebidas (1024 × 600, en inglés)',
+        ajustes: { tema: 'clara', idioma: 'en', alto: 600, estacion: 'Bar - Doral', amarilloS: 60, rojoS: min(15) },
+        tarjetas: [
+            {
+                numero: 66, mesa: 57, comensales: 3, mesero: 'Joselayne G', tipoOrden: 'mesa', edadS: min(2, 39),
+                items: [p('COCA-COLA ZERO', [], { cantidad: 2 }), p('SPRITE')],
+            },
+            {
+                numero: 67, mesa: 27, comensales: 1, mesero: 'Andrea P', tipoOrden: 'mesa', edadS: min(1, 35),
+                items: [p('MANGO JUICE', [nota('Sin Azucar')])],
+            },
+            {
+                numero: 68, mesa: 25, comensales: 2, mesero: 'Andrea P', tipoOrden: 'mesa', edadS: 24,
+                items: [p('PASSION F JUICE'), p('TAP WATER')],
+            },
+        ],
+    },
 };
 
 
+//  Lo que una escena no diga de la pantalla vuelve a su sitio. Sin esto, después de la
+//  escena del bar todas las demás saldrían a 600 px de alto y con «Bar - Doral» arriba.
+const PANTALLA_DE_SIEMPRE = { idioma: 'es', alto: 768, estacion: '' };
+
+
 /**
- * Deja en el motor exactamente lo que hay en la escena.
- * @returns {object} los ajustes de pantalla que pide la escena (tema, idioma, umbrales…)
+ * Deja en el motor exactamente lo que hay en la escena, con el turno y la cocina parados.
+ *
+ * 'vaciar' levanta también a las mesas que hubiera sentadas: si no, a los pocos minutos
+ * entraría en la escena el plato fuerte de una mesa que ya no existe.
+ *
+ * @returns {object} los ajustes que pide la escena: los de pantalla (tema, idioma,
+ *                   umbrales…) y la simulación parada. Quien los aplica es AppSimulador.
  */
 export function cargarEscena(motor, id) {
     const escena = ESCENAS[id];
     if (!escena) return null;
 
-    motor.ajustar({ autoLlegadas: false, autoCocina: false, recientesVisibles: true });
+    const parada = { turnoEnMarcha: false, autoCocina: false, recientesVisibles: true };
+
+    motor.ajustar(parada);
     motor.vaciar();
     motor.borrarRegistro();
 
     for (const tarjeta of escena.tarjetas) motor.agregarTarjeta(tarjeta);
 
-    return { ...escena.ajustes, autoLlegadas: false, autoCocina: false, recientesVisibles: true };
+    return { ...PANTALLA_DE_SIEMPRE, ...escena.ajustes, ...parada };
 }

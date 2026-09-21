@@ -14,9 +14,12 @@
  *      { t:'hola', id }                  →      { re:id, nombre, ancho, alto }
  *      { t:'captura', id }               →      { re:id, png:ArrayBuffer, hora }
  *      { t:'hora', id }                  →      { re:id, hora:'HH:MM:SS' }
- *      { t:'lectura', id, tira, … }      →      { re:id, modo:'real' }
- *                                               { re:id, modo:'simulado', contenido }
- *      { t:'inferencia', pedidos, … }           (sin respuesta: es solo para comparar)
+ *      { t:'inferencia', pedidos, lectura, … }  (sin respuesta: es solo para comparar, y
+ *                                               para que la cabecera del simulador diga
+ *                                               cómo le fue a la IA con la última tira)
+ *
+ *  El simulador sirve la PANTALLA y la HORA, que es lo que da una tablet. No lee tiras
+ *  ni decide quién las lee: eso lo hace siempre el servidor de IA.
  *  ───────────────────────────────────────────────────────────────────────────── */
 
 

@@ -25,13 +25,13 @@
  *  tickets ENTEROS. Y para que ninguna quede partida por el borde, las tiras se solapan:
  *  una tarjeta que cae a caballo entre dos está completa al menos en una de ellas.
  *
- *  LOS DOS VALORES VAN JUNTOS
+ *  CUÁNTO DURA UN RECORRIDO
  *
- *      recorrido completo = TIRAS_DE_LECTURA × INTERVALO_LECTURA_MS
+ *      recorrido completo = tiras × lo que tarde el modelo en contestar cada una
  *
- *  Subir las tiras sin bajar el intervalo alarga el recorrido, y un pedido puede entrar
- *  y salir sin que nadie lo vea. Con 5 × 5 s el barrido es de 25 segundos, tres veces
- *  más vivo que el minuto largo de antes.
+ *  Ya no hay un intervalo fijo entre lecturas: el bucle de inferencia manda la tira
+ *  siguiente en cuanto contesta la anterior (libs/inference/inferenceLoop.js). Subir las
+ *  tiras alarga el recorrido, y un pedido puede entrar y salir sin que nadie lo vea.
  *  ───────────────────────────────────────────────────────────────────────────── */
 
 
@@ -73,10 +73,6 @@ export function tirasParaElAncho(anchoPx) {
 export const SOLAPE_DE_LECTURA = 0.4;
 
 
-//  Cada cuánto se manda una tira al modelo.
-export const INTERVALO_LECTURA_MS = 5000;
-
-
 /*  Cuántas lecturas hacen falta para haber mirado la pantalla entera.
  *
  *  Lo usa el censo del seguimiento, que durante un recorrido completo apunta lo que ya
@@ -85,12 +81,20 @@ export const INTERVALO_LECTURA_MS = 5000;
  *  esto se queda corto y el fallo no da la cara — simplemente empiezan a aparecer
  *  pedidos viejos como si acabaran de entrar.
  *
- *  Es el número MÁXIMO de tiras. En una pantalla estrecha, cortada en menos, el censo
- *  dura algo más de un recorrido: sobra, que es el lado bueno para equivocarse.
+ *  Es el número MÁXIMO de tiras, y para el censo es solo EL RESPALDO: lo que se usa
+ *  cuando no se sabe en cuántas tiras se corta la pantalla que se está mirando.
+ *
+ *  Aquí ponía que en una pantalla estrecha, cortada en menos, el censo duraba algo más
+ *  de un recorrido y que eso era «el lado bueno para equivocarse». No lo era. Con una
+ *  tablet de 1024 px —tres tiras— el censo gastaba cinco lecturas, y en las dos de más
+ *  la pantalla ya estaba mirada entera: lo único que podían apartar eran pedidos que
+ *  habían entrado DESPUÉS de conectar, que son justo los que hay que seguir. Se quedaban
+ *  marcados como «ya estaban» y no aparecían nunca en la parrilla.
+ *
+ *  Ahora el espejo dice en cada entrega en cuántas tiras corta ('tiras', que sale de
+ *  'tirasParaElAncho') y el censo dura exactamente eso. Ver libs/inference/processGrid.js.
+ *
+ *  Sigue contando los recorridos de REOPEN_ROUNDS (processGrid.js), donde pasarse sí es el
+ *  lado bueno: allí esperar de más solo retrasa, y esperar de menos inventa un pedido.
  */
 export const LECTURAS_POR_RECORRIDO = TIRAS_DE_LECTURA;
-
-
-//  Cuánto tarda en mirarse la pantalla entera. Es el retraso máximo con el que puede
-//  aparecer un pedido nuevo, y también lo que dura el censo inicial.
-export const RECORRIDO_COMPLETO_MS = TIRAS_DE_LECTURA * INTERVALO_LECTURA_MS;

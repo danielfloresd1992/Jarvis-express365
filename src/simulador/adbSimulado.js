@@ -15,6 +15,10 @@ import { direccionDelSimulador } from './disponible.js';
  *  Por eso la simulación prueba el camino DE VERDAD: el bucle de captura, el recorte en
  *  tiras, la petición a la IA, el parser, el acumulado, el seguimiento y las parrillas
  *  corren sin saber que la pantalla es falsa. Lo único que no se prueba es el USB.
+ *
+ *  Y NADA MÁS QUE ESAS TRES. El simulador PINTA la pantalla; leerla, la lee siempre el
+ *  servidor de IA. Hubo un «lector simulado» que contestaba las tiras desde aquí, y se
+ *  quitó: metía una rama en la lectura de TabletScreen que solo existía al simular.
  *  ───────────────────────────────────────────────────────────────────────────── */
 
 
@@ -82,21 +86,6 @@ export async function conectarConSimulador({ alAvisar } = {}) {
                     throw new Error(`La tablet simulada no entiende «${comando.join(' ')}»`);
                 },
             },
-        },
-
-        /*  ¿QUIÉN LEE ESTA TIRA?
-         *
-         *  El simulador decide, desde su panel. Si contesta 'real', esto devuelve null y
-         *  TabletScreen manda la tira al servidor de IA como siempre. Si contesta con
-         *  una lectura simulada, se usa esa — con el MISMO formato de texto que devuelve
-         *  el modelo, para que pase por el parser de verdad.
-         *
-         *  Existe porque el servidor de IA puede estar lento o caído, y sin él no habría
-         *  forma de probar nada de lo que viene después de la lectura.
-         */
-        async lecturaSimulada({ tira, tiras, solape, esperaMs, senal }) {
-            const respuesta = await pedir(canal, 'lectura', { tira, tiras, solape }, { esperaMs, senal });
-            return respuesta.modo === 'simulado' ? { contenido: respuesta.contenido } : null;
         },
 
         async close() {
