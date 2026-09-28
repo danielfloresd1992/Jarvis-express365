@@ -242,8 +242,22 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
     }, [local?._id]);
 
 
-    // guardarRegistro = «guardar lo anotado y los pedidos»
+    /*  guardarRegistro = «guardar lo anotado y los pedidos»
+     *
+     *  CON UNA SIMULACIÓN EN MARCHA NO SE GUARDA NADA. Lo que hay en la parrilla entonces son
+     *  pedidos inventados, y el registro es del local de verdad: mezclarlos dejaría en el equipo
+     *  del restaurante unos tiempos que nadie sirvió, y el monitorista no tendría forma de saber
+     *  cuáles eran de mentira.
+     *
+     *  Hace falta aquí, y no solo en desarrollo, desde que el simulador está disponible también
+     *  en la aplicación publicada.
+     *
+     *  Limpiar la parrilla NO pasa por aquí: llama a writeRecord por su cuenta, para que se pueda
+     *  vaciar el registro esté como esté la ventana.
+     */
     const guardarRegistro = () => {
+        if (simulando) return;
+
         writeRecord(local?._id, {
             anotaciones: notesToObject(anotacionesRef.current),
             pedidos: pedidosGuardadosRef.current,
@@ -273,9 +287,15 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
     useEffect(() => {
         if (!local?._id || pedidos.length === 0) return;
 
+        //  Simulando NO se acumula nada, y no basta con no GUARDAR: si se acumularan, los pedidos
+        //  inventados se quedarían en el registro de memoria y se escribirían enteros en cuanto
+        //  se desconectara el simulador. Seguir viéndolos en pantalla no depende de esto: para
+        //  eso está 'pedidos', que se pinta venga de donde venga.
+        if (simulando) return;
+
         recordar(mergeRows(pedidosGuardadosRef.current, rowsToRecord(pedidos)));
         guardarRegistro();
-    }, [pedidos, local?._id]);
+    }, [pedidos, local?._id, simulando]);
 
 
     /*  LO QUE SE PINTA EN PROCESOS: lo guardado del turno, más lo que se está siguiendo ahora.

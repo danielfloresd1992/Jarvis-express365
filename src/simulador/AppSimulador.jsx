@@ -673,7 +673,10 @@ export default function AppSimulador() {
             <header className='sim-barra'>
                 <div className='sim-barra__titulo'>
                     <h1>Simulador de Toast · pantalla de cocina</h1>
-                    <div className='sim-barra__sub'>Herramienta de desarrollo. Nada de lo que pasa aquí llega a Jarvis.</div>
+                    {/*  Ya no dice «herramienta de desarrollo»: desde que la simulación está también
+                         en la aplicación publicada, eso sería mentira. Lo que SÍ hay que dejar claro,
+                         y ahora más que antes, es que nada de aquí sale hacia Jarvis.  */}
+                    <div className='sim-barra__sub'>Tickets de mentira, para probar la lectura sin tablet. Nada de lo que pasa aquí se guarda ni llega a Jarvis.</div>
                 </div>
 
                 <span className='sim-hueco' />
