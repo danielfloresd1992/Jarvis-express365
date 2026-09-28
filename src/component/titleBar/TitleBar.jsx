@@ -35,7 +35,11 @@ const DRAG = { WebkitAppRegion: 'drag' };
 const NO_DRAG = { WebkitAppRegion: 'no-drag' };
 
 
-export default function TitleBar({ appName = 'Jarvis Express 365' }) {
+//  El nombre por defecto es el que la gente ya conoce en las estaciones. Solo
+//  se ve dentro de la aplicación de escritorio —en el navegador esta barra no
+//  se pinta—, así que cambiarlo no toca la marca de la web, que sigue siendo
+//  JarvisExpress en su propia cabecera.
+export default function TitleBar({ appName = 'Reportes de alertas' }) {
 
     const api = typeof window !== 'undefined' ? window.electronAPI : null;
 

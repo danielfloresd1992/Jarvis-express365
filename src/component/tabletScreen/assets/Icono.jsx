@@ -19,8 +19,22 @@ const TRAZOS = {
     //  El mismo enchufe, tachado.
     desconectar: <><path d='M9 3v4M15 3v4' /><path d='M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z' /><path d='M12 16v5' /><line x1='3' y1='3' x2='21' y2='21' /></>,
 
-    //  Cámara con una flecha hacia arriba: mandar esta captura a Jarvis.
-    captura: <><path d='M3 8.5A1.5 1.5 0 0 1 4.5 7h2.2l1.2-2h8.2l1.2 2h2.2A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z' /><path d='M12 16.5v-6' /><polyline points='9.3 13 12 10.3 14.7 13' /></>,
+    /*  Una cámara DENTRO DE UN ENCUADRE: mandar esta captura a Jarvis.
+     *
+     *  Las cuatro esquinas son lo que lo distingue de un icono de «foto» cualquiera: dicen que
+     *  se captura LO QUE SE ESTÁ VIENDO, que es justo lo que hace el botón.
+     *
+     *  El dibujo es de JuanORTGA (commit a4f1cc8). Lo hizo sobre la barra anterior, la de botones
+     *  de texto, que ya no existe; el icono sí valía y se queda.
+     */
+    captura: <>
+        <path d='M3 8V5.5A2.5 2.5 0 0 1 5.5 3H8' />
+        <path d='M16 3h2.5A2.5 2.5 0 0 1 21 5.5V8' />
+        <path d='M21 16v2.5a2.5 2.5 0 0 1-2.5 2.5H16' />
+        <path d='M8 21H5.5A2.5 2.5 0 0 1 3 18.5V16' />
+        <path d='M6.5 10.8h1.7l.9-1.3h3.8l.9 1.3h1.7a1 1 0 0 1 1 1v3.4a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-3.4a1 1 0 0 1 1-1z' />
+        <circle cx='12' cy='13.5' r='1.7' />
+    </>,
 
     //  Destellos: el modo IA. Tachados cuando está en pausa.
     ia: <><path d='M11 3.5l1.7 4.6 4.6 1.7-4.6 1.7L11 16.1l-1.7-4.6-4.6-1.7 4.6-1.7z' /><path d='M18 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z' /></>,
