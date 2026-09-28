@@ -9,6 +9,7 @@ import { pintarPantalla, ANCHO_VISTA_TOTAL } from './pintura/pintar.js';
 import { abrirCanal, responder } from './canal.js';
 import { comparar, ENTRADA, FUERTE, POSTRE } from './comparacion.js';
 import { RegistroComparado } from './RegistroComparado.jsx';
+import { buildReportHtml, openReport } from './informeDeLaSimulacion.js';
 import { esNumero, minSeg, horasMin, porCiento, conComa, plural, recortar, enUnRato } from './formato.js';
 
 
@@ -263,7 +264,7 @@ const segundosCortos = (s) => (s < 10 ? `${conComa(Math.round(s * 10) / 10)} s` 
 /*  La frase de la cabecera: cómo acabó la ÚLTIMA lectura de la ventana de la tablet.
  *
  *  Este simulador solo pinta. Las tiras las lee siempre el servidor de IA —el de
- *  VITE_AI_URL—, igual que con la tablet del restaurante, y aquí no se decide ni se
+ *  Opciones → Servidor de IA—, igual que con la tablet del restaurante, y aquí no se decide ni se
  *  contesta nada. Pero desde fuera «no sale nada en la parrilla» puede ser que la tira
  *  no ha vuelto todavía, que volvió con error o que el modelo no vio ningún ticket, y
  *  con la IA a tres cuartos de minuto por tira conviene tenerlo a la vista.
@@ -568,6 +569,15 @@ export default function AppSimulador() {
 
 
     const exportar = useCallback((formato) => {
+
+        //  El PDF no es una descarga: se arma una página con los aciertos y los desaciertos y se
+        //  manda a imprimir. En el diálogo se elige «Guardar como PDF» y queda el archivo.
+        if (formato === 'pdf') {
+            openReport(buildReportHtml({ comparacion, semilla: motor.semilla }));
+
+            return;
+        }
+
         const filas = comparacion.filas.map(({ verdad, ia, dToma, dListo, veredicto, iaPrepS, iaLimiteS, iaDemora, demoraCoincide }) => ({
             rotacion: verdad.rotacion ?? null, rotacion_manual: verdad.manual ?? null,
             a_mano: verdad.aMano ?? null, cocina_manual: verdad.cocinaManual ?? null,

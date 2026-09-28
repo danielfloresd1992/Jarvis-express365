@@ -639,11 +639,14 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     Dónde va esa línea depende del ancho (ver más abajo, en la cabecera del registro):
     en una ventana ancha, entre el título y los botones; en una estrecha, debajo de
     ellos, a todo lo ancho.  */
+/*  Seis marcadores en una sola fila mientras quepan, y si no, en dos.
+    'auto-fit' con un mínimo: así no hay que tocar el número cada vez que se añade uno, y en una
+    ventana estrecha se reparten solos en vez de salirse. */
 .sim-marcadores {
     min-width: 0;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 6px;
 }
 
 .sim-marcador {

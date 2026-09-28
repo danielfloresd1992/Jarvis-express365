@@ -1,5 +1,6 @@
 import { LECTURAS_POR_RECORRIDO } from '../tickets/configLectura.js';
 import { aSegundosDeCronometro, aTexto } from '../tickets/cronometro.js';
+import { cursoDeTarjeta, esMesaDeVerdad } from '../tickets/claveDeTicket.js';
 
 
 // DE DÓNDE SALE CADA HORA DE LA PARRILLA DE PROCESOS
@@ -21,6 +22,18 @@ const REOPEN_ROUNDS = 12;
 
 // REOPEN_READINGS = «lecturas de reapertura»
 const REOPEN_READINGS = REOPEN_ROUNDS * LECTURAS_POR_RECORRIDO;
+
+// ORDER_TIME_TOLERANCE_S = «los segundos de diferencia que se perdonan al reconocer una tarjeta»
+// Dos lecturas de LA MISMA tarjeta dan casi la misma toma de orden. Medido en pantalla: 0 y 1
+// segundos. Se dejan unos pocos más por el rato que pasa entre la foto y la respuesta del modelo.
+const ORDER_TIME_TOLERANCE_S = 6;
+
+// SIGHTINGS_TO_CONFIRM = «cuántas veces hay que ver una tarjeta antes de creérsela»
+// Una lectura suelta no basta: puede ser un número mal leído que no casó con ninguna fila.
+// Con una entraban fantasmas como el «#205» que se vio en pantalla; con tres, un pedido de
+// verdad tardaba demasiado en aparecer. Dos es lo que cuesta poco más de un recorrido.
+const SIGHTINGS_TO_CONFIRM = 2;
+
 
 // ABSENCES_TO_CLOSE = «ausencias para dar por cerrado»
 // Dos y no una: el modelo se deja tickets a menudo, y con una sola 'Listo en tablet' se llenaba de horas falsas.
@@ -65,6 +78,13 @@ function createEmptyRow(clave) {
 
         // los votos de la toma de orden (ver voteOrderTime)
         candidatosTomaOrden: [],
+
+        // cuántas lecturas la han visto de verdad (no arrastrada de otra tira)
+        vecesVista: 0,
+
+        // true = se la ha visto lo suficiente como para pintarla. Hasta entonces la fila EXISTE
+        // pero no sale en la parrilla: es una pista en prueba.
+        confirmada: false,
 
         // cómo estaba 'listo' la última vez que se le LEYÓ (null = todavía nunca)
         vistoAlgunaVez: false,
@@ -312,6 +332,197 @@ const wasClosedLongAgo = (row, readingsCount) => {
 
 
 
+// isTruncatedNumber = «uno de los dos números es el otro a medio leer»
+// '14' es '144' sin su última cifra. SOLO el recorte, y no el dígito cambiado, y esto importa:
+// '145' y '146' también difieren en un dígito, pero son DOS PEDIDOS DISTINTOS y consecutivos.
+// Una prueba lo pilló fundiendo tres pedidos de tres mesas en una sola fila. Un recorte, en cambio,
+// es una pérdida de información que no ocurre entre dos números de verdad.
+function isTruncatedNumber(one, other) {
+    if (!one || !other) return false;
+    if (one === other) return true;
+
+    //  Uno es el principio del otro: un dígito que no se llegó a leer.
+    if (one.startsWith(other) || other.startsWith(one)) return true;
+
+    return false;
+}
+
+
+
+// hasReliableTable = «la mesa que se leyó es una mesa de verdad»
+// Sin mesa, la lectura guarda el número de ticket con un '#' delante: eso no es una mesa.
+const hasReliableTable = (table) => esMesaDeVerdad(table);
+
+
+
+// findRowByOrderTime = «encontrar la fila por su toma de orden»
+// EL NÚMERO DE TICKET NO ES DE FIAR; LA TOMA DE ORDEN SÍ.
+//
+// Visto en pantalla: la misma tarjeta salió como '#144' y como '#14', y otra como '#146' y
+// '#149'. Cada lectura fundaba su propia fila, y la parrilla acababa con nueve filas para cinco
+// pedidos. Lo que NO se estropea es la toma de orden: sale de «reloj − cronómetro», y el
+// cronómetro se lee bien porque es grande y está solo en la cabecera. En los casos vistos, las
+// dos lecturas de una misma tarjeta daban la misma hora al segundo.
+//
+// Para enganchar hacen falta TRES cosas a la vez, y no es por prudencia de más:
+//   · la misma toma de orden, porque es el rasgo estable;
+//   · el mismo curso, porque la entrada y el plato fuerte de un pedido ENTRAN A LA VEZ y
+//     comparten hora: sin esta condición se fundirían en una sola fila;
+//   · y que la mesa no lo desmienta, o que los números se parezcan tanto que sea evidente.
+// Recibe: vote (la toma de orden de esta lectura, en segundos), ticket (el recién leído) y rows.
+// Devuelve: la clave de la fila a la que pertenece, o null si no hay una sola candidata.
+function findRowByOrderTime(vote, ticket, rows) {
+
+    // readCourse = «el curso que trae la lectura»
+    const readCourse = cursoDeTarjeta(ticket?.tipo);
+
+    // matches = «las filas que podrían ser»
+    const matches = [];
+
+    for (const [otherKey, row] of rows) {
+        if (typeof otherKey !== 'string' || otherKey.includes('#')) continue;
+        if (row.cerrado) continue;
+        if (row.tomaOrdenSegundos === Infinity) continue;
+
+        //  1. La misma hora.
+        if (Math.abs(row.tomaOrdenSegundos - vote) > ORDER_TIME_TOLERANCE_S) continue;
+
+        //  2. El mismo curso, Y QUE SE SEPA CUÁL ES.
+        //  Sin curso no hay con qué separar dos tarjetas que entraron a la vez, y se fundirían dos
+        //  pedidos distintos en una fila. Una prueba lo pilló: perder una fila es peor que
+        //  quedarse con una de más, así que sin curso no se engancha.
+        if (readCourse === '') continue;
+        // rowCourse = «el curso de la fila», sacado de su propia clave
+        const rowCourse = otherKey.includes('·') ? otherKey.slice(otherKey.indexOf('·') + 1) : '';
+        if (rowCourse !== readCourse) continue;
+
+        //  3. La mesa no lo desmiente, o los números se parecen demasiado.
+        // tablesDisagree = «las dos mesas son de verdad y son distintas»
+        const tablesDisagree = hasReliableTable(ticket?.mesa) && hasReliableTable(row.mesa)
+            && String(ticket.mesa).trim() !== String(row.mesa).trim();
+
+        if (tablesDisagree && !isTruncatedNumber(String(ticket?.ticket ?? ''), String(row.ticket ?? ''))) continue;
+
+        matches.push(otherKey);
+    }
+
+    //  Con más de una candidata no se puede saber cuál es, y se prefiere la fila de más.
+    return matches.length === 1 ? matches[0] : null;
+}
+
+
+// isStrongReading = «la lectura es de fiar»
+// EL PRIMER NIVEL: solo una lectura FUERTE puede fundar una fila. Una floja sirve para sostener
+// una fila que ya existe —por eso se busca antes por la clave y por la hora—, pero si no sostiene
+// ninguna, se tira. Es la regla que impide que una lectura mala se convierta en un pedido.
+//
+// Fuerte = la cabecera se leyó entera: un número con pinta de número de ticket, un cronómetro
+// legible, y algo que diga de quién es el pedido: una mesa de verdad, o al menos un rótulo
+// (el curso, o «Take Out», o «UberEats Delivery»).
+//
+// Sacado de lo que se vio en pantalla: el fantasma «#205» no traía NI mesa NI rótulo, mientras
+// que un pedido a domicilio de verdad («#147 · Uber Eats») sí trae el rótulo aunque no tenga mesa.
+// Por eso vale cualquier rótulo y no solo un curso conocido: si no, los pedidos a domicilio no
+// entrarían nunca.
+// Recibe: ticket (uno de los que entrega la lectura).
+function isStrongReading(ticket) {
+
+    // number = «el número de ticket»
+    const number = String(ticket?.ticket ?? '').trim();
+    //  No se le exigen dígitos: parseModelResponse ya lo dejó en dígitos antes de llegar aquí, y
+    //  repetir la regla en dos sitios solo sirve para que un día discrepen.
+    if (number === '') return false;
+
+    //  Sin cronómetro no hay toma de orden, y sin toma de orden la fila no mide nada.
+    if (aSegundosDeCronometro(ticket?.tiempo) === null) return false;
+
+    //  Y algo que diga de quién es.
+    if (hasReliableTable(ticket?.mesa)) return true;
+    if (String(ticket?.tipo ?? '').trim() !== '') return true;
+
+    return false;
+}
+
+
+
+// countSighting = «contar que se la ha visto»
+// LA CONFIRMACIÓN. Una fila nueva no se pinta hasta que varias lecturas la han visto. Solo cuentan
+// las lecturas de VERDAD: un ticket arrastrado del acumulado de otra tira no es una vista nueva,
+// y si contara, un fantasma se confirmaría solo por quedarse en el acumulado.
+// Recibe: row.
+function countSighting(row) {
+    if (row.confirmada) return row;
+
+    // newRow = «la fila nueva»: una copia, para no tocar la que llega
+    const newRow = { ...row };
+
+    newRow.vecesVista = row.vecesVista + 1;
+    newRow.confirmada = newRow.vecesVista >= SIGHTINGS_TO_CONFIRM;
+
+    return newRow;
+}
+
+
+
+// getOrderTimeVote = «la toma de orden que dice una lectura», en segundos
+// «reloj de la tablet − cronómetro de la tarjeta». null si alguno de los dos no se entiende.
+// Está suelta porque hace falta ANTES de tener fila, para reconocer una tarjeta por su hora.
+function getOrderTimeVote(ticket, tabletTime) {
+
+    // waitSeconds = «lo que lleva esperando»
+    const waitSeconds = aSegundosDeCronometro(ticket?.tiempo);
+    if (waitSeconds === null) return null;
+
+    // clockSeconds = «el reloj de la tablet, en segundos»
+    const clockSeconds = getClockSeconds(tabletTime);
+    if (!clockSeconds) return null;
+
+    return clockSeconds - waitSeconds;
+}
+
+
+// resolveFlickeringKey = «resolver la clave que se quedó sin curso»
+// EL DUPLICADO DE LA PARRILLA SALÍA DE AQUÍ.
+//
+// La identidad de una fila es ticket + curso, porque un mismo pedido sale en una tarjeta por
+// curso. Pero el rótulo del curso no siempre se lee: basta UNA lectura en la que el modelo no
+// lo acierte para que la misma tarjeta pase de 'tk-47·appetizer' a 'tk-47', y entonces la
+// parrilla pinta DOS filas del mismo ticket. Comprobado: con una sola lectura floja se duplica.
+//
+// Así que una lectura sin curso no funda fila: se le devuelve la que ese ticket ya tenía. Es la
+// regla de los seguidores de objetos —una detección débil sostiene lo que ya existe, no nace
+// como algo nuevo—, y aquí encaja igual.
+//
+// Con VARIAS filas de ese ticket (la mesa pidió entrada, fuerte y postre) no se puede saber de
+// cuál es, así que se deja como venía: inventar un enganche sería peor que la fila de más.
+// Recibe: clave (la de la lectura) y rows (las filas de la parrilla).
+// Devuelve: la clave con la que trabajar.
+function resolveFlickeringKey(clave, rows) {
+
+    //  Solo la que viene SIN curso y todavía no tiene fila propia.
+    if (typeof clave !== 'string') return clave;
+    if (!clave.startsWith('tk-') || clave.includes('·')) return clave;
+    if (rows.has(clave)) return clave;
+
+    // withCourse = «las filas de ese mismo ticket que sí llevan curso»
+    const withCourse = [];
+
+    for (const otherKey of rows.keys()) {
+
+        //  No todas las claves son texto: un pedido sin numero de ticket se guarda por su mesa.
+        if (typeof otherKey !== 'string') continue;
+        if (!otherKey.startsWith(`${clave}·`)) continue;
+
+        //  Las archivadas llevan un '#' con la lectura en que se cerraron: esas no absorben nada.
+        if (otherKey.includes('#')) continue;
+
+        withCourse.push(otherKey);
+    }
+
+    return withCourse.length === 1 ? withCourse[0] : clave;
+}
+
+
 // archiveRow = «archivar la fila»
 // El pedido viejo se queda en la parrilla con sus horas, bajo otra clave: 'clave#lectura en que se cerró'.
 function archiveRow(row) {
@@ -363,8 +574,14 @@ function reopenIfBack(row) {
 // refreshRowData = «refrescar los datos de la fila»
 // Los datos se refrescan siempre que la lectura traiga algo: una vuelta puede leer mal y la siguiente bien.
 // Lo que venga vacío NO borra lo que ya había.
-// Recibe: row, ticket y strip (la tira que se acaba de leer).
-function refreshRowData(row, ticket, strip) {
+// Recibe: row, ticket, strip (la tira que se acaba de leer) e identityIsTrusted.
+//
+// identityIsTrusted = «el número y la mesa de esta lectura son de fiar». Es false cuando la
+// tarjeta se reconoció POR SU HORA y no por su número: esa lectura llega justamente porque el
+// número se leyó mal, así que puede contar cómo está la tarjeta —su cronómetro, su color, si
+// está lista— pero NO puede rebautizarla. Sin esto, una sola lectura mala dejaba la fila
+// enseñando «#14» donde ponía «#144».
+function refreshRowData(row, ticket, strip, identityIsTrusted = true) {
 
     // newRow = «la fila nueva»: una copia, para no tocar la que llega
     const newRow = { ...row };
@@ -372,8 +589,8 @@ function refreshRowData(row, ticket, strip) {
     // la tira que lo acaba de ver pasa a ser la única que puede echarlo en falta
     newRow.tira = ticket.tira ?? strip;
 
-    if (ticket.mesa) newRow.mesa = ticket.mesa;
-    if (ticket.ticket) newRow.ticket = ticket.ticket;
+    if (identityIsTrusted && ticket.mesa) newRow.mesa = ticket.mesa;
+    if (identityIsTrusted && ticket.ticket) newRow.ticket = ticket.ticket;
     if (ticket.plato) newRow.plato = ticket.plato;
     if (ticket.canal) newRow.canal = ticket.canal;
 
@@ -603,8 +820,33 @@ function updateProcessGrid(grid, reading, context) {
     for (const ticket of reading.tickets) {
 
         // La clave la fabricó mergeStripTickets. Sin ella no hay a qué fila atribuir lo leído.
-        const clave = ticket?.clave ?? ticket?.mesa;
-        if (!clave) continue;
+        // leidaClave = «la clave tal como vino»
+        const leidaClave = ticket?.clave ?? ticket?.mesa;
+        if (!leidaClave) continue;
+
+        //  Y si perdió el curso por una lectura floja, se le devuelve la fila que ya tenía.
+        // porCurso = «la clave, ya resuelto el curso que faltaba»
+        const porCurso = resolveFlickeringKey(leidaClave, newGrid.rows);
+
+        //  Si aun así no tiene fila, puede que el número se leyera mal. Se busca por la hora.
+        // clave = «la clave definitiva de esta lectura»
+        let clave = porCurso;
+
+        // identityIsTrusted = «el número y la mesa de esta lectura son de fiar»
+        let identityIsTrusted = true;
+
+        if (!newGrid.rows.has(clave) && !newGrid.alreadyThere.has(clave)) {
+            // voto = «la toma de orden que dice esta lectura», en segundos
+            const voto = getOrderTimeVote(ticket, reading.hora);
+
+            if (voto !== null) {
+                // porHora = «la fila que empezó a la misma hora»
+                const porHora = findRowByOrderTime(voto, ticket, newGrid.rows);
+
+                //  Reconocida por la hora: se queda con el número que ya tenía la fila.
+                if (porHora) { clave = porHora; identityIsTrusted = false; }
+            }
+        }
 
         // justRead = «se le acaba de leer» (o viene arrastrado de otra tira)
         const justRead = wasJustRead(ticket, reading.tira);
@@ -625,6 +867,10 @@ function updateProcessGrid(grid, reading, context) {
         // Lo que ya estaba no se sigue nunca: cualquier tiempo suyo sería inventado.
         if (newGrid.alreadyThere.has(clave)) continue;
 
+        //  EL SEGUNDO NIVEL: llegados aquí, esta lectura no ha casado con ninguna fila ni por su
+        //  clave ni por su hora. Solo se le deja fundar una si es FUERTE; si es floja, se tira.
+        if (!newGrid.rows.has(clave) && !isStrongReading(ticket)) continue;
+
         seenNow.add(clave);
 
         // row = «la fila del pedido»: la que ya había, o una nueva
@@ -641,7 +887,7 @@ function updateProcessGrid(grid, reading, context) {
 
         // 6.3 Está en pantalla: se reabre, se refrescan sus datos y se resuelve su tipo
         row = reopenIfBack(row);
-        row = refreshRowData(row, ticket, reading.tira);
+        row = refreshRowData(row, ticket, reading.tira, identityIsTrusted);
         row = resolveRowType(row, ticket.tipo, context.resolveType);
 
         // 6.4 Las horas: solo con una lectura de AHORA
@@ -649,6 +895,9 @@ function updateProcessGrid(grid, reading, context) {
             row = voteOrderTime(row, ticket, reading.hora);
             row = stampReadyIfChanged(row, ticket, now);
         }
+
+        //  Y se apunta que se la ha visto. Solo las lecturas de ahora: ver más arriba.
+        if (justRead) row = countSighting(row);
 
         newGrid.rows.set(clave, row);
     }
@@ -660,7 +909,17 @@ function updateProcessGrid(grid, reading, context) {
         if (seenNow.has(clave)) continue;
         if (!canBeMissedBy(row, reading.tira)) continue;
 
-        newGrid.rows.set(clave, countAbsence(row, now, newGrid.readingsCount));
+        // absentRow = «la fila, con una ausencia más»
+        const absentRow = countAbsence(row, now, newGrid.readingsCount);
+
+        //  Una fila SIN CONFIRMAR que se va no se cierra: se BORRA. Nunca se creyó del todo, y
+        //  dejarla cerrada llenaría la parrilla de restos de lecturas mal leídas.
+        if (!row.confirmada && absentRow.cerrado) {
+            newGrid.rows.delete(clave);
+            continue;
+        }
+
+        newGrid.rows.set(clave, absentRow);
     }
 
     return newGrid;
@@ -678,6 +937,11 @@ function getGridRows(grid) {
     const rows = [];
 
     for (const row of grid.rows.values()) {
+
+        //  Las que todavía están en prueba no salen: existen por dentro, esperando a que otra
+        //  lectura las confirme o a desaparecer sin dejar rastro.
+        if (!row.confirmada) continue;
+
         rows.push({ ...row, candidatosTomaOrden: [...row.candidatosTomaOrden] });
     }
 

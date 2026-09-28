@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { TabletScreen } from './TabletScreen.jsx';
 import { Parrilla } from './Parrilla.jsx';
 import { ParrillaProcesos } from './ParrillaProcesos.jsx';
@@ -6,6 +6,8 @@ import { useSeguimientoTickets } from '../../hook/useSeguimientoTickets.jsx';
 import { limiteDeAtencion, limiteDeLimpieza } from '../../libs/limites/limitesDelLocal.js';
 import { SIMULACION_DISPONIBLE } from '../../simulador/disponible.js';
 import { REGISTRO_ACTIVO } from '../../libs/tickets/registroDeInferencia.js';
+import { readRecord, writeRecord, clearNotes, notesToObject, notesToMap, rowsToRecord, mergeRows, isRecentRecord } from '../../libs/tickets/registroDeParrillas.js';
+import { buildSpreadsheet, buildFileName, downloadSpreadsheet } from '../../libs/tickets/hojaDeParrillas.js';
 
 
 /*  EL PANEL DEL REGISTRO DE LA INFERENCIA — solo en desarrollo
@@ -110,6 +112,10 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
     //  Qué parrilla se está mirando: la de mesas o la de pedidos.
     const [pestana, setPestana] = useState('rotacion');
 
+    //  Cuántas veces se ha limpiado la parrilla de procesos. Va aquí arriba porque entra en el
+    //  'reinicio' del seguimiento, y ese se usa unas líneas más abajo.
+    const [limpiezas, setLimpiezas] = useState(0);
+
     //  Cómo fue la última lectura: cuántos objetos trajo, cuántos se descartaron por no
     //  ser tickets y si falló. Se pinta junto a las pestañas — ver la barra de estado.
     const [lectura, setLectura] = useState(null);
@@ -148,7 +154,9 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
     //  STEP 6 de la lectura (el índice de pasos está en TabletScreen.jsx): lo que entregó 'onTickets' entra aquí,
     //  y el hook llama a updateProcessGrid, que ANALIZA, COMPARA y ACTUALIZA la parrilla de procesos.
     const { pedidos, censando, lecturasDelCenso, lecturasQueDuraElCenso, yaEstaban } =
-        useSeguimientoTickets(tickets, horaTablet, local?._id, local?.dishes, tiraLeida, lectura?.tiras);
+        //  El 'reinicio' lleva también las limpiezas: el hook vacía su parrilla cuando ese valor
+        //  cambia, así que limpiar Procesos se lleva por delante lo que esté siguiendo ahora.
+        useSeguimientoTickets(tickets, horaTablet, `${local?._id ?? ''}:${limpiezas}`, local?.dishes, tiraLeida, lectura?.tiras);
 
 
     /*  ¿LO QUE SE ESTÁ LEYENDO ES UNA TABLET DE MENTIRA?
@@ -198,11 +206,135 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
     const anotacionesRef = useRef(new Map());
     const [, forzarPintado] = useState(0);
 
+
+    /*  Y AHORA NO SE PIERDEN: se guardan en el equipo según se escriben.
+     *
+     *  Van POR LOCAL, y eso arregla de paso un fallo que ya estaba: las filas de dos
+     *  establecimientos usan las mismas claves ('libre-0'…), así que al cambiar de local lo
+     *  anotado en el anterior seguía ahí, como si fuera de este.
+     *
+     *  Se guarda en cada tecla, y no cada pocos segundos, a propósito: lo que se quiere evitar
+     *  es justo perder lo último que se escribió al cerrar la ventana.
+     */
+    const pedidosGuardadosRef = useRef([]);
+
+    //  En estado además de en la ref, porque ESTO SE PINTA: al volver a abrir la ventana, los
+    //  pedidos de antes tienen que estar ahí. Una ref sola no redibuja.
+    const [pedidosGuardados, setPedidosGuardados] = useState([]);
+
+    // recordar = «quedarse con los pedidos del registro»
+    const recordar = (juntos) => {
+        pedidosGuardadosRef.current = juntos;
+        setPedidosGuardados(juntos);
+    };
+
+    useEffect(() => {
+        // registro = «lo que había guardado de este local»
+        const registro = readRecord(local?._id);
+
+        anotacionesRef.current = notesToMap(registro.anotaciones);
+
+        //  Los pedidos de un turno de hace días NO vuelven: mezclados con los de hoy solo
+        //  confunden. Las horas escritas a mano sí se conservan siempre: son trabajo de alguien.
+        recordar(isRecentRecord(registro.guardadoEn) ? registro.pedidos : []);
+
+        forzarPintado(n => n + 1);
+    }, [local?._id]);
+
+
+    // guardarRegistro = «guardar lo anotado y los pedidos»
+    const guardarRegistro = () => {
+        writeRecord(local?._id, {
+            anotaciones: notesToObject(anotacionesRef.current),
+            pedidos: pedidosGuardadosRef.current,
+        });
+    };
+
+
     const leerAnotacion = (clave) => anotacionesRef.current.get(clave);
 
     const anotar = (clave, campo, valor) => {
         const actual = anotacionesRef.current.get(clave) ?? {};
         anotacionesRef.current.set(clave, { ...actual, [campo]: valor });
+        guardarRegistro();
+        forzarPintado(n => n + 1);
+    };
+
+
+    /*  LOS PEDIDOS TAMBIÉN, para que el registro no se quede solo con las horas a mano.
+     *
+     *  Se JUNTAN con lo guardado en vez de pisarlo: un pedido despachado se va de la parrilla,
+     *  pero tiene que seguir en el registro con sus tiempos.
+     *
+     *  NO se devuelven a la parrilla al abrir: el seguimiento tiene su propio censo y sus cuentas
+     *  de ausencias, y darle filas de una sesión de ayer le haría seguir pedidos que hace horas
+     *  que no están. El registro es un archivo, no un punto de guardado.
+     */
+    useEffect(() => {
+        if (!local?._id || pedidos.length === 0) return;
+
+        recordar(mergeRows(pedidosGuardadosRef.current, rowsToRecord(pedidos)));
+        guardarRegistro();
+    }, [pedidos, local?._id]);
+
+
+    /*  LO QUE SE PINTA EN PROCESOS: lo guardado del turno, más lo que se está siguiendo ahora.
+     *
+     *  Se juntan aquí y no en el seguimiento a propósito. El seguimiento lleva su censo y sus
+     *  cuentas de ausencias, y devolverle filas de hace horas le haría perseguir pedidos que ya
+     *  no están: los daría por desaparecidos y les sellaría un «listo en tablet» inventado.
+     *
+     *  Así, lo restaurado se VE pero no se SIGUE. Una clave que esté en los dos sitios manda la
+     *  de ahora: es el mismo pedido, y lo que se está leyendo está más al día.
+     */
+    const filasDeProcesos = useMemo(() => mergeRows(pedidosGuardados, pedidos), [pedidosGuardados, pedidos]);
+
+
+    // exportarHoja = «llevarse las dos parrillas a una hoja de cálculo»
+    const exportarHoja = () => {
+        // ahora = «la fecha y la hora del archivo»
+        const ahora = new Date();
+
+        const csv = buildSpreadsheet({
+            establecimiento: local?.name,
+            ahora,
+            procesos: filasDeProcesos,
+            leerAnotacion,
+            limiteAtencion: limite,
+            limiteLimpieza: limpieza,
+        });
+
+        downloadSpreadsheet(csv, buildFileName(local?.name, ahora));
+    };
+
+
+    /*  LIMPIAR LA PARRILLA QUE SE ESTÁ MIRANDO
+     *
+     *  Se pregunta antes: esto borra trabajo de alguien y no hay forma de deshacerlo.
+     *
+     *  Limpia las tres cosas, que si no reaparecería por algún lado: lo anotado a mano, lo que
+     *  se guardó en el equipo, y —en Procesos— lo que el seguimiento tiene ahora mismo. Para
+     *  eso último se cuenta una limpieza más: el hook vacía su parrilla cuando cambia 'reinicio'.
+     */
+    const limpiarParrilla = () => {
+        // cual = «qué parrilla se está mirando»
+        const cual = pestana === 'procesos' ? 'procesos' : 'rotacion';
+
+        if (!window.confirm(`Se va a borrar todo lo de la parrilla de ${cual === 'procesos' ? 'PROCESOS' : 'ROTACIÓN'}, incluido lo escrito a mano. No se puede deshacer.\n\n¿Seguir?`)) return;
+
+        anotacionesRef.current = clearNotes(anotacionesRef.current, cual);
+
+        if (cual === 'procesos') {
+            recordar([]);
+            setLimpiezas(n => n + 1);
+        }
+
+        //  Y el registro guardado se vuelve a escribir sin lo que se acaba de quitar.
+        writeRecord(local?._id, {
+            anotaciones: notesToObject(anotacionesRef.current),
+            pedidos: cual === 'procesos' ? [] : pedidosGuardadosRef.current,
+        });
+
         forzarPintado(n => n + 1);
     };
 
@@ -392,6 +524,34 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
                         ))
                     }
 
+                    {/*  LLEVARSE LAS DOS PARRILLAS Y VACIAR LA QUE SE ESTÁ MIRANDO.
+                         Van juntos y a la izquierda de la barra de estado porque son lo único de
+                         aquí que hace algo; la barra solo informa.
+
+                         El tamaño va en 'style' y no en clases: la regla global 'button {}' de
+                         index.css no está en ninguna capa y le gana a las utilidades.  */}
+                    <button
+                        type='button'
+                        onClick={exportarHoja}
+                        className='shrink-0 rounded-md border border-[#0a3a66] bg-[#01122c] font-semibold uppercase tracking-[0.5px] text-[#8aa0bb] transition-colors hover:border-[#0890c0] hover:text-[#aecbf0]'
+                        style={{ padding: '3px 10px', fontSize: '10px' }}
+                        aria-label='Exportar las dos parrillas a una hoja de cálculo'
+                        title='Descarga las dos parrillas en una hoja de cálculo, con el establecimiento y la fecha'
+                    >
+                        Exportar
+                    </button>
+
+                    <button
+                        type='button'
+                        onClick={limpiarParrilla}
+                        className='shrink-0 rounded-md border border-[#3a1620] bg-[#01122c] font-semibold uppercase tracking-[0.5px] text-[#a3737d] transition-colors hover:border-[#8f2234] hover:text-[#ffc9d0]'
+                        style={{ padding: '3px 10px', fontSize: '10px' }}
+                        aria-label={`Vaciar la parrilla de ${pestana === 'procesos' ? 'Procesos' : 'Rotación'}`}
+                        title={`Vacía la parrilla de ${pestana === 'procesos' ? 'Procesos' : 'Rotación'}, incluido lo escrito a mano. No se puede deshacer.`}
+                    >
+                        Limpiar
+                    </button>
+
                     <BarraDeLectura
                         lectura={lectura}
                         censando={censando}
@@ -418,7 +578,7 @@ export function VentanaTablet({ enPanel = false, onCerrar, onArrastrarBarra, onR
                          parrilla está VACÍA: con ellos dice por qué, en vez de enseñar
                          diez filas en blanco que lo mismo son «todo bien» que «no leo».  */}
                     <ParrillaProcesos
-                        filas={pedidos}
+                        filas={filasDeProcesos}
                         leerAnotacion={leerAnotacion}
                         anotar={anotar}
                         censando={censando}

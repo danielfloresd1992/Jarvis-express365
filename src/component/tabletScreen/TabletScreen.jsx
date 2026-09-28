@@ -7,9 +7,19 @@ import { TIRAS_DE_LECTURA, SOLAPE_DE_LECTURA, tirasParaElAncho } from '../../lib
 import { SIMULACION_DISPONIBLE } from '../../simulador/disponible.js';
 import { registroDeInferencia, TIPO } from '../../libs/tickets/registroDeInferencia.js';
 import { getTimeoutMs, checkAiServer } from '../../libs/inference/aiServer.js';
+import { readAiSettings, subscribeToAiSettings, maskApiKey } from '../../libs/inference/aiSettings.js';
 import { getTabletImage, cropStrip } from '../../libs/inference/tabletImage.js';
 import { runInferenceOnce, startInferenceLoop } from '../../libs/inference/inferenceLoop.js';
 import { mergeStripTickets } from '../../libs/inference/mergeStrips.js';
+
+
+
+
+import TabletContainer from './assets/TabletContainer.jsx';
+import TabletRender from './assets/TabletRender.jsx';
+import ZoomBar, { ZOOM_MIN, ZOOM_MAX } from './assets/ZoomBar.jsx';
+
+
 
 
 //  ══════════════════════════════════════════════════════════════════════
@@ -35,11 +45,6 @@ const localEnCurso = () => {
 };
 
 
-//  Límites del zoom. Van fuera del componente porque el valor inicial se lee
-//  antes de que el componente exista, y ahí dentro todavía no estarían definidos.
-const ZOOM_MIN = 50;
-const ZOOM_MAX = 400;
-const ZOOM_PASO = 25;
 const CLAVE_ZOOM = 'tablet:zoom';
 
 
@@ -68,13 +73,17 @@ function leerModoIAGuardado() {
 }
 
 
-//  EL SERVIDOR DE IA. El '.env' solo dice DÓNDE está y cuánto se le espera:
-//      VITE_AI_URL        su dirección (con su http:// o https://, y su puerto)
+//  EL SERVIDOR DE IA. Su DIRECCIÓN y su CLAVE ya no están en el '.env': las escribe el usuario en
+//  «Opciones → Servidor de IA», en la ventana principal, y se guardan en este equipo (aiSettings.js).
+//  El '.env' se horneaba al construir, así que en la aplicación instalada del restaurante nadie podía
+//  cambiar de servidor sin volver a compilar; desde el menú, sí.
+//
+//  Esta ventana los lee con readAiSettings() y se queda escuchando con subscribeToAiSettings(): al
+//  guardarlos en la otra ventana, esta vuelve a consultar el servidor sola. NO hay que reabrirla.
+//
+//  Del '.env' solo queda cuánto se le espera:
 //      VITE_AI_TIMEOUT_S  cuántos segundos se le espera por tira (opcional)
-//  El MODELO no va ni ahí ni aquí: se le pregunta al servidor al abrir la ventana (STEP 0).
-
-// AI_URL = «la dirección del servidor de IA»
-const AI_URL = import.meta.env.VITE_AI_URL;
+//  Y el MODELO no va en ningún sitio: se le pregunta al servidor al abrir la ventana (STEP 0).
 
 // AI_TIMEOUT_MS = «tiempo máximo que se espera al modelo por cada tira, en milisegundos»
 const AI_TIMEOUT_MS = getTimeoutMs(import.meta.env.VITE_AI_TIMEOUT_S);
@@ -99,8 +108,18 @@ const MAX_CAPTURE_AGE_MS = 15000;
 const SILENT_TABLET_ERROR = 'la tablet no manda capturas desde hace más de 15 s: desconéctala y vuelve a conectarla';
 
 // CAUSES_TO_CHECK_AGAIN = «las causas de fallo que obligan a volver a consultar el servidor»
-// Con cualquiera de ellas puede que el servidor ya no esté, o que le hayan cambiado el modelo.
-const CAUSES_TO_CHECK_AGAIN = ['network', 'cors', 'model-rejected'];
+// Con las tres primeras puede que el servidor ya no esté, o que le hayan cambiado el modelo.
+// Con 'auth' y 'no-url' se vuelve a consultar por lo contrario: para PARAR el bucle. Seguir mandando
+// tiras con una clave que no vale solo gasta el servidor, y la consulta deja el aviso en la barra.
+const CAUSES_TO_CHECK_AGAIN = ['network', 'cors', 'model-rejected', 'auth', 'no-url'];
+
+// CAUSES_WITHOUT_RETRY = «las causas por las que NO se vuelve a preguntar cada 10 segundos»
+// Un servidor apagado puede encenderse solo; una clave rechazada o una dirección que falta, no: eso
+// se arregla en «Opciones → Servidor de IA». Insistir cada 10 s no lo arreglaría y llenaría el
+// registro del mismo fallo. Se queda quieto y lo dice en la barra hasta que cambien los ajustes.
+// 'https-not-supported' va aquí por lo mismo que 'no-url': hasta que alguien cambie la dirección en
+// Opciones, volver a preguntar cada 10 s solo repite la misma sonda contra el mismo servidor.
+const CAUSES_WITHOUT_RETRY = ['auth', 'no-url', 'https-not-supported'];
 
 
 
@@ -140,6 +159,43 @@ function buildSilentTabletResult(capture, strip, strips, model) {
         error: SILENT_TABLET_ERROR,
         cause: 'silent-tablet',
     };
+}
+
+
+
+// describeAiFailure = «describir el fallo de la IA»
+// PURA. Cómo se nombra un servidor que no está activo, igual en la barra que en el registro.
+// Con la clave rechazada o sin dirección NO falta la conexión —contestar, contesta—: falta algo que
+// solo se arregla en «Opciones → Servidor de IA», y el aviso que trae aiServer.js ya lo dice entero.
+// Recibe: server (lo que contestó checkAiServer, con active: false).
+// Devuelve: 'IA sin conexión: servidor apagado…'  o  'IA: clave rechazada (401)…'
+// NO_ANSWER_CAUSES = «las causas en las que NADIE contestó»
+// Solo esas son «sin conexión». Un 404 o un 401 son el servidor CONTESTANDO, y llamarlos «sin
+// conexión» mandaba a revisar el cable y el certificado cuando lo que fallaba era el modelo montado
+// o la clave: tres averías distintas en pantalla donde había una.
+const NO_ANSWER_CAUSES = ['network', 'cors', 'timeout'];
+
+function describeAiFailure(server) {
+
+    if (NO_ANSWER_CAUSES.includes(server?.cause)) return `IA sin conexión: ${server?.error}`;
+
+    return `IA: ${server?.error}`;
+}
+
+
+
+// describeApiKey = «describir la clave»
+// PURA. Lo ÚNICO que se puede apuntar de la clave en el registro de la inferencia, que se enseña en
+// pantalla y se copia al portapapeles: si la hay y cuál es, tapada. Nunca la clave entera.
+// Recibe: apiKey (la de los ajustes). Devuelve: 'sk-abc…c4f2', o '(sin clave)' si no hay ninguna.
+function describeApiKey(apiKey) {
+
+    // masked = «la clave tapada». maskApiKey devuelve '' cuando no hay clave guardada.
+    const masked = maskApiKey(apiKey);
+
+    if (masked === '') return '(sin clave)';
+
+    return masked;
 }
 
 
@@ -207,6 +263,19 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
 
     // serverCheckNumber = «el número de la consulta al servidor»: cuando cambia, se le vuelve a consultar
     const [serverCheckNumber, setServerCheckNumber] = useState(0);
+
+    // aiSettingsRef = «la dirección y la clave del servidor de IA», como están guardadas en este equipo.
+    // Van en una ref y no en el estado porque no se pintan —la clave menos que nada—: las leen el STEP 0
+    // y cada vuelta del bucle, justo cuando las usan. Se leen una vez al abrir la ventana; a partir de
+    // ahí las refresca sola la suscripción de más abajo.
+    const aiSettingsRef = useRef(null);
+    if (aiSettingsRef.current === null) aiSettingsRef.current = readAiSettings();
+
+    // nextCheckDelayRef = «lo que se espera antes de la consulta siguiente, en milisegundos»
+    // Lo pone quien la pide: al abrir la ventana y al cambiar los ajustes, nada (se quiere ver el
+    // resultado ya); tras una vuelta fallida, unos segundos, porque un fallo que se repite daría
+    // vueltas sin freno. Va en una ref: cambiarlo NO tiene que volver a pintar la ventana.
+    const nextCheckDelayRef = useRef(0);
 
 
     //  Un intento de conexión en curso. El estado pinta el botón girando; la ref es el
@@ -630,7 +699,9 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
 
     //  STEP 0 · LA PRIMERA CONEXIÓN AL SERVIDOR DE IA
     //  Al abrir la ventana se le pregunta si está activo y qué modelo tiene, y la respuesta se guarda.
-    //  YA NO se le pregunta en cada lectura. Si no está activo, se reintenta cada 10 s hasta que lo esté.
+    //  YA NO se le pregunta en cada lectura. Si no está activo, se reintenta cada 10 s hasta que lo esté,
+    //  SALVO con la clave rechazada o sin dirección (CAUSES_WITHOUT_RETRY): eso no se arregla insistiendo,
+    //  sino en «Opciones → Servidor de IA», así que se queda quieto hasta que cambien los ajustes.
     useEffect(() => {
 
         // controller = «el cancelador de la consulta», por si la ventana se cierra a mitad
@@ -642,50 +713,119 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
         // askServer = «preguntar al servidor»
         const askServer = async () => {
 
-            // result = «lo que contestó»: { active: true, model, models, ms }  o  { active: false, cause, error, ms }
-            const result = await checkAiServer(AI_URL, controller.signal);
+            // settings = «la dirección, la clave y el modelo elegido», como estén guardados ahora
+            const settings = aiSettingsRef.current;
+
+            // result = «lo que contestó»: { active: true, model, models, ms, missingPreferred }  o  { active: false, cause, error, ms }
+            // El modelo elegido en Opciones va aquí y no en la lectura: checkAiServer es quien tiene
+            // delante la lista del servidor, así que es el único sitio donde se puede saber si el
+            // elegido sigue cargado. Lo que devuelva en 'model' es con lo que se lee.
+            const result = await checkAiServer({
+                baseUrl: settings.url,
+                apiKey: settings.apiKey,
+                preferred: settings.model,
+                signal: controller.signal
+            });
 
             if (controller.signal.aborted) return;
 
             //  Al registro de la inferencia solo va lo que CAMBIA: con el servidor caído se pregunta
             //  cada 10 s, y el mismo fallo repetido llenaría el panel.
+            //  LA CLAVE NO SE APUNTA: solo tapada (describeApiKey). El registro se ve en pantalla y se copia.
             // previous = «lo que había contestado la vez anterior»
             const previous = aiServerRef.current;
 
             if (result.active && previous?.model !== result.model) {
-                registroDeInferencia.apuntar(TIPO.SERVIDOR, `El servidor de IA está activo: se leerá con «${result.model}»`, {
-                    direccion: AI_URL,
+
+                //  Que el modelo elegido ya no esté se DICE. Leer con otro sin avisar es lo que
+                //  haría que nadie entendiera por qué lee distinto de lo que puso en Opciones.
+                // text = «lo que se apunta en el registro»
+                //  Un preferido ausente o ciego se apunta con el que se usa DE VERDAD, que es lo que
+                //  luego va en cada tira. (Que ninguno vea ya no llega aquí: checkAiServer lo devuelve
+                //  como no activo y sale por la rama de FALLO de abajo, sin arrancar el bucle.)
+                let text = `El servidor de IA está activo: se leerá con «${result.model}»`;
+                if (result.missingPreferred) text = `El servidor de IA está activo, pero «${result.missingPreferred}» ya no está cargado: se leerá con «${result.model}»`;
+                if (result.blindPreferred) text = `El servidor de IA está activo, pero «${result.blindPreferred}» no mira imágenes: se leerá con «${result.model}»`;
+
+                registroDeInferencia.apuntar(TIPO.SERVIDOR, text, {
+                    direccion: settings.url,
+                    clave: describeApiKey(settings.apiKey),
                     modelo: result.model,
+                    elegido: settings.model === '' ? '(el que elija el servidor)' : settings.model,
                     modelos: result.models,
                     milisegundos: result.ms,
                 });
             }
 
             if (!result.active && previous?.error !== result.error) {
-                registroDeInferencia.apuntar(TIPO.FALLO, `IA sin conexión: ${result.error}`, { direccion: AI_URL, causa: result.cause });
+                //  Con 'no-vision-model' el resultado trae las listas: van al apunte, que es donde
+                //  quien mira va a querer saber QUÉ hay montado. En las demás causas quedan undefined.
+                registroDeInferencia.apuntar(TIPO.FALLO, describeAiFailure(result), {
+                    direccion: settings.url,
+                    clave: describeApiKey(settings.apiKey),
+                    causa: result.cause,
+                    modelos: result.models,
+                    venImagenes: result.visionModels,
+                });
             }
 
             //  EL MODELO SE GUARDA EN UNA VARIABLE: la ref para el bucle, el estado para pintarlo en la barra.
             aiServerRef.current = result;
             setAiServer(result);
 
-            if (!result.active) timer = setTimeout(askServer, CHECK_RETRY_MS);
+            if (!result.active && !CAUSES_WITHOUT_RETRY.includes(result.cause)) timer = setTimeout(askServer, CHECK_RETRY_MS);
         };
 
-        // firstDelay = «la espera antes de la primera pregunta». Al abrir la ventana, ninguna. Cuando se vuelve
-        // a preguntar por una inferencia fallida, unos segundos: sin ellos, un fallo que se repite daría vueltas sin freno.
-        let firstDelay = 0;
-        if (serverCheckNumber > 0) firstDelay = getCheckAgainDelayMs(modelRejectionsRef.current);
-
         //  Con setTimeout también la primera: si el efecto se desmonta al momento (StrictMode lo hace
-        //  en desarrollo), la pregunta ni llega a salir.
-        timer = setTimeout(askServer, firstDelay);
+        //  en desarrollo), la pregunta ni llega a salir. Cuánto se espera lo dejó puesto quien pidió
+        //  la consulta; al abrir la ventana, nada.
+        timer = setTimeout(askServer, nextCheckDelayRef.current);
 
         return () => {
             controller.abort();
             clearTimeout(timer);
         };
     }, [serverCheckNumber]);
+
+
+
+    //  LOS AJUSTES CAMBIARON EN «OPCIONES → SERVIDOR DE IA»
+    //  El menú vive en la ventana principal, que es OTRA ventana: subscribeToAiSettings se entera igual
+    //  (por el evento 'storage' del navegador) y por eso no hace falta reabrir esta para cambiar de
+    //  servidor o de clave. Se vuelve al STEP 0 con los ajustes nuevos, y la vuelta que estuviera en
+    //  vuelo se aborta: iba con la dirección y la clave viejas.
+    //
+    //  Guardar SIN cambiar nada también avisa, a propósito: es el «vuelve a intentarlo ahora» del
+    //  operador cuando la barra dice que la clave no vale y el bucle está quieto esperando.
+    useEffect(() => {
+
+        // stopListening = «dejar de escuchar los ajustes» (se llama al cerrar la ventana)
+        const stopListening = subscribeToAiSettings((settings) => {
+
+            aiSettingsRef.current = settings;
+
+            roundControllerRef.current?.abort();
+            roundControllerRef.current = null;
+
+            //  EL SERVIDOR ANTERIOR DEJA DE VALER AQUÍ MISMO, antes de preguntarle al nuevo.
+            //  Sin esto, entre el guardado y la respuesta del STEP 0 el bucle seguía vivo con
+            //  aiServer.active todavía en true, y mandaba una tira a la dirección NUEVA con el
+            //  modelo de la VIEJA: una lectura que no podía salir bien y una foto de la tablet
+            //  entregada a un servidor que aún no había contestado quién es. De paso la barra
+            //  dejaba de enseñar el servidor anterior como si siguiera conectado.
+            aiServerRef.current = null;
+            setAiServer(null);
+
+            //  Otro servidor: lo que hubiera rechazado el modelo hasta ahora ya no cuenta, y se le
+            //  pregunta sin esperar.
+            modelRejectionsRef.current = 0;
+            nextCheckDelayRef.current = 0;
+
+            setServerCheckNumber(number => number + 1);
+        });
+
+        return stopListening;
+    }, []);
 
 
 
@@ -775,6 +915,10 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
         //  Un modelo rechazado varias veces seguidas alarga la espera de la consulta siguiente (getCheckAgainDelayMs).
         if (result.cause === 'model-rejected') modelRejectionsRef.current = modelRejectionsRef.current + 1;
 
+        //  Y esa espera se deja puesta aquí, que es donde se sabe por qué se vuelve a preguntar. Sin
+        //  ella, un fallo que se repite daría vueltas sin freno.
+        nextCheckDelayRef.current = getCheckAgainDelayMs(modelRejectionsRef.current);
+
         // inactiveServer = «el servidor, dado por no activo»
         const inactiveServer = { active: false, cause: result.cause, error: result.error, ms: 0 };
 
@@ -800,12 +944,14 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
 
     // reportSilentTablet = «avisar de que la tablet no manda capturas»
     // La vuelta NO se da, pero el fallo sube: a la barra de arriba y, por 'onTickets', a la ventana (los tickets no se tocan).
-    // Recibe: capture (la última captura), strip y strips (la tira que tocaba, y de cuántas).
+    // Recibe: capture (la última captura), strip y strips (la tira que tocaba, y de cuántas), y model
+    //         (el del servidor activo, leído por quien llama: aquí no se vuelve a mirar la ref, que
+    //         puede haberse puesto a null entre medias si cambiaron los ajustes).
     // Devuelve: el resultado de la vuelta fallida ({ ok: false, … }), para el bucle.
-    const reportSilentTablet = (capture, strip, strips) => {
+    const reportSilentTablet = (capture, strip, strips, model) => {
 
         // silentResult = «el resultado de la vuelta que no se dio»
-        const silentResult = buildSilentTabletResult(capture, strip, strips, aiServerRef.current.model);
+        const silentResult = buildSilentTabletResult(capture, strip, strips, model);
 
         setUltimoError(silentResult.error);
         onTicketsRef.current?.(null, silentResult.time, buildDiagnosis(silentResult));
@@ -825,12 +971,19 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
         const capture = lastCaptureRef.current;
         if (!capture) return { ok: false };
 
+        // server = «el servidor de IA, tal como contestó la última consulta»
+        // Se lee UNA vez y se comprueba: al guardar ajustes en la otra ventana, aiServerRef se pone a
+        // null hasta que el servidor nuevo conteste, y una vuelta que arrancara justo entonces leería
+        // '.model' de null y reventaría. Sin servidor activo no hay vuelta que dar.
+        const server = aiServerRef.current;
+        if (!server?.active) return { ok: false };
+
         // strip = «la tira que toca»  ·  strips = «de cuántas»
         const strip = stripRef.current;
         const strips = stripsRef.current;
 
         //  Releer sin fin la misma foto gastaría el servidor de IA en el pasado: la vuelta es fallida, y el fallo sube.
-        if (isTabletSilent(capture)) return reportSilentTablet(capture, strip, strips);
+        if (isTabletSilent(capture)) return reportSilentTablet(capture, strip, strips, server.model);
 
         lastReadCaptureRef.current = capture;
 
@@ -844,14 +997,20 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
         // note = «apuntar en el registro de la inferencia»: todos los apuntes de esta vuelta van juntos
         const note = registroDeInferencia.abrirLectura();
 
+        // settings = «la dirección y la clave», como estén guardadas en este momento. Se leen en CADA
+        // vuelta y no una sola vez: cambiarlas en Opciones tiene que notarse en la vuelta siguiente.
+        const settings = aiSettingsRef.current;
+
         //  STEP 2 · cropStrip, STEP 3 · requestInference y STEP 4 · parseModelResponse
+        //  La clave entra en 'server' y de ahí a la cabecera Authorization. El bucle NO la apunta en el
+        //  registro: sus apuntes escriben el servidor campo a campo, nunca el objeto entero.
         // result = «el resultado de la vuelta»: { ok, strip, strips, time, model, seconds, tickets, discarded, error, cause }
         const result = await runInferenceOnce({
             capture: capture,
             strip: strip,
             strips: strips,
             overlap: SOLAPE_DE_LECTURA,
-            server: { baseUrl: AI_URL, model: aiServerRef.current.model },
+            server: { baseUrl: settings.url, apiKey: settings.apiKey, model: server.model },
             timeoutMs: AI_TIMEOUT_MS,
             signal: controller.signal,
             note: note,
@@ -946,473 +1105,84 @@ function TabletScreen({ refreshMs = 500, onTickets, onCerrar, onArrastrarBarra, 
 
 
 
-    //  COLOR DEL ESTADO en la barra: el punto y el texto que lo acompaña.
-    //  'Error' es el prefijo con el que handdlerConnect escribe sus fallos.
-    const fallo = statusText.startsWith('Error');
-
     //  Una simulación se distingue DE UN VISTAZO: punto y texto en violeta, un color que
     //  la ventana no usa para nada más. Lo que sale en las parrillas es de mentira, y
     //  nadie debería tener que leer la barra para darse cuenta.
     const simulando = connected && Boolean(adbRef.current?.simulado);
 
-    const claseDelPunto = simulando ? 'bg-[#b49cff] shadow-[0_0_0_3px_rgba(180,156,255,0.22)]'
-        : connected ? 'bg-[#5fd29a] shadow-[0_0_0_3px_rgba(95,210,154,0.18)]'
-            : conectando ? 'bg-[#f2b84b] shadow-[0_0_0_3px_rgba(242,184,75,0.2)]'
-                : fallo ? 'bg-[#ff6b7a]'
-                    : 'border-2 border-[#5e7ba0]';
-
-    const colorDelEstado = simulando ? 'text-[#cdbcff] font-semibold'
-        : fallo ? 'text-[#ffb3bc]'
-            : conectando ? 'text-[#f2cf6b]'
-                : 'text-[#8aa0bb]';
-
-
-    //  EL ESTADO DE LA IA en la barra: con qué modelo se lee, o por qué no hay conexión (lo dijo el STEP 0).
-    // aiStatusText = «el texto del estado de la IA»
-    let aiStatusText = 'IA: consultando el servidor…';
-    if (aiServer?.active === true) aiStatusText = `IA: ${aiServer.model}`;
-    if (aiServer?.active === false) aiStatusText = `IA sin conexión: ${aiServer.error}`;
-
-    // aiStatusColor = «el color del estado de la IA»: ámbar solo cuando no hay conexión
-    let aiStatusColor = 'text-[#8aa0bb]';
-    if (aiServer?.active === false) aiStatusColor = 'text-[#f2cf6b]';
 
 
 
-
-    //  OJO CON EL ALTO, que aquí hubo un fallo difícil de ver.
-    //
-    //  Esto llevaba 'fixed inset-0' porque un alto en porcentaje hay que medirlo
-    //  contra alguien, y la cadena html → body → #root no lo daba: el `body` lleva
-    //  `display: flex; place-items: center` heredado de la plantilla de Vite, así que
-    //  #root se encogía al tamaño de su contenido en vez de llenar la ventana.
-    //
-    //  Y engañaba, porque dependía de lo que hubiera dentro: con la tablet conectada
-    //  la captura es ancha, estiraba el panel y todo parecía correcto; sin conectar
-    //  solo quedaban la barra y el texto, y aparecían dos bandas oscuras a los lados.
-    //
-    //  Ahora quien se ancla a la ventana es VentanaTablet, y este componente llena a
-    //  su panel. Que ese panel tenga un alto real es responsabilidad del contenedor.
+    //  EL ALTO LO MANDA LA CARCASA (assets/TabletContainer.jsx), que llena a su panel
+    //  sin anclarse a la ventana. Aquí ya no hay raíz propia: lo que sigue son sus hijos.
     return (
-        /*  Llena a su padre, que es el panel de arriba de la ventana dividida.
+        /*  LA CARCASA: la barra de título con el estado y los botones, y el aviso del
+         *  envío. Está en assets/TabletContainer.jsx, que solo pinta: todo lo que sabe
+         *  se lo pasamos aquí, y todo lo que pasa nos lo devuelve por una función.
          *
-         *  Antes era 'fixed inset-0' porque ocupaba la ventana entera él solo. Ahora
-         *  eso lo haría salirse del panel y taparlo todo, incluida la parrilla.
-         *
-         *  Sin borde ni esquinas redondeadas propias: el marco lo pone el contenedor,
-         *  y un segundo borde aquí dibujaría una línea doble justo sobre el divisor.
-         */
-        <div className='relative w-full h-full min-h-0 flex flex-col overflow-hidden bg-[#01122c]'>
+         *  Debajo, de children, van el espejo y la barra de zoom.  */
+        <TabletContainer
+            nameEstablishment={nombreDelLocal}
+            statusText={statusText}
+            connected={connected}
+            loadingUsbState={conectando}
+            sendFrameStop={envio}
+            simulatorIsActive={simulando}
 
+            aiServer={aiServer}
+            modeIA={modoIA}
+            strips={tiras}
+            stripReading={tiraEnLectura}
+            waitingIA={consultando}
+            lastError={ultimoError}
+            simulationAvailable={SIMULACION_DISPONIBLE}
 
+            onMouseEvent={onArrastrarBarra}
 
-            {/*  BARRA SUPERIOR
-                 La ventana flotante no tiene marco, así que esta barra hace de barra
-                 de título: 'drag' le dice a Electron que arrastrando aquí se mueve
-                 la ventana entera. Los botones van en una zona 'no-drag' porque
-                 dentro de una zona arrastrable dejarían de responder al clic.
+            toggleModeIACallback={() => setModoIA(activo => !activo)}
+            getScreenShotCallback={enviarCaptura}
+            simulateCallback={conectarSimulador}
+            connectTabletCallback={handdlerConnect}
+            disconnectTabletCallback={handdlerDisconnect}
+            closeCallback={() => (onCerrar ?? window.electronAPI?.closeTabletWindow)?.()}
 
-                 TODOS LOS BOTONES SON ÍCONOS. La ventana abre a 400 px y con texto
-                 no cabían: «Desconectar» empujaba la ✕ fuera del borde. Lo que hace
-                 cada uno lo dice su `title` al pasar el ratón y su `aria-label` a un
-                 lector de pantalla.
+            describeAiFailure={describeAiFailure}
+        >
 
-                 Su aspecto va en las clases `vt-icono` de index.css y no en
-                 utilidades de Tailwind: la regla global `button {}` de index.css no
-                 está en ninguna capa y les gana en relleno, borde, radio y letra.  */}
-            <div
-                className='sticky top-0 z-10 h-12 shrink-0 flex items-center gap-2.5 pl-3 pr-1.5 bg-[#021a38] border-b border-[#0a3a66] cursor-move select-none'
-                style={{ WebkitAppRegion: 'drag' }}
-                onMouseDown={onArrastrarBarra}
-            >
-
-                {/*  El punto dice el estado de un vistazo: verde conectada, ámbar
-                     conectando, rojo si el último intento falló, hueco si no hay nada.  */}
-                <span aria-hidden='true' className={`shrink-0 w-2.5 h-2.5 rounded-full ${claseDelPunto}`} />
-
-                {/*  Nombre del local arriba y estado debajo, en dos líneas. En una
-                     sola, con la ventana estrecha, el nombre empujaba los botones y
-                     la ✕ se salía por el borde.
-
-                     'min-w-0' es imprescindible: sin él un hijo de flex no baja de su
-                     ancho natural, así que este texto empujaría los botones fuera de
-                     la ventana en lugar de recortarse con puntos suspensivos.  */}
-                <span className='min-w-0 flex-1 flex flex-col gap-[3px] leading-none'>
-                    <span className='min-w-0 text-[13px] font-semibold text-[#e6eef9] truncate' title={nombreDelLocal}>
-                        {nombreDelLocal || 'Tablet'}
-                    </span>
-                    {/*  El estado de la tablet y, a su lado, el de la IA. El de la IA es el que se recorta
-                         si no cabe: entero va en su 'title', al pasar el ratón.  */}
-                    <span className='min-w-0 flex gap-1.5 text-[11px]'>
-                        <span className={`shrink-0 max-w-[70%] truncate ${colorDelEstado}`}>
-                            {statusText}
-                        </span>
-                        <span className={`min-w-0 truncate ${aiStatusColor}`} title={aiStatusText}>
-                            · {aiStatusText}
-                        </span>
-                    </span>
-                </span>
-
-                {/*  QUÉ ESTÁ LEYENDO LA IA
-                     Una marca por tira, encendida la que se mandó al modelo; late
-                     mientras se espera su respuesta. Solo desde 560 px: más estrecho
-                     se come el nombre del local, y la barra de abajo ya dice cómo fue
-                     la última lectura.  */}
-                {
-                    connected && (
-                        <span
-                            className={`hidden min-[560px]:flex shrink-0 items-center gap-2 h-[30px] px-2.5 rounded-[9px] border bg-[#01122c] font-mono text-[11px] ${ultimoError && modoIA ? 'border-[#6e5a1f] text-[#f2cf6b]' : 'border-[#0a3a66] text-[#8aa0bb]'}`}
-                            title={!modoIA ? 'La lectura de tickets está en pausa' : ultimoError ? `La última lectura falló: ${ultimoError}` : 'Tira de la pantalla que está leyendo la IA'}
-                        >
-                            <Icono nombre={modoIA ? 'ia' : 'iaPausa'} tamano={15} />
-                            {
-                                modoIA ?
-                                    <>
-                                        <span className='flex gap-[3px]'>
-                                            {
-                                                Array.from({ length: tiras }, (_, i) => (
-                                                    <span
-                                                        key={i}
-                                                        className={`w-2.5 h-1.5 rounded-full ${i === tiraEnLectura ? `bg-[#38b6e8] ${consultando ? 'animate-pulse' : ''}` : 'bg-[#1c3553]'}`}
-                                                    />
-                                                ))
-                                            }
-                                        </span>
-                                        <span className='text-[#dbe7f7] tabular-nums'>
-                                            {tiraEnLectura === null ? '–' : `${tiraEnLectura + 1}/${tiras}`}
-                                        </span>
-                                    </>
-                                    :
-                                    <span>IA en pausa</span>
-                            }
-                        </span>
-                    )
-                }
-
-                <div className='flex-none flex items-center gap-1.5' style={{ WebkitAppRegion: 'no-drag' }}>
-
-                    {/*  MODO IA
-                         Activa o pausa la lectura de tickets. En pausa el espejo sigue
-                         en vivo y la captura se puede enviar; solo se deja de mandar
-                         la pantalla al modelo. Se ve pulsado mientras está activo.  */}
-                    <button
-                        type='button'
-                        className={`vt-icono ${modoIA ? 'vt-icono--activo' : ''}`}
-                        onClick={() => setModoIA(activo => !activo)}
-                        aria-pressed={modoIA}
-                        aria-label={modoIA ? 'Modo IA activado: pausar la lectura de tickets' : 'Modo IA en pausa: reanudar la lectura de tickets'}
-                        title={modoIA ? 'Modo IA activado: la IA lee los tickets. Pulsa para pausarla.' : 'Modo IA en pausa: solo espejo. Pulsa para reanudar la lectura.'}
-                    >
-                        <Icono nombre={modoIA ? 'ia' : 'iaPausa'} />
-                    </button>
-
-                    {/*  ENVIAR LA CAPTURA A LA BANDEJA DE JARVIS
-                         Solo con la tablet conectada: sin conexión no hay nada que
-                         mandar, y un botón que solo sabe dar error es peor que no
-                         tenerlo. Mientras sube, el ícono gira; al terminar bien, se
-                         vuelve una palomita verde hasta que se va el aviso.  */}
-                    {
-                        connected && (
-                            <button
-                                type='button'
-                                className={`vt-icono ${envio?.ok === true ? 'vt-icono--ok' : ''}`}
-                                onClick={enviarCaptura}
-                                disabled={envio === 'enviando'}
-                                aria-label='Enviar esta captura a la bandeja de Jarvis'
-                                title='Enviar esta captura a la bandeja de Jarvis'
-                            >
-                                {
-                                    envio === 'enviando' ? <Icono nombre='girando' />
-                                        : envio?.ok === true ? <Icono nombre='hecho' />
-                                            : <Icono nombre='captura' />
-                                }
-                            </button>
-                        )
-                    }
-
-                    {/*  SIMULAR — solo en desarrollo y solo sin tablet conectada.
-                         Abre (o encuentra) el simulador de Toast y se conecta a él en
-                         vez de al USB. En la versión publicada esta constante es false
-                         y el botón no existe.  */}
-                    {
-                        SIMULACION_DISPONIBLE && !connected && (
-                            <button
-                                type='button'
-                                className='vt-icono'
-                                onClick={conectarSimulador}
-                                disabled={conectando}
-                                aria-label='Simular una tablet de Toast'
-                                title='Simular: conecta con una tablet de Toast de mentira, para probar sin USB'
-                            >
-                                <Icono nombre='simular' />
-                            </button>
-                        )
-                    }
-
-                    {
-                        connected ?
-                            <button
-                                type='button'
-                                className='vt-icono vt-icono--peligro'
-                                onClick={handdlerDisconnect}
-                                aria-label='Desconectar la tablet'
-                                title='Desconectar la tablet'
-                            >
-                                <Icono nombre='desconectar' />
-                            </button>
-                            :
-                            <button
-                                type='button'
-                                className='vt-icono vt-icono--principal'
-                                onClick={handdlerConnect}
-                                disabled={conectando}
-                                aria-label={conectando ? 'Conectando con la tablet' : 'Conectar la tablet por USB'}
-                                title={conectando ? 'Conectando… acepta el aviso en la tablet' : 'Conectar la tablet por USB'}
-                            >
-                                <Icono nombre={conectando ? 'girando' : 'conectar'} />
-                            </button>
-                    }
-
-                    <span aria-hidden='true' className='w-px h-6 mx-0.5 bg-[#0a3a66]' />
-
-                    {/*  Cerrar la propia ventana flotante. Al pasar el ratón se pone
-                         roja, como la ✕ de cualquier ventana de Windows.  */}
-                    <button
-                        type='button'
-                        className='vt-icono vt-icono--fantasma'
-                        onClick={() => (onCerrar ?? window.electronAPI?.closeTabletWindow)?.()}
-                        aria-label='Cerrar la ventana de la tablet'
-                        title='Cerrar'
-                    >
-                        <Icono nombre='cerrar' />
-                    </button>
-                </div>
-
-            </div>
-
-
-            {/*  RESULTADO DEL ENVÍO
-
-                 Va SUPERPUESTO, no dentro del flujo. En una ventana de 400×300
-                 una banda que aparece y desaparece empujaría la imagen hacia
-                 abajo y de vuelta cada vez, y ese salto se nota más que el
-                 propio aviso.
-
-                 Se coloca contra la raíz de este panel —que lleva `relative`— justo
-                 debajo de la barra superior, que mide 48 px.
-
-                 `pointer-events-none` para que no se coma un clic sobre la
-                 imagen si el aviso cae encima de algo que se quería arrastrar.  */}
-            {
-                envio && envio !== 'enviando' && (
-                    <div
-                        role={envio.ok ? 'status' : 'alert'}
-                        className={`absolute top-[56px] left-1/2 -translate-x-1/2 z-20 px-3 py-1.5 rounded-md text-[11px] font-bold shadow-lg pointer-events-none flex items-center gap-1.5 max-w-[92%]
-                        ${envio.ok ? 'bg-[#0f5132] text-[#b7f7d0] border border-[#1a7a4c]' : 'bg-[#5c1a22] text-[#ffc9cf] border border-[#8a2a36]'}`}>
-                        {
-                            envio.ok ?
-                                <svg className='w-3.5 h-3.5 flex-none' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'>
-                                    <polyline points='4 13 9 18 20 6' />
-                                </svg>
-                                :
-                                <svg className='w-3.5 h-3.5 flex-none' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round'>
-                                    <circle cx='12' cy='12' r='9' />
-                                    <path d='M12 7v6M12 16.5v.01' />
-                                </svg>
-                        }
-                        <span className='truncate'>{envio.texto}</span>
-                    </div>
-                )
-            }
-
-
-            {/*  IMAGEN DE LA TABLET
-                 SIN BARRA DE DESPLAZAMIENTO HORIZONTAL. Al 100 % la imagen mide
-                 justo el ancho de la ventana, así que no hay nada que desplazar a
-                 los lados. Con zoom sí sobra imagen, pero a ella se llega
-                 ARRASTRANDO: `overflow-x-hidden` quita la barra, no el
-                 desplazamiento — el arrastre mueve scrollLeft igual.
-
-                 'items-start justify-start' y no 'center': con la imagen más ancha
-                 que el hueco, `justify-center` la desborda por los dos lados y la
-                 parte izquierda queda fuera de alcance. El centrado, mientras cabe,
-                 lo hace el `margin: auto` de la propia imagen.  */}
-            <div
+                {/*  IMAGEN DE LA TABLET
+                 'overflow-auto' es lo que permite moverse por la imagen cuando el
+                 zoom la hace más grande que la ventana. Sin eso, al ampliar solo
+                 se vería el centro y el resto quedaría cortado sin poder alcanzarlo.  */}
+            <TabletRender
+                img={imgUrl}
+                zoom={zoom}
+                isDragging={arrastrando}
+                canMove={sePuedeMover}
+                onMouseEvent={empezarArrastre}
+                loadEvent={() => setSePuedeMover(sePuedeArrastrar())}
                 ref={contenedorImgRef}
-                onMouseDown={empezarArrastre}
-                className={`w-full flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex items-start justify-start border-b border-[#0a3a66] bg-black/20 ${arrastrando ? 'cursor-grabbing select-none' : sePuedeMover ? 'cursor-grab' : ''}`}
-            >
-
-                {
-                    imgUrl ?
-                        <img
-                            //  EL ZOOM MANDA SOBRE EL ANCHO, Y EL ALTO SIGUE A LA IMAGEN
-                            //
-                            //  Antes iba `width: zoom%` Y `height: zoom%` a la vez, con
-                            //  `object-contain`. Eso estiraba el HUECO a todo el
-                            //  contenedor y después encajaba la foto dentro conservando
-                            //  su proporción: como la pantalla de la tablet casi nunca
-                            //  tiene la misma forma que la ventana, sobraba sitio a los
-                            //  lados y quedaban esas dos franjas oscuras.
-                            //
-                            //  Con el alto en `auto` la imagen ya no vive dentro de una
-                            //  caja mayor que ella: al 100 % ocupa el ancho completo y su
-                            //  altura sale sola de su proporción. Sin franjas.
-                            //
-                            //  `object-contain` se cae porque ya no pinta nada: solo
-                            //  tenía sentido cuando había una caja que rellenar.
-                            //
-                            //  'flex: none' evita que flex encoja la imagen y anule el zoom.
-                            //  'maxWidth: none' quita el tope que trae Tailwind por defecto.
-                            //
-                            //  'margin: auto' la centra mientras quepa, PERO —y por esto
-                            //  no se usa `items-center` para ella— cuando no cabe, los
-                            //  márgenes se van a cero y se puede llegar al borde de
-                            //  arriba desplazándose. Centrando con `align-items`, ese
-                            //  trozo queda fuera de alcance: es un viejo defecto de
-                            //  flexbox al desbordar, y con el zoom alto se nota enseguida.
-                            style={{ width: `${zoom}%`, height: 'auto', flex: 'none', maxWidth: 'none', margin: 'auto' }}
-                            src={imgUrl}
-                            alt='pantalla tablet'
-                            draggable={false}
-                            onLoad={() => setSePuedeMover(sePuedeArrastrar())}
-                        />
-                        :
-                        <p className='m-auto text-[12px] text-[#5e7ba0] px-4 text-center'>Conecta la tablet para ver su pantalla</p>
-                }
-            </div>
+            />
 
 
 
 
-            {/*  BARRA DE ZOOM
-                 Los tres controles van juntos en un grupo: alejar, el porcentaje (un
-                 clic vuelve al 100 %) y acercar. A la derecha, la pista de arrastre
-                 solo cuando de verdad hay imagen fuera de la vista.  */}
-            <div
-                className='h-10 shrink-0 flex items-center gap-2 px-2 bg-[#021a38] select-none'
-                style={{ WebkitAppRegion: 'no-drag' }}
-            >
 
-                <div className='vt-zoom' role='group' aria-label='Zoom de la imagen'>
-                    <button
-                        type='button'
-                        className='vt-zoom__paso'
-                        onClick={() => cambiarZoom(-ZOOM_PASO)}
-                        disabled={zoom <= ZOOM_MIN}
-                        aria-label='Alejar'
-                        title='Alejar'
-                    >
-                        <Icono nombre='alejar' tamano={16} />
-                    </button>
-
-                    <button
-                        type='button'
-                        className='vt-zoom__valor'
-                        onClick={() => setZoom(100)}
-                        title='Volver al 100 %'
-                    >
-                        {zoom} %
-                    </button>
-
-                    <button
-                        type='button'
-                        className='vt-zoom__paso'
-                        onClick={() => cambiarZoom(ZOOM_PASO)}
-                        disabled={zoom >= ZOOM_MAX}
-                        aria-label='Acercar'
-                        title='Acercar'
-                    >
-                        <Icono nombre='acercar' tamano={16} />
-                    </button>
-                </div>
-
-                {
-                    sePuedeMover && (
-                        <span className='hidden min-[480px]:flex items-center gap-1.5 text-[11px] text-[#8aa0bb]'>
-                            <Icono nombre='mover' tamano={14} />
-                            Arrastra la imagen para moverte
-                        </span>
-                    )
-                }
-
-                {/*  GUARDAR LA CAPTURA Y SUS TIRAS
-                     Solo en desarrollo: es una herramienta para comparar modelos, no
-                     algo que el monitorista necesite ver.  */}
-                {
-                    import.meta.env.DEV && (
-                        <button
-                            type='button'
-                            className='vt-icono vt-icono--pequeno ml-auto'
-                            onClick={guardarCapturaYTiras}
-                            disabled={!connected}
-                            aria-label='Guardar la captura y sus tiras'
-                            title='Guarda el PNG completo y las tiras tal como se le mandan al modelo, para el banco de pruebas'
-                        >
-                            <Icono nombre='guardar' tamano={16} />
-                        </button>
-                    )
-                }
-
-            </div>
+            {/*  LA BARRA DE ZOOM, debajo del espejo. Está en assets/ZoomBar.jsx, y de allí
+                 salen también los límites del zoom.  */}
+            <ZoomBar
+                zoom={zoom}
+                canMove={sePuedeMover}
+                connected={connected}
+                zoomCallback={cambiarZoom}
+                resetZoomCallback={() => setZoom(100)}
+                saveFramesCallback={guardarCapturaYTiras}
+            />
 
 
-        </div>
+        </TabletContainer>
     );
 }
 
-
-
-
-/*  LOS ÍCONOS DE LA VENTANA
- *
- *  Todos del mismo dibujo: caja de 24, trazo de 1,8, puntas redondeadas y sin
- *  relleno. Van aquí dentro y no en una librería porque son pocos y así el trazo es
- *  el mismo en todos. Toman el color del texto del botón (`currentColor`), y el
- *  tamaño va en atributos para que ninguna clase de Tailwind compita con él.
- */
-const TRAZOS = {
-    //  Enchufe: conectar la tablet por USB.
-    conectar: <><path d='M9 3v4M15 3v4' /><path d='M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z' /><path d='M12 16v5' /></>,
-
-    //  El mismo enchufe, tachado.
-    desconectar: <><path d='M9 3v4M15 3v4' /><path d='M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z' /><path d='M12 16v5' /><line x1='3' y1='3' x2='21' y2='21' /></>,
-
-    //  Cámara con una flecha hacia arriba: mandar esta captura a Jarvis.
-    captura: <><path d='M3 8.5A1.5 1.5 0 0 1 4.5 7h2.2l1.2-2h8.2l1.2 2h2.2A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z' /><path d='M12 16.5v-6' /><polyline points='9.3 13 12 10.3 14.7 13' /></>,
-
-    //  Destellos: el modo IA. Tachados cuando está en pausa.
-    ia: <><path d='M11 3.5l1.7 4.6 4.6 1.7-4.6 1.7L11 16.1l-1.7-4.6-4.6-1.7 4.6-1.7z' /><path d='M18 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z' /></>,
-    iaPausa: <><path d='M11 3.5l1.7 4.6 4.6 1.7-4.6 1.7L11 16.1l-1.7-4.6-4.6-1.7 4.6-1.7z' /><path d='M18 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z' /><line x1='3' y1='3' x2='21' y2='21' /></>,
-
-    cerrar: <><line x1='6' y1='6' x2='18' y2='18' /><line x1='18' y1='6' x2='6' y2='18' /></>,
-    hecho: <polyline points='5 12.5 10 17 19 7' />,
-    acercar: <><circle cx='11' cy='11' r='7' /><line x1='16.5' y1='16.5' x2='21' y2='21' /><line x1='8' y1='11' x2='14' y2='11' /><line x1='11' y1='8' x2='11' y2='14' /></>,
-    alejar: <><circle cx='11' cy='11' r='7' /><line x1='16.5' y1='16.5' x2='21' y2='21' /><line x1='8' y1='11' x2='14' y2='11' /></>,
-    mover: <><polyline points='5 9 2 12 5 15' /><polyline points='9 5 12 2 15 5' /><polyline points='15 19 12 22 9 19' /><polyline points='19 9 22 12 19 15' /><line x1='2' y1='12' x2='22' y2='12' /><line x1='12' y1='2' x2='12' y2='22' /></>,
-    guardar: <><path d='M12 4v11' /><polyline points='7.5 10.5 12 15 16.5 10.5' /><path d='M5 20h14' /></>,
-
-    //  Un matraz: probar con una tablet de mentira.
-    simular: <><path d='M9.5 3h5' /><path d='M10.5 3v6.2L5.2 18a2 2 0 0 0 1.7 3h10.2a2 2 0 0 0 1.7-3l-5.3-8.8V3' /><path d='M7.6 15h8.8' /></>,
-};
-
-
-function Icono({ nombre, tamano = 18 }) {
-    //  El anillo que gira mientras algo está en curso.
-    if (nombre === 'girando') return (
-        <svg className='animate-spin' width={tamano} height={tamano} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-            <circle cx='12' cy='12' r='8.5' stroke='currentColor' strokeWidth='2.5' opacity='0.25' />
-            <path d='M20.5 12a8.5 8.5 0 0 0-8.5-8.5' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' />
-        </svg>
-    );
-
-    return (
-        <svg width={tamano} height={tamano} viewBox='0 0 24 24' fill='none' stroke='currentColor'
-             strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
-            {TRAZOS[nombre]}
-        </svg>
-    );
-}
 
 
 

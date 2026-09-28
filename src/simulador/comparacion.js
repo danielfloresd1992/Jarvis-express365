@@ -200,6 +200,23 @@ export function comparar({ registro, turno, inferencia, toleranciaS, limites }) 
     const medidas = filas.filter(fila => fila.demoraCoincide !== null);
     const fallosDeDemora = medidas.filter(fila => !fila.demoraCoincide);
 
+    //  LOS DOS FALLOS QUE SE MIRAN APARTE, cada uno con su número y su porcentaje:
+    //    · los que la lectura PUDO ver y no vio;
+    //    · los que sí vio pero con la toma de orden fuera de la tolerancia.
+    //  Estaban dentro de los otros marcadores, restando de cabeza. Puestos así se leen de un vistazo.
+
+    // sinReconocer = «los que se pudieron ver y no se vieron»
+    const sinReconocer = filas.filter(fila => fila.reconocible && !fila.ia);
+
+    // horaDesviada = «los que se vieron, pero su toma de orden no cuadra»
+    const horaDesviada = reconocidos.filter(fila => fila.resultado === RESULTADO.HORA_DESVIADA);
+
+    // horaEstimada = «se vieron ya listos, así que su hora es una estimación y no una medida»
+    const horaEstimada = reconocidos.filter(fila => fila.resultado === RESULTADO.HORA_ESTIMADA);
+
+    // sinHora = «se vieron, pero no se les pudo sacar la hora»
+    const sinHora = reconocidos.filter(fila => fila.resultado === RESULTADO.SIN_HORA);
+
     return {
         filas,
         reconocidos,
@@ -216,6 +233,15 @@ export function comparar({ registro, turno, inferencia, toleranciaS, limites }) 
             aciertos: aciertos.length,                            //  …y, de eso, lo que además está bien
             inventados: fantasmas.length,
             numerosInventados: fantasmas.map(pedido => `#${pedido.ticket || '?'}`),
+
+            //  Los dos fallos que se enseñan con su número y su porcentaje
+            sinReconocer: sinReconocer.length,
+            numerosSinReconocer: sinReconocer.map(fila => `#${fila.verdad.ticket}`),
+
+            horaDesviada: horaDesviada.length,
+            numerosHoraDesviada: horaDesviada.map(fila => `#${fila.ia?.ticket ?? '?'}`),
+            horaEstimada: horaEstimada.length,
+            sinHora: sinHora.length,
 
             errorMedio: conHora.length ? Math.round(conHora.reduce((suma, fila) => suma + Math.abs(fila.dToma), 0) / conHora.length) : null,
 

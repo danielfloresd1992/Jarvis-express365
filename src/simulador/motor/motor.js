@@ -92,7 +92,20 @@ export const AJUSTES_POR_DEFECTO = {
 
     //  LA COCINA
     autoCocina: true,
-    esperaExpoS: [20, 90],        //  lo que tarda el expedidor en despachar una tarjeta lista
+    /*  LO QUE TARDA UNA TARJETA LISTA EN IRSE DE LA PANTALLA
+     *
+     *  Tres o cuatro segundos, y esto NO es un detalle de adorno: es el margen que tiene la
+     *  lectura para ver el verde. Una pasada completa son tres tiras, y cada tira se relee cada
+     *  pocos segundos, así que lo normal es que la tarjeta se ponga verde y desaparezca ENTRE
+     *  DOS LECTURAS de su tira, sin que nadie llegue a verla.
+     *
+     *  Por eso 'Listo en tablet' se sella casi siempre por AUSENCIA (dos lecturas seguidas sin
+     *  verla) y no por haberla visto ponerse verde.
+     *
+     *  Antes aquí ponía [20, 90], que le daba a la lectura veinte veces más margen del que tiene
+     *  de verdad y hacía que la simulación saliera mucho mejor de lo que sale en el restaurante.
+     */
+    esperaExpoS: [3, 4],
 
     //  ENTRE CURSO Y CURSO: lo que la mesa tarda en comerse uno y pedir (o soltar) el siguiente
     pausaEntreCursosS: [180, 480],

@@ -85,6 +85,10 @@ function getChatUrl(baseUrl) {
 // LOS APUNTES DEL REGISTRO DE LA INFERENCIA (el panel lateral de desarrollo). Son los mismos de siempre:
 // apunte 1 (la tira), 2 (el servidor), 3 (el envío), 4 (la respuesta), 5 (los tickets) y el FALLO.
 // Todas reciben 'note' (la función que apunta) y no devuelven nada.
+//
+// CUIDADO CON LA CLAVE: dentro de 'server' viaja la clave del servidor de IA, y el registro se enseña
+// en pantalla y se copia al portapapeles. Por eso los apuntes escriben el servidor CAMPO A CAMPO
+// (direccion, modelo) y nunca el objeto entero: ni '...server', ni 'server' suelto, ni su JSON.
 
 
 // noteStripToSend = «apuntar la tira que se va a mandar»
@@ -196,12 +200,13 @@ function noteTicketsFound(note, parsed) {
 // su respuesta). No toca React ni guarda nada: todo lo recibe y todo lo devuelve.
 // Recibe: { capture: { blob, time, width },     la última captura de la tablet
 //           strip, strips, overlap,              qué tira toca, de cuántas, y con cuánto solape
-//           server: { baseUrl, model },          el servidor de IA y el modelo (de checkAiServer)
+//           server: { baseUrl, apiKey, model },  el servidor de IA, su clave y el modelo (de checkAiServer)
 //           timeoutMs, signal,                   cuánto se espera al modelo, y con qué se cancela
 //           note }                               note(tipo, titulo, detalle): apunta en el registro de la inferencia
 // Devuelve: { ok, strip, strips, time, model, seconds, tickets, discarded, error, cause, text, imageKB }
-//   cause: los de requestInference ('network', 'cors', 'timeout', 'http', 'model-rejected', 'cancelled'),
-//          'unreadable' (contestó, pero ahí no había un array de tickets) o 'unexpected'.
+//   cause: los de requestInference ('network', 'cors', 'timeout', 'http', 'model-rejected', 'auth',
+//          'no-url', 'cancelled'), 'unreadable' (contestó, pero ahí no había un array de tickets)
+//          o 'unexpected'. Con 'auth' y 'no-url' quien llama para el bucle: insistir no arregla nada.
 // NUNCA lanza: un fallo vuelve como { ok: false, error: 'texto en español', cause }.
 // Lo que se apunta en el registro en cada paso está en las funciones 'note…' de aquí arriba.
 async function runInferenceOnce(params) {
@@ -227,6 +232,11 @@ async function runInferenceOnce(params) {
         // response = «la respuesta de la solicitud de inferencia»
         const response = await requestInference({
             baseUrl: server.baseUrl,
+
+            // La clave va en la cabecera Authorization y no sale de aiServer.js: aquí solo se pasa.
+            // Sin clave (LM Studio a secas) viene vacía y la cabecera no se manda.
+            apiKey: server.apiKey,
+
             model: server.model,
             prompt: INFERENCE_PROMPT,
             image,

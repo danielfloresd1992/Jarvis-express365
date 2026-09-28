@@ -58,6 +58,29 @@ const CURSOS_CONOCIDOS = {
 };
 
 
+/*  QUÉ FORMA TIENE UN NÚMERO DE MESA
+ *
+ *  Casi siempre son cifras a secas ('53'), pero en la pantalla de verdad se ven mesas CON LETRA
+ *  delante —'B7', 'A12'—, que son las zonas del local. Exigiendo solo dígitos, esas mesas se
+ *  perdían enteras: la tarjeta entraba como si fuera un pedido sin mesa.
+ *
+ *  Hasta dos letras y hasta cuatro cifras, y AL MENOS UNA CIFRA. Esa cifra es lo único que
+ *  separa una mesa del nombre de un cliente, que es lo que la cabecera lleva en los pedidos
+ *  para llevar y a domicilio.
+ */
+const MESA_DE_VERDAD = /^[A-Za-z]{0,2}\d{1,4}$/;
+
+
+/**
+ * ¿Eso es un número de mesa, o el nombre de alguien?
+ *
+ * @param {string|number} texto  lo que se leyó donde iba la mesa
+ */
+export function esMesaDeVerdad(texto) {
+    return MESA_DE_VERDAD.test(String(texto ?? '').trim());
+}
+
+
 /**
  * El curso de una tarjeta en su forma canónica, o '' si el texto no es un curso.
  *

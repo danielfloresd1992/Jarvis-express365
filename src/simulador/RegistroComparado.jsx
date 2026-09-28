@@ -56,7 +56,8 @@ const ASPECTO_DEL_RESULTADO = {
  * @param {number}   toleranciaS  segundos de desvío que se dan por buenos
  * @param {boolean}  parada  si no están entrando tickets (para el texto de «no hay nada»)
  * @param {function} cambiar  cambia un ajuste del simulador (aquí, la tolerancia)
- * @param {function} exportar  ('csv' | 'json') → descarga el registro entero
+ * @param {function} exportar  ('csv' | 'json') → descarga el registro entero;
+ *                             ('pdf') → abre el informe de aciertos y desaciertos para imprimirlo
  * @param {function} alBorrar  quita del registro las tarjetas que ya no están en pantalla
  * @param {object}   acciones  { disparar, lista, despachar }: los botones de cada fila
  */
@@ -78,6 +79,7 @@ export const RegistroComparado = memo(function RegistroComparado({ comparacion, 
 
                     <button type='button' className='sim-boton sim-boton--chico' onClick={() => exportar('csv')} disabled={filas.length === 0} title='Todas las columnas, también las que aquí no se pintan'>Exportar CSV</button>
                     <button type='button' className='sim-boton sim-boton--chico' onClick={() => exportar('json')} disabled={filas.length === 0}>JSON</button>
+                    <button type='button' className='sim-boton sim-boton--chico' onClick={() => exportar('pdf')} disabled={filas.length === 0} title='Abre el informe de aciertos y desaciertos para guardarlo como PDF'>PDF</button>
                     <button type='button' className='sim-boton sim-boton--chico sim-boton--peligro' onClick={alBorrar} title='Quita del registro las tarjetas que ya no están en pantalla'>Limpiar</button>
                 </div>
             </div>
@@ -102,13 +104,23 @@ export const RegistroComparado = memo(function RegistroComparado({ comparacion, 
  */
 function Marcadores({ resumen, turno, hayInferencia, toleranciaS }) {
 
-    const { generados, reconocibles, existen, inferidos, aciertos, inventados, numerosInventados, errorMedio } = resumen;
+    const {
+        generados, reconocibles, existen, inferidos, aciertos, inventados, numerosInventados, errorMedio,
+        sinReconocer, numerosSinReconocer, horaDesviada, numerosHoraDesviada, horaEstimada, sinHora,
+    } = resumen;
 
     //  Una fracción y su color. Sin nada que medir todavía no hay ni porcentaje ni color.
     const medida = (parte, total) => (total > 0 ? { texto: porCiento(parte / total), tono: parte === total ? 'bien' : parte / total >= 0.5 ? 'aviso' : 'mal' } : { texto: '—', tono: '' });
 
     const reconocio = medida(existen, reconocibles);
     const acerto = medida(aciertos, inferidos);
+
+    //  Los dos fallos van al revés que los aciertos: aquí CERO es lo bueno.
+    // fallo = «una fracción de fallos y su color»
+    const fallo = (parte, total) => (total > 0 ? { texto: porCiento(parte / total), tono: parte === 0 ? 'bien' : parte / total <= 0.2 ? 'aviso' : 'mal' } : { texto: '—', tono: '' });
+
+    const noVistos = fallo(sinReconocer, reconocibles);
+    const horaMal = fallo(horaDesviada, existen);
 
     return (
         <div className='sim-marcadores'>
@@ -134,6 +146,29 @@ function Marcadores({ resumen, turno, hayInferencia, toleranciaS }) {
                 rotulo='de aciertos'
                 detalle={hayInferencia ? `${aciertos} de ${inferidos} que dio la inferencia${errorMedio !== null ? ` · error medio ${errorMedio} s` : ''}` : '—'}
                 ayuda={`Tabla 2. De todo lo que dio la inferencia, cuánto está BIEN: el ticket existe, la mesa es la suya y la toma de orden cae dentro de ±${toleranciaS} s.`}
+            />
+
+            {/*  NO RECONOCIDOS: los que la lectura pudo ver y se le escaparon.  */}
+            <Marcador
+                numero={hayInferencia ? noVistos.texto : '—'}
+                tono={hayInferencia ? noVistos.tono : ''}
+                rotulo={sinReconocer === 1 ? 'ticket sin reconocer' : 'tickets sin reconocer'}
+                detalle={!hayInferencia ? '—'
+                    : sinReconocer > 0 ? `${sinReconocer} de ${reconocibles} · ${numerosSinReconocer.slice(0, 8).join(' ')}`
+                        : `ninguno: vio los ${reconocibles} que pudo ver`}
+                ayuda='Tickets que la ventana de la tablet PUDO ver y la inferencia no dio. Es el reverso de «reconoció la inferencia», puesto aparte para no tener que restar de cabeza.'
+            />
+
+            {/*  Y de los que sí vio, aquellos cuya hora no cuadra.  */}
+            <Marcador
+                numero={hayInferencia ? horaMal.texto : '—'}
+                tono={hayInferencia ? horaMal.tono : ''}
+                rotulo={horaDesviada === 1 ? 'toma de orden que no coincide' : 'tomas de orden que no coinciden'}
+                detalle={!hayInferencia ? '—'
+                    : horaDesviada > 0 ? `${horaDesviada} de ${existen} · ${numerosHoraDesviada.slice(0, 8).join(' ')}`
+                        : existen > 0 ? `ninguna: las ${existen} caen dentro de ±${toleranciaS} s`
+                            : '—'}
+                ayuda={`De los tickets que la inferencia reconoció Y existen, aquellos cuya toma de orden se sale de ±${toleranciaS} s. No cuentan aquí los que se vieron ya listos (su hora es una estimación) ni los que se quedaron sin hora.`}
             />
 
             <Marcador

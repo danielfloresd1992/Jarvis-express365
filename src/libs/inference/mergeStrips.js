@@ -1,4 +1,4 @@
-import { claveDeTicket } from '../tickets/claveDeTicket.js';
+import { claveDeTicket, esMesaDeVerdad } from '../tickets/claveDeTicket.js';
 import { aSegundosDeCronometro, bandaPorEspera } from '../tickets/cronometro.js';
 
 
@@ -14,7 +14,7 @@ function getTicketKey(ticket) {
     if (ticket.ticket) return claveDeTicket(ticket.ticket, ticket.tipo);
 
     // 2. sin número: la mesa, si es una mesa de verdad (solo dígitos)
-    if (/^\d+$/.test(ticket.mesa)) return ticket.mesa;
+    if (esMesaDeVerdad(ticket.mesa)) return ticket.mesa;
 
     return '';
 }

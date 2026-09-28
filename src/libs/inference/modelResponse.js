@@ -1,23 +1,31 @@
 import { leerCabecera, ETIQUETAS_DE_PANTALLA } from '../tickets/lecturaDeTickets.js';
 import { aSegundosDeCronometro } from '../tickets/cronometro.js';
+import { esMesaDeVerdad } from '../tickets/claveDeTicket.js';
 
 
 // INFERENCE_PROMPT = «el texto de la inferencia»
 // Lo que se le pide al modelo junto con la imagen de la tira.
 // Tiene que contestar un array con un objeto por ticket: { ticket, mesa, tiempo, tipo, listo }.
 // Es corto y pide una sola línea a propósito: en ese servidor cada token cuesta cerca de un segundo.
-const INFERENCE_PROMPT = `Esta imagen es un trozo de la pantalla de cocina de un restaurante, con tarjetas de pedidos (tickets).
+const INFERENCE_PROMPT = `Esta imagen es un trozo de la pantalla de cocina de un restaurante (Toast), con tarjetas de pedidos (tickets).
+La pantalla puede estar en ingles o en espanol: FIRE y COCINAR son lo mismo, y CONTINUED y CONTINUA tambien.
 Responde SOLO con un array JSON en UNA linea: sin markdown, sin saltos de linea y sin explicaciones.
 
-Un objeto por cada tarjeta cuya CABECERA (la franja de color de arriba) se vea entera, con estas cinco claves:
-"ticket": el numero que va tras el "#", con TODAS sus cifras ("#205" es "205"). Solo digitos.
-"mesa": el numero que va tras la palabra "Table". Solo digitos. Si esa cabecera no dice "Table" (pedidos para llevar o a domicilio: llevan el nombre del cliente), escribe "".
-"tiempo": el contador que esta DENTRO de la cabecera, arriba a la derecha, tal como se ve ("3:04", "1:12:40"). El tiempo que sigue a FIRE o COCINAR es otro y no se copia, con una excepcion: si arriba a la derecha hay una hora con "@" delante ("@3:35p") en vez de un contador, entonces si se copia el que sigue a FIRE o COCINAR.
-"tipo": el rotulo que la tarjeta lleva bajo la cabecera: el curso (Appetizer, Entree, Dessert) o el tipo de pedido (Take Out, UberEats Delivery, DoorDash Delivery, Online Ordering). FIRE, COCINAR, HOLD y EN PAUSA no son el tipo. Si no hay rotulo, escribe "".
-"listo": true si TODOS los productos de la tarjeta tienen una palomita verde a su izquierda, o si el cuerpo de la tarjeta es verde. Si no, false.
+Un objeto por cada tarjeta cuya CABECERA (la franja de arriba, la que lleva el "#") se vea entera, con estas cinco claves:
 
-Copia los numeros tal como se ven y no mezcles los de una tarjeta con los de otra. Dos tarjetas con el mismo ticket (una por curso) son dos objetos.
-No cuentan las tarjetas cortadas por el borde de la imagen (no enseñan su "#" o su tiempo) ni los trozos que empiezan por "CONTINUA": no tienen cabecera.
+"ticket": el numero que sigue al "#", con TODAS sus cifras ("#205" es "205"). Solo digitos.
+
+"mesa": lo que sigue a la palabra "Table", TAL COMO SE VE. Casi siempre son cifras ("53"), pero puede llevar una letra delante ("B7", "A12"): copiala tambien. Si esa cabecera no dice "Table" —los pedidos para llevar y a domicilio llevan el nombre del cliente— escribe "".
+
+"tiempo": el contador de la CABECERA, arriba a la derecha, tal como se ve ("3:04", "15:56", "1:12:40"). OJO: mas abajo hay OTRO tiempo, el que sigue a FIRE o a COCINAR, y ese NO se copia. Una sola excepcion: si arriba a la derecha no hay un contador sino una hora del reloj ("1:39p", "@3:35p"), entonces si se copia el que sigue a FIRE o COCINAR.
+
+"tipo": SOLO se copia si esta escrito en la tarjeta; NO TE LO INVENTES. Mira primero justo DEBAJO de la linea de FIRE o COCINAR: si ahi hay un curso (Appetizer, Entree, Dessert, Drinks), ese es. Si debajo no hay nada y los productos empiezan enseguida, mira JUSTO ENCIMA de esa linea, y copia solo si pone una de estas: Dine In, Take Out, Online Ordering, UberEats Delivery, DoorDash Delivery. En cualquier otro caso escribe "" — muchas tarjetas no llevan rotulo, y eso es normal. NO son el tipo y no se copian nunca: FIRE, COCINAR, HOLD, EN PAUSA, RECUPERADO, RECALLED, PAGADO, NO PAGADO, ni GRILL ni KITCHEN (esas dos son la estacion de cocina y van debajo de CADA PRODUCTO, no de la cabecera).
+
+"listo": true SOLO si TODOS los productos de la tarjeta llevan una palomita verde a su izquierda. Si a un solo producto le falta, es false.
+NO TE GUIES POR LOS COLORES. El color de la tarjeta —marco y cabecera— es una ALARMA DE TIEMPO: verde recien entrada, naranja cuando lleva un rato, roja cuando lleva mucho. NO dice si esta lista. Una tarjeta roja puede no estar lista, y una verde puede estarlo. En la duda, false.
+
+Copia los numeros tal como se ven y no mezcles los de una tarjeta con los de otra. Dos tarjetas con el mismo "#" (una por curso) son dos objetos.
+No cuentan las tarjetas cortadas por el borde de la imagen (no enseñan su "#" o su tiempo) ni los trozos que empiezan por CONTINUA o CONTINUED: esos no tienen cabecera propia.
 
 Ejemplo de una imagen con dos tarjetas:
 [{"ticket":"318","mesa":"27","tiempo":"4:15","tipo":"Entree","listo":false},{"ticket":"319","mesa":"","tiempo":"0:52","tipo":"UberEats Delivery","listo":true}]
@@ -96,19 +104,19 @@ function cleanTicketNumber(value) {
 
 
 // cleanTableNumber = «limpiar el número de mesa»
-// Recibe: value (lo que vino en 'mesa': '53', 53, 'Table 53', '', 'Muiguel'…).
-// Devuelve: solo los dígitos ('53'), o '' si eso no es una mesa (un nombre, un '#76', nada).
+// Recibe: value (lo que vino en 'mesa': '53', 53, 'Table 53', 'Table B7', '', 'Muiguel'…).
+// Devuelve: la mesa ('53', 'B7'), o '' si eso no es una mesa (un nombre, un '#76', nada).
 function cleanTableNumber(value) {
 
     // text = «el valor, pasado a texto»
     const text = cleanText(value);
 
-    // withWord = «con la palabra delante»: 'Table 53', 'Table #53', 'Mesa 53'
-    const withWord = text.match(/^(?:table|mesa)\s*#?\s*(\d+)$/i);
-    if (withWord) return withWord[1];
+    // withWord = «con la palabra delante»: 'Table 53', 'Table #53', 'Mesa 53', 'Table B7'
+    const withWord = text.match(/^(?:table|mesa)\s*#?\s*(.+)$/i);
+    if (withWord && esMesaDeVerdad(withWord[1])) return withWord[1].trim().toUpperCase();
 
-    // solo dígitos: '53'
-    if (/^\d+$/.test(text)) return text;
+    //  A secas: '53', 'B7'
+    if (esMesaDeVerdad(text)) return text.toUpperCase();
 
     return '';
 }

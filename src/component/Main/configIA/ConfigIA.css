@@ -1,0 +1,271 @@
+/*  ─────────────────────────────────────────────────────────────────────────────
+    EL MENÚ DEL SERVIDOR DE IA
+
+    Va en su propia hoja, con clases 'cia-' (ConfigIA), por dos motivos:
+
+      · La regla global 'button {}' de index.css no está en ninguna capa y les gana
+        a las utilidades de Tailwind en relleno, borde, radio y tamaño de letra.
+        Una clase le gana a una etiqueta, así que aquí los botones salen como se
+        piden. Lo mismo con el 'h1 { font-size: 3.2em }' de esa misma hoja.
+      · App.css lo comparte toda la aplicación. Meter aquí sus estilos obligaría a
+        tocarlo, y cualquier nombre genérico se llevaría por delante otra pantalla.
+
+    La paleta es la misma azul oscuro de la ventana de la tablet, para que el menú
+    no parezca de otra aplicación.
+    ───────────────────────────────────────────────────────────────────────────── */
+
+
+/*  El menú entero: una columna estrecha, que se lee de arriba abajo.
+    '.main-content' es flex en columna con 'align-items: flex-start', así que sin
+    un ancho propio esto se encogería al tamaño de su texto.  */
+.cia-panel {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.25rem 1.4rem 1.5rem;
+    border: 1px solid #0a3a66;
+    border-radius: 14px;
+    background: #060f1c;
+    color: #cfe0f5;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+
+/*  LA CABECERA.  */
+.cia-cabecera {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #0a3a66;
+}
+
+.cia-titulo {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #e6eef9;
+}
+
+/*  El ancho de los párrafos se mide en 'ch' y no en píxeles: así la línea sigue
+    teniendo el mismo número de letras aunque cambie el tamaño de la letra.  */
+.cia-subtitulo {
+    margin: 0;
+    max-width: 68ch;
+    color: #8aa0bb;
+    font-size: 12.5px;
+}
+
+
+/*  UN CAMPO: su rótulo, su casilla y las pistas de debajo.  */
+.cia-campo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+}
+
+.cia-etiqueta {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8aa0bb;
+}
+
+.cia-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid #22415f;
+    border-radius: 9px;
+    background: #01122c;
+    color: #eef4fb;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 13px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cia-input::placeholder { color: #4f6784; }
+
+.cia-input:focus {
+    outline: none;
+    border-color: #38b6e8;
+    box-shadow: 0 0 0 2px rgba(56, 182, 232, 0.22);
+}
+
+
+/*  La clave ya guardada: se enseña tapada, al lado del botón de cambiarla.  */
+.cia-guardada {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px;
+    border: 1px solid #22415f;
+    border-radius: 9px;
+    background: #0b1a2e;
+}
+
+.cia-guardada__valor {
+    flex: 1;
+    min-width: 0;
+    color: #cfe0f5;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 13px;
+    letter-spacing: 0.4px;
+    overflow-wrap: anywhere;
+}
+
+
+/*  Las pistas de debajo del campo. La de la dirección normalizada es la importante:
+    va en el color de lectura, no en el apagado.  */
+.cia-pista {
+    margin: 0;
+    color: #9fd8f2;
+    font-size: 11.5px;
+}
+
+.cia-pista--flojo { color: #6f87a4; }
+
+/*  La pista de «ojo con esto»: lo escrito se puede usar, pero no hace lo que parece
+    (una clave pegada dentro de la dirección, una clave que es de otro servidor).
+    En ámbar, que se distingue del azul de lectura sin gritar como el rojo del error.  */
+.cia-pista--ojo { color: #f0c27b; }
+
+.cia-codigo {
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: #01122c;
+    border: 1px solid #13294a;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 11.5px;
+    color: #cfe0f5;
+    overflow-wrap: anywhere;
+}
+
+
+/*  LOS BOTONES.  */
+.cia-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding-top: 0.25rem;
+}
+
+.cia-boton {
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid #22415f;
+    border-radius: 9px;
+    background: #13294a;
+    color: #cfe0f5;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.cia-boton:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #ffffff; }
+.cia-boton:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/*  El 'outline: none' global de index.css deja sin rastro a quien va con el teclado.
+    Aquí se le devuelve, y solo con teclado.  */
+.cia-boton:focus-visible { outline: 2px solid #38b6e8; outline-offset: 2px; }
+
+/*  Guardar: la acción principal.  */
+.cia-boton--principal { background: #38b6e8; border-color: #38b6e8; color: #04121f; }
+.cia-boton--principal:hover:not(:disabled) { background: #5ec6ef; border-color: #5ec6ef; color: #04121f; }
+
+/*  Borrar: se puede perder algo, así que se ve.  */
+.cia-boton--peligro { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
+.cia-boton--peligro:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
+
+/*  Los de dentro de un campo —«Cambiar»—, que no compiten con los tres de abajo.  */
+.cia-boton--suave { background: transparent; border-color: #22415f; color: #9fd8f2; }
+.cia-boton--suave:hover:not(:disabled) { background: #13294a; border-color: #2c5577; color: #ffffff; }
+
+.cia-boton--pequeno { height: 26px; padding: 0 10px; font-size: 11.5px; }
+
+
+/*  EL AVISO de lo último que se hizo: guardar, borrar o probar.  */
+.cia-aviso {
+    margin: 0;
+    padding: 9px 12px;
+    border-radius: 9px;
+    border-left: 3px solid #3b526e;
+    background: #0b1a2e;
+    font-size: 12.5px;
+    overflow-wrap: anywhere;
+}
+
+.cia-aviso--ok { border-left-color: #5fd29a; background: #0f2a22; color: #b6ebd0; }
+.cia-aviso--error { border-left-color: #ff7d8a; background: #2a151b; color: #ffc9d0; }
+.cia-aviso--info { border-left-color: #38b6e8; background: #0b1d38; color: #bfe3f7; }
+
+
+/*  LAS NOTAS: lo que hay que saber ANTES de que falle.  */
+.cia-notas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding-top: 1rem;
+    border-top: 1px solid #0a3a66;
+}
+
+.cia-nota {
+    margin: 0;
+    max-width: 72ch;
+    color: #8aa0bb;
+    font-size: 12px;
+}
+
+.cia-nota strong { color: #cfe0f5; font-weight: 700; }
+
+.cia-enlace { color: #7fd0f5; text-decoration: underline; overflow-wrap: anywhere; }
+.cia-enlace:hover { color: #b5e6fb; }
+
+
+/*  En el teléfono el menú ocupa lo que haya y los botones se reparten la fila.  */
+@media (max-width: 720px) {
+    .cia-panel { padding: 1rem; gap: 1rem; }
+    .cia-botones > .cia-boton { flex: 1 1 auto; }
+}
+
+/*  EL SELECT DEL MODELO. Hereda de .cia-input el borde, el fondo y la tipografía; aquí solo lo
+    que un <select> necesita aparte: sitio para la flecha y que el desplegable no salga en los
+    colores del sistema, que sobre este fondo oscuro se leen blancos sobre blanco.  */
+.cia-select {
+    padding-right: 30px;
+    cursor: pointer;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #7fa6c8 50%), linear-gradient(135deg, #7fa6c8 50%, transparent 50%);
+    background-position: calc(100% - 15px) 17px, calc(100% - 10px) 17px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.cia-select:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.cia-select option {
+    background: #01122c;
+    color: #eef4fb;
+}
+
+/*  EL BOTÓN DENTRO DE UN AVISO. Sale cuando la consulta trae una dirección mejor (el servidor
+    contesta por http y se escribió https): va en la misma línea que el texto, pequeño, y solo
+    cambia el campo de arriba; guardar sigue siendo un clic aparte y a propósito.  */
+.cia-aviso__accion {
+    margin-left: 10px;
+    vertical-align: baseline;
+}
