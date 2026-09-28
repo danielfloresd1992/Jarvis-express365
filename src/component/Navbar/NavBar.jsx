@@ -10,6 +10,7 @@ import { socket } from '../../libs/socket/io.js';
 import URL from '../../libs/fetch_data/api_conexion.js';
 import { confirmAuthentication } from '../../libs/fetch_data/authFetch.js';
 import NotificationBell from '../NotificationCenter';
+import TabletButton from '../tabletButton/TabletButton.jsx';
 
 
 
@@ -127,6 +128,10 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
             
 
             <ul className='nav-bar__actions'>
+                {/* Sacar / quitar la ventana de la tablet. Trae su propio <li> y
+                    solo se pinta dentro de la aplicación de escritorio. */}
+                <TabletButton />
+
                 {/* Centro de notificaciones: se monta entero desde su módulo.
                     También en móvil, a diferencia de los otros accesos: un aviso
                     de que te cambiaron el horario importa igual desde el

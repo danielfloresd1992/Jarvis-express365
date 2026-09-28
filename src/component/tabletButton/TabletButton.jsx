@@ -28,10 +28,13 @@ import { useEffect, useState } from 'react';
 //
 // DÓNDE SE COLOCA
 //
-// Fijo arriba a la derecha, a 320 px del borde: justo a la izquierda de la
-// bandeja del Toast POS, que ocupa los 300 px de la derecha cuando está
-// abierta. La posición no cambia con la bandeja a propósito — un botón que
-// salta de sitio según lo que haya abierto se vuelve difícil de encontrar.
+// En la barra de arriba, junto a «Notificaciones», y con su misma clase
+// (`nav-bar__action-btn`): es un acceso más del header, no un botón flotante
+// encima del contenido. Antes iba fijo sobre la pantalla y tapaba lo que
+// hubiera debajo.
+//
+// Devuelve el `<li>` entero y no solo el botón: sin carcasa no se pinta nada,
+// y un `<li>` vacío seguiría ocupando su hueco en la fila de accesos.
 
 export default function TabletButton() {
 
@@ -61,24 +64,26 @@ export default function TabletButton() {
     if (!hayCarcasa) return null;
 
 
-    // El desplazamiento con `--titlebar-h` es el mismo que usa el resto de la
-    // interfaz: dentro de la aplicación de escritorio hay una barra de título
-    // propia de 32 px arriba, y sin restarla este botón se metería debajo. En
-    // el navegador la variable vale cero y quedan los 62 px de siempre.
-    // (Los guiones bajos son la forma de Tailwind de escribir espacios; en
-    // `calc` los espacios alrededor del `+` son obligatorios.)
-    const clase = 'fixed top-[calc(62px_+_var(--titlebar-h))] right-[320px] z-[1001] px-3 py-1.5 rounded-md text-[12px] font-bold text-white shadow-lg transition-colors';
-
+    // Con la ventana fuera, el botón queda marcado en rojo (la variante está en
+    // App.css, junto al resto de `nav-bar__action-btn`): es lo que avisa de que
+    // el siguiente clic CIERRA, sin tener que leer el texto.
     return (
-        <button
-            className={`${clase} ${abierta ? 'bg-[#7a1f2b] hover:bg-[#9a2533]' : 'bg-[#066ca8] hover:bg-[#0890c0]'}`}
-            onClick={() => {
-                if (abierta) window.electronAPI?.closeTabletWindow?.();
-                else window.electronAPI?.openTabletWindow?.();
-            }}
-            title={abierta ? 'Cerrar la ventana de la tablet' : 'Abrir la pantalla de la tablet en una ventana flotante'}
-        >
-            {abierta ? 'Quitar tablet' : 'Sacar tablet'}
-        </button>
+        <li>
+            <button
+                type='button'
+                className={`nav-bar__action-btn ${abierta ? 'nav-bar__action-btn--tablet-open' : ''}`}
+                onClick={() => {
+                    if (abierta) window.electronAPI?.closeTabletWindow?.();
+                    else window.electronAPI?.openTabletWindow?.();
+                }}
+                title={abierta ? 'Cerrar la ventana de la tablet' : 'Abrir la pantalla de la tablet en una ventana flotante'}
+            >
+                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                    <rect x='4' y='2' width='16' height='20' rx='2' />
+                    <line x1='12' y1='18' x2='12.01' y2='18' />
+                </svg>
+                {abierta ? 'Quitar tablet' : 'Sacar tablet'}
+            </button>
+        </li>
     );
 }

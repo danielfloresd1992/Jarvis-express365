@@ -9,7 +9,6 @@ import { createIo, socketAppManager } from '../../store/slices/socketio.js';
 import imgDefault from '../../../public/img/default.png';
 import NavBar from '../../component/Navbar/NavBar.jsx';
 import InboxImg from '../../component/inbox/images_inbox.jsx';
-import TabletButton from '../../component/tabletButton/TabletButton.jsx';
 import AsideBar from '../../component/AsideBar/AsideBar.jsx';
 import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
@@ -204,37 +203,10 @@ export default function Home() {
         return [...localSelector].sort((a, b) => a.name.localeCompare(b.name))
     }, [localSelector]);
 
-
-
-    /*  EL REPORTE DE DEMORA QUE MANDA LA VENTANA DE LA TABLET
-     *
-     *  Llega al store desde AppInitializer, que escucha siempre. Aquí se decide qué
-     *  hacer con él, y eso depende de lo que el operador esté haciendo:
-     *
-     *  · Si no tiene nada abierto, se abre el formulario de demoras con los datos
-     *    puestos y listo.
-     *
-     *  · Si está en mitad de OTRO formulario, no se le cambia la pantalla de golpe:
-     *    perdería lo que estuviera escribiendo. El reporte se queda esperando y se le
-     *    avisa para que lo abra cuando termine.
-     *
-     *  En cuanto se abre, el reporte se saca del store. Si se quedara ahí, volvería a
-     *  abrirse solo cada vez que este componente se montara.
-     */
     const reporteDemora = useSelector(state => state.reporteDemora);
     const [reporteAbierto, setReporteAbierto] = useState(null);
 
 
-    /*  SOLO SE ABRE SOLO SI NO HAY NADA EMPEZADO
-     *
-     *  Antes esto también aceptaba 'imagen-3', y era un error: desde aquí no se ve qué
-     *  hay DENTRO de Demoras. Si el operador estaba rellenando Limpieza, o una primera
-     *  atención a mano, el reporte le cambiaba el formulario de golpe y se llevaba por
-     *  delante lo que llevara escrito.
-     *
-     *  En cualquier otro caso el reporte espera y se avisa con el botón de abajo, que
-     *  es lo que permite decidir a quien está trabajando.
-     */
     const puedeAbrirReporte = renderValue === '';
 
 
@@ -252,20 +224,16 @@ export default function Home() {
     }, [reporteDemora, puedeAbrirReporte, abrirReporte]);
 
 
-    /*  Y SE SUELTA EN CUANTO SE SALE DE DEMORAS
-     *
-     *  Sin esto el reporte se quedaba pegado: volvía a precargar el formulario cada vez
-     *  que alguien entraba a 'Primera atención' a mano, con la mesa y las horas de un
-     *  reporte de hace rato.
-     *
-     *  El otro camino de salida —terminar el formulario sin moverse de Demoras— lo
-     *  avisa el propio Delay al cerrarse.
-     */
+   
     useEffect(() => {
         if (renderValue !== 'imagen-3') setReporteAbierto(null);
     }, [renderValue]);
 
 
+    console.log(render )
+
+    console.log(localSelector);
+    console.log(listMenu);
 
     return (
         <>
@@ -276,7 +244,6 @@ export default function Home() {
                             <NavBar clearLocal={resetLocal} openCloseSidebar={closeOpenAsideBar} boxModal={configBoxModal} />
                             < AsideBar clearLocal={resetLocal} localMonitoring={local} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
                             <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} reporteDemora={reporteAbierto} onReporteCerrado={() => setReporteAbierto(null)} />
-                            <TabletButton />
 
                             {/*  AVISO DE REPORTE EN ESPERA
                                  Solo aparece cuando llega un reporte de la tablet y el

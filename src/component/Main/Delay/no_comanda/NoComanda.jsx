@@ -46,7 +46,7 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
         isMobile ? null : setLocal(local = JSON.parse(localStorage.getItem('local_appExpress'))[0]);
     }, []);
 
-
+    console.log(title);
     // La alerta aún no existe en el menú (el filter por _id vino vacío):
     // avisar en vez de romper con title[0] undefined.
     if (!title || title.length < 1) {

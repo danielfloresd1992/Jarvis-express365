@@ -5,13 +5,17 @@ import { getTimeReport } from '../../libs/date_time/calculate_time.js';
 
 
 
-/*  LA PARRILLA
+/*  LA PARRILLA DE ROTACIÓN
  *
  *  Va en el panel de abajo de la ventana flotante, debajo del espejo de la tablet.
- *  La IA lee la pantalla de arriba y escribe aquí: cada mesa que detecta aparece con
- *  su número y su demora ya puestos, y el resto se completa a mano.
+ *  Sigue cada MESA: cuándo se ocupó, cuándo se atendió, cuándo se desocupó y cuándo
+ *  se limpió.
  *
- *  Las filas de más, vacías, están para anotar las mesas que la tablet no ve.
+ *  SE LLENA ENTERA A MANO. Lo que la IA lee en la pantalla de cocina NO entra aquí:
+ *  son pedidos, y van a la parrilla de Procesos. Antes cada mesa leída aparecía
+ *  también en esta tabla, con el cronómetro de su ticket en la columna 'Demora' — pero
+ *  esa columna es la demora de PRIMERA ATENCIÓN, que la tablet no ve, y el tiempo de
+ *  cocina de un pedido no tiene nada que ver con ella.
  */
 
 
@@ -28,21 +32,19 @@ const COLUMNAS = ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'L
 const COLUMNA_DEMORA = 3;
 const ANCHO_DEMORA = { flexGrow: 1.35 };
 
-/*  LAS FILAS LIBRES, PARA ANOTAR LO QUE LA TABLET NO VE
+/*  LAS FILAS, TODAS PARA ANOTAR A MANO
  *
- *  Son un bloque FIJO que va siempre debajo de los tickets, con sus identidades
- *  escritas de una vez para siempre.
+ *  Son un bloque FIJO, con sus identidades escritas de una vez para siempre: con
+ *  identidad propia y número fijo, React no las desmonta nunca y lo escrito en ellas
+ *  no se pierde.
  *
- *  Antes se calculaban restando —30 menos los tickets— y eso tenía dos consecuencias
- *  malas y silenciosas: cada ticket nuevo hacía desaparecer la última fila libre, y
- *  con ella lo que hubiera escrito el monitorista; y al llegar a 30 tickets ya no
- *  quedaba ninguna, justo en hora punta, que es cuando más falta hacen.
- *
- *  Con identidad propia y número fijo, React no las desmonta nunca.
+ *  La clave sigue siendo 'libre-N' aunque ya no haya otras filas de las que
+ *  distinguirlas: es la que usa el almacén de anotaciones de la ventana, y la parrilla
+ *  de Procesos cuenta con que no coincida con las suyas ('libre-pedido-N').
  */
-const FILAS_LIBRES = Array.from(
+const FILAS = Array.from(
     { length: 30 },
-    (_, i) => ({ clave: `libre-${i}`, ticket: null })
+    (_, i) => `libre-${i}`
 );
 
 //  El límite de primera atención por defecto, para cuando la ventana todavía no sabe
@@ -52,49 +54,7 @@ const LIMITE_POR_DEFECTO = '00:03:00';
 
 
 
-export function Parrilla({ tickets = [], limiteAtencion = LIMITE_POR_DEFECTO, limiteLimpieza = LIMITE_POR_DEFECTO, leerAnotacion, anotar, onReportarDemora }) {
-
-
-    /*  LAS FILAS
-     *
-     *  Primero una por cada mesa que la IA detectó; después vacías hasta completar la
-     *  parrilla.
-     *
-     *  La clave lleva el número de mesa, no la posición: así React reconoce la fila
-     *  entre lecturas y no pierde lo que se haya escrito en ella cuando entra una
-     *  lectura nueva o cambia el orden.
-     */
-    const filas = useMemo(() => {
-
-        /*  UNA FILA POR MESA, NO POR PEDIDO
-         *
-         *  Esta parrilla va de MESAS: cuándo se ocupó, cuándo se atendió, cuándo se
-         *  limpió. La de Procesos es la que sigue cada pedido por separado.
-         *
-         *  Desde que la identidad de un ticket es su número, una mesa con tres pedidos
-         *  llega tres veces en la lectura. Sin agrupar aparecería tres veces en la
-         *  tabla, y además con la clave repetida — de las pocas cosas que React no
-         *  perdona.
-         *
-         *  De los pedidos de una mesa se queda el que peor va: el rojo antes que
-         *  cualquiera y, a igualdad, el de más tiempo. Es el que hay que mirar.
-         */
-        const porMesa = new Map();
-
-        for (const ticket of tickets) {
-            if (!ticket?.mesa) continue;
-
-            const previo = porMesa.get(ticket.mesa);
-            if (!previo || esMasUrgente(ticket, previo)) porMesa.set(ticket.mesa, ticket);
-        }
-
-        const conTicket = [...porMesa.values()]
-            .map(ticket => ({ clave: `mesa-${ticket.mesa}`, ticket }));
-
-        return [...conTicket, ...FILAS_LIBRES];
-    }, [tickets]);
-
-
+export function Parrilla({ limiteAtencion = LIMITE_POR_DEFECTO, limiteLimpieza = LIMITE_POR_DEFECTO, leerAnotacion, anotar, onReportarDemora }) {
 
 
     return (
@@ -125,11 +85,10 @@ export function Parrilla({ tickets = [], limiteAtencion = LIMITE_POR_DEFECTO, li
             </div>
 
             {
-                filas.map(({ clave, ticket }) => (
+                FILAS.map(clave => (
                     <LineaRotacion
                         key={clave}
                         clave={clave}
-                        ticket={ticket}
                         limiteAtencion={limiteAtencion}
                         limiteLimpieza={limiteLimpieza}
                         leerAnotacion={leerAnotacion}
@@ -146,24 +105,19 @@ export function Parrilla({ tickets = [], limiteAtencion = LIMITE_POR_DEFECTO, li
 
 
 
-function LineaRotacion({ clave, ticket, limiteAtencion, limiteLimpieza, leerAnotacion, anotar, onReportarDemora }) {
+function LineaRotacion({ clave, limiteAtencion, limiteLimpieza, leerAnotacion, anotar, onReportarDemora }) {
 
 
-    /*  LA FILA YA NO GUARDA NADA
+    /*  LA FILA NO GUARDA NADA
      *
      *  Todo lo que se escribe vive en el almacén de VentanaTablet, indexado por la
      *  clave de esta fila. Aquí solo se lee y se pide escribir.
-     *
-     *  Es lo que hace que las horas anotadas sobrevivan: cuando una mesa desaparece de
-     *  la tablet y React desmonta la fila, lo escrito no se va con ella.
      */
     const anotado = leerAnotacion?.(clave) ?? {};
 
     const escribir = (campo) => (valor) => anotar?.(clave, campo, valor);
 
-    //  La mesa la pone la IA, pero quien está mirando manda: si se corrigió a mano,
-    //  esa corrección gana sobre lo que traiga la lectura siguiente.
-    const mesa = anotado.mesa ?? ticket?.mesa ?? '';
+    const mesa = anotado.mesa ?? '';
 
     const horaOcupa = anotado.horaOcupa ?? '';
     const horaAtencion = anotado.horaAtencion ?? '';
@@ -196,17 +150,10 @@ function LineaRotacion({ clave, ticket, limiteAtencion, limiteLimpieza, leerAnot
     const sinLimpieza = horaDesocupa === '' || horaLimpieza === '';
 
 
-    /*  EL BOTÓN APARECE POR DOS CAMINOS
-     *
-     *  El calculado —lo que se anotó a mano supera el límite del local— y el que dice
-     *  la propia tablet: si el ticket sale en rojo, la cocina ya lo está marcando como
-     *  demorado.
-     *
-     *  Sin el segundo, una mesa en rojo en la pantalla NO ofrecía reportar mientras
-     *  nadie hubiera rellenado Ocupa y Primera atención a mano, que es justo el trabajo
-     *  que esta parrilla viene a ahorrar.
-     */
-    const hayDemora = demora.exceeded || !!ticket?.rojo;
+    //  El botón de reportar aparece cuando lo anotado a mano supera el límite del local.
+    //  (Hubo un segundo camino, un ticket en rojo en la tablet. Se fue con los tickets:
+    //  ese rojo es tiempo de cocina, y lo que se reporta aquí es la primera atención.)
+    const hayDemora = demora.exceeded;
 
 
     //  Aviso de la propia fila, no un alert() del sistema: en la aplicación de
@@ -243,16 +190,8 @@ function LineaRotacion({ clave, ticket, limiteAtencion, limiteLimpieza, leerAnot
 
 
 
-    //  Una fila 'ausente' es una mesa que ya no está en la pantalla de la tablet pero
-    //  conserva lo que se anotó. Se atenúa para distinguirla de las que siguen vivas,
-    //  sin que parezca un error: el dato es bueno, solo que el pedido ya terminó.
-    const ausente = !!ticket?.ausente;
-
-
-
-
     return (
-        <div className={`flex w-full items-center justify-around transition-colors hover:bg-[#10203c] ${ausente ? 'bg-[#0b0f1c] opacity-60' : 'bg-[#0e1223]'}`}>
+        <div className='flex w-full items-center justify-around transition-colors hover:bg-[#10203c] bg-[#0e1223]'>
 
             <WrapperCell classStyles='font-semibold'>
                 <input
@@ -272,29 +211,15 @@ function LineaRotacion({ clave, ticket, limiteAtencion, limiteLimpieza, leerAnot
             </WrapperCell>
 
             {/*  DEMORA
-                 Si la IA leyó el tiempo del ticket manda ese, porque es el que está
-                 corriendo de verdad en la pantalla de cocina. Si no, se calcula a mano
-                 restando la primera atención de la hora en que se ocupó la mesa.  */}
+                 Sale de restar la primera atención de la hora en que se ocupó la mesa.
+                 Es un valor calculado, así que no se toca: por eso va sin 'updateValue'.  */}
             {/*  Todo en línea, sin 'absolute': el botón medía unos 80 px flotando sobre
                  la celda y tapaba la hora incluso con la ventana ancha.  */}
             <WrapperCell classStyles='gap-1.5 px-1' estilo={ANCHO_DEMORA}>
-                {
-                    ausente ?
-                        //  Ya no está en la tablet: se dice, en gris y sin alarma. Lo
-                        //  anotado sigue siendo válido; lo que terminó es el pedido.
-                        <span className='min-w-0 truncate text-[10px] italic text-[#5e7ba0]' title='Esta mesa ya no está en la pantalla de la tablet'>fuera de tablet</span>
-                        :
-                        ticket?.tiempo ?
-                            <WrapperText
-                                classStyles={ticket.rojo ? 'text-[#f08a6a] font-bold' : 'text-[#aecbf0]'}
-                                value={ticket.tiempo}
-                            />
-                            :
-                            <WrapperText
-                                classStyles={sinTocar ? 'text-[#33486a]' : demora.exceeded ? 'text-[#ff4d4d] font-bold' : 'text-[#7fc79e]'}
-                                value={sinTocar ? '00:00:00' : demora.timeTotal}
-                            />
-                }
+                <WrapperText
+                    classStyles={sinTocar ? 'text-[#33486a]' : demora.exceeded ? 'text-[#ff4d4d] font-bold' : 'text-[#7fc79e]'}
+                    value={sinTocar ? '00:00:00' : demora.timeTotal}
+                />
 
                 {/*  El botón solo aparece cuando hay demora: es el atajo para reportarla
                      sin salir de la ventana. Es un ícono —una bandera— para que quepa
@@ -304,7 +229,7 @@ function LineaRotacion({ clave, ticket, limiteAtencion, limiteLimpieza, leerAnot
                      Tamaño, relleno y borde van en 'style' y no en clases: la regla
                      global 'button {}' de index.css gana a las utilidades de Tailwind.  */}
                 {
-                    hayDemora && !ausente && (
+                    hayDemora && (
                         <button
                             type='button'
                             className='shrink-0 flex items-center justify-center text-white bg-[#b3303f] hover:bg-[#c93a4a] transition-colors'
@@ -357,33 +282,4 @@ function LineaRotacion({ clave, ticket, limiteAtencion, limiteLimpieza, leerAnot
 
         </div>
     );
-}
-
-
-
-
-/*  ¿Cuál de dos pedidos de la misma mesa hay que enseñar en la parrilla de rotación?
- *
- *  Manda el color: un ticket en rojo es el que tiene el problema, y es el que el
- *  monitorista necesita ver aunque la mesa tenga otros dos tranquilos.
- *
- *  A igualdad de color, el que lleve más tiempo esperando.
- */
-function esMasUrgente(candidato, actual) {
-    if (candidato?.rojo !== actual?.rojo) return Boolean(candidato?.rojo);
-    return aSegundos(candidato?.tiempo) > aSegundos(actual?.tiempo);
-}
-
-
-//  'mm:ss' o 'h:mm:ss' a segundos, solo para poder comparar. Lo que no se entienda
-//  cuenta como cero: un tiempo ilegible no debe ganarle a uno que sí se leyó.
-function aSegundos(tiempo) {
-    if (!tiempo) return 0;
-
-    const partes = String(tiempo).trim().split(':').map(Number);
-    if (partes.some(Number.isNaN)) return 0;
-
-    if (partes.length === 3) return partes[0] * 3600 + partes[1] * 60 + partes[2];
-    if (partes.length === 2) return partes[0] * 60 + partes[1];
-    return 0;
 }

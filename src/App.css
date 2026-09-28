@@ -980,6 +980,18 @@
     background: rgba(239, 68, 68, 0.06);
 }
 
+/* La ventana de la tablet está fuera: el botón queda marcado en rojo, porque
+   el siguiente clic la cierra. */
+.nav-bar__action-btn--tablet-open {
+    color: #ff8f9c;
+    background: rgba(154, 37, 51, 0.22);
+}
+
+.nav-bar__action-btn--tablet-open:hover {
+    color: #ffd9dd;
+    background: rgba(154, 37, 51, 0.4);
+}
+
 
 /* ═══ NOVELTIES LIST DROPDOWN ═══ */
 
