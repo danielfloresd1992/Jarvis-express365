@@ -2,6 +2,17 @@
    AWAIT / LOADING OVERLAY — Clean Style
    ============================================ */
 
+/*  Este velo SIGUE SIENDO OSCURO a propósito, no es un descuido del tema claro: un
+ *  velo existe para apagar la aplicación de detrás, y uno claro sobre una página
+ *  clara no apaga nada. Lo único que cambia es el tinte, que era azul marino y
+ *  ahora es la tinta cálida de la paleta.
+ *
+ *  El desenfoque SÍ se queda aquí, al contrario que en los paneles: debajo hay una
+ *  pantalla de verdad que difuminar, no papel del mismo color que la tarjeta.
+ *
+ *  Y como ESTA capa es oscura, encima de ella no valen los colores de texto de la
+ *  paleta clara: 'verde-texto' sobre el velo se queda en 1,2 : 1. De ahí el marfil
+ *  del rótulo y el verde de relleno de los puntos.                                 */
 .awaitContain {
     position: fixed;
     width: 100%;
@@ -11,7 +22,11 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    background: rgba(0, 5, 18, 0.78);
+    /*  El velo es la tinta de la paleta al 78 %, no un color suelto: si el token
+     *  cambia, el velo le sigue. color-mix es la forma que ya usa el proyecto
+     *  (fieldInput.css, Default/style.css) para un token con transparencia.  */
+    --jx-velo: color-mix(in srgb, var(--color-jx-tinta) 78%, transparent);
+    background: var(--jx-velo);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     align-items: center;
@@ -20,23 +35,27 @@
     z-index: 10000;
 }
 
+/*  El 'from' es 'transparent' y no la tinta a opacidad 0: el navegador interpola
+ *  los colores con alfa premultiplicada, asi que arrancar de 'transparent' da
+ *  exactamente el mismo fundido calido sin repetir el color a mano.  */
 @keyframes backtrans {
-    from { background: rgba(0, 5, 18, 0); }
-    to   { background: rgba(0, 5, 18, 0.78); }
+    from { background: transparent; }
+    to   { background: var(--jx-velo); }
 }
 
 .hidden {
     display: none;
 }
 
+/*  Marfil y no el verde de la marca, porque el rótulo va sobre el velo oscuro.
+ *  Y fuera el resplandor: sobre azul neón era luz, aquí sólo sería suciedad.  */
 .textAwait {
     font-size: 1rem;
-    color: rgba(0, 185, 255, 0.85);
+    color: var(--color-jx-lienzo);
     font-weight: 700;
     font-family: 'Inter', sans-serif;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    text-shadow: 0 0 12px rgba(0, 185, 255, 0.45);
     animation: textFade .6s ease;
 }
 
@@ -64,6 +83,9 @@
     transform-origin: 40px 40px;
 }
 
+/*  Los puntos llevan el verde de RELLENO y no 'verde-barra', que es el de los
+ *  iconos: sobre este velo el de barras se queda en 1,6 : 1 y el de relleno llega
+ *  a 3,1 : 1, el mínimo de un indicador. El halo se va con el resto.  */
 .lds-roller div:after {
     content: " ";
     display: block;
@@ -71,9 +93,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #00b9ff;
+    background: var(--color-jx-verde);
     margin: -4px 0 0 -4px;
-    box-shadow: 0 0 8px rgba(0, 185, 255, 0.6);
 }
 
 .lds-roller div:nth-child(1) {

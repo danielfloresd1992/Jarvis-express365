@@ -60,16 +60,10 @@
     background: #25d366;
     box-shadow: 0 0 6px rgba(37, 211, 102, 0.7);
     flex-shrink: 0;
-    animation: chat-dot-pulse 2.5s ease-in-out infinite;
 }
 
 /* Solo opacity (compositada): animar box-shadow repintaba el punto en cada
    frame. La sombra queda estática en ::before y el pulso lo da la opacidad. */
-@keyframes chat-dot-pulse {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.55; }
-}
-
 .chat-banner:hover {
     background: #2a3942;
 }
