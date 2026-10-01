@@ -177,7 +177,7 @@ export default function TabletContainer({
                                                 Array.from({ length: strips ?? 0 }, (_, i) => (
                                                     <span
                                                         key={i}
-                                                        className={`w-2.5 h-1.5 rounded-full ${i === stripReading ? `bg-[#38b6e8] ${waitingIA ? 'animate-pulse' : ''}` : 'bg-[#1c3553]'}`}
+                                                        className={`w-2.5 h-1.5 rounded-full ${i === stripReading ? `bg-[#38b6e8] ${waitingIA ? '' : ''}` : 'bg-[#1c3553]'}`}
                                                     />
                                                 ))
                                             }

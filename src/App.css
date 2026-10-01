@@ -109,7 +109,7 @@
     box-shadow:
         0 1px 2px rgba(47, 42, 30, 0.04),
         0 12px 32px rgba(47, 42, 30, 0.08);
-    animation: authCardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
 }
 
 /*  La franja de marca, pegada al canto de arriba. */
@@ -121,18 +121,6 @@
     right: 0;
     height: 4px;
     background: var(--jx-firma);
-}
-
-@keyframes authCardIn {
-    from {
-        opacity: 0;
-        transform: translateY(16px) scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
 }
 
 .auth-card__header {
@@ -462,15 +450,9 @@
     z-index: 10;
 }
 
-.local-selectComponent::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-        repeating-linear-gradient(60deg, var(--color-jx-regla) 0px, transparent 1px, transparent 55px, var(--color-jx-regla) 56px),
-        repeating-linear-gradient(120deg, var(--color-jx-regla) 0px, transparent 1px, transparent 55px, var(--color-jx-regla) 56px);
-    pointer-events: none;
-}
+/*  Aquí había un mosaico de rombos: dos tramas de rayas a 60° y 120° que al cruzarse
+    formaban la rejilla. Sobre el azul marino era un cian al 3 % que apenas se intuía;
+    al pasar a claro se volvió una trama bien visible por toda la pantalla. Fuera.    */
 
 .local-selectComponent::after {
     content: '';
@@ -498,7 +480,7 @@
     border-radius: 20px;
     box-shadow: 0 0 0 1px rgba(47, 42, 30, 0.06) inset, 0 30px 80px rgba(0, 0, 0, 0.65);
     min-width: 340px;
-    animation: authCardIn 0.6s cubic-bezier(0.22,1,0.36,1);
+
 }
 
 .local-title {
@@ -633,12 +615,24 @@
     background-color: transparent;
     border: 3px solid var(--color-jx-regla2);
     border-top-color: var(--color-jx-verde-barra);
-    animation: spinner-loading 0.75s linear infinite;
+    /* animación infinita quitada */
 }
-@keyframes spinner-loading { to { transform: rotate(360deg); } }
-
 /* ═══ TOP NAV BAR ═══ */
 
+/*  LA BARRA DE ARRIBA, EN VERDE CON LETRA BLANCA
+ *
+ *  OJO AL VERDE QUE SE USA, que no es el de marca.
+ *
+ *      blanco sobre #29c50c (el de marca)    2,31 : 1    no se lee
+ *      blanco sobre #1c8c08 (el de barras)   4,37 : 1    se queda corto
+ *      blanco sobre #177406 (el de texto)    5,94 : 1    ✓
+ *
+ *  El de marca es un verde claro, precioso de relleno cuando lleva TINTA encima, y
+ *  justo por eso no aguanta letra blanca. Aquí manda la letra: como tiene que ser
+ *  blanca, el fondo se va al verde más oscuro de la paleta.
+ *
+ *  Es la misma regla de siempre vista del revés: no es «qué letra le pongo a este
+ *  verde», es «qué verde aguanta esta letra».                                       */
 .nav-bar {
     position: fixed;
     top: var(--titlebar-h);
@@ -649,10 +643,19 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 1rem;
-    background: var(--color-jx-panel);
-    border-bottom: 1px solid var(--color-jx-regla2);
+    background: var(--color-jx-verde-texto);
+    color: #ffffff;
+    border-bottom: 1px solid var(--color-jx-verde-barra);
     z-index: 1000;
-    box-shadow: 0 1px 3px rgba(47, 42, 30, 0.06);
+    box-shadow: 0 1px 3px rgba(47, 42, 30, 0.12);
+}
+
+/*  Sobre un fondo de color, el ratón se marca aclarando u oscureciendo el PROPIO fondo,
+    no metiendo un color de la paleta clara: cualquiera de ellos sería una mancha.
+    'color-mix' con blanco mantiene el tono y solo sube la luz.                       */
+.nav-bar :is(.nav-bar__toggle, .nav-bar__action-btn):hover,
+.nav-bar .nav-bar__user {
+    background: color-mix(in srgb, #ffffff 14%, transparent);
 }
 
 .nav-bar__left {
@@ -671,14 +674,9 @@
     border: none;
     padding: 0;
     border-radius: 8px;
-    color: var(--color-jx-tinta2);
+    color: #ffffff;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
-}
-
-.nav-bar__toggle:hover {
-    background: var(--color-jx-arena);
-    color: var(--color-jx-tinta);
+    transition: background 0.15s ease;
 }
 
 .nav-bar__brand {
@@ -696,7 +694,7 @@
 .nav-bar__app-name {
     font-family: 'Lobster', 'title', cursive;
     font-size: 1.15rem;
-    color: var(--color-jx-verde-texto);
+    color: #ffffff;
     letter-spacing: 0.3px;
 }
 
@@ -711,24 +709,26 @@
     gap: 0.4rem;
     font-size: 0.82rem;
     font-weight: 500;
-    color: var(--color-jx-tinta);
+    color: #ffffff;
     padding: 0.35rem 0.75rem;
-    background: var(--color-jx-arena);
-    border: 1px solid var(--color-jx-regla2);
+    /*  El fondo lo pone la regla de arriba (un blanco al 14 %), para que la píldora se
+        despegue del verde sin meter un color ajeno.  */
+    border: 1px solid color-mix(in srgb, #ffffff 30%, transparent);
     border-radius: 20px;
 }
 
 .nav-bar__user svg {
-    color: var(--color-jx-tinta2);
+    color: #ffffff;
     flex-shrink: 0;
 }
 
+/*  El aro del avatar iba en el verde de marca: sobre un fondo verde no se vería.  */
 .nav-bar__avatar {
     width: 24px;
     height: 24px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1.5px solid var(--color-jx-verde);
+    border: 1.5px solid #ffffff;
     flex-shrink: 0;
 }
 
@@ -748,28 +748,23 @@
     padding: 0.4rem 0.75rem;
     font-size: 0.8rem;
     font-weight: 500;
-    color: var(--color-jx-tinta2);
+    color: #ffffff;
     background: none;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease;
     white-space: nowrap;
-}
-
-.nav-bar__action-btn:hover {
-    background: var(--color-jx-arena);
-    color: var(--color-jx-tinta);
 }
 
 .nav-bar__action-btn svg {
     flex-shrink: 0;
 }
 
-/*  Cerrar sesión va más apagado que el resto hasta que se pasa el ratón: es una acción
- *  que nadie quiere pulsar por error. 'tinta3' y no 'tinta4', que sería ilegible.    */
+/*  Cerrar sesión va un punto más apagado que el resto: nadie quiere pulsarlo por error.
+    Sobre un fondo de color eso se hace bajándole el blanco, no metiendo un gris.      */
 .nav-bar__action-btn--logout {
-    color: var(--color-jx-tinta3);
+    color: color-mix(in srgb, #ffffff 78%, transparent);
     padding: 0.4rem;
     margin-left: 0.25rem;
 }
@@ -785,6 +780,14 @@
     OJO, ESTE PAR VIAJA CON OTRO SITIO: el mismo estado está escrito a mano en
     Home.jsx:255-260 con clases arbitrarias de Tailwind. Si se cambia aquí y allí no,
     el botón y la píldora dejan de ir a juego y nadie se entera hasta verlo.          */
+/*  SOBRE EL HEADER VERDE, ESTE AVISO VA AL REVÉS QUE EN LA PÁGINA: píldora CLARA con
+ *  letra roja, no píldora roja con letra clara. Dos motivos, y el segundo pesa más:
+ *
+ *  · El rojo fuerte y el verde del header tienen casi la misma luminosidad (1,24 : 1),
+ *    así que la píldora no se despegaría del fondo. La clara da 5,17 : 1.
+ *  · Rojo sobre verde es justo la pareja que peor distingue quien tiene daltonismo, y
+ *    como aquí la diferencia sería SOLO de tono, para esa persona desaparecería. Con la
+ *    píldora clara la diferencia es de luz, que la ve todo el mundo.                  */
 .nav-bar__action-btn--tablet-open {
     color: var(--color-jx-critico-texto);
     background: var(--color-jx-critico-suave);
@@ -967,11 +970,20 @@
 
 }
 
-/*  El apartado donde se está. Antes se marcaba con cian sobre cian; ahora con el verde
-    de la casa sobre su fondo suave, que es como lo resuelven los otros dos proyectos. */
+/*  LOS DOS BOTONES DEL PIE: cambiar de establecimiento y cerrar sesión.
+ *
+ *  Son los únicos que llevan esta clase, y se veían lavados por un choque de reglas:
+ *  aquí se ponía fondo verde suave Y letra verde, pero '--ghost' y '--danger' vienen
+ *  más abajo y le pisaban el color a gris. Quedaba una caja verde pálida con letra
+ *  gris, que no parece ni un botón ni un enlace.
+ *
+ *  Ahora son botones de verdad: superficie, contorno y letra en tinta. El contorno va
+ *  en 'borde-campo' porque es lo que dice dónde se pulsa, y eso pide 3 : 1 — una regla
+ *  decorativa se queda en 1,3 y el botón parecería un párrafo con fondo.              */
 .sidebar__btn_highlighted {
-    background: var(--color-jx-verde-suave);
-    color: var(--color-jx-verde-texto);
+    background: var(--color-jx-tarjeta);
+    border: 1px solid var(--color-jx-borde-campo);
+    color: var(--color-jx-tinta);
 }
 
 .sidebar__btn:hover {
@@ -996,21 +1008,32 @@
     pointer-events: none;
 }
 
+/*  Cambiar de establecimiento: acción normal. El verde solo aparece al pasar el ratón,
+    que es cuando hace falta decir «esto se pulsa».                                   */
 .sidebar__btn--ghost {
-    color: var(--color-jx-tinta2);
-}
-
-.sidebar__btn--ghost:hover {
-    background: var(--color-jx-arena);
     color: var(--color-jx-tinta);
 }
 
+.sidebar__btn--ghost:hover {
+    background: var(--color-jx-verde-suave);
+    border-color: var(--color-jx-verde-barra);
+    color: var(--color-jx-verde-texto);
+}
+
+.sidebar__btn--ghost:hover .sidebar__btn-icon {
+    color: var(--color-jx-verde-texto);
+}
+
+/*  Cerrar sesión: en reposo se ve igual que el de arriba, y solo se pone rojo al pasar
+    el ratón. Es a propósito — un botón rojo permanente en el pie llama a pulsarlo, y
+    este es justo el que nadie quiere pulsar por error.                               */
 .sidebar__btn--danger {
-    color: var(--color-jx-tinta2);
+    color: var(--color-jx-tinta);
 }
 
 .sidebar__btn--danger:hover {
     background: var(--color-jx-critico-suave);
+    border-color: var(--color-jx-critico);
     color: var(--color-jx-critico-texto);
 }
 
@@ -1018,9 +1041,14 @@
     color: var(--color-jx-critico-texto);
 }
 
+/*  El pie va en marfil, un punto más claro que el resto de la barra lateral, para que
+    el bloque de «quién eres» se lea como una zona aparte y no como un apartado más del
+    menú. La diferencia de luz es pequeña a propósito; quien marca el corte es la línea
+    de arriba.                                                                         */
 .sidebar__footer {
     padding: 0.75rem 0.75rem 2.5rem 0.75rem;
-    border-top: 1px solid var(--color-jx-regla);
+    background: var(--color-jx-lienzo);
+    border-top: 1px solid var(--color-jx-regla2);
     display: flex;
     flex-direction: column;
     gap: .5rem;
@@ -1255,16 +1283,7 @@
 .inbox-card--new {
     border-color: var(--color-jx-regla2);
     /* resplandor de acento quitado: sobre fondo claro no es luz, es suciedad */
-    animation: inbox-pulse 2.2s ease-in-out 3;
-}
 
-@keyframes inbox-pulse {
-    0%, 100% {
-        /* resplandor de acento quitado: sobre fondo claro no es luz, es suciedad */
-    }
-    50% {
-        /* resplandor de acento quitado: sobre fondo claro no es luz, es suciedad */
-    }
 }
 
 /* "nueva" badge */
@@ -1531,12 +1550,7 @@ hr {
     -webkit-backdrop-filter: blur(18px);
     box-shadow: 0 0 0 1px rgba(47, 42, 30, 0.05) inset, 0 12px 40px rgba(0, 0, 0, 0.6);
     z-index: 10;
-    animation: speed-results-in 0.2s ease-out;
-}
 
-@keyframes speed-results-in {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
 
 /* scrollbar */
@@ -2865,16 +2879,11 @@ hr {
 .lp-dot-anim {
     color: var(--color-jx-verde-texto);
     /* resplandor de acento quitado: sobre fondo claro no es luz, es suciedad */
-    animation: lp-dot-seq 1.4s ease-in-out infinite;
+    /* animación infinita quitada */
 }
 .lp-dot-anim--1 { animation-delay: 0s; }
 .lp-dot-anim--2 { animation-delay: 0.22s; }
 .lp-dot-anim--3 { animation-delay: 0.44s; }
-@keyframes lp-dot-seq {
-    0%, 60%, 100% { opacity: 0; transform: translateY(0); }
-    30%            { opacity: 1; transform: translateY(-2px); }
-}
-
 /* ── Progress bar ── */
 .lp-progress-track {
     width: 220px; height: 3px;
@@ -2891,13 +2900,7 @@ hr {
     /* resplandor de acento quitado: sobre fondo claro no es luz, es suciedad */
     /* scaleX en vez de width: animar width recalcula layout en cada frame. */
     transform-origin: left center;
-    animation: lp-progress 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-@keyframes lp-progress {
-    0%   { transform: scaleX(0); opacity: 1; }
-    80%  { transform: scaleX(1); opacity: 1; }
-    95%  { transform: scaleX(1); opacity: 0; }
-    100% { transform: scaleX(0); opacity: 0; }
+    /* animación infinita quitada */
 }
 /* translateX en vez de left: mover `left` recalcula layout en cada frame.
    La pista mide 220px y el brillo 40px → recorrido de 180px. */
@@ -2952,7 +2955,7 @@ hr {
     border-width: 2.5px;
     border-color: var(--color-jx-regla) var(--color-jx-regla) var(--color-jx-regla) var(--color-jx-regla2);
     /* sombras de acento quitadas: eran resplandor y extrusión, lenguaje de fondo oscuro */
-    animation: sc-spin-r 1.1s linear infinite;
+    /* animación infinita quitada */
 }
 
 /* Inner ring — green, opposite direction */
@@ -2961,11 +2964,8 @@ hr {
     border-width: 2px;
     border-color: var(--color-jx-regla2) var(--color-jx-verde-barra) var(--color-jx-regla2) var(--color-jx-regla2);
     box-shadow: inset 0 0 6px rgba(47, 42, 30, 0.08);
-    animation: sc-spin-l 0.75s linear infinite;
+    /* animación infinita quitada */
 }
-
-@keyframes sc-spin-r { to { transform: rotate(360deg); } }
-@keyframes sc-spin-l { to { transform: rotate(-360deg); } }
 
 /* Centre core dot */
 .sc-ring-core {
@@ -2974,26 +2974,16 @@ hr {
     background: radial-gradient(circle, rgba(220,248,255,1) 0%, rgba(0,210,255,0.8) 50%, transparent 100%);
     /* resplandor de acento quitado: sobre fondo claro no es luz, es suciedad */
     z-index: 2;
-    animation: sc-core-pulse 1.8s ease-in-out infinite;
+    /* animación infinita quitada */
 }
-@keyframes sc-core-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50%       { transform: scale(1.5); opacity: 1; }
-}
-
 /* Radial pulse behind the spinner */
 .sc-ring-pulse {
     position: absolute;
     width: 70px; height: 70px;
     border-radius: 50%;
     border: 1px solid var(--color-jx-regla);
-    animation: sc-pulse-expand 2s ease-out infinite;
+    /* animación infinita quitada */
 }
-@keyframes sc-pulse-expand {
-    0%   { transform: scale(0.7); opacity: 0.6; }
-    100% { transform: scale(1.4); opacity: 0; }
-}
-
 /* Text */
 .sc-text {
     font-family: 'Inter', monospace;
@@ -3296,13 +3286,8 @@ hr {
     flex-direction: column;
     align-items: flex-start;
     gap: 1.5rem;
-    animation: hero-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-@keyframes hero-in {
-    from { opacity: 0; transform: translateY(22px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
 
+}
 /* ── Eyebrow badge ── */
 /*  'eyebrow' es como llaman los otros dos proyectos a esta píldora de arriba, y allí
  *  va en arena con la letra en tinta. El cristal esmerilado se quita: sobre papel no

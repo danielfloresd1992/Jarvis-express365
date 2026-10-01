@@ -107,17 +107,12 @@
     border-radius: 50%;
     background: var(--color-jx-verde-barra);
     flex-shrink: 0;
-    animation: boxModal-dot 2s ease-in-out infinite;
+    /* animación infinita quitada */
     margin-left: auto;
 }
 
 /* Solo opacity (compositada): la sombra queda estática en el elemento;
    animar box-shadow repintaba en cada frame. */
-@keyframes boxModal-dot {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.4; }
-}
-
 .boxModal-title {
     color: var(--color-jx-tinta);
     font-weight: 700;

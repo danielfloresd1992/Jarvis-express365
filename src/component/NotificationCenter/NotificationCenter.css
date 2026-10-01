@@ -59,7 +59,6 @@
     color: var(--nc-body);
 }
 
-
 /* ══ BANDEJA ══════════════════════════════════════════════════════════ */
 
 .notif-panel {
@@ -142,7 +141,6 @@
 .notif-empty__hint  { color: var(--nc-meta); font-size: .688rem; margin-top: .25rem; }
 .notif-error__title { color: var(--color-jx-critico-texto); font-size: .875rem; font-weight: 600; }
 
-
 /* ══ FILA ═════════════════════════════════════════════════════════════ */
 /* `--fam-rgb` lo declara el ítem con el tono de su familia; todo lo de acá se
    deriva de ahí: el color sólido y sus transparencias salen del mismo valor.
@@ -221,7 +219,6 @@
     pointer-events: none;
 }
 
-
 /* ── Punto de nivel ─────────────────────────────────────────────────── */
 
 .notif-level {
@@ -252,13 +249,7 @@
 .notif-level--danger  { background: var(--color-jx-critico); }
 .notif-level--info    { background: var(--nc-marca); }
 
-@keyframes notifDotBreath {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.35); }
-}
-
-.notif-dot { animation: notifDotBreath 2.6s ease-in-out infinite; }
-
+.notif-dot { /* animación infinita quitada */ }
 
 /* ── Insignia de familia ────────────────────────────────────────────── */
 /* El ícono del tipo, siempre visible, en el color de su familia. Antes era
@@ -305,7 +296,6 @@
     border: 1px solid var(--nc-border-soft);
     color: var(--nc-body);
 }
-
 
 /* ── Textos de la fila ──────────────────────────────────────────────── */
 
@@ -367,7 +357,6 @@
     color: var(--nc-alert-texto);
 }
 
-
 /* ── Botones de decisión ────────────────────────────────────────────── */
 
 .notif-action {
@@ -401,7 +390,6 @@
 .notif-action--cancel:hover:not(:disabled) { background: var(--color-jx-arena); }
 
 .notif-action:focus-visible { outline: 2px solid var(--nc-marca); outline-offset: 2px; }
-
 
 /* ══ CAMPANA ══════════════════════════════════════════════════════════ */
 
@@ -438,19 +426,8 @@
 .nav-bar__action-btn.notif-bell--seen:hover { color: var(--nc-ink); }
 
 /* Repique periódico mientras haya avisos sin ver */
-@keyframes notifBellRing {
-    0%   { transform: rotate(0deg); }
-    2%   { transform: rotate(14deg); }
-    4%   { transform: rotate(-11deg); }
-    6%   { transform: rotate(8deg); }
-    8%   { transform: rotate(-6deg); }
-    10%  { transform: rotate(3deg); }
-    12%,
-    100% { transform: rotate(0deg); }
-}
-
 .notif-bell--alert {
-    animation: notifBellRing 5s ease-in-out infinite;
+    /* animación infinita quitada */
     transform-origin: 50% 15%;   /* pivota desde el asa, como una campana */
     will-change: transform;
 }
@@ -491,14 +468,8 @@
 }
 
 /* Halo del contador */
-@keyframes notifBadgePulse {
-    0%   { transform: scale(1); opacity: .55; }
-    70%  { transform: scale(2.1); opacity: 0; }
-    100% { transform: scale(2.1); opacity: 0; }
-}
-
 .notif-badge-halo {
-    animation: notifBadgePulse 2.4s cubic-bezier(0, 0, .2, 1) infinite;
+    /* animación infinita quitada */
     background: var(--nc-alert);
 }
 
@@ -538,7 +509,6 @@
     color: var(--nc-body);
 }
 
-
 /* ══ ACCESIBILIDAD ════════════════════════════════════════════════════ */
 /* No se ocultan los indicadores, solo se detienen: quien desactiva el
    movimiento sigue necesitando saber que tiene notificaciones. El color y el
@@ -561,7 +531,6 @@
     .notif-badge-family,
     .notif-row { transition: none; }
 }
-
 
 /* ══ DETALLES DE FAMILIA ══════════════════════════════════════════════ */
 /* Los bloques que pinta cada familia bajo el texto: las fotos del marcaje y
@@ -716,7 +685,6 @@
 
 .notif-arrow { color: var(--nc-meta); }
 
-
 /* ══ QUÉ CAMBIÓ EN EL HORARIO ═════════════════════════════════════════ */
 /* Un día por línea: fecha, lo que le pusieron y —si el tipo las lleva— sus
    horas. Los tonos son los de la grilla del horario, ahora oscurecidos para el
@@ -785,7 +753,6 @@
 .notif-day--laboral    { color: var(--nc-body);              background: var(--color-jx-hundido);     border-color: var(--nc-border); }
 .notif-day--guardia    { color: #0f766e;                     background: #ddf0ec;                     border-color: #3f9a8f; }   /* 4,63:1 */
 .notif-day--auxiliar   { color: #4f46e5;                     background: #eeedfd;                     border-color: #9b95ef; }   /* 5,44:1 */
-
 
 /* ══════════════════════════════════════════════════════════════════════
    BONIFICACIÓN — el desglose de qué cambió

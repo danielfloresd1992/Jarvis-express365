@@ -1,5 +1,14 @@
 /* ============================================
-   CHAT — WhatsApp Dark Mode
+   CHAT
+
+   Era el tema oscuro exacto de WhatsApp, elegido para que el
+   camarero reconociera la pantalla al instante. Con la aplicación
+   en marfil eso dejó de ayudar: una ventana negra dentro de una
+   aplicación de papel parece de otro programa.
+
+   De WhatsApp se conserva lo que de verdad hace reconocible un
+   chat, que no es el color: tus mensajes a un lado con un tono
+   distinto, los del otro al otro, sobre un fondo neutro.
    ============================================ */
 
 /* ── Barra inferior fija ── */
@@ -9,8 +18,8 @@
     height: 32px;
     position: fixed;
     bottom: 0;
-    background: #111b21;
-    border-top: 1px solid rgba(134, 150, 160, 0.12);
+    background: var(--color-jx-panel);
+    border-top: 1px solid var(--color-jx-regla2);
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-start;
@@ -35,8 +44,8 @@
     width: 100%;
     height: 100%;
     top: 0;
-    background: #202c33;
-    color: #e9edef;
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,15 +66,15 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #25d366;
-    box-shadow: 0 0 6px rgba(37, 211, 102, 0.7);
+    background: var(--color-jx-verde-barra);
+    /* resplandor quitado: sobre fondo claro no es luz, es suciedad */
     flex-shrink: 0;
 }
 
 /* Solo opacity (compositada): animar box-shadow repintaba el punto en cada
    frame. La sombra queda estática en ::before y el pulso lo da la opacidad. */
 .chat-banner:hover {
-    background: #2a3942;
+    background: var(--color-jx-hundido);
 }
 
 /* ── Popup del chat ── */
@@ -80,32 +89,32 @@
     border-radius: 14px 14px 0 0;
     overflow: hidden;
     box-shadow:
-        0 -8px 40px rgba(0, 0, 0, 0.55),
-        0 0 0 1px rgba(134, 150, 160, 0.1);
+        0 -8px 40px rgba(47, 42, 30, 0.12),
+        0 0 0 1px var(--color-jx-regla2);
 }
 
 /* ── Header del popup ── */
 .chat-boxText-header {
     flex-shrink: 0;
-    background: #202c33;
+    background: var(--color-jx-tarjeta);
     padding: 0.6rem 1rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-bottom: 1px solid rgba(134, 150, 160, 0.1);
+    border-bottom: 1px solid var(--color-jx-regla2);
 }
 
 .chat-header-avatar {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #005c4b 0%, #25d366 100%);
+    background: linear-gradient(135deg, var(--color-jx-verde-suave) 0%, var(--color-jx-verde-barra) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     font-size: 1rem;
-    box-shadow: 0 0 10px rgba(37, 211, 102, 0.25);
+    /* resplandor quitado: sobre fondo claro no es luz, es suciedad */
 }
 
 .chat-header-info {
@@ -119,7 +128,7 @@
 .chat-header-name {
     font-size: 0.88rem;
     font-weight: 700;
-    color: #e9edef;
+    color: var(--color-jx-tinta);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -128,7 +137,7 @@
 
 .chat-header-status {
     font-size: 0.68rem;
-    color: #25d366;
+    color: var(--color-jx-verde-barra);
     margin: 0;
     letter-spacing: 0.2px;
 }
@@ -136,11 +145,11 @@
 /* ── Área de mensajes ── */
 .text-chat {
     flex: 1;
-    background: #0b141a;
+    background: var(--color-jx-panel);
     /* Subtle dot pattern como WhatsApp */
     background-image: radial-gradient(
         circle at 1px 1px,
-        rgba(134, 150, 160, 0.025) 1px,
+        var(--color-jx-regla) 1px,
         transparent 0
     );
     background-size: 20px 20px;
@@ -150,31 +159,26 @@
     gap: 0.3rem;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(134, 150, 160, 0.18) transparent;
+    scrollbar-color: var(--color-jx-regla2) transparent;
 }
 
 .text-chat::-webkit-scrollbar       { width: 4px; }
-.text-chat::-webkit-scrollbar-thumb { background: rgba(134,150,160,0.2); border-radius: 4px; }
+.text-chat::-webkit-scrollbar-thumb { background: var(--color-jx-borde-campo); border-radius: 4px; }
 .text-chat::-webkit-scrollbar-track { background: transparent; }
 
 /* ── Burbujas de mensaje ── */
 .msm-contain {
     max-width: 80%;
     width: fit-content;
-    background: #202c33;
+    background: var(--color-jx-tarjeta);
     border-radius: 0 8px 8px 8px;
     padding: 0.38rem 0.65rem 0.28rem;
     display: flex;
     flex-direction: column;
     align-self: flex-start;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 1px 3px rgba(47, 42, 30, 0.12);
     position: relative;
-    animation: chat-msg-in 0.22s cubic-bezier(0.22,1,0.36,1) both;
-}
 
-@keyframes chat-msg-in {
-    from { opacity: 0; transform: translateY(8px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0)  scale(1); }
 }
 
 /* Cola (tail) del globo — mensajes recibidos */
@@ -187,12 +191,12 @@
     height: 0;
     border-style: solid;
     border-width: 0 7px 8px 0;
-    border-color: transparent #202c33 transparent transparent;
+    border-color: transparent var(--color-jx-tarjeta) transparent transparent;
 }
 
 /* ── Mis mensajes (enviados) ── */
 .myText {
-    background: #005c4b;
+    background: var(--color-jx-verde-suave);
     border-radius: 8px 0 8px 8px;
     align-self: flex-end;
 }
@@ -201,12 +205,12 @@
     left: auto;
     right: -7px;
     border-width: 0 0 8px 7px;
-    border-color: transparent transparent transparent #005c4b;
+    border-color: transparent transparent transparent var(--color-jx-verde-suave);
 }
 
 /* Nombre del remitente */
 .msm-name {
-    color: #53bdeb;
+    color: var(--color-jx-verde-texto);
     font-weight: 700;
     font-size: 0.73rem;
     margin: 0 0 0.1rem;
@@ -217,12 +221,12 @@
 }
 
 .myText .msm-name {
-    color: #25d366;
+    color: var(--color-jx-verde-barra);
 }
 
 /* Texto del mensaje */
 .msm-body {
-    color: #e9edef;
+    color: var(--color-jx-tinta);
     margin: 0;
     font-size: 0.88rem;
     line-height: 1.42;
@@ -234,7 +238,7 @@
 /* Timestamp */
 .msm-time {
     font-size: 0.61rem;
-    color: rgba(237, 248, 255, 0.822);
+    color: var(--color-jx-tinta);
     margin: 0.18rem 0 0;
     align-self: flex-end;
     white-space: nowrap;
@@ -242,20 +246,20 @@
 }
 
 .myText  {
-    color: rgba(134, 209, 176, 0.65);
+    color: var(--color-jx-verde-texto);
 }
 
 .msm-time{
-    color: rgb(173, 255, 218);
+    color: var(--color-jx-verde-texto);
     font-size: 0.65rem;
 }
 
 /* ── Botón cargar más mensajes ── */
 .chat-load-more {
     align-self: center;
-    background: #182229;
-    border: 1px solid rgba(134, 150, 160, 0.18);
-    color: #8696a0;
+    background: var(--color-jx-arena);
+    border: 1px solid var(--color-jx-regla2);
+    color: var(--color-jx-tinta3);
     font-size: 0.7rem;
     font-family: inherit;
     padding: 0.3rem 1rem;
@@ -267,9 +271,9 @@
 }
 
 .chat-load-more:hover {
-    background: #202c33;
-    color: #e9edef;
-    border-color: rgba(134, 150, 160, 0.35);
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
+    border-color: var(--color-jx-borde-campo);
 }
 
 /* ── Estado de espera ── */
@@ -283,7 +287,7 @@
 }
 
 .chat-await-p {
-    color: #8696a0;
+    color: var(--color-jx-tinta3);
     font-size: 0.82rem;
     letter-spacing: 0.3px;
 }
@@ -295,9 +299,9 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #202c33;
+    background: var(--color-jx-tarjeta);
     padding: 0.5rem 0.65rem 3rem 0.5rem;
-    border-top: 1px solid rgba(134, 150, 160, 0.08);
+    border-top: 1px solid var(--color-jx-regla);
 }
 
 .textContain-textArea {
@@ -309,8 +313,8 @@
     padding: 0.5rem 0.9rem;
     font-weight: 400;
     font-family: 'Inter', system-ui, sans-serif;
-    color: #e9edef;
-    background: #2a3942;
+    color: var(--color-jx-tinta);
+    background: var(--color-jx-hundido);
     border: none;
     border-radius: 24px;
     outline: none;
@@ -318,7 +322,7 @@
 }
 
 .textContain-textArea::placeholder {
-    color: rgba(134, 150, 160, 0.65);
+    color: var(--color-jx-borde-campo);
 }
 
 .textContain-textArea:focus,
@@ -334,26 +338,26 @@
     padding: 0;
     border: none;
     border-radius: 50%;
-    background: #25d366;
-    color: #fff;
+    background: var(--color-jx-verde-barra);
+    color: var(--color-jx-tinta);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 0 14px rgba(37, 211, 102, 0.35);
+    /* resplandor quitado: sobre fondo claro no es luz, es suciedad */
     transition: all 0.15s ease;
     line-height: 0;
 }
 
 .textContain-btn:hover {
-    background: #20bd5a;
+    background: var(--color-jx-verde-barra);
     transform: scale(1.06);
-    box-shadow: 0 0 22px rgba(37, 211, 102, 0.55);
+    /* resplandor quitado: sobre fondo claro no es luz, es suciedad */
 }
 
 .textContain-btn:active {
     transform: scale(0.94);
-    box-shadow: 0 0 8px rgba(37, 211, 102, 0.25);
+    /* resplandor quitado: sobre fondo claro no es luz, es suciedad */
 }
 
 .textContain-btn:focus,
@@ -368,15 +372,14 @@
     flex-shrink: 0;
 }
 
-
 /* ── Botón responder (aparece al hover del mensaje) ── */
 .msm-reply-btn {
      position: absolute;
     top: 2px;
     right: 4px;
     border: none;
-    background: rgba(11, 20, 26, 0.55);
-    color: #8696a0;
+    background: rgba(47, 42, 30, 0.10);
+    color: var(--color-jx-tinta3);
     width: 20px;
     height: 20px;
     font-size: 0.8rem;
@@ -390,13 +393,12 @@
 }
 
 .msm-contain:hover .msm-reply-btn { opacity: 1; }
-.msm-reply-btn:hover { color: #25d366; }
-
+.msm-reply-btn:hover { color: var(--color-jx-verde-barra); }
 
 /* ── Cita del mensaje respondido ── */
 .msm-reply-quote {
-    border-left: 3px solid #25d366;
-    background: rgba(37, 211, 102, 0.09);
+    border-left: 3px solid var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-suave);
     border-radius: 4px;
     padding: 2px 7px;
     margin-bottom: 4px;
@@ -405,10 +407,10 @@
     overflow: hidden;
     transition: background 0.12s ease;
 }
-.msm-reply-quote:hover { background: rgba(37, 211, 102, 0.16); }
+.msm-reply-quote:hover { background: #e6f7e0; }
 .msm-reply-quote b {
     display: block;
-    color: #25d366;
+    color: var(--color-jx-verde-barra);
     font-size: 0.68rem;
     white-space: nowrap;
     overflow: hidden;
@@ -416,18 +418,17 @@
 }
 .msm-reply-quote span {
     display: block;
-    color: #aebac1;
+    color: var(--color-jx-tinta2);
     font-size: 0.72rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-
 /* ── Tarjeta de alerta compartida ── */
 .msm-alert {
-    background: rgba(11, 20, 26, 0.5);
-    border: 1px solid rgba(134, 150, 160, 0.18);
+    background: rgba(47, 42, 30, 0.10);
+    border: 1px solid var(--color-jx-regla2);
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 4px;
@@ -452,7 +453,7 @@
     gap: 6px;
 }
 .msm-alert-head b {
-    color: #25d366;
+    color: var(--color-jx-verde-barra);
     font-size: 0.78rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -467,12 +468,12 @@
     padding: 1px 6px;
     border-radius: 999px;
 }
-.msm-alert-badge.ok   { background: rgba(37,211,102,0.2);  color: #7ff0b0; }
-.msm-alert-badge.no   { background: rgba(241,92,109,0.2);  color: #ffb3bc; }
-.msm-alert-badge.pend { background: rgba(134,150,160,0.2); color: #c3ccd2; }
-.msm-alert-local { color: #8696a0; font-size: 0.65rem; }
+.msm-alert-badge.ok   { background: var(--color-jx-verde-suave);  color: var(--color-jx-verde-texto); }
+.msm-alert-badge.no   { background: var(--color-jx-critico-suave);  color: var(--color-jx-critico-texto); }
+.msm-alert-badge.pend { background: var(--color-jx-arena); color: var(--color-jx-tinta2); }
+.msm-alert-local { color: var(--color-jx-tinta3); font-size: 0.65rem; }
 .msm-alert-menu {
-    color: #d6dde1;
+    color: var(--color-jx-tinta);
     font-size: 0.72rem;
     margin: 0;
     white-space: pre-wrap;
@@ -482,7 +483,6 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
 
 /* ── Sticker (emoji grande sin globo) ── */
 .msm-contain.msm-sticker {
@@ -497,12 +497,11 @@
     margin: 0;
 }
 
-
 /* ── Resaltado del mensaje original (2s) ── */
 @keyframes msgHighlightPulse {
-    0%   { box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.6); }
-    70%  { box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.6); }
-    100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    0%   { box-shadow: 0 0 0 3px rgba(41, 197, 12, 0.6); }
+    70%  { box-shadow: 0 0 0 3px rgba(41, 197, 12, 0.6); }
+    100% { box-shadow: 0 0 0 0 rgba(41, 197, 12, 0); }
 }
 .msg-highlight {
     animation: msgHighlightPulse 2s ease-out;
@@ -512,7 +511,6 @@
     .msg-highlight { animation: none; }
 }
 
-
 /* ── Preview de respuesta (sobre el input) ── */
 .chat-reply-preview {
     flex-shrink: 0;
@@ -520,18 +518,18 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    background: #182229;
-    border-top: 1px solid rgba(134, 150, 160, 0.1);
+    background: var(--color-jx-arena);
+    border-top: 1px solid var(--color-jx-regla2);
     padding: 6px 10px;
 }
 .chat-reply-preview-body {
     min-width: 0;
-    border-left: 3px solid #25d366;
+    border-left: 3px solid var(--color-jx-verde-barra);
     padding-left: 8px;
 }
 .chat-reply-preview-body b {
     display: block;
-    color: #25d366;
+    color: var(--color-jx-verde-barra);
     font-size: 0.72rem;
     white-space: nowrap;
     overflow: hidden;
@@ -539,7 +537,7 @@
 }
 .chat-reply-preview-body span {
     display: block;
-    color: #aebac1;
+    color: var(--color-jx-tinta2);
     font-size: 0.72rem;
     white-space: nowrap;
     overflow: hidden;
@@ -549,14 +547,13 @@
     flex-shrink: 0;
     background: none;
     border: none;
-    color: #8696a0;
+    color: var(--color-jx-tinta3);
     font-size: 1.2rem;
     line-height: 1;
     cursor: pointer;
     padding: 0 4px;
 }
-.chat-reply-preview > button:hover { color: #e9edef; }
-
+.chat-reply-preview > button:hover { color: var(--color-jx-tinta); }
 
 /* ── Botón de emojis ── */
 .chat-emoji-btn {
@@ -573,14 +570,13 @@
     justify-content: center;
     transition: background 0.12s ease;
 }
-.chat-emoji-btn:hover { background: #2a3942; }
-
+.chat-emoji-btn:hover { background: var(--color-jx-hundido); }
 
 /* ── Panel de emojis / stickers ── */
 .chat-picker {
     flex-shrink: 0;
-    background: #1b262c;
-    border-top: 1px solid rgba(134, 150, 160, 0.1);
+    background: var(--color-jx-arena);
+    border-top: 1px solid var(--color-jx-regla2);
     max-height: 210px;
     display: flex;
     flex-direction: column;
@@ -593,7 +589,7 @@
 .chat-picker-tabs button {
     background: none;
     border: none;
-    color: #8696a0;
+    color: var(--color-jx-tinta3);
     font-size: 0.72rem;
     font-weight: 600;
     padding: 4px 12px;
@@ -601,8 +597,8 @@
     cursor: pointer;
 }
 .chat-picker-tabs button.active {
-    background: #2a3942;
-    color: #e9edef;
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta);
 }
 .chat-picker-grid {
     display: grid;
@@ -611,7 +607,7 @@
     padding: 6px 8px 10px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(134, 150, 160, 0.18) transparent;
+    scrollbar-color: var(--color-jx-regla2) transparent;
 }
 .chat-picker-grid button {
     background: none;
@@ -623,5 +619,5 @@
     cursor: pointer;
     transition: background 0.1s ease, transform 0.1s ease;
 }
-.chat-picker-grid button:hover { background: #2a3942; transform: scale(1.15); }
+.chat-picker-grid button:hover { background: var(--color-jx-hundido); transform: scale(1.15); }
 .chat-picker-grid button.sticker { font-size: 1.9rem; }

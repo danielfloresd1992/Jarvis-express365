@@ -14,12 +14,7 @@
     gap: 1.1rem;
     padding: 2.5rem 1.5rem;
     overflow: hidden;
-    animation: dw-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
 
-@keyframes dw-in {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
 
 /*  Era una luz puntual azul estilo ray tracing: un foco encendido en una
@@ -43,13 +38,8 @@
     /* transform+opacity solamente: el compositor lo anima sin repintar.
        will-change lo promueve a su propia capa desde el inicio. */
     will-change: transform, opacity;
-    animation: dw-glow 6s ease-in-out infinite;
+    /* animación infinita quitada */
 }
-@keyframes dw-glow {
-    0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
-    50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.08); }
-}
-
 /*  ── Icono central ──
  *  Mismo material que los botones de abajo —verde suave con borde de marca—
  *  para que la insignia grande y las pequeñas se lean como una sola pieza.
@@ -69,17 +59,12 @@
     background: linear-gradient(145deg, var(--color-jx-verde-suave) 0%, var(--color-jx-tarjeta) 100%);
     border: 1px solid var(--color-jx-borde);
     box-shadow: 0 2px 6px color-mix(in srgb, var(--color-jx-tinta) 10%, transparent);
-    animation: dw-icon-float 4.5s ease-in-out infinite;
+    /* animación infinita quitada */
 }
 /* Solo transform: animar box-shadow repinta el elemento en cada frame
    (era una de las causas del consumo de CPU en reposo). La sombra base
    queda estática en el elemento; el refuerzo del glow vive en ::after
    y se anima por opacity (compositado, sin repintado). */
-@keyframes dw-icon-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-6px); }
-}
-
 /*  El halo que antes reforzaba el glow. Se queda porque es lo que despega la
  *  insignia del lienzo, pero ya no es luz cian: es profundidad en tinta.
  *  Arranca en opacity 0 y lo enciende el latido, que es lo que permite animar
@@ -92,13 +77,9 @@
     inset: 0;
     border-radius: inherit;
     box-shadow: 0 10px 26px color-mix(in srgb, var(--color-jx-tinta) 26%, transparent);
-    opacity: 0;
+    opacity: 0.55;
     pointer-events: none;
-    animation: dw-icon-glow 4.5s ease-in-out infinite;
-}
-@keyframes dw-icon-glow {
-    0%, 100% { opacity: 0; }
-    50%      { opacity: 1; }
+    /* animación infinita quitada */
 }
 /* El icono no es texto: le basta 3 : 1, y 'verde-barra' es el verde que se ve */
 .default-welcome__icon {

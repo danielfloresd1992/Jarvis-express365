@@ -151,13 +151,8 @@
 }
 
 .box-traslateLelf {
-    animation: boxTitle .5s linear;
-    position: relative;
-}
 
-@keyframes boxTitle {
-    from { transform: translateX(-30px); filter: opacity(0); }
-    to   { transform: translateX(0px);  filter: opacity(1); }
+    position: relative;
 }
 
 /* Numero de tarjeta: relleno verde con la cifra en tinta (6,18 : 1).
