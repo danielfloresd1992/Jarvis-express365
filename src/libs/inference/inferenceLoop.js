@@ -4,7 +4,7 @@
 
 import { cropStrip } from './tabletImage.js';
 import { requestInference } from './aiServer.js';
-import { INFERENCE_PROMPT, parseModelResponse } from './modelResponse.js';
+import { parseModelResponse } from './modelResponse.js';
 import { TIPO } from '../tickets/registroDeInferencia.js';
 
 
@@ -113,7 +113,8 @@ function noteStripToSend(note, params, image, imageKB) {
         direccion: getChatUrl(server.baseUrl),
         modelo: server.model,
         imagenKB: imageKB,
-        letrasDelPrompt: INFERENCE_PROMPT.length,
+        //  Ya no se manda ningún texto: las instrucciones las pone la pasarela del servidor.
+        instrucciones: 'las pone el servidor',
         esperaMaximaSegundos: timeoutMs / 1000,
     });
 }
@@ -163,10 +164,47 @@ function noteModelAnswer(note, response, text, seconds) {
 
 
 
+/*  SEÑALES DE QUE EL SERVIDOR NO LLEVA LAS INSTRUCCIONES
+ *
+ *  Las instrucciones de lectura las pone la pasarela del servidor, no la ventana (ver
+ *  requestInference en aiServer.js). Si la dirección de Opciones -> Servidor de IA apunta a un
+ *  LM Studio a secas, el modelo recibe una imagen sin contexto y contesta como si alguien le
+ *  hubiera enseñado una foto sin más:
+ *
+ *      «¡Hola! Veo que tienes una imagen de una app de gestión de mesas. ¿En qué puedo ayudarte?»
+ *
+ *  Eso no da ningún error —la petición va bien, el modelo contesta— y lo único que se nota es
+ *  que dejan de aparecer pedidos. Estas son las primeras palabras de esa respuesta.              */
+const SALUDOS_DE_UN_MODELO_SIN_INSTRUCCIONES = ['hola', 'claro', 'veo que', 'por supuesto', 'esta imagen muestra', 'parece que'];
+
+
+// pareceQueFaltanLasInstrucciones = «esto huele a un servidor sin la pasarela»
+// PURA. Recibe: text (lo que contestó el modelo). Devuelve: true/false.
+function pareceQueFaltanLasInstrucciones(text) {
+
+    // limpio = «lo que contestó, en minúsculas y sin adornos del principio»
+    const limpio = String(text ?? '').trim().toLowerCase().replace(/^[¡!*#\s]+/, '');
+    if (!limpio) return false;
+
+    return SALUDOS_DE_UN_MODELO_SIN_INSTRUCCIONES.some(s => limpio.startsWith(s));
+}
+
+
 // noteUnreadableAnswer = «apuntar que la respuesta no se entiende»
 // FALLO: el modelo contestó, pero ahí no había una lista de tickets.
 // Recibe: note y text (lo que contestó el modelo).
 function noteUnreadableAnswer(note, text) {
+
+    //  Cuando la respuesta tiene pinta de saludo, se dice QUÉ mirar: si no, alguien va a buscar
+    //  el fallo en el prompt o en el recorte, y está en la dirección del servidor.
+    if (pareceQueFaltanLasInstrucciones(text)) {
+        note(TIPO.FALLO, 'El modelo contestó como si no supiera qué se le pide: la dirección del servidor no parece la pasarela que añade las instrucciones', {
+            queRevisar: 'Opciones -> Servidor de IA. Tiene que apuntar a la entrada que añade el prompt, no a LM Studio directamente.',
+            seRecibio: text,
+        });
+        return;
+    }
+
     note(TIPO.FALLO, 'Respuesta ilegible: no se encontró una lista de tickets en lo que contestó', {
         seEsperaba: EXPECTED_FORMAT,
         seRecibio: text || '(nada)',
@@ -238,7 +276,8 @@ async function runInferenceOnce(params) {
             apiKey: server.apiKey,
 
             model: server.model,
-            prompt: INFERENCE_PROMPT,
+            //  Sin 'prompt': las instrucciones las pone la pasarela del servidor. El porqué, y qué
+            //  pasa si la dirección no apunta a ella, están en requestInference (aiServer.js).
             image,
             timeoutMs,
             signal,
