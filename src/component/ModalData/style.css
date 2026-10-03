@@ -1,5 +1,5 @@
 /* ============================================
-   MODAL DATA / LIST — Futuristic Dark Theme
+   MODAL DATA / LIST — Tema claro de marca
    ============================================ */
 
 .listComponent {
@@ -7,7 +7,10 @@
     align-items: flex-start;
     justify-content: space-around;
     align-content: flex-start;
-    background: radial-gradient(ellipse at 50% 20%, #041828 0%, #020d1c 45%, #010810 100%);
+    /* El degradado se queda: centro claro y bordes algo mas cargados, como antes.
+       El orden importa y estaba invertido: lienzo (L 0,94) va antes que tarjeta
+       (L 0,92), o el centro sale mas oscuro que el anillo y aparece un disco gris */
+    background: radial-gradient(ellipse at 50% 20%, var(--color-jx-lienzo) 0%, var(--color-jx-tarjeta) 45%, var(--color-jx-panel) 100%);
     min-height: 100vh;
 }
 
@@ -20,9 +23,10 @@
 }
 
 .nav-button {
-    background: rgba(1, 10, 24, 0.78);
-    border: 1px solid rgba(0, 185, 255, 0.32);
-    color: rgba(0, 185, 255, 0.88);
+    background: var(--color-jx-tarjeta);
+    /* Borde de control: le hace falta 3 : 1, y las reglas decorativas se quedan en 1,3 */
+    border: 1px solid var(--color-jx-verde-barra);
+    color: var(--color-jx-verde-texto);
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 1px;
@@ -31,17 +35,15 @@
     border-radius: 8px;
     width: auto;
     cursor: pointer;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     transition: all 0.2s ease;
-    box-shadow: 0 0 10px rgba(0,185,255,0.1);
 }
 
 .nav-button:hover {
-    background: rgba(0, 185, 255, 0.1);
-    border-color: rgba(0, 185, 255, 0.6);
-    box-shadow: 0 0 20px rgba(0,185,255,0.28), 0 0 40px rgba(0,185,255,0.1);
-    color: #00b9ff;
+    background: var(--color-jx-verde-suave);
+    /* En hover el borde se oscurece, ya no se enciende */
+    border-color: var(--color-jx-verde-texto);
+    color: var(--color-jx-verde-texto);
+    box-shadow: 0 2px 6px rgba(47, 42, 30, 0.12);
     transform: translateY(-1px);
 }
 
@@ -71,16 +73,12 @@
     min-height: 80vh;
     width: 45%;
     margin: 4.5rem 0.5rem 0 0.5rem;
-    background: rgba(4, 14, 28, 0.9);
+    background: var(--color-jx-tarjeta);
     border-radius: 14px;
     overflow: hidden;
-    border: 1px solid rgba(0, 185, 255, 0.18);
-    box-shadow:
-        0 4px 30px rgba(0, 5, 30, 0.7),
-        0 0 0 1px rgba(0, 185, 255, 0.05) inset,
-        0 0 40px rgba(0, 80, 200, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-jx-regla2);
+    /* Solo profundidad y en tinta calida: el negro sobre marfil se ve sucio */
+    box-shadow: 0 4px 24px rgba(47, 42, 30, 0.10);
 }
 
 /* ── Card header ── */
@@ -97,31 +95,39 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(0, 185, 255, 0.18);
+    border-bottom: 1px solid var(--color-jx-regla2);
     font-size: 0.95rem;
     font-family: inherit;
     gap: 0.2rem;
-    background: linear-gradient(135deg, rgba(3,14,30,0.97) 0%, rgba(5,20,44,0.93) 100%);
+    background: linear-gradient(135deg, var(--color-jx-panel) 0%, var(--color-jx-arena) 100%);
     transition: background 0.2s ease;
 }
 
 .listContaint-title:hover {
-    background: linear-gradient(135deg, rgba(4,18,36,0.98) 0%, rgba(6,24,50,0.95) 100%);
+    background: linear-gradient(135deg, var(--color-jx-arena) 0%, var(--color-jx-regla) 100%);
 }
 
 .header-title {
     font-weight: 700;
     font-size: 1.05rem;
-    color: rgba(200, 240, 255, 0.95);
+    color: var(--color-jx-tinta);
 }
 
 .listContaint-title p {
     pointer-events: none;
-    color: rgba(0, 185, 255, 0.5);
+    color: var(--color-jx-tinta2);
+}
+
+/* El dia y la fecha son la cabecera: van en tinta (12,77 : 1 sobre el panel) y no en
+   el tinta2 del texto secundario. Hace falta nombrarlos aqui porque el color de
+   '.header-title' (0,1,0) lo perdia contra '.listContaint-title p' (0,1,1) y la
+   cabecera salia del mismo color que todo lo demas */
+.listContaint-title .header-title p {
+    color: var(--color-jx-tinta);
 }
 
 .listContaint-box {
-    color: rgba(200, 240, 255, 0.9);
+    color: var(--color-jx-tinta);
     overflow: hidden;
     background: transparent;
 }
@@ -138,27 +144,23 @@
 .list li {
     counter-increment: cardCount;
     display: flex;
-    color: rgba(200, 240, 255, 0.9);
+    color: var(--color-jx-tinta);
     --labelOffset: 0.75rem;
     --arrowClipSize: 1rem;
     margin-top: var(--labelOffset);
 }
 
 .box-traslateLelf {
-    animation: boxTitle .5s linear;
+
     position: relative;
 }
 
-@keyframes boxTitle {
-    from { transform: translateX(-30px); filter: opacity(0); }
-    to   { transform: translateX(0px);  filter: opacity(1); }
-}
-
-/* Counter badge — futuristic cyan */
+/* Numero de tarjeta: relleno verde con la cifra en tinta (6,18 : 1).
+   Blanco sobre ese verde se quedaria en 2,31 : 1 */
 .list li::before {
     content: counter(cardCount, decimal-leading-zero);
-    background: linear-gradient(135deg, #006ea0 0%, #004878 100%);
-    color: rgba(200, 248, 255, 0.97);
+    background: linear-gradient(135deg, var(--color-jx-verde) 0%, var(--color-jx-verde-hover) 100%);
+    color: var(--color-jx-tinta);
     font-size: 1.8em;
     font-weight: 700;
     transform: translateY(calc(-1 * var(--labelOffset)));
@@ -169,13 +171,11 @@
     align-items: center;
     padding-inline: 0.5em;
     border-radius: 8px 0 0 8px;
-    box-shadow: 0 0 12px rgba(0,185,255,0.35), inset 0 1px 0 rgba(0,200,255,0.2);
-    text-shadow: 0 0 8px rgba(0,185,255,0.6);
 }
 
 /* Item content card */
 .list li .content {
-    background: rgba(6, 18, 38, 0.85);
+    background: var(--color-jx-tarjeta);
     --inlinePadding: 1em;
     --boxPadding: 0.5em;
     display: flex;
@@ -188,13 +188,13 @@
     justify-content: space-between;
     flex-wrap: wrap;
     border-radius: 0 8px 8px 0;
-    border-left: 2px solid rgba(0, 185, 255, 0.18);
+    border-left: 2px solid var(--color-jx-regla2);
     transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .list li .content:hover {
-    background: rgba(0, 185, 255, 0.06);
-    border-left-color: rgba(0, 185, 255, 0.45);
+    background: var(--color-jx-verde-suave);
+    border-left-color: var(--color-jx-verde-barra);
 }
 
 .list li .content::before {
@@ -202,7 +202,7 @@
     position: absolute;
     width: var(--labelOffset);
     height: var(--labelOffset);
-    background: var(--cardColor);
+    background: var(--color-jx-tarjeta);
     left: 0;
     bottom: 0;
     clip-path: polygon(0 0, 100% 0, 0 100%);
@@ -214,7 +214,7 @@
     position: absolute;
     height: var(--cardsGap);
     width: var(--cardsGap);
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.12), transparent 50%);
+    background: linear-gradient(to right, rgba(47, 42, 30, 0.12), transparent 50%);
     left: 0;
     top: 100%;
 }
@@ -236,7 +236,7 @@
     font-size: .75rem;
     width: 100px;
     text-align: center;
-    color: rgba(0, 185, 255, 0.45);
+    color: var(--color-jx-tinta3);
 }
 
 .icoValidate {
@@ -244,23 +244,29 @@
     height: 35px;
 }
 
+/*  Los tres son SVG de trazo negro sin 'fill': sobre el marfil se ven solos, y el
+    estado lo dice la forma (pulgar arriba, pulgar abajo, ojo tachado). El color
+    del estado vivia en el resplandor, y un resplandor sobre papel es suciedad;
+    para que vuelvan a ir en verde y rojo hace falta un SVG que respete
+    currentColor, no una linea de CSS.                                            */
 .validate {
-    filter: opacity(0.7) drop-shadow(0 0 4px rgba(57,255,20,0.6));
+    filter: opacity(0.7);
 }
 
 .invalidate {
-    filter: opacity(0.6) drop-shadow(0 0 4px rgba(239,68,68,0.6));
+    filter: opacity(0.6);
 }
 
 .ignore {
     filter: opacity(0.3) grayscale(1);
 }
 
+/* Marco de reserva detras del logo del local */
 .icon-img {
     width: 65px;
     height: 50px;
-    background: rgba(0, 185, 255, 0.15);
-    border: 1px solid rgba(0,185,255,0.2);
+    background: var(--color-jx-hundido);
+    border: 1px solid var(--color-jx-regla2);
     border-radius: 6px;
 }
 
@@ -272,13 +278,14 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: rgba(210, 242, 255, 0.96);
+    color: var(--color-jx-tinta);
 }
 
 .list li .content .text {
-    color: #00b9ff;
+    color: var(--color-jx-verde-texto);
     text-decoration: none;
-    opacity: 0.78;
+    /* Sin opacidad: sobre oscuro bajarla apagaba, sobre marfil lavaba el texto y
+       lo dejaba en 3,5 : 1 */
     font-size: 0.88em;
 }
 
@@ -290,28 +297,28 @@
 
 .text-bonus {
     font-size: .8rem;
-    color: rgba(0, 185, 255, 0.45);
+    color: var(--color-jx-tinta3);
 }
 
+/* Verde = esta novedad bonifica. Es dato, se queda en la familia verde */
 .textGreen {
-    color: #39ff14;
-    text-shadow: 0 0 5px rgba(57,255,20,0.4);
+    color: var(--color-jx-verde-texto);
 }
 
+/* El total del dia no es el verde de "esta fila bonifica": va en la familia oro para
+   que las dos cifras no se confundan. 5,25 : 1 sobre el panel de la cabecera */
 .text-purple {
-    color: #00b9ff;
-    text-shadow: 0 0 5px rgba(0,185,255,0.4);
+    color: var(--color-jx-ocre-texto);
 }
 
+/* Rojo = no bonifica. Hoy la clase va sobre un <img>, asi que el color no se ve */
 .text-red {
-    color: #ff4d4d;
-    text-shadow: 0 0 4px rgba(255,77,77,0.35);
+    color: var(--color-jx-critico-texto);
 }
 
 .text-bonus-cancel {
     width: 20px;
     opacity: 0.55;
-    filter: drop-shadow(0 0 3px rgba(255,77,77,0.4));
 }
 
 /* ── Chart section ── */
@@ -326,23 +333,21 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    background: rgba(4, 14, 28, 0.75);
-    border: 1px solid rgba(0, 185, 255, 0.14);
+    background: var(--color-jx-tarjeta);
+    border: 1px solid var(--color-jx-regla2);
     border-radius: 14px;
     padding: 1.25rem;
     margin-bottom: 1rem;
-    backdrop-filter: blur(8px);
 }
 
 .GrafigContain-textTitle {
     text-align: center;
-    color: rgba(0, 185, 255, 0.75);
+    color: var(--color-jx-verde-texto);
     font-weight: 700;
     font-size: 0.9rem;
     letter-spacing: 1px;
     text-transform: uppercase;
-    border-bottom: 1px solid rgba(0,185,255,0.15);
+    border-bottom: 1px solid var(--color-jx-regla2);
     padding-bottom: 0.5rem;
     width: 100%;
-    text-shadow: 0 0 8px rgba(0,185,255,0.3);
 }

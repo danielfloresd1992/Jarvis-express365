@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   DEFAULT WELCOME — Dark futuristic + ray tracing
+   DEFAULT WELCOME — Tema claro de marca
    ═══════════════════════════════════════════════ */
 
 .default-welcome {
@@ -14,15 +14,13 @@
     gap: 1.1rem;
     padding: 2.5rem 1.5rem;
     overflow: hidden;
-    animation: dw-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+
 }
 
-@keyframes dw-in {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Glow ambiental (luz puntual estilo ray tracing) */
+/*  Era una luz puntual azul estilo ray tracing: un foco encendido en una
+ *  habitación oscura. Sobre papel no hay habitación oscura, así que no queda
+ *  luz ninguna, sólo un halo cálido de la propia familia de fondos (arena
+ *  sobre lienzo, 1,09 : 1) que centra la vista sin teñir de color.             */
 .default-welcome__glow {
     position: absolute;
     top: 28%;
@@ -32,23 +30,22 @@
     transform: translate(-50%, -50%);
     background: radial-gradient(
         circle,
-        rgba(0, 150, 255, 0.14) 0%,
-        rgba(0, 100, 220, 0.05) 38%,
-        transparent 68%
+        var(--color-jx-arena) 0%,
+        transparent 62%
     );
     pointer-events: none;
     z-index: 0;
     /* transform+opacity solamente: el compositor lo anima sin repintar.
        will-change lo promueve a su propia capa desde el inicio. */
     will-change: transform, opacity;
-    animation: dw-glow 6s ease-in-out infinite;
+    /* animación infinita quitada */
 }
-@keyframes dw-glow {
-    0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
-    50%       { opacity: 1;    transform: translate(-50%, -50%) scale(1.08); }
-}
-
-/* ── Icono central con extrusión 3D ── */
+/*  ── Icono central ──
+ *  Mismo material que los botones de abajo —verde suave con borde de marca—
+ *  para que la insignia grande y las pequeñas se lean como una sola pieza.
+ *  Se van la extrusión 3D y el neón cian: el relieve ahora es una sola sombra
+ *  proyectada, y en tinta cálida, porque una sombra negra sobre marfil se ve
+ *  sucia.                                                                     */
 .default-welcome__icon-wrap {
     position: relative;
     z-index: 1;
@@ -59,73 +56,58 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 0.4rem;
-    background: linear-gradient(145deg, rgba(0, 185, 255, 0.12) 0%, rgba(0, 90, 200, 0.05) 100%);
-    border: 1px solid rgba(0, 185, 255, 0.28);
-    /* Ray tracing: especular top + glow + sombra proyectada + AO inset */
-    box-shadow:
-        inset 1px 1px 0 rgba(120, 220, 255, 0.25),
-        inset 0 -2px 6px rgba(0, 10, 40, 0.5),
-        0 0 24px rgba(0, 185, 255, 0.18),
-        0 12px 30px rgba(0, 5, 30, 0.55),
-        0 4px 12px rgba(0, 0, 0, 0.4);
-    animation: dw-icon-float 4.5s ease-in-out infinite;
+    background: linear-gradient(145deg, var(--color-jx-verde-suave) 0%, var(--color-jx-tarjeta) 100%);
+    border: 1px solid var(--color-jx-borde);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--color-jx-tinta) 10%, transparent);
+    /* animación infinita quitada */
 }
 /* Solo transform: animar box-shadow repinta el elemento en cada frame
    (era una de las causas del consumo de CPU en reposo). La sombra base
    queda estática en el elemento; el refuerzo del glow vive en ::after
    y se anima por opacity (compositado, sin repintado). */
-@keyframes dw-icon-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-6px); }
-}
-
+/*  El halo que antes reforzaba el glow. Se queda porque es lo que despega la
+ *  insignia del lienzo, pero ya no es luz cian: es profundidad en tinta.
+ *  Arranca en opacity 0 y lo enciende el latido, que es lo que permite animar
+ *  la sombra por opacidad —compositado— en vez de repintarla cada frame. El
+ *  26 % es entonces el alfa real en lo más alto del latido, el techo del rango
+ *  de sombra de la paleta.                                                     */
 .default-welcome__icon-wrap::after {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    box-shadow:
-        0 0 34px rgba(0, 185, 255, 0.28),
-        0 22px 44px rgba(0, 5, 30, 0.6);
-    opacity: 0;
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--color-jx-tinta) 26%, transparent);
+    opacity: 0.55;
     pointer-events: none;
-    animation: dw-icon-glow 4.5s ease-in-out infinite;
+    /* animación infinita quitada */
 }
-@keyframes dw-icon-glow {
-    0%, 100% { opacity: 0; }
-    50%      { opacity: 1; }
-}
-
+/* El icono no es texto: le basta 3 : 1, y 'verde-barra' es el verde que se ve */
 .default-welcome__icon {
     width: 44px;
     height: 44px;
-    color: #00b9ff;
-    filter: drop-shadow(0 0 8px rgba(0, 185, 255, 0.65));
+    color: var(--color-jx-verde-barra);
 }
 
-/* ── Título con texto ray-traced ── */
+/* ── Título ── */
+/*  Cuatro capas de sombra menos: dos resplandores cian, un especular blanco y
+ *  una sombra azul. Todo eso dibujaba letra iluminada sobre azul marino.       */
 .default-welcome__title {
     position: relative;
     z-index: 1;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     font-size: 1.7rem;
     font-weight: 800;
-    color: rgba(225, 242, 255, 0.98);
+    color: var(--color-jx-tinta);
     margin: 0;
     letter-spacing: -0.4px;
     text-align: center;
-    text-shadow:
-        -1px -1px 0 rgba(255, 255, 255, 0.18),
-        0 0 14px rgba(0, 185, 255, 0.4),
-        0 0 30px rgba(0, 185, 255, 0.18),
-        0 4px 10px rgba(0, 0, 40, 0.5);
 }
 
 .default-welcome__subtitle {
     position: relative;
     z-index: 1;
     font-size: 0.9rem;
-    color: rgba(160, 195, 230, 0.6);
+    color: var(--color-jx-tinta2);
     margin: 0;
     max-width: 340px;
     text-align: center;
@@ -144,49 +126,54 @@
     max-width: 520px;
 }
 
-/* ── Botón de acceso (navegable) ── */
+/*  ── Botón de acceso (navegable) ──
+ *  Relleno de 'panel' y no de 'tarjeta': la tarjeta es más clara que el panel
+ *  porque está pensada para ir ENCIMA de él, y aquí debajo hay lienzo, que es
+ *  el tono más claro de todos. Sobre lienzo una tarjeta no se distinguiría.
+ *  Fuera el cristal esmerilado: un blur sobre papel no desenfoca nada, porque
+ *  detrás no hay nada que desenfocar.                                          */
 .default-welcome__hint {
     display: flex;
     align-items: center;
     gap: 0.85rem;
     padding: 0.85rem 1rem;
-    background: rgba(2, 14, 30, 0.72);
-    border: 1px solid rgba(0, 185, 255, 0.18);
+    background: var(--color-jx-panel);
+    border: 1px solid var(--color-jx-regla2);
     border-radius: 14px;
-    color: rgba(200, 230, 255, 0.85);
+    color: var(--color-jx-tinta);
     font-family: inherit;
     cursor: pointer;
     text-align: left;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
-    /* Ray tracing shadow */
-    box-shadow:
-        inset 0 1px 0 rgba(0, 185, 255, 0.08),
-        0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--color-jx-tinta) 10%, transparent);
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Shimmer hover */
+/* El barrido del hover: el mismo gesto, pero en verde de marca muy diluido */
 .default-welcome__hint::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(108deg, transparent 25%, rgba(0, 200, 255, 0.08) 50%, transparent 75%);
+    background: linear-gradient(
+        108deg,
+        transparent 25%,
+        color-mix(in srgb, var(--color-jx-verde) 12%, transparent) 50%,
+        transparent 75%
+    );
     transform: translateX(-110%);
     transition: transform 0.5s ease;
     pointer-events: none;
 }
 
+/*  El hover se nota por el borde verde y por la sombra, no por tres
+ *  resplandores: sobre marfil un resplandor no es luz, es suciedad.
+ *  'verde-barra' y no 'verde' porque el borde de un control pide 3 : 1 y el
+ *  verde de relleno se queda en 2,18 : 1.                                      */
 .default-welcome__hint:hover {
     transform: translateY(-4px);
-    border-color: rgba(0, 185, 255, 0.55);
-    box-shadow:
-        inset 0 1px 0 rgba(0, 185, 255, 0.15),
-        0 0 26px rgba(0, 185, 255, 0.2),
-        0 14px 34px rgba(0, 5, 30, 0.55),
-        0 0 50px rgba(0, 185, 255, 0.06);
+    border-color: var(--color-jx-verde-barra);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--color-jx-tinta) 16%, transparent);
 }
 .default-welcome__hint:hover::before {
     transform: translateX(110%);
@@ -194,9 +181,7 @@
 
 .default-welcome__hint:active {
     transform: translateY(-1px) scale(0.99);
-    box-shadow:
-        inset 0 2px 6px rgba(0, 10, 40, 0.4),
-        0 4px 14px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 2px 4px color-mix(in srgb, var(--color-jx-tinta) 18%, transparent);
 }
 
 /* Icono del botón */
@@ -208,21 +193,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #00b9ff;
-    background: rgba(0, 185, 255, 0.08);
-    border: 1px solid rgba(0, 185, 255, 0.2);
-    box-shadow:
-        inset 1px 1px 0 rgba(120, 220, 255, 0.18),
-        0 0 12px rgba(0, 185, 255, 0.08);
+    color: var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-suave);
+    border: 1px solid var(--color-jx-borde);
     transition: all 0.2s ease;
 }
+/*  Al pasar por encima la pastilla se llena del verde de marca y el icono pasa
+ *  a TINTA, nunca a blanco: blanco sobre #29c50c da 2,31 : 1 y tinta 6,18 : 1.
+ *  Es la regla de la paleta que más se incumple.                               */
 .default-welcome__hint:hover .default-welcome__hint-ico {
-    background: rgba(0, 185, 255, 0.14);
-    border-color: rgba(0, 185, 255, 0.5);
-    color: #2cd3ff;
-    box-shadow:
-        inset 1px 1px 0 rgba(120, 220, 255, 0.3),
-        0 0 20px rgba(0, 185, 255, 0.3);
+    background: var(--color-jx-verde);
+    border-color: var(--color-jx-verde-hover);
+    color: var(--color-jx-tinta);
 }
 
 /* Texto del botón */
@@ -236,21 +218,22 @@
 .default-welcome__hint-text b {
     font-size: 0.92rem;
     font-weight: 700;
-    color: rgba(215, 238, 255, 0.95);
+    color: var(--color-jx-tinta);
 }
+/* 'tinta2' y no 'tinta3': es letra de 0.72rem, conviene el tono más firme */
 .default-welcome__hint-text small {
     font-size: 0.72rem;
-    color: rgba(150, 190, 225, 0.55);
+    color: var(--color-jx-tinta2);
 }
 
-/* Flecha */
+/* La flecha: discreta en reposo, verde de marca en el hover */
 .default-welcome__hint-arrow {
     flex-shrink: 0;
-    color: rgba(0, 185, 255, 0.4);
+    color: var(--color-jx-tinta3);
     transition: transform 0.2s ease, color 0.2s ease;
 }
 .default-welcome__hint:hover .default-welcome__hint-arrow {
-    color: #00b9ff;
+    color: var(--color-jx-verde-barra);
     transform: translateX(3px);
 }
 

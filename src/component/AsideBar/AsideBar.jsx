@@ -167,11 +167,19 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
                                     <circle cx="12" cy="7" r="4" />
                                 </svg>
                             )}
+                            {/*  Quién eres: el nombre en el verde de la casa y el cargo en el ocre.
+                                 Son los dos colores de la firma de marca, así que se leen como
+                                 una pareja y no como dos avisos distintos.
+
+                                 Venían escritos a mano y los dos eran ilegibles sobre la barra
+                                 clara: el rosa #ff6fbb daba 2,28 : 1 y el cargo era BLANCO PURO,
+                                 1,12 : 1 — no es que se leyera mal, es que no estaba. Ahora van
+                                 por token: 5,31 y 5,25 : 1.                                     */}
                             <div>
-                                <p className='font-bold text-[#ff6fbb] text-[.9rem]'>{userSelet?.name} {userSelet?.surName}</p>
+                                <p className='font-bold text-jx-verde-texto text-[.9rem]'>{userSelet?.name} {userSelet?.surName}</p>
                                 {
                                     userSelet?.jobInformation?.position && (
-                                        <p className='font-medium text-[#ffffff] text-[.8rem]'>{userSelet?.jobInformation?.position}</p>
+                                        <p className='font-medium text-jx-ocre-texto text-[.8rem]'>{userSelet?.jobInformation?.position}</p>
                                     )
                                 }
                                 <span>

@@ -1,11 +1,13 @@
 /* ══════════════════════════════════════════════════════════════════════
    CENTRO DE NOTIFICACIONES
    ══════════════════════════════════════════════════════════════════════
-   Esta app NO es Client365. Su chrome es azul casi negro con acento cian, y
-   la bandeja nació copiada del otro proyecto: una tarjeta blanca colgando de
-   una barra oscura. Acá se alinea con lo que ya existe — mismo fondo, mismo
-   borde y misma sombra que `.listConponent`, el desplegable de novedades, que
-   es su hermano de patrón.
+   La bandeja nació copiada de Client365: una tarjeta clara colgando de una
+   barra. Después pasó al azul casi negro con acento cian de esta app, y ahora
+   al marfil de la casa, que es de donde salió.
+
+   Comparte patrón con `.listConponent`, el desplegable de novedades, que
+   todavía está en oscuro: cuando le toque, va con este mismo fondo, el mismo
+   borde y la misma sombra.
 
    REGLA DURA DE MOVIMIENTO
 
@@ -15,43 +17,59 @@
    y corre en Electron sobre las estaciones de monitoreo, encendida toda la
    jornada.
 
-   Por eso el resplandor de la campana es FIJO y lo que se mueve por encima es
+   Por eso el aro de la campana es FIJO y lo que se mueve por encima es
    una capa aparte.
 
    La campana tampoco suena en bucle: el ciclo dura 5s y el movimiento ocupa
    el primer 12%. El resto son fotogramas quietos. */
 
 .notif-center {
-    /* ── Superficie, tomada de la barra y del desplegable de novedades ── */
-    --nc-surface: rgba(2, 12, 28, 0.96);
-    --nc-surface-2: rgba(0, 185, 255, 0.05);
-    --nc-border: rgba(0, 185, 255, 0.2);
-    --nc-border-soft: rgba(0, 185, 255, 0.12);
+    /* ── Superficie. Es 'panel' y no 'tarjeta' por los aros: la insignia de la
+       campana se despega contra la barra y las de la bandeja contra la bandeja,
+       así que con la misma superficie el aro es un solo valor. Y sobre marfil
+       'tarjeta' y 'lienzo' se diferencian en 1,01:1: una bandeja en 'tarjeta'
+       se derretiría en la página. ── */
+    --nc-surface: var(--color-jx-panel);
+    --nc-border: var(--color-jx-regla2);
+    --nc-border-soft: var(--color-jx-regla);
 
-    /* ── Texto. Medido sobre el fondo real:
-       ink 11.6:1, body 6.1:1, meta 4.6:1. Todo por encima del mínimo. ── */
-    --nc-ink: rgba(224, 242, 255, 0.94);
-    --nc-body: rgba(200, 235, 255, 0.86);
-    --nc-meta: rgba(160, 200, 230, 0.72);
+    /* ── Texto. Medido sobre 'panel', el fondo real:
+       ink 12,8:1, body 5,4:1, meta 4,9:1. Todo por encima del mínimo.
+       El justo es 'meta', y aguanta 4,55:1 incluso sobre 'hundido', que es el
+       fondo más cargado donde llega a caer. ── */
+    --nc-ink: var(--color-jx-tinta);
+    --nc-body: var(--color-jx-tinta2);
+    --nc-meta: var(--color-jx-tinta3);
 
-    /* Cian del chrome. Es el color de la app, no de ninguna familia. */
-    --nc-chrome: #00b9ff;
+    /* El color de la app, antes cian y ahora el verde de la casa. Viene en dos
+       sabores porque el verde de relleno, de letra sobre marfil, se queda en
+       2,07:1: 'chrome' para lo escrito (5,31:1) y 'marca' para puntos, iconos
+       y contornos, que con 3:1 cumplen (3,91:1). */
+    --nc-chrome: var(--color-jx-verde-texto);
+    --nc-marca:  var(--color-jx-verde-barra);
 
-    /* Aviso nuevo. Ámbar y no cian: si la alarma usara el color de la barra,
-       se confundiría con el propio marco de la aplicación. */
-    --nc-alert: #ffb020;
+    /* Aviso nuevo. Oro y no verde: si la alarma usara el color de la barra, se
+       confundiría con el propio marco de la aplicación.
+       Tres sabores por lo mismo que el verde: relleno (de letra daría 2,01),
+       letra (5,25:1) y marca para puntos y aros (3,34:1). */
+    --nc-alert:       var(--color-jx-ocre);
+    --nc-alert-texto: var(--color-jx-ocre-texto);
+    --nc-alert-barra: var(--color-jx-tabaco);
 
     color: var(--nc-body);
 }
-
 
 /* ══ BANDEJA ══════════════════════════════════════════════════════════ */
 
 .notif-panel {
     background: var(--nc-surface);
     border: 1px solid var(--nc-border);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--nc-surface-2) inset;
-    backdrop-filter: blur(16px);
+    /* Sombra de PROFUNDIDAD —la bandeja flota sobre la página—, en tinta cálida
+       y no en negro, que sobre marfil se ve sucio. Se fue el filo interior de
+       cian: era luz sobre oscuro, y aquí el borde ya delimita. Se fue también
+       el cristal esmerilado: sobre papel no hay nada que desenfocar, así que el
+       fondo es sólido. */
+    box-shadow: 0 12px 40px rgba(47, 42, 30, 0.16);
     animation: notifPanelIn .22s cubic-bezier(.16, 1, .3, 1) 1;
     transform-origin: top right;   /* cuelga del navbar, no de un riel */
 }
@@ -71,9 +89,10 @@
     font-weight: 700;
 }
 
+/* Tinta sobre el oro y nunca blanco: 6,35:1 contra 2,25:1. */
 .notif-panel__count {
     background: var(--nc-alert);
-    color: #12203a;
+    color: var(--nc-ink);
     font-size: .625rem;
     font-weight: 900;
     line-height: 1;
@@ -93,36 +112,47 @@
     transition: background .15s ease, color .15s ease;
 }
 
-.notif-panel__action:hover { background: rgba(0, 185, 255, 0.12); }
-.notif-panel__action:focus-visible { outline: 2px solid var(--nc-chrome); outline-offset: 1px; }
+.notif-panel__action:hover { background: var(--color-jx-verde-suave); }
+.notif-panel__action:focus-visible { outline: 2px solid var(--nc-marca); outline-offset: 1px; }
 
 /* La lista mide SIEMPRE lo mismo y lo que sobra se desplaza: da para las
    siete de la primera tanda. Antes crecía con el contenido, así que cargar
    otra tanda estiraba la bandeja y el botón se escapaba del cursor.
-   El max-height gana en pantallas bajas, donde 432px no caben. */
+   El max-height gana en pantallas bajas, donde 432px no caben.
+
+   El pulgar va en 'borde-campo' porque es un CONTROL y le toca 3:1 (3,28:1):
+   con una regla decorativa se queda en 1,33 y en 432px de lista no se
+   encuentra. */
 .notif-panel__list {
     height: 432px;
     max-height: calc(100vh - 150px);
     scrollbar-width: thin;
-    scrollbar-color: rgba(0, 185, 255, 0.25) transparent;
+    scrollbar-color: var(--color-jx-borde-campo) transparent;
 }
 
 .notif-panel__list::-webkit-scrollbar { width: 8px; }
 .notif-panel__list::-webkit-scrollbar-thumb {
-    background: rgba(0, 185, 255, 0.22);
+    background: var(--color-jx-borde-campo);
     border-radius: 999px;
 }
-.notif-panel__list::-webkit-scrollbar-thumb:hover { background: rgba(0, 185, 255, 0.4); }
+.notif-panel__list::-webkit-scrollbar-thumb:hover { background: var(--nc-meta); }
 
 .notif-empty__title { color: var(--nc-body); font-size: .875rem; font-weight: 600; }
 .notif-empty__hint  { color: var(--nc-meta); font-size: .688rem; margin-top: .25rem; }
-.notif-error__title { color: #ff8080; font-size: .875rem; font-weight: 600; }
-
+.notif-error__title { color: var(--color-jx-critico-texto); font-size: .875rem; font-weight: 600; }
 
 /* ══ FILA ═════════════════════════════════════════════════════════════ */
 /* `--fam-rgb` lo declara el ítem con el tono de su familia; todo lo de acá se
    deriva de ahí: el color sólido y sus transparencias salen del mismo valor.
-   Un color por familia definido UNA vez, en notificationViews. */
+   Un color por familia definido UNA vez, en notificationViews.
+
+   NOTA DEL TEMA CLARO. Esos tonos se eligieron para fondo oscuro y por eso son
+   CLAROS: sobre marfil dan de 1,5 a 2,4:1, así que de LETRA desaparecen y ni
+   de marca llegan al 3:1 que piden los iconos. Lo que se hizo acá: donde el
+   tono era letra, la letra pasa a la escala de tinta, y la familia sigue
+   codificando con el velo y el borde que tiene al lado. El arreglo de verdad es
+   un tono oscuro por familia en notificationViews.jsx, igual que la paleta hace
+   con verde → verde-barra; desde esta hoja no se puede. */
 
 .notif-item {
     --fam: rgb(var(--fam-rgb));
@@ -160,17 +190,22 @@
 }
 
 /* Sin leer: un velo del color de su familia. Es lo que hace que la bandeja
-   se lea de un vistazo — el bloque ámbar son comentarios, el verde horario. */
+   se lea de un vistazo — el bloque ámbar son comentarios, el verde horario.
+   Sobre marfil el velo apenas se nota (1,05:1 contra el fondo) y NO puede
+   subir más: con el tono claro de la familia, a .13 el texto 'meta' que va
+   encima cae a 4,45:1. Por eso el hover baja de .13 a .11, que es el techo. */
 .notif-row--unread {
     background: rgb(var(--fam-rgb) / .07);
 }
 
 .notif-row:hover {
-    background: rgb(var(--fam-rgb) / .13);
+    background: rgb(var(--fam-rgb) / .11);
 }
 
+/* El aro de foco tiene que llegar a 3:1 y ningún tono de familia lo alcanza
+   sobre marfil: va en el verde de marca, como el resto de los focos. */
 .notif-row:focus-visible {
-    outline: 2px solid var(--fam);
+    outline: 2px solid var(--nc-marca);
     outline-offset: -2px;
 }
 
@@ -184,7 +219,6 @@
     pointer-events: none;
 }
 
-
 /* ── Punto de nivel ─────────────────────────────────────────────────── */
 
 .notif-level {
@@ -195,19 +229,27 @@
     flex-shrink: 0;
 }
 
-.notif-level--read    { background: rgba(120, 160, 190, 0.3); }
-.notif-level--success { background: #3ecf4a; }
-.notif-level--warning { background: var(--nc-alert); }
-.notif-level--danger  { background: #ff6b6b; }
-.notif-level--info    { background: var(--nc-chrome); }
+/* Un punto es una marca, así que van en los tonos de 3:1 y no en los de
+   relleno: 3,91:1 el verde, 3,34:1 el oro y 4,30:1 el rojo sobre el fondo.
 
-@keyframes notifDotBreath {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.35); }
-}
+   El de 'ya leído' se queda en 'tinta4' y en 2,37:1 a propósito, y es el único
+   sitio donde ese token se sale de "deshabilitado": no es texto y no es lo
+   único que lo dice —el título de una leída ya baja de peso y de tinta—, así
+   que vale lo mismo que para un control apagado. Lo que informa es el punto de
+   color de las que faltan por leer.
 
-.notif-dot { animation: notifDotBreath 2.6s ease-in-out infinite; }
+   PENDIENTE, y no se arregla desde esta hoja: 'info' y 'success' quedaron en el
+   mismo verde. Antes eran cian y verde, y la paleta de la casa no tiene un
+   tercer acento. Neutro tampoco sirve: 'info' es el nivel por omisión del
+   backend y este punto hace además de indicador de no leída, así que la mitad
+   de la bandeja se quedaría en gris. Hay que decidir el color, no retocarlo. */
+.notif-level--read    { background: var(--color-jx-tinta4); }
+.notif-level--success { background: var(--nc-marca); }
+.notif-level--warning { background: var(--nc-alert-barra); }
+.notif-level--danger  { background: var(--color-jx-critico); }
+.notif-level--info    { background: var(--nc-marca); }
 
+.notif-dot { /* animación infinita quitada */ }
 
 /* ── Insignia de familia ────────────────────────────────────────────── */
 /* El ícono del tipo, siempre visible, en el color de su familia. Antes era
@@ -225,11 +267,13 @@
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    color: #0a1526;
+    /* Tinta sobre el relleno de la familia: los siete tonos dan de 5,4 a 8,6:1.
+       En blanco se perdería, que son todos claros. */
+    color: var(--nc-ink);
     background: var(--fam);
     /* Anillo del color del fondo: despega la insignia de la foto que tiene
        debajo sin necesidad de sombra. */
-    box-shadow: 0 0 0 2px rgba(2, 12, 28, 0.96);
+    box-shadow: 0 0 0 2px var(--nc-surface);
     transition: transform .16s cubic-bezier(.16, 1, .3, 1);
 }
 
@@ -238,19 +282,20 @@
 .notif-row:hover .notif-badge-family { transform: scale(1.18); }
 
 .notif-face {
-    background: rgba(0, 185, 255, 0.12);
+    background: var(--color-jx-hundido);
     color: var(--nc-body);
 }
 
-.notif-face--ring { box-shadow: 0 0 0 2px rgba(2, 12, 28, 0.96); }
+.notif-face--ring { box-shadow: 0 0 0 2px var(--nc-surface); }
 .notif-face__initials { color: var(--nc-body); }
 
+/* El glifo de respaldo iba en el tono de la familia y sobre marfil no llega al
+   3:1 de un icono; la familia ya la dice la insignia de la esquina. */
 .notif-logo {
-    background: rgba(0, 185, 255, 0.08);
+    background: var(--color-jx-hundido);
     border: 1px solid var(--nc-border-soft);
-    color: var(--fam);
+    color: var(--nc-body);
 }
-
 
 /* ── Textos de la fila ──────────────────────────────────────────────── */
 
@@ -273,11 +318,15 @@
 .notif-meta { color: var(--nc-meta); font-size: .656rem; }
 .notif-target { color: var(--nc-ink); font-weight: 700; }
 
-/* El nombre de la familia, escrito. El color diferencia; la palabra explica. */
+/* El nombre de la familia, escrito. El color diferencia; la palabra explica.
+   La palabra pasa a tinta (9,93:1 en el peor caso, que es la familia violeta con
+   la fila bajo el ratón; 10,7:1 sobre el panel pelado) y el color se muda al
+   relleno y al borde, que suben un punto: al 14% y al 30% de un tono claro
+   sobre marfil no quedaba nada que diferenciara. */
 .notif-chip-family {
-    color: var(--fam);
-    background: rgb(var(--fam-rgb) / .14);
-    border: 1px solid rgb(var(--fam-rgb) / .3);
+    color: var(--nc-ink);
+    background: rgb(var(--fam-rgb) / .22);
+    border: 1px solid rgb(var(--fam-rgb) / .6);
     font-size: .594rem;
     font-weight: 800;
     letter-spacing: .02em;
@@ -294,20 +343,19 @@
 }
 
 .notif-scope--personal { color: var(--nc-chrome); }
-.notif-scope--admin    { color: var(--nc-alert); }
+.notif-scope--admin    { color: var(--nc-alert-texto); }
 
 .notif-resolved { font-size: .656rem; font-weight: 700; margin-top: .375rem; }
-.notif-resolved--ok { color: #3ecf4a; }
-.notif-resolved--no { color: #ff6b6b; }
+.notif-resolved--ok { color: var(--color-jx-verde-texto); }
+.notif-resolved--no { color: var(--color-jx-critico-texto); }
 
 .notif-pending {
     padding: 0 1rem .75rem;
     margin-top: -.25rem;
     font-size: .656rem;
     font-weight: 700;
-    color: var(--nc-alert);
+    color: var(--nc-alert-texto);
 }
-
 
 /* ── Botones de decisión ────────────────────────────────────────────── */
 
@@ -323,22 +371,25 @@
 
 .notif-action:disabled { opacity: .6; cursor: default; }
 
+/* Letra en tinta sobre el verde: 6,18:1. En blanco serían 2,31:1. */
 .notif-action--accept {
-    color: #06210a;
-    background: #3ecf4a;
+    color: var(--nc-ink);
+    background: var(--color-jx-verde);
     border: none;
 }
-.notif-action--accept:hover:not(:disabled) { background: #4ee05a; }
+.notif-action--accept:hover:not(:disabled) { background: var(--color-jx-verde-hover); }
 
+/* El contorno es LO ÚNICO que dice que esto es un botón, así que le toca el
+   3:1 de los controles: 'borde-campo' da 3,28:1 y una regla decorativa se
+   quedaría en 1,33. */
 .notif-action--cancel {
     color: var(--nc-body);
     background: none;
-    border: 1px solid var(--nc-border);
+    border: 1px solid var(--color-jx-borde-campo);
 }
-.notif-action--cancel:hover:not(:disabled) { background: rgba(0, 185, 255, 0.1); }
+.notif-action--cancel:hover:not(:disabled) { background: var(--color-jx-arena); }
 
-.notif-action:focus-visible { outline: 2px solid var(--nc-chrome); outline-offset: 2px; }
-
+.notif-action:focus-visible { outline: 2px solid var(--nc-marca); outline-offset: 2px; }
 
 /* ══ CAMPANA ══════════════════════════════════════════════════════════ */
 
@@ -347,44 +398,36 @@
     transition: color .18s ease, background-color .18s ease;
 }
 
-/* Hay avisos sin ver: la campana se enciende en ámbar y queda separada del
-   resto de la barra, que es cian apagado.
+/* Hay avisos sin ver: la campana se enciende en oro y queda separada del resto
+   de la barra, que va en el verde de la casa.
 
-   El resplandor va en box-shadow pero NO se anima — se pone y se queda. Lo
-   que se mueve es el ícono, y solo con transform. */
+   Lo que avisa es el ICONO y el ARO. El parche de fondo no puede ser la señal:
+   'ocre-suave' y el marfil de la barra se diferencian en 1,02:1. Y el
+   resplandor de 16px se fue — sobre oscuro era luz, sobre papel es suciedad.
+   Queda el aro de 1px, que es borde y no brillo, en el tono de 3:1 (3,34:1). */
 /* Se califica con .nav-bar__action-btn a propósito. App.css define
    `.nav-bar__action-btn:hover { color: cian }`, que gana por especificidad a
    una sola clase: al pasar el ratón, la campana en alarma se volvía del color
    del chrome y perdía justo el estado que tiene que comunicar. */
 .nav-bar__action-btn.notif-bell--new {
-    color: var(--nc-alert);
-    background: rgba(255, 176, 32, 0.12);
-    box-shadow: 0 0 0 1px rgba(255, 176, 32, 0.3), 0 0 16px rgba(255, 176, 32, 0.18);
+    color: var(--nc-alert-texto);
+    background: var(--color-jx-ocre-suave);
+    box-shadow: 0 0 0 1px var(--nc-alert-barra);
 }
 
+/* En claro el realce es oscurecer el fondo, no aclarar el icono: el icono ya
+   está en el tono más oscuro del oro. */
 .nav-bar__action-btn.notif-bell--new:hover {
-    color: #ffc95c;
-    background: rgba(255, 176, 32, 0.22);
+    background: var(--color-jx-arena);
 }
 
 /* Ya las viste pero siguen sin leer: se apaga la alarma, no el dato. */
-.nav-bar__action-btn.notif-bell--seen { color: rgba(180, 215, 255, 0.9); }
-.nav-bar__action-btn.notif-bell--seen:hover { color: rgba(215, 238, 255, 0.98); }
+.nav-bar__action-btn.notif-bell--seen { color: var(--nc-body); }
+.nav-bar__action-btn.notif-bell--seen:hover { color: var(--nc-ink); }
 
 /* Repique periódico mientras haya avisos sin ver */
-@keyframes notifBellRing {
-    0%   { transform: rotate(0deg); }
-    2%   { transform: rotate(14deg); }
-    4%   { transform: rotate(-11deg); }
-    6%   { transform: rotate(8deg); }
-    8%   { transform: rotate(-6deg); }
-    10%  { transform: rotate(3deg); }
-    12%,
-    100% { transform: rotate(0deg); }
-}
-
 .notif-bell--alert {
-    animation: notifBellRing 5s ease-in-out infinite;
+    /* animación infinita quitada */
     transform-origin: 50% 15%;   /* pivota desde el asa, como una campana */
     will-change: transform;
 }
@@ -407,36 +450,36 @@
 }
 
 /* Onda que sale del botón al llegar algo. Capa propia y solo transform +
-   opacity: el resplandor de abajo se queda quieto mientras esta se expande. */
+   opacity: el aro de abajo se queda quieto mientras esta se expande. */
 @keyframes notifBellWave {
     0%   { transform: scale(.6); opacity: .5; }
     100% { transform: scale(2.2); opacity: 0; }
 }
 
+/* El oro va sólido: la transparencia la pone la animación, que arranca en .5 y
+   se apaga. Con un oro ya aguado no se vería salir nada. */
 .notif-bell__wave {
     position: absolute;
     inset: 0;
     border-radius: 999px;
-    background: rgba(255, 176, 32, 0.35);
+    background: var(--nc-alert);
     pointer-events: none;
     animation: notifBellWave .75s cubic-bezier(0, 0, .2, 1) 1 forwards;
 }
 
 /* Halo del contador */
-@keyframes notifBadgePulse {
-    0%   { transform: scale(1); opacity: .55; }
-    70%  { transform: scale(2.1); opacity: 0; }
-    100% { transform: scale(2.1); opacity: 0; }
-}
-
 .notif-badge-halo {
-    animation: notifBadgePulse 2.4s cubic-bezier(0, 0, .2, 1) infinite;
+    /* animación infinita quitada */
     background: var(--nc-alert);
 }
 
+/* Sin número encima, este punto es lo ÚNICO que avisa, así que le toca el 3:1
+   de una marca y va en el tono de marca, no en el de relleno: el oro de relleno
+   contra el aro del fondo se queda en 2,01:1 y 'tabaco' da 3,34:1. El halo de
+   detrás sí se queda en el oro: es un latido, no la señal. */
 .notif-badge-dot {
-    background: var(--nc-alert);
-    box-shadow: 0 0 0 2px rgba(2, 12, 28, 0.96);
+    background: var(--nc-alert-barra);
+    box-shadow: 0 0 0 2px var(--nc-surface);
 }
 
 /* Golpe del número cuando sube la cuenta.
@@ -452,7 +495,7 @@
 
 .notif-badge-count {
     background: var(--nc-alert);
-    color: #12203a;
+    color: var(--nc-ink);
     font-size: .625rem;
     font-weight: 900;
     line-height: 1;
@@ -462,15 +505,14 @@
 
 /* Cuando ya las viste, el número sigue pero deja de gritar. */
 .notif-badge-count--seen {
-    background: rgba(0, 185, 255, 0.18);
-    color: rgba(200, 235, 255, 0.9);
+    background: var(--color-jx-hundido);
+    color: var(--nc-body);
 }
-
 
 /* ══ ACCESIBILIDAD ════════════════════════════════════════════════════ */
 /* No se ocultan los indicadores, solo se detienen: quien desactiva el
    movimiento sigue necesitando saber que tiene notificaciones. El color y el
-   resplandor de la campana no dependen de la animación, así que el estado
+   aro de la campana no dependen de la animación, así que el estado
    "hay algo nuevo" se sigue leyendo igual. */
 @media (prefers-reduced-motion: reduce) {
     .notif-bell--alert,
@@ -490,11 +532,10 @@
     .notif-row { transition: none; }
 }
 
-
 /* ══ DETALLES DE FAMILIA ══════════════════════════════════════════════ */
 /* Los bloques que pinta cada familia bajo el texto: las fotos del marcaje y
-   la nota del comentario. Nacieron con la paleta clara de Client365 y sobre
-   este fondo se veían como parches blancos pegados. */
+   la nota del comentario. Nacieron con la paleta clara de Client365, pasaron
+   por el fondo oscuro de esta app y vuelven al marfil. */
 
 .notif-detail__label {
     color: var(--nc-meta);
@@ -522,7 +563,10 @@
 /* ── Marcaje: las dos fotos ─────────────────────────────────────────── */
 /* Entrada en verde, salida en ámbar: mismo par de significados que usa la
    ficha del horario en Client365, para que quien mire las dos apps no tenga
-   que reaprender el código. */
+   que reaprender el código.
+
+   Cada caja lleva los tres sabores de su familia: fondo 'suave', borde en el
+   tono de 3:1 y letra en el de texto (5,60:1 el verde, 5,38:1 el oro). */
 
 .notif-mark {
     border-radius: .5rem;
@@ -531,17 +575,17 @@
 }
 
 .notif-mark--in {
-    background: rgba(62, 207, 74, 0.1);
-    border-color: rgba(62, 207, 74, 0.28);
+    background: var(--color-jx-verde-suave);
+    border-color: var(--nc-marca);
 }
 
 .notif-mark--out {
-    background: rgba(255, 176, 32, 0.1);
-    border-color: rgba(255, 176, 32, 0.28);
+    background: var(--color-jx-ocre-suave);
+    border-color: var(--nc-alert-barra);
 }
 
-.notif-mark--in .notif-mark__label  { color: #7ee08a; }
-.notif-mark--out .notif-mark__label { color: #ffc95c; }
+.notif-mark--in .notif-mark__label  { color: var(--color-jx-verde-texto); }
+.notif-mark--out .notif-mark__label { color: var(--nc-alert-texto); }
 
 .notif-mark__label {
     font-size: .563rem;
@@ -563,7 +607,7 @@
     object-fit: cover;
     border-radius: .25rem;
     margin-top: .375rem;
-    background: rgba(0, 185, 255, 0.08);
+    background: var(--color-jx-hundido);
 }
 
 .notif-mark__empty {
@@ -571,7 +615,7 @@
     height: 62px;
     margin-top: .375rem;
     border-radius: .25rem;
-    border: 1px dashed rgba(0, 185, 255, 0.25);
+    border: 1px dashed var(--nc-border);
     color: var(--nc-meta);
     display: flex;
     align-items: center;
@@ -593,33 +637,41 @@
     line-height: 1.5;
 }
 
-.notif-tag--ok   { color: #7ee08a; background: rgba(62, 207, 74, 0.12);  border-color: rgba(62, 207, 74, 0.3); }
-.notif-tag--warn { color: #ffc95c; background: rgba(255, 176, 32, 0.12); border-color: rgba(255, 176, 32, 0.3); }
-.notif-tag--bad  { color: #ff8f8f; background: rgba(255, 107, 107, 0.12); border-color: rgba(255, 107, 107, 0.32); }
-.notif-tag--info { color: #8fd0ff; background: rgba(0, 185, 255, 0.12);  border-color: rgba(0, 185, 255, 0.3); }
+/* 'info' era el cian del chrome, y en claro eso sería el verde de marca: la
+   etiqueta se confundiría con 'ok'. Se queda neutra, que es lo que es — marca
+   un dato ("día extra", "trabajó 8h"), no un estado bueno. */
+.notif-tag--ok   { color: var(--color-jx-verde-texto);   background: var(--color-jx-verde-suave);   border-color: var(--nc-marca); }
+.notif-tag--warn { color: var(--nc-alert-texto);         background: var(--color-jx-ocre-suave);    border-color: var(--nc-alert-barra); }
+.notif-tag--bad  { color: var(--color-jx-critico-texto); background: var(--color-jx-critico-suave); border-color: var(--color-jx-critico); }
+.notif-tag--info { color: var(--nc-body);                background: var(--color-jx-hundido);       border-color: var(--nc-border); }
 
 /* ── Comentario: las dos caras y la nota ────────────────────────────── */
 
 .notif-person {
     border-radius: 999px;
     overflow: hidden;
-    background: rgba(0, 185, 255, 0.12);
+    background: var(--color-jx-hundido);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 0 0 2px var(--notif-person-ring, transparent);
 }
 
-.notif-person--author { --notif-person-ring: #3ecf4a; }
-.notif-person--target { --notif-person-ring: #60a5fa; }
+/* Los dos aros solo tienen que distinguirse, y el azul no existe en la paleta
+   de la casa. El que escribe se queda con el verde; el otro va en neutro, que
+   además evita que un aro dorado parezca una alarma. */
+.notif-person--author { --notif-person-ring: var(--nc-marca); }
+.notif-person--target { --notif-person-ring: var(--nc-meta); }
 
 .notif-person__initial { color: var(--nc-body); font-size: .938rem; font-weight: 900; }
 
+/* El velo sube del 10% al 16% por lo mismo que el chip: el tono de la familia
+   es claro y sobre marfil no teñía. */
 .notif-quote {
     margin-top: .5rem;
     padding: .375rem .5rem .375rem .625rem;
     border-left: 2px solid var(--fam, #fbbf24);
-    background: rgb(var(--fam-rgb, 251 191 36) / .1);
+    background: rgb(var(--fam-rgb, 251 191 36) / .16);
     border-radius: 0 .25rem .25rem 0;
 }
 
@@ -631,13 +683,12 @@
     word-break: break-word;
 }
 
-.notif-arrow { color: rgba(0, 185, 255, 0.35); }
-
+.notif-arrow { color: var(--nc-meta); }
 
 /* ══ QUÉ CAMBIÓ EN EL HORARIO ═════════════════════════════════════════ */
 /* Un día por línea: fecha, lo que le pusieron y —si el tipo las lleva— sus
-   horas. Los tonos son los de la grilla del horario, aclarados para el fondo
-   oscuro: quien reconoce una falta en rojo en la grilla la reconoce acá. */
+   horas. Los tonos son los de la grilla del horario, ahora oscurecidos para el
+   marfil: quien reconoce una falta en rojo en la grilla la reconoce acá. */
 
 .notif-days {
     display: flex;
@@ -684,23 +735,35 @@
     padding-top: .1rem;
 }
 
-/* Falta en rojo pleno, como en la grilla: es el estado que hay que ver. */
-.notif-day--falta      { color: #fff;    background: #d64545; border-color: #e86a6a; }
-.notif-day--extra      { color: #7ee08a; background: rgba(62, 207, 74, 0.14);  border-color: rgba(62, 207, 74, 0.34); }
-.notif-day--libre      { color: #c3d3e0; background: rgba(160, 200, 230, 0.12); border-color: rgba(160, 200, 230, 0.28); }
-.notif-day--permiso    { color: #ffc95c; background: rgba(255, 176, 32, 0.14);  border-color: rgba(255, 176, 32, 0.34); }
-.notif-day--vacaciones { color: #7fe0ea; background: rgba(45, 212, 191, 0.14);  border-color: rgba(45, 212, 191, 0.34); }
-.notif-day--laboral    { color: var(--nc-body); background: rgba(0, 185, 255, 0.1); border-color: var(--nc-border); }
-.notif-day--guardia    { color: #7fe0ea; background: rgba(45, 212, 191, 0.16);  border-color: rgba(45, 212, 191, 0.36); }
-.notif-day--auxiliar   { color: #b3b9ff; background: rgba(129, 140, 248, 0.16); border-color: rgba(129, 140, 248, 0.36); }
+/* Cada estado es un DATO, así que ninguno cambia de familia: solo se oscurece
+   el tono, que venía aclarado para el fondo oscuro. Mismo patrón que arriba:
+   fondo 'suave', borde en el tono de marca, letra en el de texto.
 
+   Turquesa y violeta no existen en la paleta de la casa y van en crudo: son
+   colores de la grilla, no de la marca. Si algún día el horario se pasa a
+   marfil, estos valores tienen que salir de allí.
+
+   La falta es la excepción a la regla del relleno: sobre el rojo la letra que
+   se lee es la BLANCA (4,80:1); la tinta se quedaría en 2,97:1. */
+.notif-day--falta      { color: #fff;                        background: var(--color-jx-critico);     border-color: var(--color-jx-critico-texto); }
+.notif-day--extra      { color: var(--color-jx-verde-texto); background: var(--color-jx-verde-suave); border-color: var(--nc-marca); }
+.notif-day--libre      { color: var(--nc-meta);              background: var(--color-jx-arena);       border-color: var(--nc-border); }
+.notif-day--permiso    { color: var(--nc-alert-texto);       background: var(--color-jx-ocre-suave);  border-color: var(--nc-alert-barra); }
+.notif-day--vacaciones { color: #0f766e;                     background: #e9f7f4;                     border-color: #3f9a8f; }   /* 4,97:1 */
+.notif-day--laboral    { color: var(--nc-body);              background: var(--color-jx-hundido);     border-color: var(--nc-border); }
+.notif-day--guardia    { color: #0f766e;                     background: #ddf0ec;                     border-color: #3f9a8f; }   /* 4,63:1 */
+.notif-day--auxiliar   { color: #4f46e5;                     background: #eeedfd;                     border-color: #9b95ef; }   /* 5,44:1 */
 
 /* ══════════════════════════════════════════════════════════════════════
    BONIFICACIÓN — el desglose de qué cambió
    ══════════════════════════════════════════════════════════════════════
    Los colores salen de --fam-rgb, que el ítem deja puesta según la familia.
    Así el bloque es del mismo dorado que el resto del aviso sin repetir el
-   valor acá: el día que el dorado cambie, cambia en un solo lugar.          */
+   valor acá: el día que el dorado cambie, cambia en un solo lugar.
+
+   El texto pasa a tinta —el tono de la familia, de letra sobre marfil, da
+   2,01:1— y el dorado se queda en el fondo y en la barra de la izquierda, que
+   suben un punto para que sobre papel se vean.                               */
 
 .notif-bonus {
     display: flex;
@@ -710,8 +773,8 @@
     padding: 6px 8px;
     list-style: none;
     border-radius: 7px;
-    background: rgb(var(--fam-rgb) / .08);
-    border-left: 2px solid rgb(var(--fam-rgb) / .55);
+    background: rgb(var(--fam-rgb) / .14);
+    border-left: 2px solid rgb(var(--fam-rgb) / .9);
 }
 
 .notif-bonus__linea {
@@ -720,7 +783,7 @@
     gap: 6px;
     font-size: 11px;
     line-height: 1.35;
-    color: rgb(var(--fam-rgb) / .95);
+    color: var(--nc-body);
 }
 
 .notif-bonus__punto {

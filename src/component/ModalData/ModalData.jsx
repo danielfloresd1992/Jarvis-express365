@@ -96,26 +96,26 @@ export default function ModalData() {
                             y: {
                                 ticks: {
                                     stepSize: 5,
-                                    fontColor: '#fff',
+                                    fontColor: '#2f2a1e',
                                 },
-                                color: '#fff',
+                                color: '#2f2a1e',
                                 beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'cantidad',
-                                    color: '#fff',
+                                    color: '#2f2a1e',
                                 }
                             },
                             x: {
                                 ticks: {
-                                    fontColor: '#fff',
+                                    fontColor: '#2f2a1e',
                                 },
-                                color: '#fff',
+                                color: '#2f2a1e',
                                 beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'Días',
-                                    color: '#fff',
+                                    color: '#2f2a1e',
                                 }
                             }
                         }
@@ -150,26 +150,26 @@ export default function ModalData() {
                             y: {
                                 ticks: {
                                     stepSize: 5,
-                                    fontColor: '#fff',
+                                    fontColor: '#2f2a1e',
                                 },
-                                color: '#fff',
+                                color: '#2f2a1e',
                                 beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'cantidad',
-                                    color: '#fff',
+                                    color: '#2f2a1e',
                                 }
                             },
                             x: {
                                 ticks: {
-                                    fontColor: '#fff',
+                                    fontColor: '#2f2a1e',
                                 },
-                                color: '#fff',
+                                color: '#2f2a1e',
                                 beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'Días',
-                                    color: '#fff',
+                                    color: '#2f2a1e',
                                 }
                             }
                         }
@@ -267,7 +267,7 @@ export default function ModalData() {
                 <div className='listContaint'>
                     {
                         Object.entries(forDay).map(([date, items]) => (
-                            <div className='listContaint-box' key={date} style={{ color: '#fff' }} >
+                            <div className='listContaint-box' key={date} style={{ color: '#2f2a1e' }} >
                                 <div
                                     className='listContaint-title'
                                     onClick={e => {
@@ -291,7 +291,7 @@ export default function ModalData() {
 
                                     {
                                         items.map(item => (
-                                            <li className={keyAnimation ? 'box-traslateLelf' : ''} key={item._id} style={{ color: '#fff' }} >
+                                            <li className={keyAnimation ? 'box-traslateLelf' : ''} key={item._id} style={{ color: '#2f2a1e' }} >
                                                 <div className='content'>
                                                     <div className='icon'>
                                                         {

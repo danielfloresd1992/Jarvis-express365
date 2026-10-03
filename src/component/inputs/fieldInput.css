@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    FIELD INPUT — input controlado unificado (fi-*)
-   Tema dark/cyan. Solo transiciones de interacción (sin loops).
+   Tema claro de marca (--color-jx-*). Solo transiciones de
+   interacción (sin loops).
    ═══════════════════════════════════════════════════════════ */
 
 .fi-wrap {
@@ -11,13 +12,15 @@
     width: 100%;
 }
 
+/* La etiqueta no es un acento: es texto secundario, y en verde de marca
+   no se leería. Va en tinta2. */
 .fi-label {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(0, 185, 255, 0.6);
+    color: var(--color-jx-tinta2);
 }
 
 /* ── Base de input / select / textarea ── */
@@ -27,31 +30,36 @@
     width: 100%;
     font-family: inherit;
     font-size: 0.95rem;
-    color: rgba(210, 238, 255, 0.95);
-    background: rgba(0, 185, 255, 0.05);
-    border: 1.5px solid rgba(0, 185, 255, 0.2);
+    color: var(--color-jx-tinta);
+    background: var(--color-jx-hundido);
+    /* 'borde-campo' y no 'regla': el contorno tiene que decir "aquí se escribe". */
+    border: 1.5px solid var(--color-jx-borde-campo);
     border-radius: 10px;
     padding: 0.65rem 0.9rem;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+/* Una pista va en tinta3; tinta4 es solo para lo deshabilitado. */
 .fi-input::placeholder,
 .fi-textarea::placeholder {
-    color: rgba(0, 185, 255, 0.3);
+    color: var(--color-jx-tinta3);
 }
 
+/* El anillo de 3 px se queda: es el indicador de foco del teclado, no adorno.
+   El resplandor de 18 px que lo acompañaba, fuera. */
 .fi-input:focus,
 .fi-select:focus,
 .fi-textarea:focus {
-    border-color: rgba(0, 185, 255, 0.55);
-    background: rgba(0, 185, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(0, 150, 255, 0.1), 0 0 18px rgba(0, 150, 255, 0.06);
+    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-tarjeta);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 22%, transparent);
 }
 
+/* Rojo porque significa "no válido", no por estilo: se mantiene la familia. */
 .fi-input:invalid,
 .fi-select:invalid {
-    border-color: rgba(239, 68, 68, 0.4);
+    border-color: var(--color-jx-critico);
 }
 
 /* ── Select ── */
@@ -60,13 +68,15 @@
     appearance: none;
     -webkit-appearance: none;
     padding-right: 2.4rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(0,185,255,0.6)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    /* El color de la flecha va DENTRO de la URL: ahí no entra var(), hay que
+       cambiarlo a mano. Es un icono, así que 'verde-barra' (#1c8c08). */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231c8c08' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.9rem center;
 }
 .fi-select > option {
-    background: #030f1e;
-    color: rgba(210, 238, 255, 0.92);
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
 }
 
 /* ── Textarea ── */
@@ -85,13 +95,13 @@
     user-select: none;
     padding: 0.55rem 0.9rem;
     border-radius: 12px;
-    background: rgba(2, 12, 28, 0.55);
-    border: 1px solid rgba(0, 185, 255, 0.15);
+    background: var(--color-jx-arena);
+    border: 1px solid var(--color-jx-regla2);
     transition: border-color 0.18s ease, background 0.18s ease;
 }
 .fi-toggle:hover {
-    border-color: rgba(0, 185, 255, 0.35);
-    background: rgba(0, 185, 255, 0.04);
+    border-color: var(--color-jx-borde-campo);
+    background: var(--color-jx-tarjeta);
 }
 .fi-toggle__input {
     position: absolute;
@@ -104,11 +114,13 @@
     width: 42px;
     height: 22px;
     border-radius: 100px;
-    background: rgba(0, 30, 60, 0.8);
-    border: 1px solid rgba(0, 185, 255, 0.25);
+    background: var(--color-jx-hundido);
+    border: 1px solid var(--color-jx-borde-campo);
     flex-shrink: 0;
     transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
+/* La bolita apagada en tinta3: blanca sobre marfil no se vería. La sombra es de
+   profundidad, así que se queda, pero en tinta cálida y no en negro. */
 .fi-toggle__switch::after {
     content: '';
     position: absolute;
@@ -118,27 +130,27 @@
     width: 15px;
     height: 15px;
     border-radius: 50%;
-    background: rgba(150, 200, 240, 0.9);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    background: var(--color-jx-tinta3);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--color-jx-tinta) 18%, transparent);
     transition: left 0.2s ease, background 0.2s ease;
 }
+/* Encendido: el carril es relleno verde y la bolita va en tinta, nunca blanca
+   (blanco sobre verde da 2,31 : 1). Resplandor de 14 px quitado. */
 .fi-toggle__input:checked + .fi-toggle__switch {
-    background: rgba(0, 185, 255, 0.25);
-    border-color: rgba(0, 185, 255, 0.6);
-    box-shadow: 0 0 14px rgba(0, 185, 255, 0.25);
+    background: var(--color-jx-verde);
+    border-color: var(--color-jx-verde-barra);
 }
 .fi-toggle__input:checked + .fi-toggle__switch::after {
     left: 23px;
-    background: #00c8ff;
-    box-shadow: 0 0 8px rgba(0, 200, 255, 0.7);
+    background: var(--color-jx-tinta);
 }
 .fi-toggle__input:focus-visible + .fi-toggle__switch {
-    box-shadow: 0 0 0 3px rgba(0, 185, 255, 0.3);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 28%, transparent);
 }
 .fi-toggle__text {
     font-size: 0.85rem;
     font-weight: 600;
-    color: rgba(200, 230, 255, 0.85);
+    color: var(--color-jx-tinta);
 }
 
 /* ── Radio group ── */
@@ -156,17 +168,17 @@
     user-select: none;
     padding: 0.5rem 0.85rem;
     border-radius: 10px;
-    background: rgba(2, 12, 28, 0.55);
-    border: 1.5px solid rgba(0, 185, 255, 0.15);
+    background: var(--color-jx-arena);
+    border: 1.5px solid var(--color-jx-regla2);
     transition: all 0.18s ease;
 }
 .fi-radio:hover {
-    border-color: rgba(0, 185, 255, 0.35);
+    border-color: var(--color-jx-borde-campo);
 }
+/* Elegido: fondo verde suave y borde de barra. El resplandor sobraba. */
 .fi-radio--on {
-    border-color: rgba(0, 185, 255, 0.55);
-    background: rgba(0, 185, 255, 0.08);
-    box-shadow: 0 0 14px rgba(0, 185, 255, 0.12);
+    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-suave);
 }
 .fi-radio__input {
     position: absolute;
@@ -179,10 +191,11 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    border: 1.5px solid rgba(0, 185, 255, 0.4);
+    border: 1.5px solid var(--color-jx-borde-campo);
     flex-shrink: 0;
     transition: border-color 0.18s ease;
 }
+/* El punto es punto, no letra: 'verde-barra'. Sin resplandor. */
 .fi-radio__dot::after {
     content: '';
     position: absolute;
@@ -192,12 +205,11 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #00c8ff;
-    box-shadow: 0 0 8px rgba(0, 200, 255, 0.7);
+    background: var(--color-jx-verde-barra);
     transition: transform 0.18s ease;
 }
 .fi-radio--on .fi-radio__dot {
-    border-color: rgba(0, 185, 255, 0.7);
+    border-color: var(--color-jx-verde-barra);
 }
 .fi-radio--on .fi-radio__dot::after {
     transform: translate(-50%, -50%) scale(1);
@@ -205,7 +217,7 @@
 .fi-radio__text {
     font-size: 0.85rem;
     font-weight: 600;
-    color: rgba(200, 230, 255, 0.85);
+    color: var(--color-jx-tinta);
 }
 
 /* ── Hour (HH:MM:SS) ── */
@@ -216,15 +228,15 @@
     gap: 0.1rem;
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1.5px solid rgba(0, 185, 255, 0.2);
+    border: 1.5px solid var(--color-jx-borde-campo);
     border-radius: 10px;
-    background: rgba(0, 185, 255, 0.05);
+    background: var(--color-jx-hundido);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 .fi-hour:focus-within {
-    border-color: rgba(0, 185, 255, 0.55);
-    background: rgba(0, 185, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(0, 150, 255, 0.1), 0 0 18px rgba(0, 150, 255, 0.06);
+    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-tarjeta);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 22%, transparent);
 }
 .fi-hour__seg {
     display: inline-flex;
@@ -238,7 +250,7 @@
     font-size: 1.35rem;
     font-weight: 800;
     letter-spacing: 0.05em;
-    color: rgba(215, 240, 255, 0.96);
+    color: var(--color-jx-tinta);
     background: transparent;
     border: none;
     outline: none;
@@ -246,15 +258,17 @@
     transition: background 0.15s ease;
 }
 .fi-hour__input::placeholder {
-    color: rgba(0, 185, 255, 0.25);
+    color: var(--color-jx-tinta3);
 }
+/* Arena y no un marfil más claro: sobre el fondo de foco hay que VER qué
+   segmento está activo, y dos marfiles seguidos no se distinguen. */
 .fi-hour__input:focus {
-    background: rgba(0, 185, 255, 0.12);
+    background: var(--color-jx-arena);
 }
 .fi-hour__colon {
     font-size: 1.3rem;
     font-weight: 800;
-    color: rgba(0, 185, 255, 0.5);
+    color: var(--color-jx-tinta3);
     padding: 0 0.1rem;
     user-select: none;
 }

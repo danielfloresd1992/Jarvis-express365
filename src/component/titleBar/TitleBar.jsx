@@ -5,9 +5,7 @@ import { useState, useEffect } from 'react';
 // ══════════════════════════════════════════════════════════════════════
 // La carcasa de escritorio crea la ventana con `frame: false`, o sea sin la
 // barra que pone Windows. Eso no es un descuido: una barra propia se pinta con
-// los colores de la aplicación en vez del gris del sistema, y deja sitio para
-// mostrar el consumo de CPU y memoria, que en las estaciones de monitoreo
-// importa.
+// los colores de la aplicación en vez del gris del sistema.
 //
 // Pero quitarla se lleva por delante todo lo que esa barra hacía. Sin este
 // componente la ventana no se puede mover, ni minimizar, ni maximizar, ni
@@ -26,6 +24,22 @@ import { useState, useEffect } from 'react';
 // de funcionar sin dar ninguna pista de por qué.
 //
 //
+// AQUÍ ESTABA EL CONSUMO DE CPU Y MEMORIA, Y YA NO
+//
+// En el centro de la barra iban dos lecturas en vivo —«CPU 21 %» y «RAM 49 %
+// (11.8/23.9 GB)»— con un punto que se ponía rojo al pasar del 80 %. Se quitaron
+// a petición del usuario: la aplicación no hacía nada con ese dato, solo lo
+// enseñaba.
+//
+// Lo que se fue con ellas: el estado `stats`, la suscripción a `onSystemStats`
+// —que llegaba UNA VEZ POR SEGUNDO— y el umbral del aviso.
+//
+// OJO, QUEDA LA MITAD DE FUERA. Quien calcula y envía esas medidas es la carcasa
+// de Electron, que vive en el Escritorio y no en este repositorio. Esto deja de
+// ESCUCHARLAS, pero la carcasa las sigue midiendo y emitiendo cada segundo
+// contra nadie. Para quitarlo del todo hay que tocar también su `main.js`.
+//
+//
 // FUERA DE ELECTRON NO SE PINTA
 //
 // En un navegador no hay ventana del sistema que controlar, y `window.electronAPI`
@@ -33,6 +47,10 @@ import { useState, useEffect } from 'react';
 
 const DRAG = { WebkitAppRegion: 'drag' };
 const NO_DRAG = { WebkitAppRegion: 'no-drag' };
+
+//  Las tres teclas de la derecha comparten tamaño y comportamiento; lo único que
+//  cambia es el icono y qué pasa al pasar el ratón.
+const TECLA = 'h-full w-12 flex items-center justify-center text-jx-tinta2 transition-colors';
 
 
 //  El nombre por defecto es el que la gente ya conoce en las estaciones. Solo
@@ -44,60 +62,32 @@ export default function TitleBar({ appName = 'Reportes de alertas' }) {
     const api = typeof window !== 'undefined' ? window.electronAPI : null;
 
     const [isMax, setIsMax] = useState(false);
-    const [stats, setStats] = useState({ cpu: 0, ramPercent: 0, ramUsedGb: '0', ramTotalGb: '0' });
 
 
-    // Las dos suscripciones devuelven su función para darse de baja. Hay que
-    // llamarlas: las estadísticas llegan una vez por segundo y, sin soltarlas,
-    // cada montaje dejaría un oyente vivo acumulando trabajo.
+    //  La suscripción devuelve su función para darse de baja, y hay que llamarla:
+    //  sin eso, cada montaje dejaría un oyente vivo.
     useEffect(() => {
         if (!api?.isElectron) return;
 
         const offMax = api.onMaximizeChange?.(setIsMax);
-        const offStats = api.onSystemStats?.(setStats);
 
-        return () => {
-            offMax?.();
-            offStats?.();
-        };
+        return () => offMax?.();
     }, []);
 
 
     if (!api?.isElectron) return null;
 
 
-    // El umbral del 80 % es el que decide el color del punto: por encima pasa a
-    // rojo. No apaga nada ni avisa a nadie — solo hace que se note de un vistazo
-    // que la máquina va justa, que es lo que se quiere ver desde el otro lado
-    // de la sala.
-    const AVISO = 80;
-
     return (
         <div
             style={DRAG}
-            className='fixed top-0 left-0 w-full h-8 z-[999999] flex items-center justify-between select-none bg-[#021326] border-b border-[#0a3a66] pl-3'
+            className='fixed top-0 left-0 w-full h-8 z-[999999] flex items-center justify-between select-none bg-jx-panel border-b border-jx-regla2 pl-3'
         >
 
             {/*  IZQUIERDA: ícono y nombre  */}
             <div className='flex items-center gap-2 min-w-0'>
-                <img src='/logo1.PNG' alt='' className='w-[18px] h-[18px] object-contain' draggable={false} />
-                <span className='text-[12px] font-semibold tracking-[0.4px] text-[#aecbf0] truncate'>{appName}</span>
-            </div>
-
-
-            {/*  CENTRO: consumo de CPU y memoria, en vivo  */}
-            <div className='flex items-center gap-4 text-[11px] font-mono tabular-nums text-[#5e7ba0]'>
-
-                <span className='flex items-center gap-1.5'>
-                    <span className='w-1.5 h-1.5 rounded-full' style={{ background: stats.cpu > AVISO ? '#ff4d4d' : '#39ff14' }} />
-                    CPU {stats.cpu}%
-                </span>
-
-                <span className='flex items-center gap-1.5'>
-                    <span className='w-1.5 h-1.5 rounded-full' style={{ background: stats.ramPercent > AVISO ? '#ff4d4d' : '#00b9ff' }} />
-                    RAM {stats.ramPercent}% ({stats.ramUsedGb}/{stats.ramTotalGb} GB)
-                </span>
-
+                <img src='/logo1.PNG' alt='' className='w-[18px] h-[18px] object-contain brightness-[0.22]' draggable={false} />
+                <span className='text-[12px] font-semibold tracking-[0.4px] text-jx-tinta truncate'>{appName}</span>
             </div>
 
 
@@ -107,7 +97,7 @@ export default function TitleBar({ appName = 'Reportes de alertas' }) {
 
                 <button
                     onClick={() => api.minimize?.()}
-                    className='h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60'
+                    className={`${TECLA} hover:bg-jx-arena hover:text-jx-tinta`}
                     title='Minimizar'
                 >
                     <svg width='15' height='15' viewBox='0 0 11 11'>
@@ -117,17 +107,21 @@ export default function TitleBar({ appName = 'Reportes de alertas' }) {
 
                 <button
                     onClick={() => api.maximize?.()}
-                    className='h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#0a3a66]/60'
+                    className={`${TECLA} hover:bg-jx-arena hover:text-jx-tinta`}
                     title={isMax ? 'Restaurar' : 'Maximizar'}
                 >
                     {
                         // Dos cuadrados superpuestos cuando está maximizada, uno
                         // cuando no: es el mismo lenguaje que usa Windows, así que
                         // no hay que explicárselo a nadie.
+                        //
+                        // El relleno del cuadrado de delante tiene que ser el color
+                        // DE LA BARRA, no un color suelto: es lo que tapa al de
+                        // detrás y da la sensación de que uno está encima del otro.
                         isMax ?
                             <svg width='15' height='15' viewBox='0 0 11 11' fill='none' stroke='currentColor' strokeWidth='1.2'>
                                 <rect x='2.5' y='1' width='7' height='7' />
-                                <rect x='1' y='2.5' width='7' height='7' fill='#021326' />
+                                <rect x='1' y='2.5' width='7' height='7' fill='var(--color-jx-panel)' />
                             </svg>
                             :
                             <svg width='15' height='15' viewBox='0 0 11 11' fill='none' stroke='currentColor' strokeWidth='1.2'>
@@ -136,9 +130,12 @@ export default function TitleBar({ appName = 'Reportes de alertas' }) {
                     }
                 </button>
 
+                {/*  Cerrar se pone rojo al pasar el ratón porque es lo que hace
+                     Windows, y ahí sí va letra blanca: sobre el rojo de la paleta
+                     da 4,80 : 1, mientras que la tinta se quedaría en 2,97.  */}
                 <button
                     onClick={() => api.close?.()}
-                    className='h-full w-12 flex items-center justify-center text-[#aecbf0] hover:bg-[#c0392b] hover:text-white'
+                    className={`${TECLA} hover:bg-jx-critico hover:text-white`}
                     title='Cerrar'
                 >
                     <svg width='15' height='15' viewBox='0 0 11 11' stroke='currentColor' strokeWidth='1.2'>

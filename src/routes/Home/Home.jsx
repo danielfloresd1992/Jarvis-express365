@@ -248,17 +248,27 @@ export default function Home() {
                             {/*  AVISO DE REPORTE EN ESPERA
                                  Solo aparece cuando llega un reporte de la tablet y el
                                  operador está en mitad de otro formulario. No se le
-                                 cambia la pantalla por su cuenta: se le ofrece.  */}
+                                 cambia la pantalla por su cuenta: se le ofrece.
+
+                                 ESTA PÍLDORA VIAJA CON EL BOTÓN DE LA BARRA DE ARRIBA.
+                                 Su pareja es '.nav-bar__action-btn--tablet-open' en App.css:
+                                 los dos avisan de lo mismo y tienen que ir a juego. Si se
+                                 recolorea uno y el otro no, se descoordinan y nadie se entera
+                                 hasta verlo — que es justo lo que pasó al cambiar el tema.
+
+                                 Va en rojo SÓLIDO con letra blanca (4,80 : 1) y no en el rojo
+                                 suave: esto flota sobre la página para que alguien lo pulse,
+                                 así que tiene que destacar, no acompañar.
+
+                                 El punto ya no late: se quitaron las animaciones que no paran
+                                 nunca. El punto sigue ahí, quieto.  */}
                             {
                                 reporteDemora && !puedeAbrirReporte && (
                                     <button
-                                        className='fixed left-1/2 -translate-x-1/2 bottom-6 z-[1000] flex items-center gap-2 pl-3 pr-4 py-2 rounded-full border border-[#9a2533]/60 bg-[#7a1f2b] text-[#ffd9dd] text-[12px] font-semibold shadow-lg hover:bg-[#9a2533] transition-colors'
+                                        className='fixed left-1/2 -translate-x-1/2 bottom-6 z-[1000] flex items-center gap-2 pl-3 pr-4 py-2 rounded-full border border-jx-critico bg-jx-critico text-white text-[12px] font-semibold shadow-lg hover:bg-jx-critico-texto transition-colors'
                                         onClick={abrirReporte}
                                     >
-                                        <span className='relative flex h-2 w-2 shrink-0'>
-                                            <span className='absolute inline-flex h-full w-full rounded-full bg-[#ff6b7a] opacity-60 animate-ping' />
-                                            <span className='relative inline-flex h-2 w-2 rounded-full bg-[#ff8f9c]' />
-                                        </span>
+                                        <span className='relative inline-flex h-2 w-2 shrink-0 rounded-full bg-white' />
                                         Demora de la mesa {reporteDemora.tableNumber || '?'} — abrir reporte
                                     </button>
                                 )
