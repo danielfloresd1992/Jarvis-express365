@@ -21,6 +21,146 @@
     --color-slate-200: #e2e8f0;
     --color-slate-100: #f1f5f9;
 
+    /* ══════════════════════════════════════════════════════════════════
+       PALETA DE MARCA  (--color-jx-*)
+       ══════════════════════════════════════════════════════════════════
+
+       Sale de los otros dos proyectos de la casa, que comparten los mismos
+       hexadecimales exactos en las tres piezas que más pesan:
+
+           reportes365   tailwind.config.ts
+           Client365     design-system/_input.css
+
+       verde #29c50c, oro #d9a441 y cobre #b5763b son IDÉNTICOS en los dos.
+       Los marfiles y las tintas son de la misma familia con valores algo
+       distintos; aquí se toman los de reportes365, que tiene el sistema más
+       completo: es el único que trae las variantes de TEXTO, y sin ellas un
+       tema claro no se puede escribir.
+
+       POR QUÉ CADA ACENTO VIENE EN TRES SABORES
+
+       Es la regla que los dos proyectos dejan escrita, y no es capricho: el
+       verde #29c50c sobre marfil da 2,18 : 1 y la norma pide 4,5 : 1. Precioso
+       de relleno, ilegible de letra. Por eso:
+
+           verde        el relleno        encima va 'tinta', nunca blanco
+           verdeTexto   la letra verde    5,59 : 1 sobre el fondo
+           verdeBarra   barras y datos    no es texto, le basta 3 : 1
+           verdeSuave   el fondo de un aviso bueno
+
+       Y lo mismo el ocre. Si alguien usa 'verde' como color de letra, el texto
+       deja de leerse sin que nada avise.
+
+       Se declaran como --color-* para que las lean las DOS vías: Tailwind desde
+       el JSX (bg-jx-verde) y var(--color-jx-verde) desde cualquier hoja. En este
+       proyecto ya hay 16 nombres escritos dos veces, uno aquí y otro en el :root
+       de App.css, y lo que pasa es que alguien edita uno solo y las pantallas
+       pintadas con clases se van por un lado y las pintadas con CSS por otro.
+       Esta paleta se declara UNA vez.
+
+       Todas las parejas que se usan de verdad están medidas y pasan la norma.   */
+
+    /* Fondos, del más claro al más cargado */
+    --color-jx-lienzo:   #fbf8f0;   /* el fondo de la página */
+    --color-jx-panel:    #f7f2e4;   /* barras y paneles */
+    --color-jx-tarjeta:  #faf5ea;   /* tarjetas sobre el panel */
+    --color-jx-hundido:  #f0e9d8;   /* campos de formulario */
+    --color-jx-arena:    #f2ead8;   /* chips y etiquetas suaves */
+
+    /* Líneas decorativas: separan a la vista, no son lo único que marca nada */
+    --color-jx-regla:    #ece5d5;
+    --color-jx-regla2:   #ddd3bd;
+    --color-jx-borde:    #d4dec8;
+
+    /*  El contorno de un campo es otra cosa y por eso tiene token propio: es LO
+        ÚNICO que dice dónde se escribe, así que la norma le pide 3 : 1. Ninguno
+        de los bordes de arriba llega (el de marca se queda en 1,31 : 1). Este es
+        'regla2' oscurecido hasta 3,03 : 1, o sea el mismo gris cálido.          */
+    --color-jx-borde-campo: #8b8577;
+
+    /* Tinta: la escala de texto */
+    --color-jx-tinta:    #2f2a1e;   /* títulos y texto principal */
+    --color-jx-tinta2:   #6b6252;   /* texto secundario */
+    --color-jx-tinta3:   #706859;   /* terciario y PISTAS de los campos */
+    --color-jx-tinta4:   #a89e8c;   /* SOLO lo deshabilitado. Nunca una pista.  */
+
+    /*  Dos avisos sobre los dos últimos, que son los que se prestan a liarla:
+
+        · 'tinta3' es #706859 y no el #7a7161 de reportes365: un 8 % más oscuro,
+          lo justo para que también se lea sobre 'hundido', el fondo de los
+          campos, donde el valor de la referencia se quedaba en 3,98 : 1.
+        · 'tinta4' da 2,49 : 1 y está BIEN, pero solo porque la norma exime a los
+          controles deshabilitados — un botón apagado debe parecer apagado. En
+          cuanto se usa de pista deja de estar exento y pasa a ser ilegible.     */
+
+    /* Verde: el primario y el color de acción */
+    --color-jx-verde:        #29c50c;
+    --color-jx-verde-hover:  #24b00a;
+    --color-jx-verde-texto:  #177406;
+    --color-jx-verde-barra:  #1c8c08;
+    --color-jx-verde-suave:  #f2fbee;
+
+    /* Oro y cobre: el acento cálido que acompaña, nunca manda */
+    --color-jx-ocre:         #d9a441;
+    --color-jx-tabaco:       #b5763b;
+    --color-jx-ocre-texto:   #8a5a28;
+    --color-jx-ocre-suave:   #fdf4e2;
+
+    /* Estados */
+    --color-jx-critico:        #d03b3b;
+    --color-jx-critico-texto:  #bf3330;
+    --color-jx-critico-suave:  #fbeceb;
+    --color-jx-aviso-texto:    #7d621b;
+    --color-jx-aviso-suave:    #fdf3dd;
+
+    /* ══════════════════════════════════════════════════════════════════
+       LOS GRISES, PARA LAS HERRAMIENTAS
+       ══════════════════════════════════════════════════════════════════
+
+       El simulador y los paneles de diagnóstico no son la aplicación: son
+       herramientas que se abren por encima de ella. Si se pintan del mismo
+       marfil que todo lo demás, parecen la aplicación, y eso importa — lo
+       que se ve en el simulador son pedidos DE MENTIRA.
+
+       CÓMO ESTÁN HECHOS, que es lo que no se puede improvisar.
+
+       No son más oscuros: son los MISMOS tonos desaturados un 70 % hacia su
+       propio gris. Y eso no es un capricho estético, es lo que hace que la
+       paleta siga siendo válida: al quitar saturación sin tocar la
+       luminosidad, TODOS los contrastes se quedan como estaban.
+
+           tinta3 sobre 'lienzo'  5,19 : 1   →  sobre 'gris-lienzo'  5,19 : 1
+           tinta3 sobre 'hundido' 4,55 : 1   →  sobre 'gris-hundido' 4,54 : 1
+
+       O sea que aquí se usan las MISMAS tintas que en el resto de la
+       aplicación, sin inventar ninguna. Si en vez de desaturar se hubieran
+       oscurecido, haría falta una escala de texto propia: probado, y con los
+       grises de reportes365 (#e6e3dd / #dcd9d1) se caían ocho parejas.
+
+       Queda un punto de calidez a propósito: un gris frío al lado del marfil
+       se ve sucio.                                                           */
+
+    --color-jx-gris-lienzo:  #f9f8f6;
+    --color-jx-gris-panel:   #f4f2ee;
+    --color-jx-gris-hundido: #ebe9e4;
+    --color-jx-gris-arena:   #edeae5;
+    --color-jx-gris-regla:   #e2dfda;
+
+    /*  El contorno de un control sobre gris. Mismo motivo que 'borde-campo': es
+        lo único que dice dónde se pulsa o se escribe, y pide 3 : 1. Da 3,06.    */
+    --color-jx-gris-borde:   #88847f;
+
+    /*  LA FIRMA DE LA CASA. Los dos proyectos la pintan igual y hasta en el mismo
+        orden: verde, oro, cobre. Va en franjas finas de 3 o 4 px —bajo una
+        cabecera, en el canto de una tarjeta— y NUNCA como fondo de nada.         */
+    --jx-firma: linear-gradient(90deg, #29c50c 0%, #d9a441 55%, #b5763b 100%);
+
+    /*  EL VELO. Está aquí porque se usa en cuatro hojas distintas y hasta ahora
+        estaba copiado a mano en cada una: si se retoca la tinta, los velos se
+        quedan del tinte viejo y cada uno por su lado. Sigue siendo OSCURO a
+        propósito: un velo existe para apagar lo de detrás.                      */
+    --jx-velo: color-mix(in srgb, #2f2a1e 78%, transparent);
+
     /* Custom fonts */
     --font-sans:    'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     --font-title:   'title';
@@ -298,14 +438,6 @@ button:focus-visible {
 }
 /* Solo transform+opacity (compositadas). Animar box-shadow o filter
    repinta el elemento en cada frame — era parte del consumo de CPU. */
-@keyframes notif-pulse-dot {
-    0%, 100% { opacity: 1;   transform: scale(1); }
-    50%      { opacity: 0.7; transform: scale(1.2); }
-}
-@keyframes notif-glow-green {
-    0%, 100% { opacity: 0.72; }
-    50%      { opacity: 1; }
-}
 @keyframes notif-badge-pop {
     0%   { transform: scale(0.6) translateY(-4px); opacity: 0; }
     70%  { transform: scale(1.1) translateY(1px);  opacity: 1; }
@@ -315,12 +447,10 @@ button:focus-visible {
     animation: notif-slide-in 0.42s cubic-bezier(0.34, 1.5, 0.64, 1) both;
 }
 .notif-dot {
-    animation: notif-pulse-dot 2s ease-in-out infinite;
 }
 .notif-icon-active {
     /* Glow estático (se pinta una vez); el pulso lo da la opacidad. */
     filter: drop-shadow(0 0 6px #10b981);
-    animation: notif-glow-green 2.2s ease-in-out infinite;
 }
 .notif-badge {
     animation: notif-badge-pop 0.45s cubic-bezier(0.34, 1.6, 0.64, 1) 0.2s both;

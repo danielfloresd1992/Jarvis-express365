@@ -7,10 +7,11 @@
    Los estilos van acá y no en App.css a propósito: esta pantalla se pinta EN
    LUGAR de la aplicación, así que no puede depender de nada que monte App.
 
-   La tipografía sí sale de la variable de la aplicación —main.jsx carga
-   index.css antes de decidir qué pintar— para no tener dos listas de fuentes
-   que se separen con el tiempo. Los colores van literales: son los mismos
-   azul casi negro y cian de la barra, y acá se necesitan sí o sí. */
+   La tipografía y los colores salen de las variables de index.css —main.jsx lo
+   importa antes de decidir qué pintar— para no tener dos listas que se separen
+   con el tiempo. Los colores iban literales por ese mismo miedo a depender de
+   App, pero index.css no lo monta App: ya está cargado cuando esta pantalla
+   decide existir. */
 
 .solo-escritorio {
     position: fixed;
@@ -20,7 +21,9 @@
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background: #020c1c;
+    /* Fondo de página, no velo: esta pantalla REEMPLAZA a la aplicación, no la
+       tapa. No hay nada detrás que haya que apagar. */
+    background: var(--color-jx-lienzo);
     font-family: var(--font-sans, system-ui, sans-serif);
     /* Un texto que no se puede usar tampoco se copia: evita que alguien
        arrastre el mensaje creyendo que hay algo debajo. */
@@ -34,9 +37,13 @@
     padding: 2.5rem 2rem;
     text-align: center;
     border-radius: 16px;
-    border: 1px solid rgba(0, 185, 255, 0.2);
-    background: rgba(6, 20, 40, 0.9);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+    /* La tarjeta queda a 1,02:1 del lienzo: el borde y la sombra son lo único
+       que la dibuja, así que el borde va en la regla fuerte. */
+    border: 1px solid var(--color-jx-regla2);
+    background: var(--color-jx-tarjeta);
+    /* Sombra de PROFUNDIDAD, no resplandor: se queda, pero en tinta cálida. El
+       negro al 55% hacía falta sobre azul casi negro; sobre marfil ensucia. */
+    box-shadow: 0 20px 60px rgba(47, 42, 30, 0.14);
 }
 
 .solo-escritorio__icono {
@@ -47,9 +54,12 @@
     height: 64px;
     margin-bottom: 1.25rem;
     border-radius: 50%;
-    color: #00b9ff;
-    background: rgba(0, 185, 255, 0.1);
-    border: 1px solid rgba(0, 185, 255, 0.25);
+    /* Icono, no letra: 4,1:1 sobre el verde suave. */
+    color: var(--color-jx-verde-barra);
+    /* El relleno suave queda a 1,03:1 de la tarjeta: el círculo se reconoce por
+       el aro y por el trazo del icono, no por el fondo. */
+    background: var(--color-jx-verde-suave);
+    border: 1px solid var(--color-jx-borde);
 }
 
 .solo-escritorio__icono svg {
@@ -61,39 +71,42 @@
     margin: 0 0 1rem;
     font-size: 1.5rem;
     font-weight: 700;
-    /* 12.4:1 sobre el fondo de la caja. */
-    color: rgba(224, 242, 255, 0.96);
+    /* 13,1:1 sobre el fondo de la caja. */
+    color: var(--color-jx-tinta);
 }
 
 .solo-escritorio__texto {
     margin: 0 0 .85rem;
     font-size: .95rem;
     line-height: 1.55;
-    /* 8.9:1 — cuerpo legible, no gris decorativo. */
-    color: rgba(200, 235, 255, 0.88);
+    /* 5,5:1 — cuerpo legible, no gris decorativo. */
+    color: var(--color-jx-tinta2);
 }
 
 .solo-escritorio__texto--apagado {
     font-size: .875rem;
-    /* 5.6:1: apagado respecto del anterior, por encima del mínimo igual. */
-    color: rgba(170, 205, 235, 0.78);
+    /* 5,1:1. El escalón respecto del párrafo anterior casi no se ve —tinta2 y
+       tinta3 están a 1,09:1 entre sí—: acá la jerarquía la marca el tamaño. */
+    color: var(--color-jx-tinta3);
 }
 
 .solo-escritorio__texto strong {
-    color: rgba(224, 242, 255, 0.96);
+    color: var(--color-jx-tinta);
     font-weight: 700;
 }
 
 .solo-escritorio__pie {
     margin: 1.5rem 0 0;
     padding-top: 1.1rem;
-    border-top: 1px solid rgba(0, 185, 255, 0.14);
+    border-top: 1px solid var(--color-jx-regla);
     font-size: .875rem;
     line-height: 1.5;
-    color: rgba(200, 235, 255, 0.88);
+    color: var(--color-jx-tinta2);
 }
 
 .solo-escritorio__pie strong {
-    color: #00b9ff;
+    /* "Reportes Express" es LETRA: el verde de marca se queda en 2,1:1 sobre la
+       tarjeta y no se leería. */
+    color: var(--color-jx-verde-texto);
     font-weight: 700;
 }

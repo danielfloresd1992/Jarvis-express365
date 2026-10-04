@@ -686,7 +686,7 @@ async function checkAiServer({ baseUrl, apiKey, preferred, signal } = {}) {
 // requestInference = «solicitar la inferencia»
 // STEP 3. Manda UNA imagen al modelo y devuelve su texto, tal cual. NUNCA lanza.
 // Recibe: { baseUrl (la dirección del servidor), apiKey (la clave del menú, si la hay), model (el que dijo
-//           checkAiServer), prompt (el texto que acompaña a la imagen), image (la tira, como data URL),
+//           checkAiServer), prompt (OPCIONAL, ver abajo), image (la tira, como data URL),
 //           timeoutMs (lo que se le espera) y signal (para cancelar) }
 // Devuelve: { ok: true,  text, seconds, status, stats: { inputTokens, outputTokens, tokensPerSecond, secondsToFirstToken } }
 //        o  { ok: false, cause: 'no-url' | 'network' | 'cors' | 'auth' | 'timeout' | 'http' | 'model-rejected' | 'cancelled',
@@ -706,17 +706,35 @@ async function requestInference({ baseUrl, apiKey, model, prompt, image, timeout
     // chatUrl = «la dirección a la que se manda la imagen»
     const chatUrl = `${baseUrl}/api/v1/chat`;
 
-    // 2. Lo que se le manda
-    // body = «el cuerpo de la solicitud»
-    // Es la API PROPIA de LM Studio (/api/v1/chat) y no la compatible con OpenAI porque es la única que deja
-    // apagar el razonamiento: razonando tardaba 29 s por lectura y a veces se quedaba sin tokens. Para leer
-    // tickets no hace falta que piense, solo que copie lo que ve.
+    /*  2. Lo que se le manda
+     *
+     *  Es la API PROPIA de LM Studio (/api/v1/chat) y no la compatible con OpenAI porque es la única
+     *  que deja apagar el razonamiento: razonando tardaba 29 s por lectura y a veces se quedaba sin
+     *  tokens. Para leer tickets no hace falta que piense, solo que copie lo que ve.
+     *
+     *  EL TEXTO SOLO VA SI SE PIDE, Y LA VENTANA YA NO LO PIDE.
+     *
+     *  Las instrucciones de lectura (el antiguo INFERENCE_PROMPT, 840 tokens) las pone ahora el
+     *  propio servidor: detrás de la dirección hay una pasarela que las añade antes de pasarle la
+     *  imagen al modelo. Medido el 2026-10-01 mandando SOLO la tira:
+     *
+     *      por la pasarela      1303 tokens de entrada · 3 tickets   ✓
+     *      a LM Studio pelado    470 tokens de entrada · 0 tickets
+     *
+     *  Y mandándolo igualmente, el total subía a 2131: iba DOS VECES.
+     *
+     *  OJO CON ESTO, PORQUE FALLA EN SILENCIO. Si la dirección de Opciones -> Servidor de IA apunta
+     *  a un LM Studio a secas en vez de a la pasarela, el modelo recibe una imagen sin instrucciones
+     *  y contesta «¡Hola! Veo que tienes una imagen...». No da ningún error: simplemente dejan de
+     *  aparecer pedidos. El apunte del registro de abajo lo avisa cuando pasa.
+     *
+     *  El parámetro se queda para el banco de pruebas (toast/probar-prompt-real.mjs), que necesita
+     *  mandar textos distintos para compararlos.                                                    */
     const body = {
         model: model,
-        input: [
-            { type: 'text', content: prompt },
-            { type: 'image', data_url: image }
-        ],
+        input: prompt
+            ? [{ type: 'text', content: prompt }, { type: 'image', data_url: image }]
+            : [{ type: 'image', data_url: image }],
         reasoning: 'off',
         temperature: 0
     };

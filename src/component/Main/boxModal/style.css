@@ -1,25 +1,34 @@
 /* ============================================
-   BOX MODAL — Dark Futuristic Style
+   BOX MODAL — Tema claro de marca
    ============================================ */
 
-/* Backdrop overlay propio del modal */
+/* Backdrop overlay propio del modal.
+   El velo SE QUEDA OSCURO a proposito: existe para apagar la pagina de
+   detras, y un velo claro sobre pagina clara no apaga nada. Solo cambia el
+   tinte, de azul marino a tinta calida.
+   El !important gana al velo base de .awaitContain: no se toca. */
 .boxModal-contain {
-    background: rgba(0, 5, 18, 0.82) !important;
+    background: rgba(47, 42, 30, 0.82) !important;
+    /* El blur se queda. La regla de "quitar el cristal esmerilado" es para
+       paneles y tarjetas, donde detras solo hay papel; aqui detras hay una
+       pagina entera que SI hay que desenfocar. */
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
     animation: boxModal-backdrop 0.3s ease-out !important;
 }
 
 @keyframes boxModal-backdrop {
-    from { background: rgba(0, 5, 18, 0); }
-    to   { background: rgba(0, 5, 18, 0.82); }
+    from { background: rgba(47, 42, 30, 0); }
+    to   { background: rgba(47, 42, 30, 0.82); }
 }
 
 /* ── Card del modal ── */
+/* Superficie OPACA sobre el velo: por eso dentro de la tarjeta si valen los
+   colores de texto de la paleta clara. */
 .boxModal-div {
     position: relative;
     width: 440px;
-    background: rgba(3, 12, 26, 0.97);
+    background: var(--color-jx-tarjeta);
     min-height: 220px;
     display: flex;
     flex-direction: column;
@@ -27,12 +36,12 @@
     justify-content: space-between;
     border-radius: 18px;
     overflow: hidden;
-    border: 1.5px solid rgba(0, 185, 255, 0.28);
+    border: 1.5px solid var(--color-jx-regla2);
+    /* Quitados el aro cian interior y el halo azul de 40 px. Se queda solo la
+       PROFUNDIDAD, y en tinta calida: el negro sobre marfil se ve sucio. */
     box-shadow:
-        0 0 0 1px rgba(0, 185, 255, 0.06) inset,
-        0 0 40px rgba(0, 120, 255, 0.1),
-        0 25px 70px rgba(0, 0, 0, 0.7),
-        0 8px 28px rgba(0, 0, 0, 0.5);
+        0 25px 70px rgba(47, 42, 30, 0.18),
+        0 8px 28px rgba(47, 42, 30, 0.12);
     animation: boxModal-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -47,7 +56,10 @@
     }
 }
 
-/* Línea de brillo en el tope (efecto neon top edge) */
+/* Antes, un filo de neon cian/verde en el tope de la tarjeta. Sobre oscuro
+   era luz; sobre papel es suciedad, asi que se apaga en vez de retintarse.
+   No llega a los 3-4 px que pide la franja de firma, por eso tampoco se
+   reutiliza para ella. La regla se queda vacia para no mover nada. */
 .boxModal-div::before {
     content: '';
     position: absolute;
@@ -55,13 +67,7 @@
     left: 10%;
     right: 10%;
     height: 1px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(0, 185, 255, 0.55),
-        rgba(57, 255, 20, 0.3),
-        transparent
-    );
+    background: none;
     pointer-events: none;
     z-index: 2;
 }
@@ -69,12 +75,8 @@
 /* ── Header del modal ── */
 .boxModal-titleContain {
     width: 100%;
-    background: linear-gradient(
-        135deg,
-        rgba(0, 185, 255, 0.1) 0%,
-        rgba(0, 100, 200, 0.06) 100%
-    );
-    border-bottom: 1px solid rgba(0, 185, 255, 0.18);
+    background: var(--color-jx-panel);
+    border-bottom: 1px solid var(--color-jx-regla);
     padding: 1rem 1.25rem;
     display: flex;
     align-items: center;
@@ -82,7 +84,9 @@
     position: relative;
 }
 
-/* Barra lateral izquierda del header */
+/* Barra lateral izquierda del header.
+   Es una BARRA: va en verde-barra. El degradado de firma es horizontal y
+   sobre 3 px de ancho solo se veria su primer color. */
 .boxModal-titleContain::before {
     content: '';
     position: absolute;
@@ -90,45 +94,32 @@
     top: 0;
     bottom: 0;
     width: 3px;
-    background: linear-gradient(
-        180deg,
-        rgba(0, 185, 255, 0.9) 0%,
-        rgba(57, 255, 20, 0.6) 100%
-    );
+    background: var(--color-jx-verde-barra);
     border-radius: 0 2px 2px 0;
 }
 
-/* Icono de información en el header */
+/* Icono de información en el header. Punto: verde-barra, y sin el halo. */
 .boxModal-titleContain::after {
     content: '';
     display: block;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #00b9ff;
-    box-shadow: 0 0 8px rgba(0, 185, 255, 0.8);
+    background: var(--color-jx-verde-barra);
     flex-shrink: 0;
-    animation: boxModal-dot 2s ease-in-out infinite;
+    /* animación infinita quitada */
     margin-left: auto;
 }
 
 /* Solo opacity (compositada): la sombra queda estática en el elemento;
    animar box-shadow repintaba en cada frame. */
-@keyframes boxModal-dot {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.4; }
-}
-
 .boxModal-title {
-    color: rgba(210, 245, 255, 0.97);
+    color: var(--color-jx-tinta);
     font-weight: 700;
     font-size: 1rem;
     letter-spacing: 0.2px;
     margin: 0;
-    /* Sutil neon glow en el título */
-    text-shadow:
-        0 0 12px rgba(0, 185, 255, 0.35),
-        0 0 24px rgba(0, 185, 255, 0.15);
+    /* Quitado el neon glow del título: sobre papel solo ensucia la letra. */
 }
 
 /* ── Cuerpo / descripción ── */
@@ -142,7 +133,7 @@
 
 .boxModal-description {
     font-size: 0.98rem;
-    color: rgba(180, 215, 255, 0.78);
+    color: var(--color-jx-tinta2);
     text-align: center;
     line-height: 1.6;
     letter-spacing: 0.15px;
@@ -156,11 +147,15 @@
     justify-content: flex-end;
     align-items: center;
     gap: 0.5rem;
-    border-top: 1px solid rgba(0, 185, 255, 0.1);
-    background: rgba(0, 185, 255, 0.03);
+    border-top: 1px solid var(--color-jx-regla);
+    background: var(--color-jx-panel);
 }
 
-/* ── Botón cerrar — outline cyan ── */
+/* ── Botón cerrar ── */
+/* Es la UNICA salida del dialogo, asi que es el boton principal: relleno
+   verde con la letra en TINTA, nunca blanca (blanco sobre verde da 2,31:1;
+   tinta da 6,18:1). Asi el relleno hace de afordancia y el borde no tiene
+   que cargar con el 3:1. */
 .boxModal-btnClose {
     padding: 0.45rem 1.25rem;
     font-size: 0.82rem;
@@ -168,9 +163,9 @@
     font-family: inherit;
     letter-spacing: 0.6px;
     text-transform: uppercase;
-    color: rgba(0, 185, 255, 0.85);
-    background: rgba(0, 185, 255, 0.06);
-    border: 1.5px solid rgba(0, 185, 255, 0.3);
+    color: var(--color-jx-tinta);
+    background: var(--color-jx-verde);
+    border: 1.5px solid var(--color-jx-verde-barra);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.18s ease;
@@ -178,28 +173,25 @@
     overflow: hidden;
 }
 
-/* Shimmer hover */
+/* Era un barrido de brillo cian. Se apaga: un destello es luz sobre oscuro
+   y suciedad sobre papel. */
 .boxModal-btnClose::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        105deg,
-        transparent 20%,
-        rgba(0, 200, 255, 0.1) 50%,
-        transparent 80%
-    );
+    background: none;
     transform: translateX(-110%);
     transition: transform 0.45s ease;
 }
 
+/* El hover ya se nota por el verde mas oscuro. El halo cian se cambia por
+   una sombra de profundidad en tinta calida, que es la que acompaña al
+   levantamiento de 1 px. */
 .boxModal-btnClose:hover {
-    color: rgba(0, 215, 255, 1);
-    border-color: rgba(0, 185, 255, 0.65);
-    background: rgba(0, 185, 255, 0.12);
-    box-shadow:
-        0 0 16px rgba(0, 185, 255, 0.22),
-        inset 0 1px 0 rgba(0, 200, 255, 0.15);
+    color: var(--color-jx-tinta);
+    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-hover);
+    box-shadow: 0 2px 8px rgba(47, 42, 30, 0.14);
     transform: translateY(-1px);
 }
 
@@ -209,14 +201,16 @@
 
 .boxModal-btnClose:active {
     transform: translateY(0);
-    background: rgba(0, 185, 255, 0.08);
-    box-shadow: 0 0 8px rgba(0, 185, 255, 0.12);
+    background: var(--color-jx-verde-hover);
 }
 
+/* Esto NO es un resplandor, es el anillo de foco: se queda. En tinta, que
+   es lo unico que se ve a la vez contra el relleno verde y contra el marfil
+   de la tarjeta. */
 .boxModal-btnClose:focus,
 .boxModal-btnClose:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 185, 255, 0.4);
+    box-shadow: 0 0 0 2px var(--color-jx-tinta);
 }
 
 /* ── Responsive ── */

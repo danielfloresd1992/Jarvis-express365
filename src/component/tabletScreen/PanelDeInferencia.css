@@ -8,6 +8,10 @@
         etiqueta, así que aquí los botones salen como se piden.
       · El panel se carga con import() solo en desarrollo, y esta hoja viaja con él: a la
         aplicación publicada no llega ni una línea.
+
+    Los colores salen de la paleta de marca (--color-jx-*, declarada en el @theme de
+    index.css). Los únicos hexadecimales sueltos son tres colores de tipo de apunte que la
+    paleta no tiene; están explicados abajo, donde se declaran.
     ───────────────────────────────────────────────────────────────────────────── */
 
 
@@ -18,9 +22,9 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: #060f1c;
-    border-left: 1px solid #0a3a66;
-    color: #cfe0f5;
+    background: var(--color-jx-panel);
+    border-left: 1px solid var(--color-jx-regla2);
+    color: var(--color-jx-tinta2);
     font-size: 12px;
 }
 
@@ -35,17 +39,19 @@
     align-items: center;
     gap: 8px;
     padding: 10px 0;
-    background: #060f1c;
+    background: var(--color-jx-panel);
     border: none;
-    border-left: 1px solid #0a3a66;
+    border-left: 1px solid var(--color-jx-regla2);
     border-radius: 0;
-    color: #8aa0bb;
+    color: var(--color-jx-tinta2);
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
 }
 
-.pi-pestana:hover { background: #0b1d38; color: #cfe0f5; }
+/*  Sobre oscuro el ratón aclaraba; sobre papel oscurece. 'hundido' es el fondo más cargado
+    de la paleta y es el único que se nota como respuesta al ratón.  */
+.pi-pestana:hover { background: var(--color-jx-hundido); color: var(--color-jx-tinta); }
 
 .pi-pestana__rotulo { writing-mode: vertical-rl; letter-spacing: 0.6px; text-transform: uppercase; }
 
@@ -53,13 +59,15 @@
     min-width: 18px;
     padding: 1px 4px;
     border-radius: 9px;
-    background: #13294a;
-    color: #cfe0f5;
+    background: var(--color-jx-arena);
+    color: var(--color-jx-tinta);
     font-size: 10px;
     text-align: center;
 }
 
-.pi-pestana__cuenta--fallo { background: #52202c; color: #ffc9d0; }
+/*  Hay fallos. El rojo de relleno no sirve aquí: encima iría tinta y se queda en 2,97 : 1.
+    Fondo rojo suave con letra roja de texto, que da 4,91 : 1.  */
+.pi-pestana__cuenta--fallo { background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
 
 
 /*  LA CABECERA: título, resumen y botones.  */
@@ -70,36 +78,42 @@
     flex-wrap: wrap;
     gap: 6px;
     padding: 8px 10px;
-    background: #021a38;
-    border-bottom: 1px solid #0a3a66;
+    background: var(--color-jx-tarjeta);
+    border-bottom: 1px solid var(--color-jx-regla2);
 }
 
-.pi-cabecera__titulo { margin: 0; font-size: 12.5px; font-weight: 700; color: #e6eef9; }
+.pi-cabecera__titulo { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--color-jx-tinta); }
 
-.pi-cabecera__resumen { color: #8aa0bb; font-size: 11px; }
+.pi-cabecera__resumen { color: var(--color-jx-tinta2); font-size: 11px; }
 
 .pi-hueco { flex: 1; }
 
+/*  El contorno va en 'borde-campo' (3 : 1) y no en una regla decorativa: entre el relleno
+    del botón y el de la cabecera hay 1,1 : 1, así que el contorno es LO ÚNICO que dice que
+    esto es un botón, y la norma le pide 3 : 1 como a cualquier borde de control.  */
 .pi-boton {
     height: 24px;
     padding: 0 8px;
     border-radius: 6px;
-    border: 1px solid #22415f;
-    background: #13294a;
-    color: #cfe0f5;
+    border: 1px solid var(--color-jx-borde-campo);
+    background: var(--color-jx-arena);
+    color: var(--color-jx-tinta);
     font-size: 11px;
     font-weight: 600;
     line-height: 1;
     cursor: pointer;
 }
 
-.pi-boton:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #fff; }
+.pi-boton:hover:not(:disabled) { background: var(--color-jx-hundido); border-color: var(--color-jx-tinta3); }
 .pi-boton:disabled { opacity: 0.45; cursor: not-allowed; }
-.pi-boton--activo { background: rgba(56, 182, 232, 0.16); border-color: #38b6e8; color: #9adcf8; }
+
+/*  Encendido («Seguir el final»): el aviso bueno de la casa. El verde de relleno no se lee
+    de letra, así que el borde lleva 'verde-barra' (4,12 : 1) y la letra 'verde-texto'.  */
+.pi-boton--activo { background: var(--color-jx-verde-suave); border-color: var(--color-jx-verde-barra); color: var(--color-jx-verde-texto); }
 
 .pi-boton:focus-visible,
 .pi-pestana:focus-visible,
-.pi-apunte > summary:focus-visible { outline: 2px solid #38b6e8; outline-offset: -2px; }
+.pi-apunte > summary:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: -2px; }
 
 
 /*  LA LISTA DE APUNTES: es lo único que se desplaza.  */
@@ -111,17 +125,17 @@
     padding: 4px 0;
 }
 
-.pi-vacio { margin: 0; padding: 16px 12px; color: #8aa0bb; line-height: 1.5; }
+.pi-vacio { margin: 0; padding: 16px 12px; color: var(--color-jx-tinta2); line-height: 1.5; }
 
 
 /*  UN APUNTE. La raya de la izquierda lleva el color de su tipo.  */
 .pi-apunte {
-    border-left: 3px solid var(--pi-color, #3b526e);
-    border-bottom: 1px solid rgba(10, 58, 102, 0.35);
+    border-left: 3px solid var(--pi-color, var(--color-jx-regla2));
+    border-bottom: 1px solid var(--color-jx-regla);
 }
 
 /*  La primera de cada lectura lleva una separación encima: se ve dónde empieza otra.  */
-.pi-apunte--primero { margin-top: 6px; border-top: 1px solid #0a3a66; }
+.pi-apunte--primero { margin-top: 6px; border-top: 1px solid var(--color-jx-regla2); }
 
 .pi-apunte > summary,
 .pi-apunte__linea {
@@ -134,38 +148,44 @@
 
 .pi-apunte > summary { cursor: pointer; }
 .pi-apunte > summary::-webkit-details-marker { display: none; }
-.pi-apunte > summary:hover { background: #0b1d38; }
+.pi-apunte > summary:hover { background: var(--color-jx-hundido); }
 
 /*  El triángulo que dice «esto se despliega», girado cuando está abierto.  */
-.pi-apunte > summary::before { content: '▸'; flex: none; width: 8px; color: #5e7ba0; }
+.pi-apunte > summary::before { content: '▸'; flex: none; width: 8px; color: var(--color-jx-tinta3); }
 .pi-apunte[open] > summary::before { content: '▾'; }
 .pi-apunte__linea::before { content: ''; flex: none; width: 8px; }
 
-.pi-apunte__hora { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; color: #5e7ba0; }
+.pi-apunte__hora { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; color: var(--color-jx-tinta3); }
 
+/*  La etiqueta del tipo: su color es LETRA, y va sobre un fondo teñido de ella misma.
+    Sobre oscuro el tinte era del 22 %; sobre crema ese mismo 22 % dejaba las letras de la
+    etiqueta en 3,6 : 1, así que baja al 8 % y se mezcla con un crema sólido en vez de con
+    'transparent'. Así la etiqueta se distingue de la fila por TONO y no por claridad —que
+    es lo único que la salva cuando pasa el ratón, porque todos los cremas de la paleta
+    pesan casi igual— y cada tipo se queda entre 4,6 y 5,9 : 1 sobre su propio fondo.  */
 .pi-apunte__tipo {
     flex: none;
     padding: 1px 5px;
     border-radius: 4px;
-    background: color-mix(in srgb, var(--pi-color, #3b526e) 22%, transparent);
-    color: var(--pi-color, #8aa0bb);
+    background: color-mix(in srgb, var(--pi-color, var(--color-jx-tinta2)) 8%, var(--color-jx-tarjeta));
+    color: var(--pi-color, var(--color-jx-tinta2));
     font-size: 9.5px;
     font-weight: 700;
     letter-spacing: 0.4px;
     text-transform: uppercase;
 }
 
-.pi-apunte__lectura { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; color: #5e7ba0; }
+.pi-apunte__lectura { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; color: var(--color-jx-tinta3); }
 
-.pi-apunte__titulo { min-width: 0; color: #dbe7f7; line-height: 1.35; overflow-wrap: anywhere; }
+.pi-apunte__titulo { min-width: 0; color: var(--color-jx-tinta); line-height: 1.35; overflow-wrap: anywhere; }
 
 
 /*  EL DETALLE: una lista de «dato: valor». Los textos largos van en su caja.  */
 .pi-detalle { margin: 0; padding: 2px 10px 8px 25px; display: grid; grid-template-columns: max-content 1fr; gap: 3px 10px; }
 
-.pi-detalle dt { color: #8aa0bb; white-space: nowrap; }
+.pi-detalle dt { color: var(--color-jx-tinta2); white-space: nowrap; }
 
-.pi-detalle dd { margin: 0; min-width: 0; color: #cfe0f5; overflow-wrap: anywhere; }
+.pi-detalle dd { margin: 0; min-width: 0; color: var(--color-jx-tinta); overflow-wrap: anywhere; }
 
 .pi-detalle pre {
     margin: 0;
@@ -173,8 +193,8 @@
     max-height: 260px;
     overflow: auto;
     border-radius: 6px;
-    background: #01122c;
-    border: 1px solid #0a3a66;
+    background: var(--color-jx-hundido);
+    border: 1px solid var(--color-jx-regla2);
     font-family: ui-monospace, Consolas, monospace;
     font-size: 11px;
     line-height: 1.4;
@@ -183,11 +203,21 @@
 }
 
 
-/*  Los colores de cada tipo de apunte.  */
-.pi-apunte--tablet    { --pi-color: #b49cff; }
-.pi-apunte--tira      { --pi-color: #8aa0bb; }
-.pi-apunte--servidor  { --pi-color: #38b6e8; }
-.pi-apunte--envio     { --pi-color: #f2b84b; }
-.pi-apunte--respuesta { --pi-color: #7fd0f5; }
-.pi-apunte--resultado { --pi-color: #5fd29a; }
-.pi-apunte--fallo     { --pi-color: #ff7d8a; }
+/*  Los colores de cada tipo de apunte.
+
+    Esto es DATO y no adorno: el color dice de qué paso de la lectura se está hablando, así
+    que cada uno se queda en su familia y solo cambia el tono. En el tema oscuro eran
+    colores claros; aquí tienen que ser oscuros, porque el mismo valor hace de raya a la
+    izquierda y de LETRA en la etiqueta del tipo.
+
+    Donde la familia existe en la paleta se usa la paleta (verde, oro y rojo). El violeta,
+    el azul petróleo y el azul no están en ella —la casa no tiene ningún color frío— y van
+    en hexadecimal: son datos, no colores de marca. 'servidor' y 'respuesta' siguen siendo
+    dos tonos de la misma familia, como el cian medio y el cian claro de antes.  */
+.pi-apunte--tablet    { --pi-color: #5e45a8; }                        /* violeta */
+.pi-apunte--tira      { --pi-color: var(--color-jx-tinta2); }         /* el neutro */
+.pi-apunte--servidor  { --pi-color: #15687e; }                        /* azul petróleo */
+.pi-apunte--envio     { --pi-color: var(--color-jx-ocre-texto); }     /* oro */
+.pi-apunte--respuesta { --pi-color: #1f5fa8; }                        /* azul */
+.pi-apunte--resultado { --pi-color: var(--color-jx-verde-texto); }    /* verde */
+.pi-apunte--fallo     { --pi-color: var(--color-jx-critico-texto); }  /* rojo */

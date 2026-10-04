@@ -10,8 +10,12 @@
       · App.css lo comparte toda la aplicación. Meter aquí sus estilos obligaría a
         tocarlo, y cualquier nombre genérico se llevaría por delante otra pantalla.
 
-    La paleta es la misma azul oscuro de la ventana de la tablet, para que el menú
-    no parezca de otra aplicación.
+    LA PALETA. Antes era la misma azul oscuro de la ventana de la tablet, escrita a
+    mano en las dos hojas, para que el menú no pareciera de otra aplicación. Eso
+    sigue siendo la intención, pero aquí ya no queda ni un hexadecimal: todo sale de
+    los tokens '--color-jx-*' del @theme de index.css. Cuando la ventana de la tablet
+    se pase al tema claro y haga lo mismo, las dos acabarán iguales sin que nadie
+    tenga que comparar colores a ojo ni ponerse de acuerdo.
     ───────────────────────────────────────────────────────────────────────────── */
 
 
@@ -25,10 +29,10 @@
     flex-direction: column;
     gap: 1.25rem;
     padding: 1.25rem 1.4rem 1.5rem;
-    border: 1px solid #0a3a66;
+    border: 1px solid var(--color-jx-regla2);
     border-radius: 14px;
-    background: #060f1c;
-    color: #cfe0f5;
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
     font-size: 13px;
     line-height: 1.55;
 }
@@ -40,7 +44,7 @@
     flex-direction: column;
     gap: 0.4rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #0a3a66;
+    border-bottom: 1px solid var(--color-jx-regla2);
 }
 
 .cia-titulo {
@@ -48,7 +52,7 @@
     font-size: 18px;
     line-height: 1.2;
     font-weight: 700;
-    color: #e6eef9;
+    color: var(--color-jx-tinta);
 }
 
 /*  El ancho de los párrafos se mide en 'ch' y no en píxeles: así la línea sigue
@@ -56,7 +60,7 @@
 .cia-subtitulo {
     margin: 0;
     max-width: 68ch;
-    color: #8aa0bb;
+    color: var(--color-jx-tinta2);
     font-size: 12.5px;
 }
 
@@ -74,32 +78,45 @@
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: #8aa0bb;
+    color: var(--color-jx-tinta2);
 }
 
+/*  El contorno va en 'borde-campo' y no en una regla cualquiera: es lo ÚNICO que
+    dice dónde se escribe, y las reglas decorativas se quedan en 1,3 : 1.  */
 .cia-input {
     width: 100%;
     height: 38px;
     padding: 0 10px;
-    border: 1px solid #22415f;
+    border: 1px solid var(--color-jx-borde-campo);
     border-radius: 9px;
-    background: #01122c;
-    color: #eef4fb;
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta);
     font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
     font-size: 13px;
     transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.cia-input::placeholder { color: #4f6784; }
+/*  La pista en 'tinta3' y nunca en 'tinta4': una pista hay que leerla, así que no
+    está exenta como lo está un control apagado.  */
+.cia-input::placeholder { color: var(--color-jx-tinta3); }
 
+/*  El aro de foco se queda —es lo único que ve quien va con el teclado— y NO es un
+    resplandor: tiene 0 de difuminado, es un anillo. Lo que cambia es el tinte, al
+    verde de marca y a la misma opacidad que los campos de la pantalla de entrada.
+    El tinte sale del token con 'color-mix', como en fieldInput.css, y no de un
+    rgba() con el verde escrito a mano: así el aro no se queda en el verde de ayer
+    el día que la paleta cambie de verde.  */
 .cia-input:focus {
     outline: none;
-    border-color: #38b6e8;
-    box-shadow: 0 0 0 2px rgba(56, 182, 232, 0.22);
+    border-color: var(--color-jx-verde-barra);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-jx-verde) 18%, transparent);
 }
 
 
-/*  La clave ya guardada: se enseña tapada, al lado del botón de cambiarla.  */
+/*  La clave ya guardada: se enseña tapada, al lado del botón de cambiarla.
+    Ocupa el mismo sitio que la casilla de arriba —o se ve una, o la otra—, pero en
+    ella NO se escribe, así que se queda con la regla decorativa y el fondo de chip.
+    El contorno fuerte es la señal de «aquí se escribe» y aquí mentiría.  */
 .cia-guardada {
     display: flex;
     align-items: center;
@@ -108,15 +125,15 @@
     width: 100%;
     min-height: 38px;
     padding: 0 10px;
-    border: 1px solid #22415f;
+    border: 1px solid var(--color-jx-regla2);
     border-radius: 9px;
-    background: #0b1a2e;
+    background: var(--color-jx-arena);
 }
 
 .cia-guardada__valor {
     flex: 1;
     min-width: 0;
-    color: #cfe0f5;
+    color: var(--color-jx-tinta);
     font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
     font-size: 13px;
     letter-spacing: 0.4px;
@@ -125,28 +142,30 @@
 
 
 /*  Las pistas de debajo del campo. La de la dirección normalizada es la importante:
-    va en el color de lectura, no en el apagado.  */
+    va en el verde de LETRA —no en el de relleno, que de letra da 2,18 : 1—, porque
+    confirma lo que la aplicación va a usar de verdad. La flojita, en el apagado.  */
 .cia-pista {
     margin: 0;
-    color: #9fd8f2;
+    color: var(--color-jx-verde-texto);
     font-size: 11.5px;
 }
 
-.cia-pista--flojo { color: #6f87a4; }
+.cia-pista--flojo { color: var(--color-jx-tinta3); }
 
 /*  La pista de «ojo con esto»: lo escrito se puede usar, pero no hace lo que parece
     (una clave pegada dentro de la dirección, una clave que es de otro servidor).
-    En ámbar, que se distingue del azul de lectura sin gritar como el rojo del error.  */
-.cia-pista--ojo { color: #f0c27b; }
+    Sigue en la familia ámbar, que es la que significa esto en toda la casa: se
+    distingue del verde de lectura sin gritar como el rojo del error.  */
+.cia-pista--ojo { color: var(--color-jx-aviso-texto); }
 
 .cia-codigo {
     padding: 1px 5px;
     border-radius: 5px;
-    background: #01122c;
-    border: 1px solid #13294a;
+    background: var(--color-jx-arena);
+    border: 1px solid var(--color-jx-regla2);
     font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
     font-size: 11.5px;
-    color: #cfe0f5;
+    color: var(--color-jx-tinta);
     overflow-wrap: anywhere;
 }
 
@@ -159,13 +178,16 @@
     padding-top: 0.25rem;
 }
 
+/*  El borde de un botón es borde de CONTROL, y a eso la norma le pide 3 : 1 igual
+    que al de un campo. Ninguna de las reglas decorativas llega, así que aquí
+    también va 'borde-campo': es el único gris cálido de la paleta que cumple.  */
 .cia-boton {
     height: 34px;
     padding: 0 14px;
-    border: 1px solid #22415f;
+    border: 1px solid var(--color-jx-borde-campo);
     border-radius: 9px;
-    background: #13294a;
-    color: #cfe0f5;
+    background: var(--color-jx-arena);
+    color: var(--color-jx-tinta);
     font-size: 12.5px;
     font-weight: 600;
     line-height: 1;
@@ -173,24 +195,31 @@
     transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.cia-boton:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #ffffff; }
+/*  Sobre fondo oscuro el ratón se notaba aclarando el relleno. Sobre papel no hay
+    sitio hacia arriba —entre los marfiles de la paleta hay un tres por ciento—,
+    así que el ratón se nota con el tinte verde más claro.  */
+.cia-boton:hover:not(:disabled) { background: var(--color-jx-verde-suave); border-color: var(--color-jx-verde-barra); color: var(--color-jx-verde-texto); }
 .cia-boton:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /*  El 'outline: none' global de index.css deja sin rastro a quien va con el teclado.
-    Aquí se le devuelve, y solo con teclado.  */
-.cia-boton:focus-visible { outline: 2px solid #38b6e8; outline-offset: 2px; }
+    Aquí se le devuelve, y solo con teclado. En tinta y no en verde: tiene que verse
+    también sobre el botón principal, que ya es verde entero.  */
+.cia-boton:focus-visible { outline: 2px solid var(--color-jx-tinta); outline-offset: 2px; }
 
-/*  Guardar: la acción principal.  */
-.cia-boton--principal { background: #38b6e8; border-color: #38b6e8; color: #04121f; }
-.cia-boton--principal:hover:not(:disabled) { background: #5ec6ef; border-color: #5ec6ef; color: #04121f; }
+/*  Guardar: la acción principal. La letra va en TINTA sobre el verde, no en blanco:
+    blanco sobre este verde da 2,31 : 1 y la tinta 6,18 : 1.  */
+.cia-boton--principal { background: var(--color-jx-verde); border-color: var(--color-jx-verde-hover); color: var(--color-jx-tinta); }
+.cia-boton--principal:hover:not(:disabled) { background: var(--color-jx-verde-hover); border-color: var(--color-jx-verde-hover); color: var(--color-jx-tinta); }
 
-/*  Borrar: se puede perder algo, así que se ve.  */
-.cia-boton--peligro { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
-.cia-boton--peligro:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
+/*  Borrar: se puede perder algo, así que se ve. En reposo, el rojo apagado con letra
+    roja; al pasar por encima se llena de rojo y la letra pasa a marfil, que es lo
+    único que se lee ahí: la tinta sobre el rojo entero se queda en 2,97 : 1.  */
+.cia-boton--peligro { background: var(--color-jx-critico-suave); border-color: var(--color-jx-critico); color: var(--color-jx-critico-texto); }
+.cia-boton--peligro:hover:not(:disabled) { background: var(--color-jx-critico); border-color: var(--color-jx-critico); color: var(--color-jx-lienzo); }
 
 /*  Los de dentro de un campo —«Cambiar»—, que no compiten con los tres de abajo.  */
-.cia-boton--suave { background: transparent; border-color: #22415f; color: #9fd8f2; }
-.cia-boton--suave:hover:not(:disabled) { background: #13294a; border-color: #2c5577; color: #ffffff; }
+.cia-boton--suave { background: transparent; border-color: var(--color-jx-borde-campo); color: var(--color-jx-verde-texto); }
+.cia-boton--suave:hover:not(:disabled) { background: var(--color-jx-verde-suave); border-color: var(--color-jx-verde-barra); color: var(--color-jx-verde-texto); }
 
 .cia-boton--pequeno { height: 26px; padding: 0 10px; font-size: 11.5px; }
 
@@ -200,15 +229,20 @@
     margin: 0;
     padding: 9px 12px;
     border-radius: 9px;
-    border-left: 3px solid #3b526e;
-    background: #0b1a2e;
+    border-left: 3px solid var(--color-jx-tinta3);
+    background: var(--color-jx-arena);
     font-size: 12.5px;
     overflow-wrap: anywhere;
 }
 
-.cia-aviso--ok { border-left-color: #5fd29a; background: #0f2a22; color: #b6ebd0; }
-.cia-aviso--error { border-left-color: #ff7d8a; background: #2a151b; color: #ffc9d0; }
-.cia-aviso--info { border-left-color: #38b6e8; background: #0b1d38; color: #bfe3f7; }
+/*  Los tres son DATO: salen del 'kind' del aviso, no de un gusto, así que tienen
+    que seguir distinguiéndose de un vistazo. El bueno se queda verde y el error
+    rojo. El informativo era el azul del acento y en esta paleta no hay azul: se va
+    al ámbar, porque el verde ya es el del bueno. Encaja con lo que dice («borrado»,
+    «dale a Guardar»): es cosa de mirar, ni de celebrar ni de arreglar.  */
+.cia-aviso--ok { border-left-color: var(--color-jx-verde-barra); background: var(--color-jx-verde-suave); color: var(--color-jx-verde-texto); }
+.cia-aviso--error { border-left-color: var(--color-jx-critico); background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
+.cia-aviso--info { border-left-color: var(--color-jx-tabaco); background: var(--color-jx-aviso-suave); color: var(--color-jx-aviso-texto); }
 
 
 /*  LAS NOTAS: lo que hay que saber ANTES de que falle.  */
@@ -217,20 +251,22 @@
     flex-direction: column;
     gap: 0.7rem;
     padding-top: 1rem;
-    border-top: 1px solid #0a3a66;
+    border-top: 1px solid var(--color-jx-regla2);
 }
 
 .cia-nota {
     margin: 0;
     max-width: 72ch;
-    color: #8aa0bb;
+    color: var(--color-jx-tinta2);
     font-size: 12px;
 }
 
-.cia-nota strong { color: #cfe0f5; font-weight: 700; }
+.cia-nota strong { color: var(--color-jx-tinta); font-weight: 700; }
 
-.cia-enlace { color: #7fd0f5; text-decoration: underline; overflow-wrap: anywhere; }
-.cia-enlace:hover { color: #b5e6fb; }
+/*  El enlace se oscurece al pasar por encima en vez de aclararse: sobre papel más
+    contraste es más oscuro, justo al revés que sobre el azul de antes.  */
+.cia-enlace { color: var(--color-jx-verde-texto); text-decoration: underline; overflow-wrap: anywhere; }
+.cia-enlace:hover { color: var(--color-jx-tinta); }
 
 
 /*  En el teléfono el menú ocupa lo que haya y los botones se reparten la fila.  */
@@ -241,12 +277,13 @@
 
 /*  EL SELECT DEL MODELO. Hereda de .cia-input el borde, el fondo y la tipografía; aquí solo lo
     que un <select> necesita aparte: sitio para la flecha y que el desplegable no salga en los
-    colores del sistema, que sobre este fondo oscuro se leen blancos sobre blanco.  */
+    colores del sistema, que son los suyos y no los de esta hoja. La flecha va en el gris del
+    texto secundario: es un icono, y a un icono la norma le pide 3 : 1.  */
 .cia-select {
     padding-right: 30px;
     cursor: pointer;
     appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, #7fa6c8 50%), linear-gradient(135deg, #7fa6c8 50%, transparent 50%);
+    background-image: linear-gradient(45deg, transparent 50%, var(--color-jx-tinta2) 50%), linear-gradient(135deg, var(--color-jx-tinta2) 50%, transparent 50%);
     background-position: calc(100% - 15px) 17px, calc(100% - 10px) 17px;
     background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
@@ -257,9 +294,10 @@
     cursor: default;
 }
 
+/*  La lista desplegada es una ventanita aparte, no el campo: lleva fondo de tarjeta.  */
 .cia-select option {
-    background: #01122c;
-    color: #eef4fb;
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
 }
 
 /*  EL BOTÓN DENTRO DE UN AVISO. Sale cuando la consulta trae una dirección mejor (el servidor

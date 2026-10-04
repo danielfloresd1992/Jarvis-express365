@@ -20,7 +20,7 @@ html.vista-simulador #root {
 html.vista-simulador body {
     display: block;
     overflow: hidden;
-    background: #060f1c;
+    background: var(--color-jx-gris-lienzo);
 
     /*  El 'place-items: center' del body de index.css sigue mandando aunque ya no sea
         flex: los Chromium recientes aplican 'justify-items' también en bloque, y #root
@@ -32,17 +32,55 @@ html.vista-simulador body {
 html.vista-simulador #root { width: 100%; justify-self: stretch; }
 
 
+/*  LOS COLORES DEL SIMULADOR
+ *
+ *  Van en GRIS y no en el marfil del resto de la aplicación, y es a propósito: lo que
+ *  se ve aquí son pedidos DE MENTIRA. El marco tiene que decir «esto es una
+ *  herramienta» sin que haga falta leer nada.
+ *
+ *  Los grises son los tonos de la paleta desaturados, no oscurecidos, así que las
+ *  tintas son LAS MISMAS que en el resto de la aplicación y sus contrastes siguen
+ *  valiendo (el porqué está escrito en el @theme de index.css).
+ *
+ *  Las variables 'sim-' se quedan con su nombre a propósito: media hoja las usa, y
+ *  renombrarlas sería tocar estructura, no color. Lo que cambia es a qué apuntan.
+ *
+ *  OJO CON LAS TRES ÚLTIMAS. 'bien', 'aviso' y 'mal' NO son decoración: son los tres
+ *  veredictos del registro comparado, y 'claseDelVeredicto' en informeDeLaSimulacion.js
+ *  los vuelve a pintar en el informe IMPRIMIBLE. Ahí tienen que seguir distinguiéndose
+ *  en blanco y negro, así que se diferencian por lo oscuros que son, no solo por el
+ *  tono: verde oscuro, ocre medio, rojo claro.
+ *
+ *  Y LA PANTALLA DE TOAST NO SE TOCA. La dibuja el lienzo con los colores de
+ *  simulador/pintura/temas.js, sacados píxel a píxel de capturas reales. Esos no son
+ *  estilo: son el patrón contra el que se mide si la IA lee bien. Aquí solo se pinta
+ *  lo que hay ALREDEDOR del aparato.                                                  */
 .sim-app {
-    --sim-fondo: #060f1c;
-    --sim-panel: #0b1a2d;
-    --sim-panel-2: #0f2238;
-    --sim-borde: #1c3553;
-    --sim-texto: #cfe0f5;
-    --sim-apagado: #8aa0bb;
-    --sim-acento: #38b6e8;
-    --sim-bien: #5fd29a;
-    --sim-aviso: #f2b84b;
-    --sim-mal: #ff7d8a;
+    --sim-fondo: var(--color-jx-gris-lienzo);
+    --sim-panel: var(--color-jx-gris-panel);
+    --sim-panel-2: var(--color-jx-gris-arena);
+    --sim-borde: var(--color-jx-gris-regla);
+    --sim-texto: var(--color-jx-tinta);
+    --sim-apagado: var(--color-jx-tinta3);
+    /*  OJO, SON DOS Y ANTES ERA UNA.
+     *
+     *  El acento viejo (#38b6e8, un cian claro) valía a la vez de RELLENO y de LETRA
+     *  porque todo el simulador era oscuro. Sobre gris eso ya no se puede: un verde
+     *  que se lea como letra (#177406) es demasiado oscuro para llevar letra encima
+     *  —da 2,4 : 1—, y uno que sirva de relleno (#29c50c) no se lee como letra, 2,18.
+     *
+     *  Así que se parten. Es exactamente la regla que los otros dos proyectos de la
+     *  casa dejan escrita, y aquí la trampa estaba en que UNA sola variable hacía los
+     *  dos papeles.                                                                  */
+    --sim-acento: var(--color-jx-verde);
+    --sim-acento-texto: var(--color-jx-verde-texto);
+    --sim-bien: var(--color-jx-verde-texto);
+    --sim-aviso: var(--color-jx-ocre-texto);
+    --sim-mal: var(--color-jx-critico-texto);
+
+    /*  El contorno de los controles, que necesita verse (3 : 1) y por eso no es
+        '--sim-borde', que es una línea decorativa.                                 */
+    --sim-borde-control: var(--color-jx-gris-borde);
 
     height: 100%;
     min-width: 0;
@@ -75,7 +113,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     font-size: 15px;
     font-weight: 600;
     line-height: 1.2;
-    color: #eef4fb;
+    color: var(--color-jx-tinta);
 }
 
 .sim-barra__sub { font-size: 11px; color: var(--sim-apagado); }
@@ -93,8 +131,8 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     white-space: nowrap;
 }
 
-.sim-estado__punto { width: 8px; height: 8px; border-radius: 50%; background: #5e7ba0; }
-.sim-estado--vivo .sim-estado__punto { background: var(--sim-bien); box-shadow: 0 0 0 3px rgba(95, 210, 154, 0.2); }
+.sim-estado__punto { width: 8px; height: 8px; border-radius: 50%; background: var(--color-jx-tinta3); }
+.sim-estado--vivo .sim-estado__punto { background: var(--sim-bien); box-shadow: 0 0 0 3px var(--color-jx-verde-suave); }
 
 /*  Quién lee las tiras y cómo le va. Es lo único de la barra que puede crecer —con la IA
     lleva cinco cifras y a veces un motivo de fallo—, así que es lo único que se recorta:
@@ -109,7 +147,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     color: var(--sim-texto);
 }
 
-.sim-reloj { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 15px; font-weight: 600; color: #eef4fb; }
+.sim-reloj { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 15px; font-weight: 600; color: var(--color-jx-tinta); }
 
 .sim-hueco { flex: 1; }
 
@@ -123,8 +161,8 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     align-items: center;
     gap: 6px;
     border-radius: 8px;
-    border: 1px solid #22415f;
-    background: #13294a;
+    border: 1px solid var(--sim-borde-control);
+    background: var(--color-jx-gris-arena);
     color: var(--sim-texto);
     font-size: 12px;
     font-weight: 600;
@@ -133,19 +171,19 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     transition: background-color 0.15s, border-color 0.15s;
 }
 
-.sim-boton:hover:not(:disabled) { background: #1a3760; border-color: #2c5577; color: #fff; }
+.sim-boton:hover:not(:disabled) { background: var(--color-jx-gris-hundido); border-color: var(--color-jx-tinta3); color: var(--color-jx-tinta); }
 .sim-boton:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.sim-boton--principal { background: var(--sim-acento); border-color: var(--sim-acento); color: #04121f; }
-.sim-boton--principal:hover:not(:disabled) { background: #5ec6ef; border-color: #5ec6ef; color: #04121f; }
+.sim-boton--principal { background: var(--sim-acento); border-color: var(--sim-acento); color: var(--color-jx-tinta); }
+.sim-boton--principal:hover:not(:disabled) { background: var(--color-jx-verde-hover); border-color: var(--color-jx-verde-hover); color: var(--color-jx-tinta); }
 
-.sim-boton--activo { background: rgba(56, 182, 232, 0.16); border-color: var(--sim-acento); color: #9adcf8; }
+.sim-boton--activo { background: var(--color-jx-verde-suave); border-color: var(--sim-acento-texto); color: var(--color-jx-verde-texto); }
 
-.sim-boton--peligro { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
-.sim-boton--peligro:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
+.sim-boton--peligro { background: var(--color-jx-critico-suave); border-color: var(--color-jx-critico); color: var(--color-jx-critico-texto); }
+.sim-boton--peligro:hover:not(:disabled) { background: var(--color-jx-critico-suave); border-color: var(--color-jx-critico); color: var(--color-jx-critico-texto); }
 
-.sim-boton--ambar { background: var(--sim-aviso); border-color: var(--sim-aviso); color: #231700; }
-.sim-boton--ambar:hover:not(:disabled) { background: #ffd074; border-color: #ffd074; color: #231700; }
+.sim-boton--ambar { background: var(--sim-aviso); border-color: var(--sim-aviso); color: var(--color-jx-ocre-texto); }
+.sim-boton--ambar:hover:not(:disabled) { background: var(--color-jx-ocre-suave); border-color: var(--color-jx-ocre-suave); color: var(--color-jx-ocre-texto); }
 
 .sim-boton--chico { height: 26px; padding: 0 9px; font-size: 11px; border-radius: 7px; }
 
@@ -154,8 +192,8 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-boton--mini { height: 19px; padding: 0 5px; font-size: 10.5px; border-radius: 5px; }
 
 /*  «Listo» es el que se busca: es el gesto para el que existe el ticket hecho a mano.  */
-.sim-boton--listo { background: rgba(31, 107, 71, 0.35); border-color: #2a8a5c; color: #a9ecc9; }
-.sim-boton--listo:hover:not(:disabled) { background: rgba(31, 107, 71, 0.6); border-color: #5fd29a; color: #fff; }
+.sim-boton--listo { background: var(--color-jx-verde-suave); border-color: var(--color-jx-verde-barra); color: var(--color-jx-verde-texto); }
+.sim-boton--listo:hover:not(:disabled) { background: var(--color-jx-verde-suave); border-color: var(--color-jx-verde-barra); color: var(--color-jx-tinta); }
 
 
 /*  EL FOCO SE VE SIEMPRE. El simulador se maneja mucho con el teclado —las flechas
@@ -166,7 +204,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-app input:focus-visible,
 .sim-seccion > summary:focus-visible,
 .sim-tabla-caja:focus-visible {
-    outline: 2px solid var(--sim-acento);
+    outline: 2px solid var(--sim-acento-texto);
     outline-offset: 2px;
 }
 
@@ -184,7 +222,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     display: flex;
     flex-direction: column;
     background:
-        radial-gradient(circle at 50% 40%, #0e2036 0%, var(--sim-fondo) 70%);
+        radial-gradient(circle at 50% 40%, var(--color-jx-gris-arena) 0%, var(--sim-fondo) 70%);
 }
 
 .sim-pantalla__lienzo {
@@ -214,12 +252,12 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     flex-wrap: wrap;
     gap: 8px 16px;
     padding: 9px 14px;
-    background: #0b1d38;
-    border-bottom: 1px solid #1a3552;
-    border-left: 4px solid #3b526e;
+    background: var(--color-jx-gris-arena);
+    border-bottom: 1px solid var(--color-jx-gris-regla);
+    border-left: 4px solid var(--color-jx-gris-regla);
 }
 
-.sim-mando--entrando { border-left-color: #35c07a; }
+.sim-mando--entrando { border-left-color: var(--color-jx-verde-barra); }
 
 .sim-mando__texto {
     flex: 1 1 320px;
@@ -240,11 +278,11 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-boton--empezar,
 .sim-boton--parar { height: 36px; padding: 0 16px; font-size: 13px; border-radius: 9px; }
 
-.sim-boton--empezar { background: #1f8f57; border-color: #35c07a; color: #fff; }
-.sim-boton--empezar:hover:not(:disabled) { background: #27a866; border-color: #6fe3a6; color: #fff; }
+.sim-boton--empezar { background: var(--color-jx-verde-suave); border-color: var(--color-jx-verde-barra); color: var(--color-jx-tinta); }
+.sim-boton--empezar:hover:not(:disabled) { background: var(--color-jx-verde-suave); border-color: var(--color-jx-verde-barra); color: var(--color-jx-tinta); }
 
-.sim-boton--parar { background: #3a1620; border-color: #8f2234; color: #ffc9d0; }
-.sim-boton--parar:hover:not(:disabled) { background: #52202c; border-color: #c93a4a; color: #ffe0e4; }
+.sim-boton--parar { background: var(--color-jx-critico-suave); border-color: var(--color-jx-critico); color: var(--color-jx-critico-texto); }
+.sim-boton--parar:hover:not(:disabled) { background: var(--color-jx-critico-suave); border-color: var(--color-jx-critico); color: var(--color-jx-critico-texto); }
 
 
 .sim-franja {
@@ -255,18 +293,18 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     flex-wrap: wrap;
     gap: 6px 14px;
     padding: 7px 14px;
-    background: #38290a;
-    border-bottom: 1px solid #7d5f17;
-    color: #ffe3a3;
+    background: var(--color-jx-ocre-suave);
+    border-bottom: 1px solid var(--color-jx-ocre);
+    color: var(--color-jx-ocre-texto);
     font-size: 12.5px;
     line-height: 1.35;
 }
 
-.sim-franja b { color: #fff1cf; font-weight: 600; }
+.sim-franja b { color: var(--color-jx-ocre-texto); font-weight: 600; }
 
 /*  El turno que se acabó no es un problema, es una noticia: en azul, no en ámbar.  */
-.sim-franja--fin { background: #0f2a44; border-bottom-color: #2c5577; color: #cfe6fb; }
-.sim-franja--fin b { color: #eef4fb; }
+.sim-franja--fin { background: var(--color-jx-gris-arena); border-bottom-color: var(--color-jx-tinta3); color: var(--color-jx-tinta); }
+.sim-franja--fin b { color: var(--color-jx-tinta); }
 
 /*  El marco de la tablet. El lienzo guarda su proporción: mide lo que mide su
     resolución y aquí solo se le pone techo.
@@ -281,8 +319,17 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     flex: none;
     padding: 10px;
     border-radius: 16px;
-    background: #15181d;
-    box-shadow: 0 0 0 1px #2a2f38, 0 18px 50px rgba(0, 0, 0, 0.55);
+    /*  EL BISEL SE QUEDA OSCURO, Y NO ES UN DESCUIDO DEL TEMA CLARO.
+     *
+     *  Es lo único que dice que lo de dentro es UN APARATO y no la página. Y aquí eso
+     *  importa el doble: la pantalla de Toast en su tema claro tiene el fondo casi
+     *  blanco (#dddde4), así que con un bisel claro alrededor la réplica se fundiría
+     *  con el panel y desaparecería la última señal de que lo que se ve es de mentira.
+     *
+     *  Lo que cambia es el tinte: era un gris azulado y ahora es la tinta de la paleta,
+     *  porque un gris frío al lado de los grises cálidos se ve sucio.                 */
+    background: #2f2a1e;
+    box-shadow: 0 0 0 1px #4a4336, 0 18px 50px rgba(47, 42, 30, 0.28);
 }
 
 .sim-tablet canvas {
@@ -367,19 +414,19 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     segundo renglón de una fila se pega al primero de la siguiente.  */
 .sim-fila { display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 2px 0; }
 .sim-fila > label { flex: 1; min-width: 0; line-height: 1.25; color: var(--sim-texto); }
-.sim-fila__valor { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: #eef4fb; min-width: 64px; text-align: right; white-space: nowrap; }
+.sim-fila__valor { flex: none; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--color-jx-tinta); min-width: 64px; text-align: right; white-space: nowrap; }
 
 /*  «Pantalla 1 de 2» con sus dos flechas. El texto se estira, como el rótulo de cualquier
     otra fila, y las flechas quedan a la derecha, donde están «|←» y «→|» en la tablet.  */
 .sim-paginas { gap: 6px; }
 .sim-paginas__cual { flex: 1; min-width: 0; color: var(--sim-texto); }
-.sim-paginas__cual b { font-family: ui-monospace, Consolas, monospace; font-weight: 600; color: #eef4fb; }
+.sim-paginas__cual b { font-family: ui-monospace, Consolas, monospace; font-weight: 600; color: var(--color-jx-tinta); }
 .sim-paginas .sim-boton { width: 30px; padding: 0; justify-content: center; }
 
 .sim-botones { display: flex; flex-wrap: wrap; gap: 6px; }
 .sim-botones--turno { margin: 0 0 6px; }
 
-.sim-app input[type='range'] { flex: none; width: 112px; accent-color: var(--sim-acento); }
+.sim-app input[type='range'] { flex: none; width: 112px; accent-color: var(--sim-acento-texto); }
 
 .sim-app select,
 .sim-app input[type='number'],
@@ -388,7 +435,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     height: 28px;
     padding: 0 8px;
     border-radius: 7px;
-    border: 1px solid #22415f;
+    border: 1px solid var(--sim-borde-control);
     background: var(--sim-fondo);
     color: var(--sim-texto);
     font-size: 12px;
@@ -399,7 +446,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-app select { max-width: 200px; }
 
 .sim-interruptor { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-.sim-interruptor input { width: 16px; height: 16px; accent-color: var(--sim-acento); }
+.sim-interruptor input { width: 16px; height: 16px; accent-color: var(--sim-acento-texto); }
 
 
 /* ── EL ESTADO DEL TURNO ─────────────────────────────────────────────────── */
@@ -409,7 +456,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-turno__estado { margin: 0 0 6px; font-size: 12px; line-height: 1.4; color: var(--sim-texto); }
 .sim-turno__estado b { color: var(--sim-bien); font-weight: 600; }
 .sim-turno--pausa .sim-turno__estado b { color: var(--sim-aviso); }
-.sim-turno--fin .sim-turno__estado b { color: #9adcf8; }
+.sim-turno--fin .sim-turno__estado b { color: var(--color-jx-tinta3); }
 
 /*  El relleno son las MESAS que ya entraron; la marca, por dónde va el RELOJ del turno.
     Con hora pico no van a la par, y verlo de un vistazo es la gracia de tener las dos.  */
@@ -425,7 +472,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-turno--pausa .sim-turno__relleno { background: var(--sim-aviso); }
 .sim-turno--fin .sim-turno__relleno { background: var(--sim-acento); }
 
-.sim-turno__marca { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: #eef4fb; }
+.sim-turno__marca { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--color-jx-tinta); }
 
 .sim-turno__cifras { margin: 7px 0 0; font-size: 11.5px; line-height: 1.4; color: var(--sim-apagado); }
 .sim-turno__cifras b { color: var(--sim-texto); font-weight: 600; }
@@ -461,9 +508,9 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 }
 
 .sim-tm__lista li { display: flex; align-items: flex-start; gap: 8px; padding: 4px 6px 4px 9px; }
-.sim-tm__lista li + li { border-top: 1px solid rgba(28, 53, 83, 0.55); }
+.sim-tm__lista li + li { border-top: 1px solid var(--color-jx-gris-regla); }
 
-.sim-tm__cuantos { flex: none; min-width: 14px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 700; line-height: 18px; color: #eef4fb; }
+.sim-tm__cuantos { flex: none; min-width: 14px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 700; line-height: 18px; color: var(--color-jx-tinta); }
 .sim-tm__nombre { flex: 1; min-width: 0; font-size: 12px; line-height: 18px; color: var(--sim-texto); overflow-wrap: anywhere; }
 .sim-tm__nombre small { display: block; font-size: 10.5px; line-height: 14px; color: var(--sim-apagado); }
 
@@ -481,8 +528,8 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     cursor: pointer;
 }
 
-.sim-tm__quitar:hover { border-color: #8f2234; background: #3a1620; color: #ffc9d0; }
-.sim-tm__quitar:focus-visible { outline: 2px solid var(--sim-acento); outline-offset: 1px; }
+.sim-tm__quitar:hover { border-color: var(--color-jx-critico); background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
+.sim-tm__quitar:focus-visible { outline: 2px solid var(--sim-acento-texto); outline-offset: 1px; }
 
 .sim-tm__vacia { margin: 4px 0 6px; padding: 7px 9px; border-radius: 7px; border: 1px dashed var(--sim-borde); font-size: 11.5px; color: var(--sim-apagado); }
 
@@ -516,7 +563,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     border-bottom: 1px solid var(--sim-borde);
 }
 
-.sim-registro__cabeza h2 { flex: none; margin: 0; font-size: 13px; font-weight: 600; color: #eef4fb; }
+.sim-registro__cabeza h2 { flex: none; margin: 0; font-size: 13px; font-weight: 600; color: var(--color-jx-tinta); }
 
 .sim-resumen { flex: 1; min-width: 0; font-size: 12px; line-height: 1.4; color: var(--sim-apagado); }
 .sim-resumen b { color: var(--sim-texto); font-weight: 600; }
@@ -556,13 +603,13 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     solo cuando le hace falta; con sitio de sobra no se parte nada.  */
 .sim-tabla th { white-space: normal; }
 
-.sim-tabla th[title] { cursor: help; text-decoration: underline dotted rgba(138, 160, 187, 0.6); text-underline-offset: 3px; }
+.sim-tabla th[title] { cursor: help; text-decoration: underline dotted var(--color-jx-tinta3); text-underline-offset: 3px; }
 
 .sim-tabla th.sim-grupo { text-align: center; color: var(--sim-texto); border-left: 1px solid var(--sim-borde); }
-.sim-tabla th.sim-grupo--ia { color: #9adcf8; }
+.sim-tabla th.sim-grupo--ia { color: var(--color-jx-tinta3); }
 .sim-tabla th.sim-corte { border-left: 1px solid var(--sim-borde); }
 
-.sim-tabla td { padding: 4px 6px; border-bottom: 1px solid rgba(28, 53, 83, 0.55); }
+.sim-tabla td { padding: 4px 6px; border-bottom: 1px solid var(--color-jx-gris-regla); }
 .sim-tabla td.sim-hora { font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
 .sim-tabla td.sim-corte { border-left: 1px solid var(--sim-borde); }
 
@@ -572,11 +619,11 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     la tabla se desplaza por debajo de ella y los botones están siempre a mano. Por eso
     lleva fondo opaco, el mismo de la fila, en vez del velo con el que se marca el ratón.  */
 .sim-tabla th.sim-acciones,
-.sim-tabla td.sim-acciones { position: sticky; right: 0; border-left: 1px solid var(--sim-borde); box-shadow: -8px 0 8px -8px rgba(0, 0, 0, 0.7); }
+.sim-tabla td.sim-acciones { position: sticky; right: 0; border-left: 1px solid var(--sim-borde); box-shadow: -8px 0 8px -8px rgba(47, 42, 30, 0.16); }
 
 .sim-tabla th.sim-acciones { text-align: center; vertical-align: middle; }
 .sim-tabla td.sim-acciones { padding: 2px 6px; background: var(--sim-panel); }
-.sim-tabla tr:hover td.sim-acciones { background: #0e2338; }
+.sim-tabla tr:hover td.sim-acciones { background: var(--color-jx-gris-hundido); }
 
 .sim-acciones__botones { display: flex; justify-content: flex-end; gap: 4px; }
 
@@ -587,8 +634,8 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-tabla td.sim-con-nota { cursor: help; }
 .sim-tabla td.sim-con-nota .sim-ficha { border-style: dashed; }
 
-.sim-tabla tr.sim-ida td { color: #6f86a3; }
-.sim-tabla tr:hover td { background: rgba(56, 182, 232, 0.06); }
+.sim-tabla tr.sim-ida td { color: var(--color-jx-tinta3); }
+.sim-tabla tr:hover td { background: var(--color-jx-gris-hundido); }
 
 .sim-vacio { padding: 22px 14px; color: var(--sim-apagado); }
 
@@ -602,17 +649,17 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     color: var(--sim-apagado);
 }
 
-.sim-ficha--fuego { border-color: #8f2234; color: #ff9aa5; }
-.sim-ficha--pausa { border-color: #6e5a1f; color: #f2cf6b; }
-.sim-ficha--lista { border-color: #1f6b47; color: #7fdcaa; }
-.sim-ficha--despachada { border-color: #2c5577; color: #9adcf8; }
+.sim-ficha--fuego { border-color: var(--color-jx-critico); color: var(--color-jx-critico-texto); }
+.sim-ficha--pausa { border-color: var(--color-jx-ocre); color: var(--color-jx-ocre-texto); }
+.sim-ficha--lista { border-color: var(--color-jx-verde-suave); color: var(--color-jx-verde-barra); }
+.sim-ficha--despachada { border-color: var(--color-jx-tinta3); color: var(--color-jx-tinta3); }
 
-.sim-ficha--demora { border-color: #c93a4a; background: rgba(201, 58, 74, 0.18); color: #ffb3bb; font-family: ui-monospace, Consolas, monospace; }
-.sim-ficha--enplazo { border-color: #1f6b47; background: rgba(31, 107, 71, 0.2); color: #8fe3b6; }
-.sim-ficha--hold { margin-left: 5px; border-color: #6e5a1f; color: #f2cf6b; font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; cursor: help; }
+.sim-ficha--demora { border-color: var(--color-jx-critico); background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); font-family: ui-monospace, Consolas, monospace; }
+.sim-ficha--enplazo { border-color: var(--color-jx-verde-suave); background: var(--color-jx-verde-suave); color: var(--color-jx-verde-texto); }
+.sim-ficha--hold { margin-left: 5px; border-color: var(--color-jx-ocre); color: var(--color-jx-ocre-texto); font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; cursor: help; }
 
 /*  El ticket que creó quien prueba: que se encuentre de un vistazo entre los del turno.  */
-.sim-ficha--amano { border-color: var(--sim-acento); background: rgba(56, 182, 232, 0.14); color: #9adcf8; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; font-weight: 600; cursor: help; }
+.sim-ficha--amano { border-color: var(--sim-acento); background: var(--color-jx-verde-suave); color: var(--color-jx-tinta3); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; font-weight: 600; cursor: help; }
 
 .sim-marca { margin-left: 4px; font-weight: 700; }
 
@@ -623,6 +670,10 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 
 /* ── SOLO LA PANTALLA (para comparar con una captura real) ───────────────── */
 
+/*  Este negro NO se toca. Esta vista existe para poner la pantalla pintada al lado de
+    una captura REAL de la tablet y compararlas; cualquier color alrededor se mete en la
+    comparación. Negro es lo que menos estorba, y además es lo que hay detrás de una
+    pantalla apagada.                                                                  */
 .sim-solo { background: #000; height: 100%; }
 .sim-solo canvas { display: block; }
 
@@ -734,12 +785,12 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     gap: 7px;
     font-size: 12px;
     font-weight: 600;
-    color: #eef4fb;
-    background: rgba(15, 34, 56, 0.6);
+    color: var(--color-jx-tinta);
+    background: var(--color-jx-gris-arena);
     border-bottom: 1px solid var(--sim-borde);
 }
 
-.sim-bloque--ia .sim-bloque__titulo { color: #9adcf8; }
+.sim-bloque--ia .sim-bloque__titulo { color: var(--color-jx-tinta3); }
 
 .sim-bloque__titulo small { font-size: 11px; font-weight: 400; color: var(--sim-apagado); }
 
@@ -771,13 +822,13 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
     cursor: help;
 }
 
-.sim-resultado--bien  { border-color: #1f6b47; background: rgba(31, 107, 71, 0.22); color: #8fe3b6; }
-.sim-resultado--aviso { border-color: #6e5a1f; background: rgba(110, 90, 31, 0.22); color: #f2cf6b; }
-.sim-resultado--mal   { border-color: #c93a4a; background: rgba(201, 58, 74, 0.2); color: #ffb3bb; }
+.sim-resultado--bien  { border-color: var(--color-jx-verde-suave); background: var(--color-jx-verde-suave); color: var(--color-jx-verde-texto); }
+.sim-resultado--aviso { border-color: var(--color-jx-ocre); background: var(--color-jx-ocre-suave); color: var(--color-jx-ocre-texto); }
+.sim-resultado--mal   { border-color: var(--color-jx-critico); background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
 
 /*  Un ticket que NO existe: toda la fila teñida, para que salte a la vista.  */
-.sim-tabla tr.sim-fila--inventada td { background: rgba(201, 58, 74, 0.1); }
-.sim-tabla tr.sim-fila--inventada:hover td { background: rgba(201, 58, 74, 0.16); }
+.sim-tabla tr.sim-fila--inventada td { background: var(--color-jx-critico-suave); }
+.sim-tabla tr.sim-fila--inventada:hover td { background: #f6d8d6; }
 
 .sim-tenue { color: var(--sim-apagado); }
 

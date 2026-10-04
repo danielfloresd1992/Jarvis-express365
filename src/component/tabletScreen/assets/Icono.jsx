@@ -59,7 +59,7 @@ export default function Icono({ nombre, tamano = 18 }) {
 
     //  El anillo que gira mientras algo está en curso.
     if (nombre === 'girando') return (
-        <svg className='animate-spin' width={tamano} height={tamano} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+        <svg className='' width={tamano} height={tamano} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
             <circle cx='12' cy='12' r='8.5' stroke='currentColor' strokeWidth='2.5' opacity='0.25' />
             <path d='M20.5 12a8.5 8.5 0 0 0-8.5-8.5' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' />
         </svg>
