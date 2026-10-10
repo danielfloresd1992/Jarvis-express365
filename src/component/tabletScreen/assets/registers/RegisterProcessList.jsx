@@ -1,4 +1,4 @@
-import { PROCESS_COLUMNS, PROCESS_GRID, TOGGLE_WIDTH, ADD_WIDTH } from './columns.js';
+import { PROCESS_COLUMNS, PROCESS_GRID, ADD_WIDTH } from './columns.js';
 import RegisterProcessLine from './RegisterProcessLine.jsx';
 
 
@@ -6,9 +6,8 @@ import RegisterProcessLine from './RegisterProcessLine.jsx';
  *
  *  Una tabla pequeña con su propia cabecera —número de ticket, tipo de plato, toma de orden, listo en
  *  tablet y su duración, listo en cocina, entrega del plato y su duración— y una línea por proceso,
- *  metida en una tarjeta clara dentro de la franja
- *  de su rotación (ver registers.css). Va entre la columna de la flecha y la del «+», para que se lea
- *  como parte de su fila.
+ *  metida en una tarjeta clara dentro de la franja de su rotación (ver registers.css). Va debajo de las
+ *  columnas de datos: deja libres la del «+», a la izquierda, y la de los gerentes, a la derecha.
  *
  *  La cabecera es pequeña y apagada a propósito: los procesos son el detalle de la rotación y no pueden
  *  pesar más que ella. Las columnas que rellena la IA llevan un punto verde.
@@ -18,10 +17,12 @@ import RegisterProcessLine from './RegisterProcessLine.jsx';
 /*  @param {object}   record        la rotación: { id, process… }
  *  @param {Map}      liveByKey     lo que dice ahora mismo el seguimiento de cada pedido, por su key
  *  @param {function} writeProcess  anota (id de la rotación, id del proceso, campo, valor)
+ *  @param {function} deleteProcess borra un proceso (id de la rotación, id del proceso)
+ *  @param {number}   widthOfManagers  lo que mide la columna de los gerentes (0 = no hay)
  */
-export default function RegisterProcessList({ record, liveByKey, writeProcess }) {
+export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers }) {
     return (
-        <div className='register-rotation__processes' style={{ paddingLeft: TOGGLE_WIDTH, paddingRight: ADD_WIDTH }}>
+        <div className='register-rotation__processes' style={{ paddingLeft: ADD_WIDTH, paddingRight: widthOfManagers }}>
 
             <div className='register-process-card'>
 
@@ -48,6 +49,7 @@ export default function RegisterProcessList({ record, liveByKey, writeProcess })
                             process={process}
                             live={process.key ? liveByKey.get(process.key) : undefined}
                             onWrite={(field, value) => writeProcess(record.id, process.id, field, value)}
+                            onDelete={() => deleteProcess(record.id, process.id)}
                         />
                     ))
                 }

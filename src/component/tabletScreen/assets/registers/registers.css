@@ -6,7 +6,7 @@
     un poco más oscura que el resto, con los procesos en una tarjeta clara dentro de ella. Así la rotación
     pesa más que sus procesos, y se ve dónde termina cada grupo.
 
-    La franja es translúcida y no un color: deja ver debajo los colores de las columnas (COLUMN_STRIPES,
+    La franja es translúcida y no un color: deja ver debajo los colores de las columnas (columnStripes,
     en columns.js).
 
     Va aquí y no en clases de Tailwind porque tiene que ganar a las de las celdas (WrapperCell): lo que

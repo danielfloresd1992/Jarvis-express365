@@ -1,5 +1,6 @@
 import './style.css';
 import { lazy, Suspense } from 'react';
+import { useSelector } from 'react-redux';
 import { useTabletContext } from '../tabletScreen/tablet.provider.jsx';
 import Registers from '../tabletScreen/assets/registers/Registers.jsx';
 import { REGISTRO_ACTIVO } from '../../libs/tickets/registroDeInferencia.js';
@@ -28,6 +29,9 @@ function RegisterBoard({ fallback }) {
 
     const { available, away, session } = useTabletContext();
 
+    // establishment = «el local en curso», con sus gerentes poblados (Home lo pide entero)
+    const establishment = useSelector(state => state.establishment);
+
     if (!available || away) return fallback;
 
     //  La sesión arranca un instante después de montarse esto, antes de que el navegador pinte.
@@ -37,7 +41,7 @@ function RegisterBoard({ fallback }) {
         <section className='register-board' aria-label='Registers de la tablet'>
 
             <div className='register-board__registers'>
-                <Registers session={session} />
+                <Registers session={session} establishment={establishment} />
             </div>
 
             {

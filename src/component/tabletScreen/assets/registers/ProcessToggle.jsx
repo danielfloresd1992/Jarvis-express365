@@ -18,13 +18,14 @@ import { ALARM_COLOR } from './alarm.js';
  *  @param {boolean}  open      están desplegados
  *  @param {string}   alarm     la peor alarma de sus procesos: 'rojo' | 'amarillo' | ''
  *  @param {function} onToggle  abrirlos o cerrarlos
+ *  @param {string}   noun      qué despliega, en singular: 'proceso' (por defecto) o 'toque' (los de gerente)
  */
-export default function ProcessToggle({ count, open, alarm, onToggle }) {
+export default function ProcessToggle({ count, open, alarm, onToggle, noun = 'proceso' }) {
 
     if (count === 0) return null;
 
     // what = «lo que hace la flecha, dicho con palabras»
-    const what = `${open ? 'Cerrar' : 'Desplegar'} ${count === 1 ? 'el proceso' : `los ${count} procesos`} de esta mesa`;
+    const what = `${open ? 'Cerrar' : 'Desplegar'} ${count === 1 ? `el ${noun}` : `los ${count} ${noun}s`} de esta mesa`;
 
     return (
         <button

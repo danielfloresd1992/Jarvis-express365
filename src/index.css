@@ -61,7 +61,8 @@
        Todas las parejas que se usan de verdad están medidas y pasan la norma.   */
 
     /* Fondos, del más claro al más cargado */
-    --color-jx-lienzo:   #fbf8f0;   /* el fondo de la página */
+    --color-jx-fondo:    #ffffff;   /* el fondo de la aplicación: blanco, para que destaquen los paneles y las tarjetas */
+    --color-jx-lienzo:   #fbf8f0;   /* el fondo de los registers y de las superficies grandes */
     --color-jx-panel:    #f7f2e4;   /* barras y paneles */
     --color-jx-tarjeta:  #faf5ea;   /* tarjetas sobre el panel */
     --color-jx-hundido:  #f0e9d8;   /* campos de formulario */

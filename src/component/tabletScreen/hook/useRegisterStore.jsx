@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, appendBlankProcess, applyTabletOrders } from '../../../libs/tickets/tableRecords.js';
+import { getCurrentTime } from '../../cells/GridCells.jsx';
 
 
 /*  EL REGISTRO DE LAS MESAS, EN LA VENTANA
@@ -23,11 +24,15 @@ import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessFie
 // Recibe: { establishmentId   el _id del local: de quién es lo que se guarda
 //           orders            los pedidos que se están siguiendo ahora (useProcessTracking)
 //           simulating }      hay una simulación en marcha
-// Devuelve: { records, writeRecord, writeProcess, addProcess, clear }
+// Devuelve: { records, writeRecord, writeProcess, addProcess, deleteProcess, addTouch, writeTouch, deleteTouch, clear }
 //   records                                          las rotaciones, con las filas en blanco del final
 //   writeRecord(recordId, field, value)              anota un dato de una rotación
 //   writeProcess(recordId, processId, field, value)  anota una hora de un proceso
 //   addProcess(recordId)                             añade a una rotación un proceso en blanco (el «+»)
+//   deleteProcess(recordId, processId)               borra un proceso de una rotación
+//   addTouch(recordId, manager)                      apunta un toque de gerente, con la hora del clic
+//   writeTouch(recordId, touchId, hourTouch)         corrige la hora de un toque
+//   deleteTouch(recordId, touchId)                   borra un toque
 //   clear()                                          vacía el registro entero
 function useRegisterStore({ establishmentId, orders, simulating }) {
 
@@ -112,11 +117,43 @@ function useRegisterStore({ establishmentId, orders, simulating }) {
     }, [commit]);
 
 
+    // deleteProcess = «borrar un proceso de una rotación»
+    const deleteProcess = useCallback((recordId, processId) => {
+        commit(recordsRef.current.map(record => (
+            record.id === recordId ? { ...record, process: record.process.filter(process => process.id !== processId) } : record
+        )));
+    }, [commit]);
+
+
+    // changeTouches = «cambiar los toques de una rotación»: 'change' recibe su lista y devuelve la nueva
+    const changeTouches = useCallback((recordId, change) => {
+        commit(recordsRef.current.map(record => (
+            record.id === recordId ? { ...record, touch: change(record.touch), date: record.date ?? new Date() } : record
+        )));
+    }, [commit]);
+
+    // addTouch = «apuntar un toque de gerente en una rotación», con la hora del clic
+    // Recibe: recordId y el botón del gerente ({ ref, name }, de managers.js).
+    const addTouch = useCallback((recordId, manager) => {
+        changeTouches(recordId, touches => [...touches, { id: crypto.randomUUID(), ref: manager.ref, name: manager.name, hourTouch: getCurrentTime() }]);
+    }, [changeTouches]);
+
+    // writeTouch = «corregir la hora de un toque»
+    const writeTouch = useCallback((recordId, touchId, hourTouch) => {
+        changeTouches(recordId, touches => touches.map(touch => (touch.id === touchId ? { ...touch, hourTouch } : touch)));
+    }, [changeTouches]);
+
+    // deleteTouch = «borrar un toque»
+    const deleteTouch = useCallback((recordId, touchId) => {
+        changeTouches(recordId, touches => touches.filter(touch => touch.id !== touchId));
+    }, [changeTouches]);
+
+
     // clear = «vaciar el registro entero». Preguntar antes no es cosa de aquí: lo hace la sesión.
     const clear = useCallback(() => commit([]), [commit]);
 
 
-    return { records, writeRecord, writeProcess, addProcess, clear };
+    return { records, writeRecord, writeProcess, addProcess, deleteProcess, addTouch, writeTouch, deleteTouch, clear };
 }
 
 

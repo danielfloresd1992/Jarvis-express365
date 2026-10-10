@@ -613,7 +613,7 @@
     position: absolute;
     width: 100%;
     min-height: 100vh;
-    background-color: var(--color-jx-lienzo);
+    background-color: var(--color-jx-fondo);
     color: var(--color-jx-tinta);
     display: flex;
     flex-direction: column;
@@ -1104,7 +1104,7 @@
     flex-direction: column;
     position: relative;
     gap: 1.5rem;
-    background: var(--color-jx-lienzo);
+    background: var(--color-jx-fondo);
 }
 
 /* ═══ INBOX PANEL (Bandeja de entrada multimedia) ═══ */

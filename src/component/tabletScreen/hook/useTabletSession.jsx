@@ -205,7 +205,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
 
     return {
-        name, attention, cleaning,
+        name, attention, cleaning, establishment,
         tablet, ai, reading, tracking, store,
         zoom, drag, capture,
         disconnectTablet, exportSheet, clearRegister, reportDelay,

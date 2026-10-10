@@ -94,21 +94,10 @@ const RECORD_HOURS = 16;
 const isEmpty = (value) => String(value ?? '').trim() === '';
 
 
-// lastId = «el último número de identidad repartido en esta ventana»
-let lastId = 0;
-
-// createId = «una identidad nueva». Lleva la hora para no repetirse entre recargas.
-function createId(prefix) {
-    lastId += 1;
-    return `${prefix}-${Date.now().toString(36)}-${lastId}`;
-}
-
-
-
-// createProcess = «un proceso nuevo», vacío salvo lo que se le pase
+// createProcess = «un proceso nuevo», vacío salvo lo que se le pase. Su id es un UUIDv4.
 export function createProcess(fields = {}) {
     return {
-        id: createId('proceso'),
+        id: crypto.randomUUID(),
         key: '',
         edited: [],
         ticketNumber: '',
@@ -122,10 +111,10 @@ export function createProcess(fields = {}) {
 }
 
 
-// createRecord = «una rotación nueva», vacía salvo lo que se le pase
+// createRecord = «una rotación nueva», vacía salvo lo que se le pase. Su id es un UUIDv4.
 export function createRecord(fields = {}) {
     return {
-        id: createId('mesa'),
+        id: crypto.randomUUID(),
         date: null,
         tableNumber: '',
         hourOccupies: '',
@@ -133,6 +122,7 @@ export function createRecord(fields = {}) {
         process: [],
         breakUp: '',
         tableCleaning: '',
+        touch: [],      //  los toques de gerente: [{ id (UUIDv4), ref (ObjectId del gerente), name, hourTouch 'HH:MM:SS' }]
         ...fields,
     };
 }
@@ -142,10 +132,11 @@ export function createRecord(fields = {}) {
 // isBlankProcess = «el proceso está en blanco»: ni número, ni tipo, ni una hora, ni un pedido de la tablet detrás
 export const isBlankProcess = (process) => isEmpty(process.key) && PROCESS_FIELDS.every(field => isEmpty(process[field]));
 
-// isBlankRecord = «la mesa está en blanco»: ni número, ni horas, ni procesos con algo
+// isBlankRecord = «la mesa está en blanco»: ni número, ni horas, ni procesos con algo, ni toques
 export const isBlankRecord = (record) => isEmpty(record.tableNumber)
     && RECORD_TIMES.every(field => isEmpty(record[field]))
-    && record.process.every(isBlankProcess);
+    && record.process.every(isBlankProcess)
+    && record.touch.length === 0;
 
 
 // sameTable = «es la misma mesa». Sin distinguir espacios ni mayúsculas: 'b3 ' es 'B3'.
@@ -401,6 +392,13 @@ function reviveRecord(saved, now) {
     record.date = Number.isFinite(date.getTime()) ? date : now;
 
     record.process = (Array.isArray(saved?.process) ? saved.process : []).map(reviveProcess);
+
+    record.touch = (Array.isArray(saved?.touch) ? saved.touch : []).map(touch => ({
+        id: typeof touch?.id === 'string' ? touch.id : crypto.randomUUID(),
+        ref: touch?.ref ?? null,
+        name: String(touch?.name ?? ''),
+        hourTouch: String(touch?.hourTouch ?? ''),
+    }));
     return record;
 }
 

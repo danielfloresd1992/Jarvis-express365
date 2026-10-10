@@ -13,7 +13,7 @@
 
 
 // COLUMNS = «las columnas de una rotación», en su orden: el de la vida de la mesa
-// color = «el color con que se reconoce la columna» (ver COLUMN_STRIPES). Las dos duraciones comparten
+// color = «el color con que se reconoce la columna» (ver columnStripes). Las dos duraciones comparten
 // el suyo: las dos dicen cuánto tardó algo.
 export const COLUMNS = [
     { id: 'tableNumber',        title: 'Mesa',             width: 1,    color: '#d9a441' },   //  oro
@@ -37,12 +37,25 @@ export const PROCESS_COLUMNS = [
     { id: 'readyInTheKitchen',   title: 'Listo en cocina',  width: 1 },
     { id: 'dishDelivery',        title: 'Entrega de plato', width: 1 },
     { id: 'deliveryDuration',    title: 'Duración',         width: 0.9,  computed: true },   //  entrega de plato − listo en cocina
+    { id: 'delete',              title: '',                 width: 0.35 },                   //  el botón de borrar el proceso
 ];
 
 
-// TOGGLE_WIDTH / ADD_WIDTH = «lo que miden la columna de la flecha y la del «+»», a los lados de la fila
-export const TOGGLE_WIDTH = 44;
+// ADD_WIDTH = «lo que mide la columna del «+»», a la izquierda de la fila. La flecha que despliega los
+// procesos no tiene columna propia: va dentro de la celda «Mesa» (en las filas sin procesos esa columna
+// se quedaba vacía).
 export const ADD_WIDTH = 34;
+
+// MANAGER_BUTTON_SPACE = «lo que ocupa cada botón de gerente», con el hueco hasta el siguiente (ManagerButtons)
+const MANAGER_BUTTON_SPACE = 30;
+
+// TOUCH_TOGGLE_SPACE = «lo que ocupa la flecha de los toques», a la derecha de los botones. Se deja
+// siempre, la haya o no, para que la columna no cambie de ancho al apuntar el primer toque.
+export const TOUCH_TOGGLE_SPACE = 40;
+
+// managersWidth = «lo que mide la columna de los gerentes», a la derecha de la fila, para 'count' botones.
+// 0 = el local no tiene gerentes y la columna no se pinta. Nunca menos de lo que pide su título, «Gerentes».
+export const managersWidth = (count) => (count > 0 ? Math.max(count * MANAGER_BUTTON_SPACE + 10 + TOUCH_TOGGLE_SPACE, 84) : 0);
 
 
 /*  LA REJILLA, y no filas flexibles, es lo que hace que cuadren
@@ -53,11 +66,17 @@ export const ADD_WIDTH = 34;
  *  reparte el ancho que haya sin mirar lo que lleva dentro cada celda.
  */
 
-// TABLE_GRID = «la rejilla de las rotaciones»: la flecha, las siete columnas y el «+»
-export const TABLE_GRID = {
+// tableGrid = «la rejilla de las rotaciones»: el «+», las siete columnas y, si el local tiene, los gerentes.
+// Es una función porque la columna de los gerentes mide según cuántos tenga el local.
+// Recibe: widthOfManagers (lo que mide esa columna, de managersWidth; 0 = no se pinta).
+export const tableGrid = (widthOfManagers) => ({
     display: 'grid',
-    gridTemplateColumns: [`${TOGGLE_WIDTH}px`, ...COLUMNS.map(column => `minmax(0, ${column.width}fr)`), `${ADD_WIDTH}px`].join(' '),
-};
+    gridTemplateColumns: [
+        `${ADD_WIDTH}px`,
+        ...COLUMNS.map(column => `minmax(0, ${column.width}fr)`),
+        ...(widthOfManagers > 0 ? [`${widthOfManagers}px`] : []),
+    ].join(' '),
+});
 
 // PROCESS_GRID = «la rejilla de los procesos»: una columna por cada dato del proceso, cada una con su 'width'
 export const PROCESS_GRID = {
@@ -71,26 +90,28 @@ export const PROCESS_GRID = {
  *  Cada columna de la rotación se reconoce por su color: su cabecera va teñida de él y, debajo, baja una
  *  franja del mismo color que se apaga hacia abajo.
  *
- *  Las franjas son el fondo de la zona que se desplaza, no de cada celda: así cada una es continua y se
- *  queda quieta mientras las filas pasan por encima, que por eso no llevan fondo propio. Ese fondo no se
- *  mete debajo de la barra de desplazamiento, así que mide lo mismo que la rejilla, y cada borde se
- *  calcula como lo reparte TABLE_GRID: la columna de la flecha, y el resto en proporción a 'width'.
+ *  Las franjas son el fondo de la zona que se desplaza, no de cada celda: así cada una es continua, y las
+ *  filas no llevan fondo propio. Cada borde se calcula como lo reparte tableGrid: lo que dejan el «+» y
+ *  los gerentes, en proporción a 'width'.
  *
  *  Son dos capas: las franjas, y encima un velo del color del lienzo, transparente arriba y casi opaco
- *  abajo, que es el que las apaga.
+ *  abajo, que es el que las apaga. El velo va quieto ('scroll') y las franjas se desplazan con las filas
+ *  ('local'): un fondo quieto Chrome lo mide CON la barra de desplazamiento, y las franjas acababan 15 px
+ *  corridas respecto a las columnas; uno 'local' mide el contenido, que es lo que mide la rejilla.
  */
 
 // headerTint = «el fondo de la cabecera de una columna»: su color, más fuerte que el de su franja
 export const headerTint = (column) => `color-mix(in srgb, ${column.color} 30%, var(--color-jx-tarjeta))`;
 
-// COLUMN_STRIPES = «el fondo de la tabla»: las franjas de color de las columnas, apagándose hacia abajo
-export const COLUMN_STRIPES = (() => {
+// columnStripes = «el fondo de la tabla»: las franjas de color de las columnas, apagándose hacia abajo
+// Recibe: widthOfManagers (lo que mide la columna de los gerentes; 0 = no hay).
+export const columnStripes = (widthOfManagers) => {
 
-    // total = «lo que suman los anchos»: el ancho que dejan las dos columnas fijas se reparte en esa proporción
+    // total = «lo que suman los anchos»: el ancho que dejan las columnas fijas se reparte en esa proporción
     const total = COLUMNS.reduce((sum, column) => sum + column.width, 0);
 
     // edge = «dónde cae un borde» cuando quedan a su izquierda 'before' de ancho
-    const edge = (before) => `calc(${TOGGLE_WIDTH}px + (100% - ${TOGGLE_WIDTH + ADD_WIDTH}px) * ${before / total})`;
+    const edge = (before) => `calc(${ADD_WIDTH}px + (100% - ${ADD_WIDTH + widthOfManagers}px) * ${before / total})`;
 
     let before = 0;
     const stripes = COLUMNS.map(column => {
@@ -103,7 +124,8 @@ export const COLUMN_STRIPES = (() => {
         backgroundColor: 'var(--color-jx-lienzo)',
         backgroundImage: [
             'linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-jx-lienzo) 75%, transparent))',
-            `linear-gradient(to right, var(--color-jx-lienzo) ${TOGGLE_WIDTH}px, ${stripes.join(', ')}, var(--color-jx-lienzo) calc(100% - ${ADD_WIDTH}px))`,
+            `linear-gradient(to right, var(--color-jx-lienzo) ${ADD_WIDTH}px, ${stripes.join(', ')}, var(--color-jx-lienzo) calc(100% - ${widthOfManagers}px))`,
         ].join(', '),
+        backgroundAttachment: 'scroll, local',
     };
-})();
+};

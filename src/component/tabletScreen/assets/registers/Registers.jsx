@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { managerButtons } from './managers.js';
 import RegisterBar from './RegisterBar.jsx';
 import ExportButton from './ExportButton.jsx';
 import ClearButton from './ClearButton.jsx';
@@ -21,11 +23,17 @@ import RegisterTable from './RegisterTable.jsx';
  */
 
 
-/*  @param {object} session  la sesión de la tablet: lo que devuelve hook/useTabletSession.jsx
+/*  @param {object} session        la sesión de la tablet: lo que devuelve hook/useTabletSession.jsx
+ *  @param {object} establishment  opcional. El local con sus gerentes: en Home, el de Redux
+ *                                 (state.establishment). La flotante no monta Redux y usa el de la sesión.
  */
-export default function Registers({ session }) {
+export default function Registers({ session, establishment = session.establishment }) {
 
     const { reading, tracking, store, attention, cleaning, exportSheet, clearRegister, reportDelay } = session;
+
+    // managers = «los botones de los gerentes del local» (managers.js). Se arman una vez por local: un
+    // array nuevo en cada pintado repintaría la tabla entera.
+    const managers = useMemo(() => managerButtons(establishment), [establishment]);
 
     return (
         <>
@@ -57,6 +65,10 @@ export default function Registers({ session }) {
                 writeRecord={store.writeRecord}
                 writeProcess={store.writeProcess}
                 addProcess={store.addProcess}
+                deleteProcess={store.deleteProcess}
+                addTouch={store.addTouch}
+                writeTouch={store.writeTouch}
+                deleteTouch={store.deleteTouch}
                 onReportDelay={reportDelay}
                 hasReading={Boolean(reading.diagnosis)}
                 readingError={reading.diagnosis?.error || ''}
@@ -64,6 +76,7 @@ export default function Registers({ session }) {
                 censusReadings={tracking.censusReadings}
                 censusLength={tracking.censusLength}
                 alreadyThere={tracking.alreadyThere.size}
+                managers={managers}
             />
         </>
     );

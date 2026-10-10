@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { WrapperCell } from '../../../cells/GridCells.jsx';
 import { isBlankRecord } from '../../../../libs/tickets/tableRecords.js';
-import { COLUMNS, TABLE_GRID, COLUMN_STRIPES, headerTint } from './columns.js';
+import { COLUMNS, tableGrid, columnStripes, headerTint, managersWidth } from './columns.js';
 import RegisterRecordRow from './RegisterRecordRow.jsx';
 import RegisterEmptyNotice from './RegisterEmptyNotice.jsx';
 import './registers.css';
@@ -24,6 +24,10 @@ import './registers.css';
  *  @param {function} writeRecord     anota un dato de una rotación
  *  @param {function} writeProcess    anota una hora de un proceso
  *  @param {function} addProcess      añade un proceso en blanco a una rotación
+ *  @param {function} deleteProcess   borra un proceso de una rotación
+ *  @param {function} addTouch        apunta un toque de gerente en una rotación
+ *  @param {function} writeTouch      corrige la hora de un toque
+ *  @param {function} deleteTouch     borra un toque
  *  @param {function} onReportDelay   qué hacer cuando se pide reportar una demora
  *
  *  Y los datos para explicar un register vacío (ver RegisterEmptyNotice). Con alguna rotación no se usan:
@@ -33,11 +37,19 @@ import './registers.css';
  *  @param {number}   censusReadings  cuántas lecturas lleva en ello…
  *  @param {number}   censusLength    …y cuántas dura
  *  @param {number}   alreadyThere    cuántas tarjetas apartó el censo
+ *
+ *  @param {Array}    managers        los botones de los gerentes del local (managers.js): una columna a la derecha
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers }) {
 
     // liveByKey = «lo que dice ahora mismo el seguimiento de cada pedido», por su key
     const liveByKey = useMemo(() => new Map((liveOrders ?? []).map(order => [order.clave, order])), [liveOrders]);
+
+    // widthOfManagers = «lo que mide la columna de los gerentes» (0 = el local no tiene, y no se pinta).
+    // La rejilla y las franjas dependen de ella, y se arman solo cuando cambia.
+    const widthOfManagers = managersWidth(managers.length);
+    const grid = useMemo(() => tableGrid(widthOfManagers), [widthOfManagers]);
+    const stripes = useMemo(() => columnStripes(widthOfManagers), [widthOfManagers]);
 
     // empty = «no hay ninguna rotación con algo»
     const empty = records.every(isBlankRecord);
@@ -50,14 +62,13 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
 
             {/*  Se desplaza hacia abajo, nunca hacia los lados: las columnas se reparten el ancho que
                  haya. '@container' deja a las celdas medir la letra por él. Su fondo son las franjas de
-                 color de las columnas (COLUMN_STRIPES).  */}
-            <div className='@container flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden' style={COLUMN_STRIPES}>
+                 color de las columnas (columnStripes).  */}
+            <div className='@container flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden' style={stripes}>
 
                 {/*  CABECERA FIJA. 'z-10' no es decorativo: sin él las filas que pasan por debajo al
-                     desplazarse se dibujan ENCIMA de la cabecera. Las dos celdas sin título son las
-                     de la flecha y el «+».  */}
-                <div className='sticky top-0 z-10 h-[45px] bg-jx-tarjeta w-full border-b border-jx-regla2' style={TABLE_GRID}>
-                    <WrapperCell tall classStyles={headerCell} titulo='Procesos de cada mesa: la flecha los despliega' />
+                     desplazarse se dibujan ENCIMA de la cabecera. La celda sin título es la del «+».  */}
+                <div className='sticky top-0 z-10 h-[45px] bg-jx-tarjeta w-full border-b border-jx-regla2' style={grid}>
+                    <WrapperCell tall classStyles={headerCell} titulo='Añadir un proceso a mano' />
                     {
                         COLUMNS.map(column => (
                             <WrapperCell key={column.id} tall classStyles={headerCell} estilo={{ background: headerTint(column) }} titulo='Se anota a mano'>
@@ -65,7 +76,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                             </WrapperCell>
                         ))
                     }
-                    <WrapperCell tall classStyles={headerCell} titulo='Añadir un proceso a mano' />
+                    {managers.length > 0 && <WrapperCell tall classStyles={headerCell} titulo='Un botón por cada gerente del local'>Gerentes</WrapperCell>}
                 </div>
 
                 {/*  POR QUÉ NO HAY NADA. Solo sin NINGUNA rotación: en cuanto hay una, la tabla se explica sola.  */}
@@ -93,7 +104,14 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                             writeRecord={writeRecord}
                             writeProcess={writeProcess}
                             addProcess={addProcess}
+                            deleteProcess={deleteProcess}
+                            addTouch={addTouch}
+                            writeTouch={writeTouch}
+                            deleteTouch={deleteTouch}
                             onReportDelay={onReportDelay}
+                            grid={grid}
+                            managers={managers}
+                            widthOfManagers={widthOfManagers}
                         />
                     ))
                 }

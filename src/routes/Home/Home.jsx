@@ -177,7 +177,7 @@ export default function Home() {
     useEffect(() => {
         const isEstablishmen = JSON.parse(localStorage.getItem('local_appExpress'));
 
-        if (localSelector.length > 0 && !selectEstablishment && isEstablishmen && isEstablishmen.length > 0) {
+        if (localSelector.length > 0 && isEstablishmen && isEstablishmen.length > 0) {
             getEstablishmentByIdFull(isEstablishmen[0]._id)
                 .then(response => {
                     console.log(response);

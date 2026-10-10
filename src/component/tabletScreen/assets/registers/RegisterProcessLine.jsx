@@ -34,8 +34,9 @@ const durationBetween = (from, to) => (from && to ? getTimeReport(from, to).time
 /*  @param {object}   process  el proceso: { ticketNumber, dishType, orderTaking, markedReadyOnTablet, readyInTheKitchen, dishDelivery, edited… }
  *  @param {object}   live     lo que dice ahora mismo el seguimiento de ese pedido, o undefined
  *  @param {function} onWrite  anota (campo, valor)
+ *  @param {function} onDelete borra este proceso
  */
-export default function RegisterProcessLine({ process, live, onWrite }) {
+export default function RegisterProcessLine({ process, live, onWrite, onDelete }) {
 
     // write = «anotar un dato de esta línea»
     const write = (field) => (value) => onWrite(field, value);
@@ -108,6 +109,20 @@ export default function RegisterProcessLine({ process, live, onWrite }) {
             {/*  DURACIÓN de la entrega: de «listo en cocina» a la mesa. Calculada: sin 'updateValue'.  */}
             <WrapperCell>
                 <WrapperText classStyles={deliveryDuration ? 'text-jx-tinta2' : 'text-jx-tinta3'} value={deliveryDuration ?? '00:00:00'} />
+            </WrapperCell>
+
+            {/*  Borrar el proceso. El relleno y la letra van en línea: la regla global 'button {}' gana a Tailwind.  */}
+            <WrapperCell>
+                <button
+                    type='button'
+                    className='text-jx-tinta3 hover:text-red-600'
+                    style={{ padding: 0, fontSize: 12, background: 'transparent' }}
+                    onClick={onDelete}
+                    title='Borrar este proceso'
+                    aria-label='Borrar este proceso'
+                >
+                    ✕
+                </button>
             </WrapperCell>
         </div>
     );
