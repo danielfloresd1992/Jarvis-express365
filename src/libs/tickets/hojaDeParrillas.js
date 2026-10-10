@@ -1,10 +1,15 @@
 import { getTimeReport } from '../date_time/calculate_time.js';
+import { withoutBlankRows } from './tableRecords.js';
 
 
-/*  LAS DOS PARRILLAS, EN UNA HOJA DE CÁLCULO
+/*  EL REGISTRO DE LAS MESAS, EN UNA HOJA DE CÁLCULO
  *
- *  Un CSV con las dos tablas, una debajo de la otra, encabezado por el establecimiento y la
- *  fecha. Se abre con doble clic en Excel o en cualquier hoja de cálculo.
+ *  Un CSV con el registro —cada rotación de mesa con sus procesos—, encabezado por el establecimiento y la fecha.
+ *  Se abre con doble clic en Excel o en cualquier hoja de cálculo.
+ *
+ *  UNA LÍNEA POR PROCESO, y en cada línea los datos de su mesa repetidos: así cada línea se entiende
+ *  sola, y se puede ordenar o filtrar sin que un proceso se quede sin saber de qué mesa era. Una mesa
+ *  sin procesos sale en una línea, con esas casillas vacías.
  *
  *  CSV y no .xlsx porque un .xlsx de verdad necesita una librería —y esto tiene que funcionar
  *  en el equipo del restaurante sin instalar nada—. Un CSV lo abre todo el mundo.
@@ -40,21 +45,12 @@ const casilla = (valor) => {
 const fila = (valores) => valores.map(casilla).join(SEPARADOR);
 
 
-// FILAS_DE_ROTACION = «cuántas filas tiene la parrilla de rotación»
-// Es un bloque fijo de 30, como en Parrilla.jsx.
-const FILAS_DE_ROTACION = 30;
+// COLUMNAS = «los encabezados», en el orden de la pantalla y de la estructura
+const COLUMNAS = ['Fecha', 'Mesa', 'Ocupa', 'Primera atención', 'Duración', '# Ticket', 'Tipo de plato', 'Toma de orden', 'Listo en tablet', 'Duración', 'Listo en cocina', 'Entrega de plato', 'Duración', 'Desocupa', 'Limpieza', 'Duración'];
 
 
-// COLUMNAS_DE_ROTACION = «los encabezados de la parrilla de rotación»
-const COLUMNAS_DE_ROTACION = ['Mesa', 'Ocupa', 'Primera atención', 'Demora', 'Desocupa', 'Limpieza', 'Demora'];
-
-
-// COLUMNAS_DE_PROCESOS = «los encabezados de la parrilla de procesos»
-const COLUMNAS_DE_PROCESOS = ['Mesa', 'N de tiket', 'Tipo de plato', 'Toma de orden', 'Listo en tablet', 'Listo en cocina', 'Entrega de plato'];
-
-
-// demoraEntre = «el texto de la columna Demora»
-// La misma cuenta que hace la parrilla en pantalla, para que el archivo y la pantalla digan lo
+// demoraEntre = «el texto de las columnas Duración»
+// La misma cuenta que hace el register en pantalla, para que el archivo y la pantalla digan lo
 // mismo. Sin las dos horas no hay nada que calcular y la casilla se queda vacía.
 const demoraEntre = (desde, hasta, limite) => {
     if (!desde || !hasta) return '';
@@ -68,80 +64,42 @@ const demoraEntre = (desde, hasta, limite) => {
 }
 
 
-// rowsOfRotation = «las filas de la parrilla de rotación»
-// Esa parrilla se llena ENTERA a mano: todo lo suyo está en las anotaciones, no en ninguna
-// lectura. Se saltan las filas en blanco, que son la mayoría.
-// Recibe: leerAnotacion, limiteAtencion y limiteLimpieza.
-function rowsOfRotation(leerAnotacion, limiteAtencion, limiteLimpieza) {
+// fechaDe = «la fecha de una mesa, como se lee aquí»: 04/10/2026
+const fechaDe = (fecha) => (fecha instanceof Date && Number.isFinite(fecha.getTime()))
+    ? fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : '';
 
-    // filas = «las filas con algo escrito»
+
+// rowsOfRecords = «las líneas del registro»: una por proceso, con los datos de su mesa delante y detrás
+// Recibe: registros (las mesas, con o sin las filas en blanco), limiteAtencion y limiteLimpieza.
+function rowsOfRecords(registros, limiteAtencion, limiteLimpieza) {
+
+    // filas = «las líneas»
     const filas = [];
 
-    for (let i = 0; i < FILAS_DE_ROTACION; i++) {
-        // anotado = «lo escrito en esta fila»
-        const anotado = leerAnotacion?.(`libre-${i}`) ?? {};
+    for (const mesa of withoutBlankRows(registros ?? [])) {
 
-        // conAlgo = «tiene algo escrito»
-        let conAlgo = false;
-        for (const campo in anotado) if (String(anotado[campo] ?? '').trim() !== '') conAlgo = true;
+        // alLlegar / alIrse = «los datos de la mesa que van antes y después de los procesos»
+        const alLlegar = [fechaDe(mesa.date), mesa.tableNumber, mesa.hourOccupies, mesa.hourFirstAttention, demoraEntre(mesa.hourOccupies, mesa.hourFirstAttention, limiteAtencion)];
+        const alIrse = [mesa.breakUp, mesa.tableCleaning, demoraEntre(mesa.breakUp, mesa.tableCleaning, limiteLimpieza)];
 
-        if (!conAlgo) continue;
+        //  Sin procesos, una línea igual: la mesa tiene que salir.
+        const procesos = mesa.process.length > 0 ? mesa.process : [null];
 
-        filas.push([
-            anotado.mesa ?? '',
-            anotado.horaOcupa ?? '',
-            anotado.horaAtencion ?? '',
-            demoraEntre(anotado.horaOcupa, anotado.horaAtencion, limiteAtencion),
-            anotado.horaDesocupa ?? '',
-            anotado.horaLimpieza ?? '',
-            demoraEntre(anotado.horaDesocupa, anotado.horaLimpieza, limiteLimpieza),
-        ]);
-    }
-
-    return filas;
-}
-
-
-// rowsOfProcesses = «las filas de la parrilla de procesos»
-// Aquí manda lo escrito a mano sobre lo que leyó la IA, igual que en pantalla: si alguien
-// corrigió un dato, es el suyo el que vale.
-// Recibe: rows (las filas que se están pintando) y leerAnotacion.
-function rowsOfProcesses(rows, leerAnotacion) {
-
-    // filas = «las filas»
-    const filas = [];
-
-    for (const row of (rows ?? [])) {
-        // anotado = «lo escrito a mano en esta fila»
-        const anotado = leerAnotacion?.(`pedido-${row.clave}`) ?? {};
-
-        // valor = «lo que va en una casilla»
-        const valor = (campo) => anotado[campo] ?? row[campo] ?? '';
-
-        filas.push([
-            valor('mesa'),
-            valor('ticket'),
-            valor('tipo'),
-            valor('tomaOrden'),
-            valor('listoTablet'),
-            valor('listoCocina'),
-            valor('entregaPlato'),
-        ]);
-    }
-
-    //  Y las filas libres de esa parrilla, que también se escriben a mano.
-    for (let i = 0; i < 10; i++) {
-        const anotado = leerAnotacion?.(`libre-pedido-${i}`) ?? {};
-
-        let conAlgo = false;
-        for (const campo in anotado) if (String(anotado[campo] ?? '').trim() !== '') conAlgo = true;
-
-        if (!conAlgo) continue;
-
-        filas.push([
-            anotado.mesa ?? '', anotado.ticket ?? '', anotado.tipo ?? '',
-            anotado.tomaOrden ?? '', anotado.listoTablet ?? '', anotado.listoCocina ?? '', anotado.entregaPlato ?? '',
-        ]);
+        for (const proceso of procesos) {
+            filas.push([
+                ...alLlegar,
+                proceso?.ticketNumber ?? '',
+                proceso?.dishType ?? '',
+                proceso?.orderTaking ?? '',
+                proceso?.markedReadyOnTablet ?? '',
+                demoraEntre(proceso?.orderTaking, proceso?.markedReadyOnTablet),
+                proceso?.readyInTheKitchen ?? '',
+                proceso?.dishDelivery ?? '',
+                demoraEntre(proceso?.readyInTheKitchen, proceso?.dishDelivery),
+                ...alIrse,
+            ]);
+        }
     }
 
     return filas;
@@ -150,13 +108,15 @@ function rowsOfProcesses(rows, leerAnotacion) {
 
 // buildSpreadsheet = «armar la hoja de cálculo»
 // PURA: solo con los datos, sin tocar el documento. Devuelve el texto del CSV.
-// Recibe: { establecimiento, ahora (una Date), procesos (las filas que se pintan), leerAnotacion,
-//           limiteAtencion, limiteLimpieza }.
-function buildSpreadsheet({ establecimiento, ahora = new Date(), procesos, leerAnotacion, limiteAtencion, limiteLimpieza }) {
+// Recibe: { establecimiento, ahora (una Date), registros (las mesas), limiteAtencion, limiteLimpieza }.
+function buildSpreadsheet({ establecimiento, ahora = new Date(), registros, limiteAtencion, limiteLimpieza }) {
 
-    // rotacion = «las filas de rotación»  ·  procesados = «las de procesos»
-    const rotacion = rowsOfRotation(leerAnotacion, limiteAtencion, limiteLimpieza);
-    const procesados = rowsOfProcesses(procesos, leerAnotacion);
+    // mesas = «las mesas con algo» · lineas del registro = una por proceso
+    const mesas = withoutBlankRows(registros ?? []);
+    const filas = rowsOfRecords(mesas, limiteAtencion, limiteLimpieza);
+
+    // pedidos = «cuántos procesos hay en total»
+    const pedidos = mesas.reduce((total, mesa) => total + mesa.process.length, 0);
 
     // lineas = «las líneas del archivo»
     const lineas = [
@@ -164,19 +124,12 @@ function buildSpreadsheet({ establecimiento, ahora = new Date(), procesos, leerA
         fila(['Fecha', ahora.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })]),
         fila(['Hora', ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })]),
         '',
-        fila(['ROTACIÓN', `${rotacion.length} mesas`]),
-        fila(COLUMNAS_DE_ROTACION),
+        fila(['REGISTRO', `${mesas.length} rotaciones`, `${pedidos} procesos`]),
+        fila(COLUMNAS),
     ];
 
-    for (const linea of rotacion) lineas.push(fila(linea));
-    if (rotacion.length === 0) lineas.push(fila(['(sin nada anotado)']));
-
-    lineas.push('');
-    lineas.push(fila(['PROCESOS', `${procesados.length} pedidos`]));
-    lineas.push(fila(COLUMNAS_DE_PROCESOS));
-
-    for (const linea of procesados) lineas.push(fila(linea));
-    if (procesados.length === 0) lineas.push(fila(['(sin ningún pedido)']));
+    for (const linea of filas) lineas.push(fila(linea));
+    if (filas.length === 0) lineas.push(fila(['(sin nada anotado)']));
 
     //  Con retorno de carro: es lo que espera Excel en un CSV.
     return MARCA_UTF8 + lineas.join('\r\n') + '\r\n';
@@ -200,7 +153,7 @@ function buildFileName(establecimiento, ahora = new Date()) {
     // hora = «la hora, para no pisar el archivo de antes»
     const hora = `${String(ahora.getHours()).padStart(2, '0')}${String(ahora.getMinutes()).padStart(2, '0')}`;
 
-    return `parrillas-${nombre}-${fecha}-${hora}.csv`;
+    return `registro-${nombre}-${fecha}-${hora}.csv`;
 }
 
 
@@ -228,4 +181,4 @@ function downloadSpreadsheet(csv, nombre) {
 }
 
 
-export { buildSpreadsheet, buildFileName, downloadSpreadsheet, COLUMNAS_DE_ROTACION, COLUMNAS_DE_PROCESOS };
+export { buildSpreadsheet, buildFileName, downloadSpreadsheet, COLUMNAS };

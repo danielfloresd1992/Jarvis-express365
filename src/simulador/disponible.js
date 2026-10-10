@@ -16,10 +16,10 @@
  *    conectar, y lo que conecta se distingue de un vistazo: punto y texto en violeta en
  *    la barra, un color que la ventana no usa para nada más.
  *
- *  · Y lo importante: con una simulación en marcha NO se guarda nada en el registro de
- *    las parrillas ni se reporta ninguna demora a Jarvis. Los pedidos inventados se ven
- *    en la pantalla y no salen de ahí. Eso está en VentanaTablet.jsx, en
- *    'guardarRegistro' y en 'reportarDemora'.
+ *  · Y lo importante: con una simulación en marcha NO se guarda en el equipo nada de lo
+ *    que hay en el registro ni se reporta ninguna demora a Jarvis. Los pedidos inventados se ven
+ *    en la pantalla y no salen de ahí: el registro trabaja sobre una copia mientras se simula
+ *    (hook/useRegisterStore.jsx), y 'reportDelay' (hook/useTabletSession.jsx) no reporta.
  *  ───────────────────────────────────────────────────────────────────────────── */
 export const SIMULACION_DISPONIBLE = true;
 

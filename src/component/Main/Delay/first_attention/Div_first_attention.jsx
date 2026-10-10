@@ -221,13 +221,17 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
                 /*  DEVOLVER LA TABLET AL FRENTE
                  *
-                 *  Solo cuando este formulario se abrió desde la parrilla de la tablet.
-                 *  Para dejar ver el formulario, la carcasa le quita a la flotante el
-                 *  'siempre encima'; enviado el reporte, se le pide que la suba otra vez.
+                 *  Solo cuando este formulario se abrió desde la parrilla de la ventana
+                 *  FLOTANTE. Para dejar ver el formulario, la carcasa le quita a la flotante
+                 *  el 'siempre encima'; enviado el reporte, se le pide que la suba otra vez.
                  *
-                 *  En el flujo manual no se toca nada: nadie la bajó.
+                 *  Si el reporte salió de la tablet de la barra lateral, no se toca nada: no
+                 *  hay ninguna flotante que subir, y pedirlo la ABRIRÍA, sacando la tablet de
+                 *  la barra. La marca la pone AppInitializer al recibir el aviso por el puente.
+                 *
+                 *  En el flujo manual tampoco se toca nada: nadie la bajó.
                  */
-                if (datosIniciales) window.electronAPI?.openTabletWindow?.();
+                if (datosIniciales?.deLaVentanaFlotante) window.electronAPI?.openTabletWindow?.();
 
                 reset();
             }

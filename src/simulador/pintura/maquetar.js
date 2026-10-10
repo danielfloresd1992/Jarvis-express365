@@ -7,12 +7,10 @@ import { fuente } from './temas.js';
  *  MAQUETAR: DE UNA LISTA DE TARJETAS A RECTÁNGULOS EN PANTALLA
  *
  *  Decide dónde cae cada tarjeta, y NO pinta nada: devuelve medidas. Va aparte del
- *  pintor porque su resultado lo usan tres sitios, no uno:
+ *  pintor porque su resultado lo usan dos sitios, no uno:
  *
  *      · el pintor, que dibuja lo que aquí se colocó
  *      · los toques: para saber qué producto o qué cabecera hay bajo el ratón
- *      · el lector simulado: para saber qué cabeceras caen ENTERAS dentro de la tira
- *        de pantalla que se «lee», que es justo lo que limita a la IA de verdad
  *
  *  CÓMO REPARTE TOAST LAS TARJETAS, que es lo que aquí se imita:
  *

@@ -134,7 +134,7 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 .sim-estado__punto { width: 8px; height: 8px; border-radius: 50%; background: var(--color-jx-tinta3); }
 .sim-estado--vivo .sim-estado__punto { background: var(--sim-bien); box-shadow: 0 0 0 3px var(--color-jx-verde-suave); }
 
-/*  Quién lee las tiras y cómo le va. Es lo único de la barra que puede crecer —con la IA
+/*  Quién lee la pantalla y cómo le va. Es lo único de la barra que puede crecer —con la IA
     lleva cinco cifras y a veces un motivo de fallo—, así que es lo único que se recorta:
     el texto entero está en su 'title'.  */
 .sim-lee {
@@ -829,6 +829,10 @@ html.vista-simulador #root { width: 100%; justify-self: stretch; }
 /*  Un ticket que NO existe: toda la fila teñida, para que salte a la vista.  */
 .sim-tabla tr.sim-fila--inventada td { background: var(--color-jx-critico-suave); }
 .sim-tabla tr.sim-fila--inventada:hover td { background: #f6d8d6; }
+
+/*  Los que se le escaparon a la inferencia: en ámbar, como su resultado. Sus datos son los de la simulación.  */
+.sim-tabla tr.sim-fila--escapada td { background: var(--color-jx-ocre-suave); }
+.sim-tabla tr.sim-fila--escapada:hover td { background: #f9e7c4; }
 
 .sim-tenue { color: var(--sim-apagado); }
 

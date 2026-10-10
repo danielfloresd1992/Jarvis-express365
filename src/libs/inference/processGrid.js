@@ -1,4 +1,3 @@
-import { LECTURAS_POR_RECORRIDO } from '../tickets/configLectura.js';
 import { aSegundosDeCronometro, aTexto } from '../tickets/cronometro.js';
 import { cursoDeTarjeta, esMesaDeVerdad } from '../tickets/claveDeTicket.js';
 
@@ -6,22 +5,20 @@ import { cursoDeTarjeta, esMesaDeVerdad } from '../tickets/claveDeTicket.js';
 // DE DÓNDE SALE CADA HORA DE LA PARRILLA DE PROCESOS
 //   Toma de orden    = reloj de la tablet − cronómetro de la tarjeta. Se vota (ver voteOrderTime).
 //   Listo en tablet  = lo PRIMERO que ocurra: se le ve ponerse verde (stampReadyIfChanged)
-//                      o desaparece de la pantalla, confirmado por SU tira (countAbsence).
+//                      o desaparece de la pantalla (countAbsence).
+//   Cada lectura mira la pantalla ENTERA: lo que no sale en una lectura no está en pantalla, o el modelo no lo vio.
 //   Listo en cocina y Entrega de plato = A MANO: la tablet no da ninguna señal de ellas.
 //   El color (amarillo / rojo) es la alarma de edad de Toast: solo pinta la fila, NO sella ninguna hora.
 //   Todas las horas de una fila son del reloj de la TABLET: mezclar el del equipo metía dos husos en la misma fila.
 
 
 
-// REOPEN_ROUNDS = «recorridos de reapertura»
+// REOPEN_READINGS = «lecturas de reapertura»
 // Cuánto puede faltar un ticket y seguir siendo el MISMO pedido. Por debajo, una lectura se lo saltó y se
 // reabre con su historia. Por encima, el pedido terminó y lo que vuelva con esa clave es OTRO pedido.
-// Va en recorridos de pantalla y no en minutos para no depender de lo que tarde el modelo. Es generoso a
-// propósito: esperar de más solo retrasa un cierre; esperar de menos inventa una fila duplicada.
-const REOPEN_ROUNDS = 12;
-
-// REOPEN_READINGS = «lecturas de reapertura»
-const REOPEN_READINGS = REOPEN_ROUNDS * LECTURAS_POR_RECORRIDO;
+// Va en lecturas —cada una mira la pantalla entera— y no en minutos, para no depender de lo que tarde el
+// modelo. Es generoso a propósito: esperar de más solo retrasa un cierre; esperar de menos inventa una fila duplicada.
+const REOPEN_READINGS = 12;
 
 // ORDER_TIME_TOLERANCE_S = «los segundos de diferencia que se perdonan al reconocer una tarjeta»
 // Dos lecturas de LA MISMA tarjeta dan casi la misma toma de orden. Medido en pantalla: 0 y 1
@@ -39,8 +36,10 @@ const SIGHTINGS_TO_CONFIRM = 2;
 // Dos y no una: el modelo se deja tickets a menudo, y con una sola 'Listo en tablet' se llenaba de horas falsas.
 const ABSENCES_TO_CLOSE = 2;
 
-// CENSUS_READINGS_WITHOUT_DATA = «lecturas del censo cuando no llega el dato de las tiras»
-const CENSUS_READINGS_WITHOUT_DATA = LECTURAS_POR_RECORRIDO;
+// CENSUS_READINGS = «lo que dura el censo», en lecturas
+// UNA: la primera ya mira la pantalla entera. Ni una más, porque en las de sobra lo único que se apartaría
+// son pedidos recién llegados, y esos son justo los que hay que seguir.
+const CENSUS_READINGS = 1;
 
 // MAX_ORDER_TIME_VOTES = «máximo de votos de la toma de orden»
 const MAX_ORDER_TIME_VOTES = 5;
@@ -79,7 +78,7 @@ function createEmptyRow(clave) {
         // los votos de la toma de orden (ver voteOrderTime)
         candidatosTomaOrden: [],
 
-        // cuántas lecturas la han visto de verdad (no arrastrada de otra tira)
+        // cuántas lecturas la han visto
         vecesVista: 0,
 
         // true = se la ha visto lo suficiente como para pintarla. Hasta entonces la fila EXISTE
@@ -97,12 +96,9 @@ function createEmptyRow(clave) {
         // true = la toma de orden es una estimación: se le vio por primera vez ya listo
         tomaOrdenAproximada: false,
 
-        // cuántas veces seguidas lo ha echado en falta SU tira, y la hora de la primera
+        // cuántas lecturas seguidas lo han echado en falta, y la hora de la primera
         ausenciasSeguidas: 0,
         faltaDesde: '',
-
-        // qué tira lo vio por última vez: es la única que puede echarlo en falta
-        tira: null,
 
         // true = 'Listo en tablet' se selló por desaparecer. Si reaparece, esa hora se retira.
         listoPorAusencia: false,
@@ -116,7 +112,7 @@ function createEmptyRow(clave) {
 
 // createEmptyGrid = «crear la parrilla vacía»
 // La parrilla antes de la primera lectura.
-// Devuelve: { rows, alreadyThere, readingsCount, census, connectionSeconds, knownStrips, lastTickets }
+// Devuelve: { rows, alreadyThere, readingsCount, census, connectionSeconds, lastTickets }
 function createEmptyGrid() {
     return {
         // rows = «las filas»: Map clave → fila. Un pedido que termina NO se borra: se marca cerrado.
@@ -133,9 +129,6 @@ function createEmptyGrid() {
 
         // connectionSeconds = «la hora de la tablet en la primera lectura, en segundos» (null = aún no se sabe)
         connectionSeconds: null,
-
-        // knownStrips = «las tiras conocidas»: en cuántas se corta la pantalla (null = aún no llegó el dato)
-        knownStrips: null,
 
         // lastTickets = «la última lista procesada»
         lastTickets: null,
@@ -154,7 +147,6 @@ function copyGrid(grid) {
         readingsCount: grid.readingsCount,
         census: { ...grid.census },
         connectionSeconds: grid.connectionSeconds,
-        knownStrips: grid.knownStrips,
         lastTickets: grid.lastTickets,
     };
 }
@@ -170,21 +162,10 @@ function clearGrid(grid) {
     // newGrid = «la parrilla nueva»
     const newGrid = createEmptyGrid();
 
-    // Cambia el local, no la tablet que se mira: las tiras son las mismas.
-    newGrid.knownStrips = grid.knownStrips;
-
-    // Y si vuelve a llegar la MISMA lista de antes, no es una lectura nueva.
+    // Si vuelve a llegar la MISMA lista de antes, no es una lectura nueva.
     newGrid.lastTickets = grid.lastTickets;
 
     return newGrid;
-}
-
-
-
-// isStripCount = «es un número de tiras»
-// Un entero de uno en adelante. Lo demás (undefined, null, 0, '3'…) cuenta como «no llegó el dato».
-const isStripCount = (value) => {
-    return Number.isInteger(value) && value > 0;
 }
 
 
@@ -236,43 +217,32 @@ function getOrderTimeText(orderSeconds) {
 function getMedian(numbers) {
 
     // sorted = «ordenados»
-    const sorted = [...numbers].sort((a, b) => a - b);
+    const sorted = [...numbers].sort((uno, otro) => uno - otro);
 
     return sorted[Math.floor(sorted.length / 2)];
 }
 
 
 
-// getCensusLength = «lo que dura el censo»
-// Una lectura buena por cada tira en que se corta ESTA pantalla. Ni una más: en las de sobra la pantalla ya
-// está mirada entera, y lo único que apartarían son pedidos recién llegados, que son los que hay que seguir.
-const getCensusLength = (knownStrips) => {
-    if (knownStrips === null) return CENSUS_READINGS_WITHOUT_DATA;
-
-    return knownStrips;
-}
-
-
-
 // countCensusReading = «contar la lectura del censo»
 // EL CENSO: al conectar, la pantalla ya trae pedidos de antes. De esos no se sabe cuándo entraron, así que
-// durante el primer recorrido completo solo se apunta qué había, para no seguirlo.
-// Recibe: census ({ done, readings }) y censusLength (cuántas lecturas dura).
+// en la primera lectura (CENSUS_READINGS) solo se apunta qué había, para no seguirlo.
+// Recibe: census ({ done, readings }).
 // Devuelve: { isCensus: ¿esta lectura es del censo?, census: el censo con esta lectura ya contada }
-function countCensusReading(census, censusLength) {
+function countCensusReading(census) {
 
     // isCensus = «esta lectura es del censo». Se mira lo que se LLEVABA, antes de contar esta.
-    const isCensus = !census.done && census.readings < censusLength;
+    const isCensus = !census.done && census.readings < CENSUS_READINGS;
 
     // newCensus = «el censo nuevo»
     const newCensus = { ...census };
 
     if (isCensus) newCensus.readings = census.readings + 1;
 
-    // 'done' es un cerrojo, y se echa en cuanto las lecturas cubren la pantalla (sin esperar a la siguiente).
-    // Un censo TERMINADO no se reabre aunque la pantalla pase a cortarse en más tiras: si se reabriera, los
-    // pedidos que ya se siguen caerían en «ya estaban» y se cerrarían con una hora falsa.
-    if (newCensus.readings >= censusLength) newCensus.done = true;
+    // 'done' es un cerrojo, y se echa en cuanto se ha mirado la pantalla (sin esperar a la siguiente). Un
+    // censo TERMINADO no se reabre: si se reabriera, los pedidos que ya se siguen caerían en «ya estaban» y
+    // se cerrarían con una hora falsa.
+    if (newCensus.readings >= CENSUS_READINGS) newCensus.done = true;
 
     return { isCensus, census: newCensus };
 }
@@ -291,22 +261,10 @@ function getSecondsWatching(connectionSeconds, clockNow) {
 
 
 
-// wasJustRead = «se le acaba de leer»
-// Cada entrega trae la lista COMPLETA: los de la tira recién leída y, ARRASTRADOS, los de las demás tiras como
-// quedaron en SU lectura. El cronómetro y el 'listo' de un arrastrado son de otra captura: con la hora de ahora
-// retrasaban la toma de orden. De un arrastrado solo se toma que SIGUE EN PANTALLA.
-const wasJustRead = (ticket, strip) => {
-    if (ticket.tira === undefined || ticket.tira === null) return true;
-
-    return ticket.tira === strip;
-}
-
-
-
 // arrivedWhileWatching = «llegó con nosotros mirando»
 // Durante el censo NO se aparta lo que entra con la ventana ya conectada: si lleva esperando MENOS de lo que
 // llevamos mirando, es nuevo y se sabe cuándo entró. Uno ya listo no cuenta: Toast le congela el contador.
-// Recibe: ticket (leído AHORA por su tira) y secondsWatching (lo que llevamos mirando, o null).
+// Recibe: ticket (el leído AHORA) y secondsWatching (lo que llevamos mirando, o null).
 function arrivedWhileWatching(ticket, secondsWatching) {
 
     if (ticket.listo === true) return false;
@@ -446,9 +404,8 @@ function isStrongReading(ticket) {
 
 
 // countSighting = «contar que se la ha visto»
-// LA CONFIRMACIÓN. Una fila nueva no se pinta hasta que varias lecturas la han visto. Solo cuentan
-// las lecturas de VERDAD: un ticket arrastrado del acumulado de otra tira no es una vista nueva,
-// y si contara, un fantasma se confirmaría solo por quedarse en el acumulado.
+// LA CONFIRMACIÓN. Una fila nueva no se pinta hasta que varias lecturas la han visto: una sola puede
+// ser un número mal leído.
 // Recibe: row.
 function countSighting(row) {
     if (row.confirmada) return row;
@@ -574,20 +531,17 @@ function reopenIfBack(row) {
 // refreshRowData = «refrescar los datos de la fila»
 // Los datos se refrescan siempre que la lectura traiga algo: una vuelta puede leer mal y la siguiente bien.
 // Lo que venga vacío NO borra lo que ya había.
-// Recibe: row, ticket, strip (la tira que se acaba de leer) e identityIsTrusted.
+// Recibe: row, ticket e identityIsTrusted.
 //
 // identityIsTrusted = «el número y la mesa de esta lectura son de fiar». Es false cuando la
 // tarjeta se reconoció POR SU HORA y no por su número: esa lectura llega justamente porque el
 // número se leyó mal, así que puede contar cómo está la tarjeta —su cronómetro, su color, si
 // está lista— pero NO puede rebautizarla. Sin esto, una sola lectura mala dejaba la fila
 // enseñando «#14» donde ponía «#144».
-function refreshRowData(row, ticket, strip, identityIsTrusted = true) {
+function refreshRowData(row, ticket, identityIsTrusted = true) {
 
     // newRow = «la fila nueva»: una copia, para no tocar la que llega
     const newRow = { ...row };
-
-    // la tira que lo acaba de ver pasa a ser la única que puede echarlo en falta
-    newRow.tira = ticket.tira ?? strip;
 
     if (identityIsTrusted && ticket.mesa) newRow.mesa = ticket.mesa;
     if (identityIsTrusted && ticket.ticket) newRow.ticket = ticket.ticket;
@@ -697,17 +651,6 @@ function stampReadyIfChanged(row, ticket, now) {
 
 
 
-// canBeMissedBy = «lo puede echar en falta»
-// Solo lo puede echar en falta la tira que lo tenía a la vista: las demás miran otra zona de la pantalla.
-// Antes contaba cualquier tira, y un solo despiste del modelo cerraba el pedido cinco segundos después.
-const canBeMissedBy = (row, strip) => {
-    if (row.cerrado) return false;
-
-    return row.tira === strip;
-}
-
-
-
 // countAbsence = «contar una ausencia»
 // LISTO EN TABLET, SEGUNDA VÍA: el ticket desaparece de la pantalla (la cocina lo despachó).
 // No se sella a la primera (puede que el modelo no lo viera): se cierra cuando se repite, con la hora de la
@@ -760,8 +703,8 @@ function fillEmptyTypes(rows, resolveType) {
 // STEP 6. ANALIZA la lectura, la COMPARA con lo que ya se sabía y devuelve la parrilla ACTUALIZADA.
 // PURA: no modifica 'grid', devuelve otra. Con un matiz: la lista de tickets se compara POR REFERENCIA (paso 3).
 // Recibe: grid (la parrilla de hasta ahora),
-//         reading { tickets: los de mergeStripTickets, hora: 'HH:MM:SS' de la tablet, tira: la que se leyó
-//                   (null = no hubo lectura: el arranque o una desconexión), tiras: en cuántas se corta la pantalla },
+//         reading { tickets: los de updateScreenTickets, hora: 'HH:MM:SS' de la tablet,
+//                   leida: true si la lista sale de una lectura (false = el arranque o una desconexión) },
 //         context { resolveType: la función de crearResolutorDeTipo, deviceTime: 'HH:MM:SS' del equipo }.
 // Devuelve: la parrilla nueva, con la misma forma que createEmptyGrid.
 function updateProcessGrid(grid, reading, context) {
@@ -769,16 +712,12 @@ function updateProcessGrid(grid, reading, context) {
     // newGrid = «la parrilla nueva»: se trabaja sobre una copia
     const newGrid = copyGrid(grid);
 
-    // 1. Se apunta en cuántas tiras se corta la pantalla, aunque esta vuelta no traiga lectura.
-    //    Una desconexión deja de mandarlo: sin este recuerdo un censo a medias pasaría de «2/3» a «2/5».
-    if (isStripCount(reading.tiras)) newGrid.knownStrips = reading.tiras;
-
-    // 2. Sin lista de tickets no hay nada que analizar.
+    // 1. Sin lista de tickets no hay nada que analizar.
     if (!Array.isArray(reading.tickets)) return newGrid;
 
-    // 3. ¿Es la MISMA lista de la vez anterior? Entonces lo único que cambió es la carta: se rellenan los
+    // 2. ¿Es la MISMA lista de la vez anterior? Entonces lo único que cambió es la carta: se rellenan los
     //    tipos vacíos y nada más. Ni censo, ni horas, ni ausencias: todo eso ya se contó.
-    //    El MISMO array (===), no uno igual: mergeStripTickets crea uno nuevo en cada vuelta, así que un
+    //    El MISMO array (===), no uno igual: updateScreenTickets crea uno nuevo en cada vuelta, así que un
     //    array repetido solo puede ser el hook volviendo a pasar porque cargó la carta.
     if (grid.lastTickets === reading.tickets) {
         newGrid.rows = fillEmptyTypes(grid.rows, context.resolveType);
@@ -787,19 +726,19 @@ function updateProcessGrid(grid, reading, context) {
 
     newGrid.lastTickets = reading.tickets;
 
-    // 4. Sin tira no hubo lectura: es la lista vacía del arranque o de una desconexión. Tratarla como
-    //    «pantalla sin tickets» gastaba una vuelta del censo y daba por desaparecidos todos los pedidos.
-    if (reading.tira === null || reading.tira === undefined) return newGrid;
+    // 3. Sin lectura: es la lista vacía del arranque o de una desconexión. Tratarla como «pantalla sin
+    //    tickets» gastaba la lectura del censo y daba por desaparecidos todos los pedidos.
+    if (!reading.leida) return newGrid;
 
 
-    // 5. ANALIZA: qué lectura es esta
+    // 4. ANALIZA: qué lectura es esta
     // now = «la hora de ahora»: la de la tablet. La del equipo, solo si ADB no contestó.
     const now = reading.hora || context.deviceTime;
 
     newGrid.readingsCount = grid.readingsCount + 1;
 
     // censusResult = «el resultado del censo»
-    const censusResult = countCensusReading(grid.census, getCensusLength(newGrid.knownStrips));
+    const censusResult = countCensusReading(grid.census);
     newGrid.census = censusResult.census;
 
     // clockNow = «el reloj de la tablet ahora, en segundos» (null = ADB no dio la hora)
@@ -813,13 +752,13 @@ function updateProcessGrid(grid, reading, context) {
     const secondsWatching = getSecondsWatching(newGrid.connectionSeconds, clockNow);
 
 
-    // 6. COMPARA cada ticket leído con su fila
+    // 5. COMPARA cada ticket leído con su fila
     // seenNow = «los que se han visto ahora»
     const seenNow = new Set();
 
     for (const ticket of reading.tickets) {
 
-        // La clave la fabricó mergeStripTickets. Sin ella no hay a qué fila atribuir lo leído.
+        // La clave la fabricó updateScreenTickets. Sin ella no hay a qué fila atribuir lo leído.
         // leidaClave = «la clave tal como vino»
         const leidaClave = ticket?.clave ?? ticket?.mesa;
         if (!leidaClave) continue;
@@ -848,18 +787,12 @@ function updateProcessGrid(grid, reading, context) {
             }
         }
 
-        // justRead = «se le acaba de leer» (o viene arrastrado de otra tira)
-        const justRead = wasJustRead(ticket, reading.tira);
-
-        // 6.1 EL CENSO: lo que ya estaba al conectar se aparta, salvo que haya entrado con nosotros mirando.
+        // 5.1 EL CENSO: lo que ya estaba al conectar se aparta, salvo que haya entrado con nosotros mirando.
         // isUnknown = «todavía no se sabe nada de él»: ni tiene fila ni está apartado
         const isUnknown = !newGrid.rows.has(clave) && !newGrid.alreadyThere.has(clave);
 
         // isNewForCensus = «el censo lo ve por primera vez»
         const isNewForCensus = censusResult.isCensus && isUnknown;
-
-        // Solo decide una lectura de AHORA: un arrastrado trae el cronómetro de entonces y parecería más joven.
-        if (isNewForCensus && !justRead) continue;
 
         // No entró con nosotros mirando: ya estaba, y se aparta.
         if (isNewForCensus && !arrivedWhileWatching(ticket, secondsWatching)) newGrid.alreadyThere.add(clave);
@@ -876,7 +809,7 @@ function updateProcessGrid(grid, reading, context) {
         // row = «la fila del pedido»: la que ya había, o una nueva
         let row = newGrid.rows.get(clave) ?? createEmptyRow(clave);
 
-        // 6.2 Vuelve a aparecer: ¿el mismo pedido, u otro?
+        // 5.2 Vuelve a aparecer: ¿el mismo pedido, u otro?
         if (wasClosedLongAgo(row, newGrid.readingsCount)) {
             // archivedRow = «la fila archivada»
             const archivedRow = archiveRow(row);
@@ -885,29 +818,25 @@ function updateProcessGrid(grid, reading, context) {
             row = startNewOrder(row);
         }
 
-        // 6.3 Está en pantalla: se reabre, se refrescan sus datos y se resuelve su tipo
+        // 5.3 Está en pantalla: se reabre, se refrescan sus datos y se resuelve su tipo
         row = reopenIfBack(row);
-        row = refreshRowData(row, ticket, reading.tira, identityIsTrusted);
+        row = refreshRowData(row, ticket, identityIsTrusted);
         row = resolveRowType(row, ticket.tipo, context.resolveType);
 
-        // 6.4 Las horas: solo con una lectura de AHORA
-        if (justRead) {
-            row = voteOrderTime(row, ticket, reading.hora);
-            row = stampReadyIfChanged(row, ticket, now);
-        }
-
-        //  Y se apunta que se la ha visto. Solo las lecturas de ahora: ver más arriba.
-        if (justRead) row = countSighting(row);
+        // 5.4 Las horas, y se apunta que se la ha visto
+        row = voteOrderTime(row, ticket, reading.hora);
+        row = stampReadyIfChanged(row, ticket, now);
+        row = countSighting(row);
 
         newGrid.rows.set(clave, row);
     }
 
 
-    // 7. ACTUALIZA los que ya no están en pantalla
+    // 6. ACTUALIZA los que ya no están en pantalla: la lectura miró la pantalla entera y no los vio
     //    (cambiar el valor de una clave que ya existe no altera el recorrido del Map)
     for (const [clave, row] of newGrid.rows) {
         if (seenNow.has(clave)) continue;
-        if (!canBeMissedBy(row, reading.tira)) continue;
+        if (row.cerrado) continue;
 
         // absentRow = «la fila, con una ausencia más»
         const absentRow = countAbsence(row, now, newGrid.readingsCount);
@@ -945,7 +874,7 @@ function getGridRows(grid) {
         rows.push({ ...row, candidatosTomaOrden: [...row.candidatosTomaOrden] });
     }
 
-    rows.sort((a, b) => a.tomaOrdenSegundos - b.tomaOrdenSegundos);
+    rows.sort((una, otra) => una.tomaOrdenSegundos - otra.tomaOrdenSegundos);
 
     return rows;
 }
@@ -954,16 +883,13 @@ function getGridRows(grid) {
 
 // getCensusState = «el estado del censo»
 // Para que la ventana pueda decir POR QUÉ la parrilla está vacía: mientras censa está vacía y es correcto.
-// Recibe: grid y strips (en cuántas tiras se corta la pantalla AHORA; manda sobre el recuerdo de la parrilla).
+// Recibe: grid.
 // Devuelve: { censando, lecturasDelCenso, lecturasQueDuraElCenso, yaEstaban: Set de claves apartadas }
 //           ('yaEstaban' es el Set de la propia parrilla, no una copia: es solo para leerlo)
-function getCensusState(grid, strips) {
+function getCensusState(grid) {
 
     // censusLength = «lo que dura el censo». Una vez hecho, las lecturas que de verdad se gastaron en él.
-    let censusLength = getCensusLength(grid.knownStrips);
-
-    if (isStripCount(strips)) censusLength = strips;
-    if (grid.census.done) censusLength = grid.census.readings;
+    const censusLength = grid.census.done ? grid.census.readings : CENSUS_READINGS;
 
     return {
         censando: !grid.census.done && grid.census.readings < censusLength,

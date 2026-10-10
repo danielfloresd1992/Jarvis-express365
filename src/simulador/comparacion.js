@@ -12,12 +12,14 @@ import { esNumero } from './formato.js';
  *  archivo pone una cosa al lado de la otra y dice cuánto se parecen.
  *
  *  No pinta nada ni sabe de React: recibe datos y devuelve datos. Así se puede probar
- *  en Node, y lo que se ve en pantalla (RegistroComparado.jsx) solo tiene que pintarlo.
+ *  en Node, y lo que se ve en pantalla (assets/log/) solo tiene que pintarlo.
  *
  *  DE AQUÍ SALEN LAS DOS TABLAS DEL REGISTRO:
  *
  *      'filas'        una por cada ticket que GENERÓ la simulación       → tabla 1
- *      'reconocidos'  una por cada ticket que RECONOCIÓ la inferencia    → tabla 2
+ *      'tabla2'       el resultado de la inferencia                      → tabla 2
+ *                     · una fila por cada ticket que RECONOCIÓ (son 'reconocidos')
+ *                     · y otra por cada uno que PUDO ver y no reconoció: lo que se le escapó
  *
  *  Un ticket de una tabla y otro de la otra son el mismo cuando coincide su 'clave'
  *  (número de ticket + curso; ver libs/tickets/claveDeTicket.js).
@@ -31,7 +33,7 @@ export const FUERTE = 'ENTREE';
 export const POSTRE = 'DESSERT';
 
 
-//  El «Tipo de plato» que pone Jarvis en su parrilla → el curso al que corresponde.
+//  El «Tipo de plato» que pone Jarvis en su register de Procesos → el curso al que corresponde.
 const CURSO_SEGUN_JARVIS = { 'Entrada': ENTRADA, 'Plato fuerte': FUERTE, 'Postre': POSTRE };
 
 const cursoDeLaVerdad = (verdad) => verdad.curso ?? ([ENTRADA, FUERTE, POSTRE].includes(verdad.tipo) ? verdad.tipo : '');
@@ -48,6 +50,7 @@ export const RESULTADO = Object.freeze({
     SIN_HORA: 'sin hora',                //  existe, pero la inferencia no le sacó toma de orden
     MESA_DISTINTA: 'mesa distinta',      //  existe el ticket, pero con otra mesa
     NO_EXISTE: 'no existe',              //  la simulación nunca generó ese ticket: lo inventó la lectura
+    SIN_RECONOCER: 'sin reconocer',      //  la simulación lo generó y estuvo en pantalla, y la inferencia no lo dio
 });
 
 
@@ -183,13 +186,27 @@ export function comparar({ registro, turno, inferencia, toleranciaS, limites }) 
 
     //  Los que NO existen van arriba: son lo primero que hay que ver. Los demás, en el
     //  mismo orden que la tabla 1, para poder seguirlos con la vista de una a otra.
-    const ordenEnLaTabla1 = new Map(filas.map((fila, i) => [fila.verdad.clave, i]));
+    const ordenEnLaTabla1 = new Map(filas.map((fila, indice) => [fila.verdad.clave, indice]));
     const puesto = (fila) => (fila.verdad ? ordenEnLaTabla1.get(fila.verdad.clave) : -1);
 
-    reconocidos.sort((a, b) => puesto(a) - puesto(b));
+    // antes = «cuál va antes», por su puesto
+    const antes = (una, otra) => puesto(una) - puesto(otra);
+
+    reconocidos.sort(antes);
 
     //  Lo que la lectura dio por pedido y la simulación nunca generó: números mal leídos.
     const fantasmas = reconocidos.filter(fila => fila.resultado === RESULTADO.NO_EXISTE).map(fila => fila.ia);
+
+    // sinReconocer = «los que se pudieron ver y no se vieron». No cuentan los que ya estaban al conectar
+    // ni los que nunca se pintaron en la pantalla que se leía: esos no los podía reconocer nadie.
+    const sinReconocer = filas.filter(fila => fila.reconocible && !fila.ia);
+
+    // tabla2 = «el resultado de la inferencia»: lo que reconoció y, en su sitio, lo que se le escapó.
+    // Lo escapado no tiene lectura ('ia' es null): se enseña con la mesa y el ticket de la simulación.
+    const tabla2 = [
+        ...reconocidos,
+        ...sinReconocer.map(fila => ({ ia: null, verdad: fila.verdad, dToma: null, dListo: null, resultado: RESULTADO.SIN_RECONOCER })),
+    ].sort(antes);
 
 
     //  ── EL RESUMEN ──
@@ -204,9 +221,7 @@ export function comparar({ registro, turno, inferencia, toleranciaS, limites }) 
     //    · los que la lectura PUDO ver y no vio;
     //    · los que sí vio pero con la toma de orden fuera de la tolerancia.
     //  Estaban dentro de los otros marcadores, restando de cabeza. Puestos así se leen de un vistazo.
-
-    // sinReconocer = «los que se pudieron ver y no se vieron»
-    const sinReconocer = filas.filter(fila => fila.reconocible && !fila.ia);
+    //  ('sinReconocer' está más arriba: también hace falta para la tabla 2.)
 
     // horaDesviada = «los que se vieron, pero su toma de orden no cuadra»
     const horaDesviada = reconocidos.filter(fila => fila.resultado === RESULTADO.HORA_DESVIADA);
@@ -220,6 +235,7 @@ export function comparar({ registro, turno, inferencia, toleranciaS, limites }) 
     return {
         filas,
         reconocidos,
+        tabla2,
         fantasmas,
         turno,
         resumen: {

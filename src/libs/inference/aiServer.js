@@ -24,7 +24,7 @@ const CHECK_TIMEOUT_MS = 10000;
 const CORS_PROBE_TIMEOUT_MS = 4000;
 
 // DEFAULT_TIMEOUT_SECONDS = «segundos de espera por omisión»
-// 120 y no 60: una tira trae hasta seis tarjetas, y perder la vuelta entera es peor que esperar de más.
+// 120 y no 60: una captura trae la pantalla entera, y perder la vuelta es peor que esperar de más.
 const DEFAULT_TIMEOUT_SECONDS = 120;
 
 // MINIMUM_TIMEOUT_SECONDS = «segundos de espera mínimos»
@@ -128,7 +128,7 @@ function chooseModel(modelsResponse) {
         // Ver pesa MÁS que estar cargado, y no al revés como estaba: esta aplicación siempre manda
         // una foto, así que un modelo ciego ya cargado no sirve para nada, y uno que ve sin cargar
         // sí (LM Studio lo carga solo en la primera lectura). Con el peso al revés, un servidor con
-        // un ciego cargado y uno con visión descargado elegía el ciego y fallaba tira tras tira.
+        // un ciego cargado y uno con visión descargado elegía el ciego y fallaba lectura tras lectura.
         // Con las formas que no dicen quién ve, 'vision' es false para todos y solo cuenta cargado.
         let score = 0;
         if (model.vision) score = score + 2;
@@ -147,7 +147,7 @@ function chooseModel(modelsResponse) {
 
 
 // getTimeoutMs = «obtener el tiempo máximo, en milisegundos»
-// PURA. Lo que se espera al modelo por cada tira.
+// PURA. Lo que se espera al modelo por cada lectura.
 // Recibe: secondsFromEnv (VITE_AI_TIMEOUT_S tal como viene del .env: un texto, un número o nada).
 // Devuelve: los milisegundos. Si no viene, o viene menos de 10 s, los de 120 s.
 function getTimeoutMs(secondsFromEnv) {
@@ -582,7 +582,7 @@ async function checkAiServer({ baseUrl, apiKey, preferred, signal } = {}) {
         // Va como lista aparte y no como un booleano dentro de 'models' para no cambiarle la forma a
         // 'models', que el registro de la tablet apunta tal cual. Lo que importa de esta lista es
         // cuándo está VACÍA: entonces la lectura de tickets no puede salir bien con ninguno, y eso
-        // hay que decirlo ANTES de mandar la primera tira, no después de veinte 404 seguidos.
+        // hay que decirlo ANTES de mandar la primera captura, no después de veinte 404 seguidos.
         // loadedCount = «cuántos de esos están cargados de verdad»
         // Se cuenta aparte porque LM Studio lista también los descargados sin cargar; decir «N cargados»
         // con el largo de la lista mentiría ahí. Con el bot, que solo lista los listos, coinciden.
@@ -606,8 +606,8 @@ async function checkAiServer({ baseUrl, apiKey, preferred, signal } = {}) {
         if (reportsVision && visionModels.length === 0) {
             // Se devuelve como NO activo a propósito. La tablet siempre manda una foto, así que con
             // esto la lectura no puede salir bien con ningún modelo. Activo, arrancaría el bucle y
-            // subiría una tira cada vez para recibir un 404 que ya se sabía de antemano. No activo,
-            // la barra lo dice, no sale ninguna tira, y se vuelve a preguntar cada CHECK_RETRY_MS
+            // subiría una captura cada vez para recibir un 404 que ya se sabía de antemano. No activo,
+            // la barra lo dice, no sale ninguna captura, y se vuelve a preguntar cada CHECK_RETRY_MS
             // hasta que el servidor monte uno que vea. Las listas van igualmente, para que Opciones
             // pueda enseñar qué hay montado aunque con eso no se pueda leer.
             return {
@@ -686,7 +686,7 @@ async function checkAiServer({ baseUrl, apiKey, preferred, signal } = {}) {
 // requestInference = «solicitar la inferencia»
 // STEP 3. Manda UNA imagen al modelo y devuelve su texto, tal cual. NUNCA lanza.
 // Recibe: { baseUrl (la dirección del servidor), apiKey (la clave del menú, si la hay), model (el que dijo
-//           checkAiServer), prompt (OPCIONAL, ver abajo), image (la tira, como data URL),
+//           checkAiServer), prompt (OPCIONAL, ver abajo), image (la captura, como data URL),
 //           timeoutMs (lo que se le espera) y signal (para cancelar) }
 // Devuelve: { ok: true,  text, seconds, status, stats: { inputTokens, outputTokens, tokensPerSecond, secondsToFirstToken } }
 //        o  { ok: false, cause: 'no-url' | 'network' | 'cors' | 'auth' | 'timeout' | 'http' | 'model-rejected' | 'cancelled',
@@ -716,7 +716,7 @@ async function requestInference({ baseUrl, apiKey, model, prompt, image, timeout
      *
      *  Las instrucciones de lectura (el antiguo INFERENCE_PROMPT, 840 tokens) las pone ahora el
      *  propio servidor: detrás de la dirección hay una pasarela que las añade antes de pasarle la
-     *  imagen al modelo. Medido el 2026-10-01 mandando SOLO la tira:
+     *  imagen al modelo. Medido el 2026-10-01 mandando SOLO la imagen (entonces era una tira de la pantalla):
      *
      *      por la pasarela      1303 tokens de entrada · 3 tickets   ✓
      *      a LM Studio pelado    470 tokens de entrada · 0 tickets

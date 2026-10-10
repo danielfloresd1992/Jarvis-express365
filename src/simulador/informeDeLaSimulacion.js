@@ -11,6 +11,8 @@
  *  Lo que cuesta: hay que confirmar el diálogo de impresión. No es automático del todo.
  */
 
+import { RESULTADO } from './comparacion.js';
+
 
 // escapar = «escapar el texto para meterlo en el HTML»
 // Los nombres de los platos vienen de la carta y del modelo: un '<' suelto rompería la página.
@@ -73,13 +75,16 @@ const ESTILOS = `
 `;
 
 
-// claseDelVeredicto = «qué color le toca a un veredicto»
-const claseDelVeredicto = (clase) => {
-    if (clase === 'sim-bien') return 'bien';
-    if (clase === 'sim-mal') return 'mal';
-
-    return 'aviso';
-}
+// CLASE_DEL_RESULTADO = «qué color le toca a cada resultado de la tabla 2»
+const CLASE_DEL_RESULTADO = {
+    [RESULTADO.ACIERTO]: 'bien',
+    [RESULTADO.HORA_ESTIMADA]: 'aviso',
+    [RESULTADO.SIN_HORA]: 'aviso',
+    [RESULTADO.SIN_RECONOCER]: 'aviso',
+    [RESULTADO.HORA_DESVIADA]: 'mal',
+    [RESULTADO.MESA_DISTINTA]: 'mal',
+    [RESULTADO.NO_EXISTE]: 'mal',
+};
 
 
 // filasDeLaSimulacion = «la tabla de lo que generó la simulación»
@@ -88,15 +93,15 @@ function filasDeLaSimulacion(filas) {
 
     // lineas = «las filas de la tabla»
     const lineas = filas.map(fila => {
-        const v = fila.verdad;
+        const verdad = fila.verdad;
 
         return `<tr>
-            <td>${escapar(v.mesa)}</td>
-            <td>#${escapar(v.ticket)}</td>
-            <td>${escapar(v.tipo)}</td>
-            <td>${escapar(v.estado)}</td>
-            <td>${escapar(v.tomaDeOrden)}</td>
-            <td>${escapar(v.listoEnTablet || '—')}</td>
+            <td>${escapar(verdad.mesa)}</td>
+            <td>#${escapar(verdad.ticket)}</td>
+            <td>${escapar(verdad.tipo)}</td>
+            <td>${escapar(verdad.estado)}</td>
+            <td>${escapar(verdad.tomaDeOrden)}</td>
+            <td>${escapar(verdad.listoEnTablet || '—')}</td>
             <td class="${fila.reconocible ? (fila.ia ? 'bien' : 'mal') : 'aviso'}">${fila.reconocible ? (fila.ia ? 'sí' : 'no') : 'no se podía'}</td>
         </tr>`;
     });
@@ -108,21 +113,25 @@ function filasDeLaSimulacion(filas) {
 }
 
 
-// filasDeLaInferencia = «la tabla de lo que reconoció la inferencia»
-function filasDeLaInferencia(reconocidos) {
-    if (!reconocidos.length) return '<p class="vacio">La inferencia no reconoció ningún ticket.</p>';
+// filasDeLaInferencia = «la tabla del resultado de la inferencia»: lo que reconoció y lo que se le escapó
+// Lo escapado no tiene lectura: su mesa, su ticket y su tipo son los de la simulación, y sin horas.
+function filasDeLaInferencia(tabla2) {
+    if (!tabla2.length) return '<p class="vacio">La inferencia no reconoció ningún ticket.</p>';
 
-    const lineas = reconocidos.map(fila => {
+    const lineas = tabla2.map(fila => {
         const ia = fila.ia ?? {};
 
+        // mostrado = «de dónde salen la mesa, el ticket y el tipo»
+        const mostrado = fila.ia ?? fila.verdad ?? {};
+
         return `<tr>
-            <td>${escapar(ia.mesa)}</td>
-            <td>#${escapar(ia.ticket)}</td>
-            <td>${escapar(ia.tipo)}</td>
-            <td>${escapar(ia.tomaOrden)}</td>
+            <td>${escapar(mostrado.mesa)}</td>
+            <td>#${escapar(mostrado.ticket)}</td>
+            <td>${escapar(mostrado.tipo)}</td>
+            <td>${escapar(ia.tomaOrden || '—')}</td>
             <td>${fila.dToma === null ? '—' : `${fila.dToma > 0 ? '+' : ''}${fila.dToma} s`}</td>
             <td>${escapar(ia.listoTablet || '—')}</td>
-            <td class="${claseDelVeredicto(fila.veredicto?.clase)}">${escapar(fila.veredicto?.texto ?? '')}</td>
+            <td class="${CLASE_DEL_RESULTADO[fila.resultado] ?? ''}">${escapar(fila.resultado)}</td>
         </tr>`;
     });
 
@@ -142,12 +151,13 @@ function buildReportHtml({ comparacion, semilla, ahora = new Date() }) {
     // resumen = «los marcadores»
     const resumen = comparacion?.resumen ?? {};
 
-    // filas = «lo que generó la simulación»  ·  reconocidos = «lo que dio la inferencia»
+    // filas = «lo que generó la simulación»  ·  tabla2 = «el resultado de la inferencia»
     const filas = comparacion?.filas ?? [];
-    const reconocidos = comparacion?.reconocidos ?? [];
+    const tabla2 = comparacion?.tabla2 ?? [];
 
-    // inventados = «los números que la lectura se sacó de la manga»
+    // inventados = «los números que la lectura se sacó de la manga»  ·  escapados = «los que pudo ver y no dio»
     const inventados = resumen.numerosInventados ?? [];
+    const escapados = resumen.numerosSinReconocer ?? [];
 
     return `<!doctype html>
 <html lang="es">
@@ -170,18 +180,20 @@ function buildReportHtml({ comparacion, semilla, ahora = new Date() }) {
 
 <div class="marcadores">
     <div class="marcador"><b>${escapar(resumen.generados ?? 0)}</b><span>tickets generó la simulación</span></div>
-    <div class="marcador"><b>${porCiento(resumen.inferidos ?? 0, resumen.reconocibles ?? 0)}</b><span>reconoció la inferencia (${escapar(resumen.inferidos ?? 0)} de ${escapar(resumen.reconocibles ?? 0)})</span></div>
+    <div class="marcador"><b>${porCiento(resumen.existen ?? 0, resumen.reconocibles ?? 0)}</b><span>reconoció la inferencia (${escapar(resumen.existen ?? 0)} de ${escapar(resumen.reconocibles ?? 0)} que pudo ver)</span></div>
     <div class="marcador marcador--bien"><b>${porCiento(resumen.aciertos ?? 0, resumen.inferidos ?? 0)}</b><span>de aciertos (${escapar(resumen.aciertos ?? 0)} de ${escapar(resumen.inferidos ?? 0)})</span></div>
+    <div class="marcador ${(resumen.sinReconocer ?? 0) > 0 ? 'marcador--mal' : 'marcador--bien'}"><b>${escapar(resumen.sinReconocer ?? 0)}</b><span>tickets sin reconocer</span></div>
     <div class="marcador ${(resumen.inventados ?? 0) > 0 ? 'marcador--mal' : 'marcador--bien'}"><b>${escapar(resumen.inventados ?? 0)}</b><span>tickets que no existen</span></div>
 </div>
 
 ${inventados.length ? `<p class="sub">Se inventó: <span class="mal">${inventados.map(escapar).join(' · ')}</span></p>` : ''}
+${escapados.length ? `<p class="sub">Se le escaparon: <span class="aviso">${escapados.map(escapar).join(' · ')}</span></p>` : ''}
 
 <h2>1. Generados por la simulación <small>(${escapar(filas.length)})</small></h2>
 ${filasDeLaSimulacion(filas)}
 
-<h2>2. Reconocidos por la inferencia <small>(${escapar(reconocidos.length)})</small></h2>
-${filasDeLaInferencia(reconocidos)}
+<h2>2. Resultado de la inferencia <small>(${escapar(tabla2.length)}${escapados.length ? `, ${escapar(escapados.length)} sin reconocer` : ''})</small></h2>
+${filasDeLaInferencia(tabla2)}
 
 </body>
 </html>`;

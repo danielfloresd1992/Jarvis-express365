@@ -4,7 +4,8 @@ import { esMesaDeVerdad } from '../tickets/claveDeTicket.js';
 
 
 // INFERENCE_PROMPT = «el texto de la inferencia»
-// Lo que se le pide al modelo junto con la imagen de la tira.
+// Lo que se le pedía al modelo junto con la imagen. Hoy las instrucciones las pone la pasarela del servidor
+// (ver requestInference en aiServer.js); esto solo lo usa el banco de pruebas.
 // Tiene que contestar un array con un objeto por ticket: { ticket, mesa, tiempo, tipo, listo }.
 // Es corto y pide una sola línea a propósito: en ese servidor cada token cuesta cerca de un segundo.
 const INFERENCE_PROMPT = `Esta imagen es un trozo de la pantalla de cocina de un restaurante (Toast), con tarjetas de pedidos (tickets).

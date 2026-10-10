@@ -8,12 +8,14 @@ import { useSaveNoveltie } from '../../hook/useSaveNoveltie';
 import { setUser } from '../../store/slices/user.js';
 import axiosInstance from '../../libs/fetch_data/instanceAxios.js';
 import URL from '../../libs/fetch_data/api_conexion.js';
+import TabletDock from '../TabletDock/TabletDock.jsx';
 
 
 
-function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSidebar }) {
+function AsideBar({ clearLocal, selectNovelty, openBoleanSidebar, onToggleSidebar }) {
 
-    let isLocalVisivility = localMonitoring[0] ? true : false;
+    const establishment = useSelector(state => state.establishment);
+    let isLocalVisivility = establishment ? true : false;
     const userSelet = useSelector(state => state.user);
     const { deleteListNoveltie } = useSaveNoveltie();
     const dispatch = useDispatch();
@@ -53,10 +55,6 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
         { id: 'loadImage', label: 'Subir imagen a mi Jarvis' },
     ];
 
-    const infoItems = [
-        { id: 'show-manager', label: 'Gerentes', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
-    ];
-
     // configItems = «las opciones de configuración»
     // Fuera de la rama de la tablet y fuera del 'if' del local: la dirección de la IA se
     // tiene que poder arreglar aunque todavía no se haya entrado a ningún establecimiento.
@@ -70,12 +68,19 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
             {/* Overlay for mobile 'sidebar--open' */}
             {openBoleanSidebar && <div className='sidebar-overlay' onClick={() => selectNovelty('')} />}
 
-            <aside className={`sidebar ${openBoleanSidebar ? 'sidebar--open' : 'sidebar--closed'}`}>
+            {/*  La pestaña que asoma a la izquierda. Al pasar el ratón despliega la barra (todo en CSS:
+                 '.sidebar-tab:hover + .sidebar' en App.css, por eso va JUSTO antes del <aside>); un
+                 toque o un clic la deja abierta, que es lo que sirve en el teléfono.  */}
+            <button type='button' className='sidebar-tab' onClick={onToggleSidebar} aria-expanded={openBoleanSidebar}>
+                Menú
+            </button>
+
+            <aside className={`sidebar ${openBoleanSidebar ? 'sidebar--open' : ''}`}>
                 {/* Local name header */}
                 <div className='sidebar__header'>
                     {!isMobile || isTablet ? (
                         isLocalVisivility
-                            ? <h2 className='sidebar__local-name'>{localMonitoring[0].name}</h2>
+                            ? <h2 className='sidebar__local-name'>{establishment?.name}</h2>
                             : <h2 className='sidebar__local-name sidebar__local-name--waiting'>Esperando...</h2>
                     ) : null}
                 </div>
@@ -103,25 +108,6 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
                                 );
                             })}
 
-                            {isLocalVisivility && (
-                                <>
-                                    <span className='sidebar__section-label' style={{ marginTop: '0.75rem' }}>Información</span>
-                                    {infoItems.map(item => (
-                                        <button
-                                            key={item.id}
-                                            className='sidebar__btn'
-                                            onClick={e => selectNovelty(e.currentTarget.id)}
-                                            id={item.id}
-                                        >
-                                            <svg className='sidebar__btn-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d={item.icon} />
-                                            </svg>
-                                            <span className='sidebar__btn-text'>{item.label}</span>
-                                        </button>
-                                    ))}
-                                </>
-                            )}
-
                             <span className='sidebar__section-label' style={{ marginTop: '0.75rem' }}>Configuración</span>
                             {configItems.map(item => (
                                 <button
@@ -136,6 +122,11 @@ function AsideBar({ clearLocal, localMonitoring, selectNovelty, openBoleanSideba
                                     <span className='sidebar__btn-text'>{item.label}</span>
                                 </button>
                             ))}
+
+                            {/*  Y en el hueco que queda hasta el pie, la tablet: el espejo, su estado y
+                                 sus botones. Los registers que llena van en el centro de Home. En el
+                                 teléfono no se pinta nada.  */}
+                            <TabletDock />
                         </>
                     ) : (
                         <>

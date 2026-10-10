@@ -15,6 +15,7 @@ import { setLocals } from '../../store/slices/locals.js';
 import { limpiarReporteDemora } from '../../store/slices/reporteDemora.js';
 import { BoxModal } from '../../component/Main/boxModal/BoxModal.jsx';
 import Notifications from '../../component/notifications/notifications.jsx'
+import { TabletProvider } from '../../component/tabletScreen/tablet.provider.jsx';
 
 import URL from '../../libs/fetch_data/api_conexion.js';
 import { getEstablishmentByIdFull } from '../../libs/fetch_data/establishmentFetching.js';
@@ -29,7 +30,7 @@ export default function Home() {
     const userSelector = useSelector(state => state.user);
     const dispatch = useDispatch();
     const localSelector = useSelector(state => state.locals);
-    let [local, setLocal] = useState([]);
+
     let [listMenu, setListMenu] = useState([]);
 
     let [openAwaitWindow, setOpenAwait] = useState({ text: '', open: false });
@@ -38,6 +39,8 @@ export default function Home() {
     let [renderValue, setRenderValue] = useState(String);
     let [openSideBar, setOpenSideBar] = useState(false);
 
+    const reporteDemora = useSelector(state => state.reporteDemora);
+    const [reporteAbierto, setReporteAbierto] = useState(null);
 
 
     useEffect(() => {
@@ -49,7 +52,6 @@ export default function Home() {
                 if (event.client === 'all') window.location.reload();
             }
         };
-
         socketAppManager.on('reset_client', resetSocket);
 
         return () => {
@@ -80,10 +82,7 @@ export default function Home() {
 
 
     useEffect(() => {
-
         if (userSelector && selectEstablishment) emitUserData();
-
-
     }, [userSelector, selectEstablishment]);
 
 
@@ -106,8 +105,16 @@ export default function Home() {
     const selectNovelty = (value) => {
         if ((typeof value) !== 'string') throw 'Type err, param not string';
         setRenderValue(renderValue = value);
-        if (window?.innerWidth < 721) closeOpenAsideBar();
+        //  Elegir algo cierra la barra de la izquierda si se había dejado abierta con su pestaña.
+        setOpenSideBar(openSideBar = false);
 
+    };
+
+
+    //  Cerrar el panel de la derecha y volver a la bienvenida. No pasa por 'selectNovelty' porque
+    //  en el teléfono esa además abre o cierra el menú de la izquierda.
+    const closeNovelty = () => {
+        setRenderValue(renderValue = '');
     };
 
 
@@ -143,7 +150,7 @@ export default function Home() {
                 console.log(response)
                 dispatch(setLocals(response.data));
                 if (localStorage.getItem('local_appExpress')) {
-                    setLocal(local = JSON.parse(localStorage.getItem('local_appExpress')));
+                    dispatch(setEstablishment(JSON.parse(localStorage.getItem('local_appExpress'))[0]));
                 }
             })
             .catch(err => {
@@ -173,8 +180,9 @@ export default function Home() {
         if (localSelector.length > 0 && !selectEstablishment && isEstablishmen && isEstablishmen.length > 0) {
             getEstablishmentByIdFull(isEstablishmen[0]._id)
                 .then(response => {
+                    console.log(response);
                     dispatch(setEstablishment(response.data));
-                    setLocal(isEstablishmen);
+
                 })
                 .catch(error => {
                     console.log(error);
@@ -190,7 +198,7 @@ export default function Home() {
             .then(response => {
                 localStorage.setItem('local_appExpress', JSON.stringify(localSelect));
                 dispatch(setEstablishment(response.data));
-                setLocal(localSelect);
+
             })
             .catch(error => {
                 console.log(error);
@@ -203,14 +211,13 @@ export default function Home() {
         return [...localSelector].sort((a, b) => a.name.localeCompare(b.name))
     }, [localSelector]);
 
-    const reporteDemora = useSelector(state => state.reporteDemora);
-    const [reporteAbierto, setReporteAbierto] = useState(null);
+  
 
 
     const puedeAbrirReporte = renderValue === '';
 
 
-    const abrirReporte = useCallback(() => {
+    const OpenSidebarNovelty = useCallback(() => {
         if (!reporteDemora) return;
 
         setReporteAbierto(reporteDemora);
@@ -220,8 +227,8 @@ export default function Home() {
 
 
     useEffect(() => {
-        if (reporteDemora && puedeAbrirReporte) abrirReporte();
-    }, [reporteDemora, puedeAbrirReporte, abrirReporte]);
+        if (reporteDemora && puedeAbrirReporte) OpenSidebarNovelty();
+    }, [reporteDemora, puedeAbrirReporte, OpenSidebarNovelty]);
 
 
    
@@ -230,10 +237,7 @@ export default function Home() {
     }, [renderValue]);
 
 
-    console.log(render )
-
-    console.log(localSelector);
-    console.log(listMenu);
+    
 
     return (
         <>
@@ -241,9 +245,16 @@ export default function Home() {
                 render && listMenu.length > 0 ?
                     (
                         <div className="homeComponent">
-                            <NavBar clearLocal={resetLocal} openCloseSidebar={closeOpenAsideBar} boxModal={configBoxModal} />
-                            < AsideBar clearLocal={resetLocal} localMonitoring={local} selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} />
-                            <Main value={renderValue} selectNovelty={selectNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} reporteDemora={reporteAbierto} onReporteCerrado={() => setReporteAbierto(null)} />
+                            <NavBar clearLocal={resetLocal} boxModal={configBoxModal} />
+
+                            {/*  LA TABLET: el espejo va en la barra de la izquierda y los registers en
+                                 el centro, y los dos son la misma sesión. La monta este proveedor, que
+                                 por eso envuelve a los dos (component/tabletScreen/tablet.provider.jsx).  */}
+                            <TabletProvider>
+                                <AsideBar clearLocal={resetLocal}  selectNovelty={selectNovelty} openBoleanSidebar={openSideBar} onToggleSidebar={closeOpenAsideBar} />
+                                <Main value={renderValue} selectNovelty={selectNovelty} closeNovelty={closeNovelty} awaitWindow={configAwait} boxModal={configBoxModal} menu={listMenu} reporteDemora={reporteAbierto} onReporteCerrado={() => setReporteAbierto(null)} />
+                            </TabletProvider>
+
 
                             {/*  AVISO DE REPORTE EN ESPERA
                                  Solo aparece cuando llega un reporte de la tablet y el
@@ -266,7 +277,7 @@ export default function Home() {
                                 reporteDemora && !puedeAbrirReporte && (
                                     <button
                                         className='fixed left-1/2 -translate-x-1/2 bottom-6 z-[1000] flex items-center gap-2 pl-3 pr-4 py-2 rounded-full border border-jx-critico bg-jx-critico text-white text-[12px] font-semibold shadow-lg hover:bg-jx-critico-texto transition-colors'
-                                        onClick={abrirReporte}
+                                        onClick={OpenSidebarNovelty}
                                     >
                                         <span className='relative inline-flex h-2 w-2 shrink-0 rounded-full bg-white' />
                                         Demora de la mesa {reporteDemora.tableNumber || '?'} — abrir reporte

@@ -16,10 +16,10 @@
  *      { t:'hora', id }                  →      { re:id, hora:'HH:MM:SS' }
  *      { t:'inferencia', pedidos, lectura, … }  (sin respuesta: es solo para comparar, y
  *                                               para que la cabecera del simulador diga
- *                                               cómo le fue a la IA con la última tira)
+ *                                               cómo le fue a la IA con la última lectura)
  *
- *  El simulador sirve la PANTALLA y la HORA, que es lo que da una tablet. No lee tiras
- *  ni decide quién las lee: eso lo hace siempre el servidor de IA.
+ *  El simulador sirve la PANTALLA y la HORA, que es lo que da una tablet. No lee la
+ *  pantalla ni decide quién la lee: eso lo hace siempre el servidor de IA.
  *  ───────────────────────────────────────────────────────────────────────────── */
 
 

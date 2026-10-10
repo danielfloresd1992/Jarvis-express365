@@ -95,9 +95,9 @@ export const AJUSTES_POR_DEFECTO = {
     /*  LO QUE TARDA UNA TARJETA LISTA EN IRSE DE LA PANTALLA
      *
      *  Tres o cuatro segundos, y esto NO es un detalle de adorno: es el margen que tiene la
-     *  lectura para ver el verde. Una pasada completa son tres tiras, y cada tira se relee cada
-     *  pocos segundos, así que lo normal es que la tarjeta se ponga verde y desaparezca ENTRE
-     *  DOS LECTURAS de su tira, sin que nadie llegue a verla.
+     *  lectura para ver el verde. La pantalla se relee cada pocos segundos, así que lo normal
+     *  es que la tarjeta se ponga verde y desaparezca ENTRE DOS LECTURAS, sin que nadie llegue
+     *  a verla.
      *
      *  Por eso 'Listo en tablet' se sella casi siempre por AUSENCIA (dos lecturas seguidas sin
      *  verla) y no por haberla visto ponerse verde.
@@ -551,7 +551,7 @@ export function crearMotor({ semilla = Date.now(), ajustes: ajustesIniciales = {
      *     NÚMERO. No es lo que hace Toast —allí todo va a la misma cuenta—, pero la clave
      *     de una tarjeta es su número más su curso (src/libs/tickets/claveDeTicket.js), y
      *     dos tarjetas SIN curso del mismo ticket compartirían la clave 'tk-N': en la
-     *     parrilla serían una sola fila y en el registro no habría forma de casarlas. Es
+     *     register de Procesos serían una sola fila y en el registro no habría forma de casarlas. Es
      *     el límite conocido que ese archivo ya avisa; aquí se esquiva en vez de tropezar.
      */
     function enviarExtra(rotacion) {

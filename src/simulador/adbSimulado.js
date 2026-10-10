@@ -7,18 +7,18 @@ import { direccionDelSimulador } from './disponible.js';
 /*  ─────────────────────────────────────────────────────────────────────────────
  *  UNA TABLET DE MENTIRA CON LA MISMA FORMA QUE LA DE VERDAD
  *
- *  TabletScreen no habla con «una tablet»: habla con un objeto Adb, y de él usa
+ *  La ventana (useTablet) no habla con «una tablet»: habla con un objeto Adb, y de él usa
  *  exactamente tres cosas — pedir una captura ('screencap -p'), pedir la hora ('date')
  *  y cerrar. Este objeto ofrece esas tres, con la misma forma, pero detrás no hay un
  *  cable USB sino la ventana del simulador.
  *
- *  Por eso la simulación prueba el camino DE VERDAD: el bucle de captura, el recorte en
- *  tiras, la petición a la IA, el parser, el acumulado, el seguimiento y las parrillas
- *  corren sin saber que la pantalla es falsa. Lo único que no se prueba es el USB.
+ *  Por eso la simulación prueba el camino DE VERDAD: el bucle de captura, la petición a
+ *  la IA, el parser, el seguimiento y los registers corren sin saber que la pantalla es
+ *  falsa. Lo único que no se prueba es el USB.
  *
  *  Y NADA MÁS QUE ESAS TRES. El simulador PINTA la pantalla; leerla, la lee siempre el
- *  servidor de IA. Hubo un «lector simulado» que contestaba las tiras desde aquí, y se
- *  quitó: metía una rama en la lectura de TabletScreen que solo existía al simular.
+ *  servidor de IA. Hubo un «lector simulado» que contestaba las lecturas desde aquí, y se
+ *  quitó: metía una rama en la lectura de la ventana que solo existía al simular.
  *  ───────────────────────────────────────────────────────────────────────────── */
 
 
@@ -53,7 +53,7 @@ async function encontrarSimulador(canal, alAvisar) {
 /**
  * @param {object} [opciones]
  * @param {function} [opciones.alAvisar]  recibe textos de progreso para la barra de estado
- * @returns un objeto con la forma del Adb que usa TabletScreen, más lo propio de la simulación
+ * @returns un objeto con la forma del Adb que usa useTablet, más lo propio de la simulación
  */
 export async function conectarConSimulador({ alAvisar } = {}) {
 

@@ -1,11 +1,11 @@
 /*  ─────────────────────────────────────────────────────────────────────────────
  *  EL REGISTRO DE LA INFERENCIA: UN CUADERNO DONDE SE APUNTA CADA PASO DE UNA LECTURA
  *
- *  Leer una tira de la pantalla son varios pasos —capturarla, preguntar al servidor de IA
+ *  Leer la pantalla son varios pasos —capturarla, preguntar al servidor de IA
  *  qué modelo tiene, mandarle la imagen, recibir su respuesta, sacar de ella los
  *  tickets— y cualquiera puede fallar. Desde fuera solo se veía el final: una parrilla
  *  que se llena o no. Este cuaderno apunta cada paso para poder verlos uno a uno en el
- *  panel lateral de la ventana de la tablet (PanelDeInferencia.jsx).
+ *  panel lateral de la ventana de la tablet (InferencePanel.jsx).
  *
  *  SOLO EXISTE EN DESARROLLO. Con la aplicación publicada el cuaderno está cerrado:
  *  'apuntar' no guarda nada y el panel ni siquiera se carga.
@@ -34,7 +34,7 @@ export const REGISTRO_ACTIVO = import.meta.env?.MODE === 'development';
  */
 export const TIPO = Object.freeze({
     TABLET: 'tablet',            //  se conecta o se desconecta la tablet (o la simulada)
-    TIRA: 'tira',                //  empieza la lectura de una tira de la pantalla
+    CAPTURA: 'captura',          //  empieza la lectura de una captura de la pantalla
     SERVIDOR: 'servidor',        //  se habla con el servidor de IA para saber qué modelo tiene
     ENVIO: 'envio',              //  sale la imagen hacia el modelo
     RESPUESTA: 'respuesta',      //  vuelve lo que contestó el modelo, tal cual
@@ -43,7 +43,7 @@ export const TIPO = Object.freeze({
 });
 
 
-//  Cuántos apuntes se guardan como mucho. La ventana pasa horas abierta leyendo una tira
+//  Cuántos apuntes se guardan como mucho. La ventana pasa horas abierta leyendo la pantalla
 //  cada pocos segundos: sin tope, el cuaderno crecería hasta comerse la memoria.
 const MAXIMO_DE_APUNTES = 500;
 
@@ -132,7 +132,7 @@ export function crearRegistro({ activo = true, maximo = MAXIMO_DE_APUNTES } = {}
 
 
 
-//  EL cuaderno de la aplicación: uno solo, compartido por quien apunta (TabletScreen) y
+//  EL cuaderno de la aplicación: uno solo, compartido por quien apunta (los hooks de la ventana) y
 //  por quien lee (el panel). Fuera de desarrollo nace cerrado.
 export const registroDeInferencia = crearRegistro({ activo: REGISTRO_ACTIVO });
 

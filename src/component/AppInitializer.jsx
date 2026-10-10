@@ -25,13 +25,19 @@ export default function AppInitializer({ children }) {
      *  La marca de tiempo la ponemos aquí, al recibir: es lo que permite distinguir dos
      *  reportes seguidos de la misma mesa, que de otro modo serían idénticos.
      *
+     *  Y se marca de dónde vino ('deLaVentanaFlotante'): al enviarlo, el formulario le
+     *  pide a la carcasa que vuelva a subir esa ventana, y eso solo tiene sentido si el
+     *  reporte salió de ella. Los que salen de la tablet de la barra lateral —la que va
+     *  por defecto— no pasan por aquí ni llevan la marca: subir la flotante entonces la
+     *  ABRIRÍA, y la tablet se iría de la barra a mitad de trabajo.
+     *
      *  Fuera de la aplicación de escritorio no hay puente y esto no se suscribe a nada.
      *  La acción del store sigue existiendo, así que el camino se puede probar en el
      *  navegador despachándola a mano.
      */
     useEffect(() => {
         const desuscribir = window.electronAPI?.onReportarDemora?.((datos) => {
-            dispatch(pedirReporteDemora({ ...datos, recibidoEn: Date.now() }));
+            dispatch(pedirReporteDemora({ ...datos, recibidoEn: Date.now(), deLaVentanaFlotante: true }));
         });
 
         return desuscribir;
@@ -53,7 +59,7 @@ export default function AppInitializer({ children }) {
         if (!import.meta.env.DEV) return;
 
         window.__probarReporteDemora = (datos) => {
-            dispatch(pedirReporteDemora({ ...datos, recibidoEn: Date.now() }));
+            dispatch(pedirReporteDemora({ ...datos, recibidoEn: Date.now(), deLaVentanaFlotante: true }));
         };
 
         return () => { delete window.__probarReporteDemora; };

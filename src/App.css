@@ -9,6 +9,10 @@
 }
 
 :root {
+    /*  Lo que mide la pestaña «Menú» de la barra escondida (.sidebar-tab). El centro (.main-content)
+        se aparta eso mismo, para que la pestaña no le tape el borde izquierdo.  */
+    --sidebar-tab-w: 32px;
+
     --background-dark: rgb(255, 255, 255);
     --background-ligth: #414141;
     --background-uiComponent: #8b8b8b;
@@ -478,7 +482,11 @@
     -webkit-backdrop-filter: blur(22px);
     border: 1px solid var(--color-jx-regla);
     border-radius: 20px;
-    box-shadow: 0 0 0 1px rgba(47, 42, 30, 0.06) inset, 0 30px 80px rgba(0, 0, 0, 0.65);
+    /*  Antes 0 30px 80px en negro al 65 %: sobre el marfil no era sombra sino un halo
+        gris azulado. Ahora en el tono de la tinta y mucho más corta.  */
+    box-shadow: 0 0 0 1px rgba(47, 42, 30, 0.06) inset,
+                0 1px 2px rgba(47, 42, 30, 0.06),
+                0 12px 32px rgba(47, 42, 30, 0.10);
     min-width: 340px;
 
 }
@@ -526,7 +534,7 @@
     border-radius: 12px;
     object-fit: cover;
     border: 1px solid var(--color-jx-regla);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 12px rgba(47, 42, 30, 0.12);
 }
 
 .local-btn-closeWindow {
@@ -555,7 +563,8 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 54%;
-    background: linear-gradient(180deg, rgba(170,255,248,0.22) 0%, rgba(80,220,235,0.08) 55%, transparent 100%);
+    /* el brillo era cian, del tema marino: sobre el verde ensuciaba. Ahora es blanco */
+    background: linear-gradient(180deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.08) 55%, transparent 100%);
     border-radius: 10px 10px 55% 55% / 10px 10px 36px 36px;
     pointer-events: none;
 }
@@ -569,17 +578,24 @@
 .local-btn-closeWindow:active {
     transform: perspective(300px) rotateX(1.5deg) translateY(4px);
     filter: brightness(0.94);
-    box-shadow: 0 4px 12px rgba(47, 42, 30, 0.22), inset 0 2px 6px rgba(0,18,50,0.5);
+    box-shadow: 0 4px 12px rgba(47, 42, 30, 0.22), inset 0 2px 6px rgba(47, 42, 30, 0.25);
 }
 
+/*  Igual que .vc-step-btn:disabled: hundido, regla2 y tinta4, que es el tono reservado
+    para lo deshabilitado. Sin el brillo de ::before, que es lo que lo hacía parecer
+    pulsable.  */
 .local-btn-closeWindow:disabled {
-    background: rgba(30, 50, 80, 0.5);
-    border-color: var(--color-jx-regla);
+    background: var(--color-jx-hundido);
+    border-color: var(--color-jx-regla2);
     box-shadow: none;
     transform: none;
     filter: none;
-    color: rgba(140,180,220,0.3);
+    color: var(--color-jx-tinta4);
     cursor: not-allowed;
+}
+
+.local-btn-closeWindow:disabled::before {
+    display: none;
 }
 
 .local-select {
@@ -653,7 +669,7 @@
 /*  Sobre un fondo de color, el ratón se marca aclarando u oscureciendo el PROPIO fondo,
     no metiendo un color de la paleta clara: cualquiera de ellos sería una mancha.
     'color-mix' con blanco mantiene el tono y solo sube la luz.                       */
-.nav-bar :is(.nav-bar__toggle, .nav-bar__action-btn):hover,
+.nav-bar .nav-bar__action-btn:hover,
 .nav-bar .nav-bar__user {
     background: color-mix(in srgb, #ffffff 14%, transparent);
 }
@@ -662,21 +678,6 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-}
-
-.nav-bar__toggle {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    padding: 0;
-    border-radius: 8px;
-    color: #ffffff;
-    cursor: pointer;
-    transition: background 0.15s ease;
 }
 
 .nav-bar__brand {
@@ -883,7 +884,36 @@
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
     z-index: 549;
-    display: none;
+}
+
+/*  LA BARRA VIVE ESCONDIDA A LA IZQUIERDA y solo asoma su pestaña (.sidebar-tab, justo antes en el
+    HTML). Pasar el ratón por la pestaña la despliega encima del centro, y sigue abierta mientras el
+    ratón esté sobre ella. Con un toque o un clic en la pestaña se queda abierta (.sidebar--open, que
+    pone además el velo de arriba); elegir algo del menú o tocar el velo la vuelve a cerrar.
+    El 0,15 s de espera es solo al cerrar: así no se esconde por salirse un instante.
+    Lo que la abre va DESPUÉS de .sidebar: '.sidebar--open' pesa lo mismo y, antes, perdería. */
+.sidebar-tab {
+    position: fixed;
+    top: calc(52px + var(--titlebar-h));
+    bottom: 0;
+    left: 0;
+    width: var(--sidebar-tab-w);
+    z-index: 949;
+    padding: 0;
+    border: none;
+    border-right: 1px solid var(--color-jx-regla2);
+    border-radius: 0;
+    background: var(--color-jx-panel);
+    color: var(--color-jx-tinta3);
+    writing-mode: vertical-rl;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.sidebar-tab:hover {
+    color: var(--color-jx-verde-texto);
 }
 
 .sidebar {
@@ -899,17 +929,22 @@
        repinta la zona en GPU en cada frame (sidebar siempre visible). */
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-100%);
+    box-shadow: 4px 0 20px rgba(47, 42, 30, 0.12);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
     overflow-y: auto;
     display: flex;
+    /*  La barra es clara pero el ':root' de index.css sigue en oscuro, y el navegador pintaba
+        NEGRA su barra de desplazamiento. Con la tablet abajo, en una pantalla baja (768 px) la
+        barra se desplaza, y esa franja negra cortaba el menú de arriba abajo.              */
+    color-scheme: light;
 }
 
+.sidebar-tab:hover + .sidebar,
+.sidebar:hover,
 .sidebar--open {
-    transform: translateX(-100%);
-}
-
-.sidebar--closed {
-    transform: translateX(0);
+    transform: none;
+    transition-delay: 0s;
 }
 
 .sidebar__header {
@@ -1059,9 +1094,9 @@
 
 .main-content {
     margin-top: calc(52px + var(--titlebar-h));
-    margin-left: 260px;
     min-height: calc(100vh - 52px - var(--titlebar-h));
     padding: 1.5rem;
+    padding-left: calc(var(--sidebar-tab-w) + 1.5rem);
     padding-bottom: 3.5rem;
     display: flex;
     justify-content: flex-start;
@@ -1070,7 +1105,6 @@
     position: relative;
     gap: 1.5rem;
     background: var(--color-jx-lienzo);
-
 }
 
 /* ═══ INBOX PANEL (Bandeja de entrada multimedia) ═══ */
@@ -2535,30 +2569,13 @@ hr {
         display: none;
     }
 
-    /*   sidebar: overlay mode on mobile   */
-
-    .sidebar-overlay {
-        display: block;
-    }
-
     .sidebar {
         width: 280px;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
     }
-
-    .sidebar--closed {
-        transform: translateX(-100%);
-    }
-
-    .sidebar--open {
-        transform: translateX(0);
-    }
-
-    /*   main: full width on mobile   */
 
     .main-content {
-        margin-left: 0;
         padding: 1rem;
+        padding-left: calc(var(--sidebar-tab-w) + 1rem);
         padding-bottom: 3.5rem;
     }
 

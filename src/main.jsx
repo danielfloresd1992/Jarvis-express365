@@ -9,7 +9,7 @@ import { Provider } from "react-redux";
 import "./index.css";
 import { puedeEjecutarse } from "./libs/entorno/esEscritorio";
 import SoloEscritorio from "./component/SoloEscritorio/SoloEscritorio";
-import { VentanaTablet } from "./component/tabletScreen/VentanaTablet.jsx";
+import { RegisterController } from "./component/tabletScreen/register.controller.jsx";
 import { LimiteDeError } from "./component/LimiteDeError.jsx";
 import TitleBar from "./component/titleBar/TitleBar.jsx";
 import { SIMULACION_DISPONIBLE, VISTA_SIMULADOR } from "./simulador/disponible.js";
@@ -77,11 +77,12 @@ const esVistaSimulador = SIMULACION_DISPONIBLE && vistaPedida === VISTA_SIMULADO
 if (esVistaSimulador) {
     document.documentElement.classList.add('vista-simulador');
 
-    import('./simulador/AppSimulador.jsx').then(({ default: AppSimulador }) => {
+    //  Todo el simulador empieza en simulador/simulator.controller.jsx.
+    import('./simulador/simulator.controller.jsx').then(({ SimulatorController }) => {
         root.render(
             <React.StrictMode>
                 <LimiteDeError>
-                    <AppSimulador />
+                    <SimulatorController />
                 </LimiteDeError>
             </React.StrictMode>
         );
@@ -100,10 +101,11 @@ else if (!puedeEjecutarse()) {
     root.render(<SoloEscritorio />);
 }
 
-// La flotante pinta la pantalla de la tablet ARRIBA y la parrilla ABAJO, partidas
-// por un divisor que se arrastra. Las dos juntas en la misma ventana a propósito:
-// así los tickets que lee la IA bajan a la parrilla como estado de React, sin
-// cruzar de ventana ni pasar por el puente de Electron.
+// La flotante pinta la pantalla de la tablet ARRIBA y los registers ABAJO, partidos
+// por un divisor que se arrastra. Juntos en la misma ventana a propósito: así los
+// tickets que lee la IA bajan a los registers como estado de React, sin cruzar de
+// ventana ni pasar por el puente de Electron. Todo empieza en
+// component/tabletScreen/register.controller.jsx.
 //
 // Nada de Provider ni de App: cada ventana de Electron tiene su propio contexto,
 // así que montar Jarvis otra vez abriría un segundo socket y una segunda sesión
@@ -124,7 +126,7 @@ else if (esVistaTablet) {
     root.render(
         <React.StrictMode>
             <LimiteDeError>
-                <VentanaTablet />
+                <RegisterController />
             </LimiteDeError>
         </React.StrictMode>
     );

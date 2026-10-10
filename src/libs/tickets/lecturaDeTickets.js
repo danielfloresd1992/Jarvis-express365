@@ -98,13 +98,13 @@ export function leerCabecera(texto) {
     /*  SIN MESA, EL TICKET OCUPA SU LUGAR — PERO COMO LECTURA NO FIABLE
      *
      *  Que falte 'Table' puede ser por dos motivos que desde aquí no se distinguen:
-     *  que el pedido de verdad no tenga mesa, o que la tarjeta haya caído en el borde
-     *  de una tira y el modelo solo viera "6 #34 1:03:01" de "Table 16 #34 1:03:01".
+     *  que el pedido de verdad no tenga mesa, o que la tarjeta asome cortada por el borde
+     *  de la pantalla y el modelo solo viera "6 #34 1:03:01" de "Table 16 #34 1:03:01".
      *  De ese segundo caso salía la mesa «6», que apareció cuatro veces sin existir.
      *
-     *  Marcándola no fiable, quien llama no deja que pise a una lectura con 'Table' del
-     *  mismo ticket hecha desde la tira vecina, que sí ve la tarjeta entera. Y si el
-     *  pedido de verdad no tiene mesa, nunca llegará nada mejor y se queda el '#N'.
+     *  Marcándola no fiable, quien llama no deja que pise a una lectura anterior con
+     *  'Table' del mismo ticket, que sí vio la tarjeta entera. Y si el pedido de verdad
+     *  no tiene mesa, nunca llegará nada mejor y se queda el '#N'.
      */
     const mesa = conMesa?.[1] ?? (ticket ? `#${ticket}` : '');
     const mesaFiable = Boolean(conMesa);

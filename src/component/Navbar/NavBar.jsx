@@ -15,7 +15,7 @@ import TabletButton from '../tabletButton/TabletButton.jsx';
 
 
 
-function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
+function NavBar({ clearLocal, boxModal }) {
 
 
     const navigate = useNavigate();
@@ -113,13 +113,6 @@ function NavBar({ clearLocal, openCloseSidebar, boxModal }) {
     return (
         <nav className='nav-bar'>
             <div className='nav-bar__left'>
-                <button className='nav-bar__toggle' onClick={openCloseSidebar} title="Menú">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <line x1="3" y1="12" x2="21" y2="12" />
-                        <line x1="3" y1="18" x2="21" y2="18" />
-                    </svg>
-                </button>
                 <div className='nav-bar__brand'>
                     <span className='nav-bar__app-name'>JarvisExpress</span>
                 </div>

@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useTabletWindow } from '../../hook/useTabletWindow.js';
 
 // ══════════════════════════════════════════════════════════════════════
 // SACAR / QUITAR LA TABLET
 // ══════════════════════════════════════════════════════════════════════
-// Abre y cierra la ventana flotante que espeja la pantalla de la tablet.
+// Por defecto la tablet vive en la ventana principal: el espejo en la barra
+// de la izquierda y los registers en el centro de Home. Este botón la saca a
+// una ventana flotante, y al quitarla vuelve sola a su sitio.
 //
 // La ventana NO vive acá: la crea la carcasa de escritorio (jarvis-desktop)
 // como una ventana real del sistema, sin marco y siempre encima. Este botón
@@ -14,16 +16,9 @@ import { useEffect, useState } from 'react';
 //
 // EL ESTADO NO SE ADIVINA — LO DICE ELECTRON
 //
-// Sería más corto llevar acá un booleano y darlo vuelta en cada clic. Pero la
-// ventana flotante tiene su propia ✕: si alguien la cierra desde ahí, ese
-// booleano se quedaría diciendo "abierta" y el botón ofrecería quitar algo
-// que ya no está.
-//
-// Por eso el estado llega por `tablet:estado`, que la carcasa emite cada vez
-// que la ventana se abre o se cierra, venga de donde venga la orden. Al montar
-// se pregunta una vez con `preguntarEstadoTablet`, porque la ventana puede
-// llevar rato abierta de antes —al recargar Jarvis, por ejemplo— y sin esa
-// pregunta el botón arrancaría mintiendo hasta el primer cambio.
+// Si está abierta o no lo dice `useTabletWindow` (hook/useTabletWindow.js),
+// que escucha a la carcasa. Ahí está explicado por qué no basta con un
+// booleano que se dé vuelta en cada clic.
 //
 //
 // DÓNDE SE COLOCA
@@ -38,20 +33,11 @@ import { useEffect, useState } from 'react';
 
 export default function TabletButton() {
 
-    const [abierta, setAbierta] = useState(false);
+    const abierta = useTabletWindow();
 
     // Sin carcasa no hay ventana flotante. Se resuelve una vez y no cambia:
     // `electronAPI` lo pone el preload antes de que cargue nada de React.
     const hayCarcasa = Boolean(window.electronAPI);
-
-    useEffect(() => {
-        // `onTabletState` devuelve la función que quita el oyente. Sin llamarla
-        // al desmontar, cada montaje dejaría uno vivo y el estado se aplicaría
-        // varias veces.
-        const desuscribir = window.electronAPI?.onTabletState?.(setAbierta);
-        window.electronAPI?.preguntarEstadoTablet?.();
-        return desuscribir;
-    }, []);
 
 
     // O hay carcasa y el botón funciona, o no la hay y no se pinta. Sin
@@ -76,7 +62,7 @@ export default function TabletButton() {
                     if (abierta) window.electronAPI?.closeTabletWindow?.();
                     else window.electronAPI?.openTabletWindow?.();
                 }}
-                title={abierta ? 'Cerrar la ventana de la tablet' : 'Abrir la pantalla de la tablet en una ventana flotante'}
+                title={abierta ? 'Cerrar la ventana de la tablet y devolverla a la barra lateral' : 'Sacar la tablet de la barra lateral a una ventana flotante'}
             >
                 <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
                     <rect x='4' y='2' width='16' height='20' rx='2' />

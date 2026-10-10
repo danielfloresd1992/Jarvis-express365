@@ -1,0 +1,118 @@
+/* ═══════════════════════════════════════════════
+   LA TABLET EN LA BARRA DE LA IZQUIERDA
+   ═══════════════════════════════════════════════ */
+
+/*  Va al final del menú. El menú (.sidebar__nav) es una columna flexible que se come el alto que
+    sobra en la barra, así que con 'flex: 1' la tablet se queda con todo el hueco que queda hasta el
+    pie. El mínimo es para que en una ventana baja el espejo no se quede en una raya: entonces es la
+    barra entera la que se desplaza (.sidebar lleva 'overflow-y: auto').
+
+    'color-scheme: light' y la tinta van aquí por lo mismo que en la ventana flotante: el ':root' de
+    index.css sigue en oscuro, y sin ellos el navegador pintaría oscura la barra de desplazamiento
+    del espejo al ampliar la imagen.                                                               */
+.tablet-dock {
+    flex: 1;
+    min-height: 270px;
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-jx-tarjeta);
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 10px;
+    color: var(--color-jx-tinta);
+    color-scheme: light;
+}
+
+/*  Con la tablet fuera, en su ventana, solo queda un aviso: no se estira.  */
+.tablet-dock--away {
+    flex: none;
+    min-height: 0;
+}
+
+
+/*  ── Arriba: el punto, «Tablet» y cómo están la tablet y la IA ── */
+.tablet-dock__header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.7rem 0.5rem;
+}
+
+/*  El rótulo del aviso de «está fuera». Es el mismo tamaño y peso que el nombre de TabletStatus,
+    para que el bloque no cambie de cara al sacar la tablet.                                  */
+.tablet-dock__title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-jx-tinta);
+}
+
+
+/*  ── Los botones: una fila debajo del estado ── */
+.tablet-dock__actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 0.7rem 0.65rem;
+    border-bottom: 1px solid var(--color-jx-regla2);
+}
+
+
+/*  ── El espejo: se queda con el alto que sobra ──
+    'relative' porque el aviso del envío (SendNotice) se coloca contra este recuadro. 'min-height: 0'
+    deja encoger la imagen; sin él empujaría la barra del zoom fuera de la tarjeta.
+
+    'contain: size' es lo que impide que la IMAGEN decida el alto de la barra entera. Sin él, el
+    alto de la captura contaba como el mínimo del menú (.sidebar__nav no lleva 'min-height: 0'):
+    con la tablet conectada eso pasaba del hueco por unos píxeles, la barra sacaba su barra de
+    desplazamiento, el espejo estrechaba, la imagen bajaba… y la barra de desplazamiento se quedaba
+    puesta sin nada que desplazar. Así el espejo mide lo que le toca y la imagen se ajusta dentro.  */
+.tablet-dock__screen {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    contain: size;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/*  ── El aviso de «está fuera» ── */
+.tablet-dock__away-text {
+    margin: 0;
+    padding: 0 0.7rem 0.6rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--color-jx-tinta2);
+}
+
+/*  El relleno, el borde y la letra, a mano: la regla global 'button {}' de index.css no está en
+    ninguna capa y se los pondría a su manera. Una clase le gana a una etiqueta.                 */
+.tablet-dock__back {
+    margin: 0 0.7rem 0.7rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-jx-borde-campo);
+    background: var(--color-jx-lienzo);
+    color: var(--color-jx-tinta);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.tablet-dock__back:hover {
+    background: var(--color-jx-verde-suave);
+    border-color: var(--color-jx-verde-barra);
+    color: var(--color-jx-verde-texto);
+}
+
+/*  El 'outline: none' global deja sin rastro a quien va con el teclado: aquí se le devuelve.  */
+.tablet-dock__back:focus-visible {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: 2px;
+}

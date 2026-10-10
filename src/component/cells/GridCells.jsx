@@ -3,9 +3,9 @@ import { useState } from 'react';
 
 
 
-/*  CELDAS COMPARTIDAS DE LAS PARRILLAS
+/*  CELDAS COMPARTIDAS DE LOS REGISTERS
  *
- *  Las usan las dos tablas: la de rotación (mesas) y la de procesos (platos).
+ *  Las usa el registro de las mesas: cada dato de una mesa y cada hora de sus procesos.
  *
  *  Viven en su propio archivo y no dentro de Main.jsx a propósito: Main ya importa
  *  la tabla de procesos, así que si la tabla importara las celdas desde Main se
@@ -15,24 +15,27 @@ import { useState } from 'react';
 
 
 
-/*  Una celda de la parrilla.
+/*  Una celda de un register.
  *
  *  'min-w-0' y 'overflow-hidden' son los que evitan la barra de desplazamiento
  *  horizontal: sin ellos una celda no baja del ancho de su contenido y la fila entera
- *  se sale del panel. Con ellos las siete columnas se reparten el ancho que haya.
+ *  se sale del panel. Con ellos las columnas se reparten el ancho que haya.
  *
- *  La letra sigue el ancho de la parrilla, igual que la imagen de la tablet sigue el de
+ *  La letra sigue el ancho del register, igual que la imagen de la tablet sigue el de
  *  la ventana: 'cqw' es un 1 % del ancho del contenedor (el panel lleva '@container').
  *  Nunca baja de 10 px, que es lo mínimo legible, ni pasa de 13.
  *
- *  @param {object} estilo  estilo en línea, para lo que una clase no puede asegurar:
- *                          una columna más ancha que las demás (flexGrow) tiene que
- *                          serlo igual en la cabecera y en cada fila.
+ *  @param {object}  estilo  estilo en línea, para lo que una clase no puede asegurar:
+ *                           una columna más ancha que las demás (flexGrow) tiene que
+ *                           serlo igual en la cabecera y en cada fila.
+ *  @param {boolean} tall    la celda ocupa el alto entero de su fila en vez de una
+ *                           línea: los datos de una mesa, que abarcan todas las líneas
+ *                           de sus procesos.
  */
-export function WrapperCell({ classStyles = '', estilo, titulo, children }) {
+export function WrapperCell({ classStyles = '', estilo, titulo, tall = false, children }) {
     return (
         <div
-            className={`cursor-pointer flex-1 min-w-0 overflow-hidden h-7 flex items-center justify-center text-[length:clamp(10px,1.8cqw,13px)] border-b border-b-[#0a3a66]/25 text-center leading-[1.15] border-r border-r-[#0a3a66]/25 ${classStyles}`}
+            className={`cursor-pointer flex-1 min-w-0 overflow-hidden ${tall ? 'self-stretch min-h-7' : 'h-7'} flex items-center justify-center text-[length:clamp(10px,1.8cqw,13px)] border-b border-b-jx-regla text-center leading-[1.15] border-r border-r-jx-regla ${classStyles}`}
             style={estilo}
             title={titulo}
         >
@@ -46,7 +49,7 @@ export function WrapperCell({ classStyles = '', estilo, titulo, children }) {
 
 /*  Celda de tiempo.
  *
- *  Un clic estampa la hora actual —que es como se trabaja en la parrilla: cuando
+ *  Un clic estampa la hora actual —que es como se trabaja en el register: cuando
  *  pasa la cosa, se toca—. Dos clics abren el campo para corregir a mano lo que se
  *  haya estampado mal o llegue tarde.
  *
@@ -70,7 +73,7 @@ export function WrapperText({ classStyles = '', value, updateValue }) {
      *    se abría ya con el valor nuevo: el doble clic destruía justo el dato que
      *    ibas a corregir, y sin manera de deshacerlo.
      *
-     *  · Entre las dos parrillas hay más de cien celdas de hora. Un clic despistado
+     *  · Entre los dos registers hay más de cien celdas de hora. Un clic despistado
      *    en cualquiera de ellas sobrescribía su valor en silencio.
      *
      *  Para cambiar una hora ya puesta está el doble clic, que abre el campo.
@@ -97,7 +100,7 @@ export function WrapperText({ classStyles = '', value, updateValue }) {
      *  foco la que ocurre sola al tocar otra celda.
      *
      *  Sin ninguna de ellas la celda se quedaba convertida en campo de texto para
-     *  siempre, y con treinta filas eso llena la parrilla de cajas abiertas.
+     *  siempre, y con treinta filas eso llena el register de cajas abiertas.
      */
     const salirDeEdicion = (event) => {
         if (event.key === 'Enter' || event.key === 'Escape') {

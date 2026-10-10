@@ -1,0 +1,51 @@
+/* ═══════════════════════════════════════════════
+   LA ROTACIÓN DESPLEGADA Y SUS PROCESOS
+   ═══════════════════════════════════════════════ */
+
+/*  Al desplegarla, la fila de la rotación y sus procesos forman un grupo: los dos sobre la misma franja,
+    un poco más oscura que el resto, con los procesos en una tarjeta clara dentro de ella. Así la rotación
+    pesa más que sus procesos, y se ve dónde termina cada grupo.
+
+    La franja es translúcida y no un color: deja ver debajo los colores de las columnas (COLUMN_STRIPES,
+    en columns.js).
+
+    Va aquí y no en clases de Tailwind porque tiene que ganar a las de las celdas (WrapperCell): lo que
+    no está en ninguna capa gana siempre a lo que sí, y las utilidades de Tailwind van en una.          */
+
+.register-rotation--open > .register-rotation__row,
+.register-rotation__processes {
+    background: color-mix(in srgb, var(--color-jx-tinta) 5%, transparent);
+}
+
+/*  Sin la raya de abajo, la fila y sus procesos se leen como una sola pieza.  */
+.register-rotation--open > .register-rotation__row > div {
+    border-bottom-color: transparent;
+}
+
+.register-rotation__processes {
+    padding-block: 2px 8px;
+    border-bottom: 1px solid var(--color-jx-regla2);
+}
+
+.register-process-card {
+    background: var(--color-jx-lienzo);
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/*  Dentro de la tarjeta, sin rayas verticales; y la última línea sin la de abajo, que ya la pone el borde.  */
+.register-process-line > div {
+    border-right-color: transparent;
+}
+
+.register-process-card > :last-child > div {
+    border-bottom-color: transparent;
+}
+
+/*  El select del tipo de plato, con una flecha fina y apagada en lugar de la del sistema.  */
+.register-process-line select {
+    appearance: none;
+    padding-inline: 4px 16px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23706859' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 5px center;
+}

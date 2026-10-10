@@ -252,7 +252,7 @@ const PANTALLA_DE_SIEMPRE = { idioma: 'es', alto: 768, estacion: '' };
  * entraría en la escena el plato fuerte de una mesa que ya no existe.
  *
  * @returns {object} los ajustes que pide la escena: los de pantalla (tema, idioma,
- *                   umbrales…) y la simulación parada. Quien los aplica es AppSimulador.
+ *                   umbrales…) y la simulación parada. Quien los aplica es simulator.controller.jsx.
  */
 export function cargarEscena(motor, id) {
     const escena = ESCENAS[id];

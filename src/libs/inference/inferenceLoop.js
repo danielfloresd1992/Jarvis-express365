@@ -1,8 +1,8 @@
 // inferenceLoop.js — el bucle de inferencia.
-// Dos piezas: 'runInferenceOnce' da UNA vuelta (recorta la tira, la manda al modelo y entiende lo
-// que contestó) y 'startInferenceLoop' repite vueltas sin fin, una detrás de otra.
+// Dos piezas: 'runInferenceOnce' da UNA vuelta (manda la captura entera al modelo y entiende lo que
+// contestó) y 'startInferenceLoop' repite vueltas sin fin, una detrás de otra.
 
-import { cropStrip } from './tabletImage.js';
+import { toDataUrl } from './tabletImage.js';
 import { requestInference } from './aiServer.js';
 import { parseModelResponse } from './modelResponse.js';
 import { TIPO } from '../tickets/registroDeInferencia.js';
@@ -48,12 +48,10 @@ function summarizeTicket(ticket) {
 // buildRoundResult = «armar el resultado de la vuelta»
 // PURA. El resultado de una vuelta, siempre con las mismas claves, acabe como acabe.
 // Recibe: params (los de runInferenceOnce) y changes (las claves que cambian en este final).
-// Devuelve: { ok, strip, strips, time, model, seconds, tickets, discarded, error, cause, text, imageKB }
+// Devuelve: { ok, time, model, seconds, tickets, discarded, error, cause, text, imageKB }
 function buildRoundResult(params, changes) {
     return {
         ok: false,
-        strip: params.strip,
-        strips: params.strips,
 
         // La hora es la de la FOTO, no la de cuando contesta el modelo: la toma de orden es
         // «hora − cronómetro», y el cronómetro es el de la foto.
@@ -83,7 +81,7 @@ function getChatUrl(baseUrl) {
 
 
 // LOS APUNTES DEL REGISTRO DE LA INFERENCIA (el panel lateral de desarrollo). Son los mismos de siempre:
-// apunte 1 (la tira), 2 (el servidor), 3 (el envío), 4 (la respuesta), 5 (los tickets) y el FALLO.
+// apunte 1 (la captura), 2 (el servidor), 3 (el envío), 4 (la respuesta), 5 (los tickets) y el FALLO.
 // Todas reciben 'note' (la función que apunta) y no devuelven nada.
 //
 // CUIDADO CON LA CLAVE: dentro de 'server' viaja la clave del servidor de IA, y el registro se enseña
@@ -91,16 +89,16 @@ function getChatUrl(baseUrl) {
 // (direccion, modelo) y nunca el objeto entero: ni '...server', ni 'server' suelto, ni su JSON.
 
 
-// noteStripToSend = «apuntar la tira que se va a mandar»
+// noteCaptureToSend = «apuntar la captura que se va a mandar»
 // Apuntes 1, 2 y 3: qué se va a leer, con qué servidor y qué modelo, y que sale la imagen.
-// Recibe: note, params (los de runInferenceOnce), image (la tira, como data URL) e imageKB (lo que pesa).
-function noteStripToSend(note, params, image, imageKB) {
+// Recibe: note, params (los de runInferenceOnce), image (la captura, como data URL) e imageKB (lo que pesa).
+function noteCaptureToSend(note, params, image, imageKB) {
 
     // Los parámetros de la vuelta, cada uno por su nombre (están traducidos en el «Recibe:» de runInferenceOnce).
-    const { capture, strip, strips, server, timeoutMs } = params;
+    const { capture, server, timeoutMs } = params;
 
     // Apunte 1 · qué se va a leer
-    note(TIPO.TIRA, `Tira ${strip + 1} de ${strips} · captura de las ${capture.time || '(sin hora)'}`, {
+    note(TIPO.CAPTURA, `Captura de las ${capture.time || '(sin hora)'}`, {
         imagenKB: imageKB,
         formato: image.slice(5, image.indexOf(';')),
     });
@@ -109,7 +107,7 @@ function noteStripToSend(note, params, image, imageKB) {
     note(TIPO.SERVIDOR, `Se lee con «${server.model}»`, { direccion: server.baseUrl, modelo: server.model });
 
     // Apunte 3 · sale la imagen
-    note(TIPO.ENVIO, `Enviando la tira al modelo (${imageKB} KB)`, {
+    note(TIPO.ENVIO, `Enviando la captura al modelo (${imageKB} KB)`, {
         direccion: getChatUrl(server.baseUrl),
         modelo: server.model,
         imagenKB: imageKB,
@@ -186,7 +184,7 @@ function pareceQueFaltanLasInstrucciones(text) {
     const limpio = String(text ?? '').trim().toLowerCase().replace(/^[¡!*#\s]+/, '');
     if (!limpio) return false;
 
-    return SALUDOS_DE_UN_MODELO_SIN_INSTRUCCIONES.some(s => limpio.startsWith(s));
+    return SALUDOS_DE_UN_MODELO_SIN_INSTRUCCIONES.some(saludo => limpio.startsWith(saludo));
 }
 
 
@@ -214,7 +212,7 @@ function noteUnreadableAnswer(note, text) {
 
 
 // noteTicketsFound = «apuntar los tickets encontrados»
-// Apunte 5: los tickets que salieron de esta tira, ya entendidos.
+// Apunte 5: los tickets que salieron de esta captura, ya entendidos.
 // Recibe: note y parsed (lo que devuelve parseModelResponse: { tickets, discarded }).
 function noteTicketsFound(note, parsed) {
 
@@ -225,8 +223,8 @@ function noteTicketsFound(note, parsed) {
         discardedForPanel.push({ motivo: item.reason, loQueDijoElModelo: item.object });
     }
 
-    note(TIPO.RESULTADO, `${parsed.tickets.length} tickets de esta tira · ${parsed.discarded.length} descartados`, {
-        ticketsDeEstaTira: parsed.tickets.map(summarizeTicket),
+    note(TIPO.RESULTADO, `${parsed.tickets.length} tickets en la pantalla · ${parsed.discarded.length} descartados`, {
+        tickets: parsed.tickets.map(summarizeTicket),
         descartados: discardedForPanel,
     });
 }
@@ -234,14 +232,13 @@ function noteTicketsFound(note, parsed) {
 
 
 // runInferenceOnce = «dar una vuelta de inferencia»
-// UNA vuelta completa: STEP 2 (recortar la tira), STEP 3 (mandarla al modelo) y STEP 4 (entender
-// su respuesta). No toca React ni guarda nada: todo lo recibe y todo lo devuelve.
-// Recibe: { capture: { blob, time, width },     la última captura de la tablet
-//           strip, strips, overlap,              qué tira toca, de cuántas, y con cuánto solape
+// UNA vuelta completa: STEP 2 (la captura, como data URL), STEP 3 (mandarla al modelo) y STEP 4
+// (entender su respuesta). No toca React ni guarda nada: todo lo recibe y todo lo devuelve.
+// Recibe: { capture: { blob, time },             la última captura de la tablet, que viaja ENTERA
 //           server: { baseUrl, apiKey, model },  el servidor de IA, su clave y el modelo (de checkAiServer)
 //           timeoutMs, signal,                   cuánto se espera al modelo, y con qué se cancela
 //           note }                               note(tipo, titulo, detalle): apunta en el registro de la inferencia
-// Devuelve: { ok, strip, strips, time, model, seconds, tickets, discarded, error, cause, text, imageKB }
+// Devuelve: { ok, time, model, seconds, tickets, discarded, error, cause, text, imageKB }
 //   cause: los de requestInference ('network', 'cors', 'timeout', 'http', 'model-rejected', 'auth',
 //          'no-url', 'cancelled'), 'unreadable' (contestó, pero ahí no había un array de tickets)
 //          o 'unexpected'. Con 'auth' y 'no-url' quien llama para el bucle: insistir no arregla nada.
@@ -250,23 +247,23 @@ function noteTicketsFound(note, parsed) {
 async function runInferenceOnce(params) {
 
     // Los parámetros, cada uno por su nombre (están traducidos arriba, en el «Recibe:»).
-    const { capture, strip, strips, overlap, server, timeoutMs, signal } = params;
+    const { capture, server, timeoutMs, signal } = params;
 
     // note = «apuntar en el registro» (si no la pasan, no se apunta nada)
     const note = params.note ?? (() => {});
 
     try {
-        // STEP 2 · de la última captura, la tira que toca
-        // image = «la tira, como data URL»
-        const image = await cropStrip(capture.blob, strips, overlap, strip);
+        // STEP 2 · la captura entera, como data URL
+        // image = «la captura, como data URL»
+        const image = await toDataUrl(capture.blob);
 
-        // imageKB = «lo que pesa la tira, en KB»
+        // imageKB = «lo que pesa la captura, en KB»
         const imageKB = Math.round(image.length / 1024);
 
-        noteStripToSend(note, params, image, imageKB);
+        noteCaptureToSend(note, params, image, imageKB);
         console.log(`[IA] mandando imagen a ${server.model}: ${imageKB} KB`);
 
-        // STEP 3 · la tira viaja al modelo; vuelve su texto
+        // STEP 3 · la captura viaja al modelo; vuelve su texto
         // response = «la respuesta de la solicitud de inferencia»
         const response = await requestInference({
             baseUrl: server.baseUrl,
@@ -335,11 +332,11 @@ async function runInferenceOnce(params) {
         });
     }
     catch (error) {
-        // Aquí solo se llega por algo que no se esperaba (por ejemplo, una captura que no se deja recortar).
+        // Aquí solo se llega por algo que no se esperaba (por ejemplo, una captura que no se deja leer).
         console.log(error);
 
         // reason = «el motivo, en español»
-        const reason = `no se pudo leer la tira: ${error?.message ?? error}`;
+        const reason = `no se pudo leer la captura: ${error?.message ?? error}`;
 
         note(TIPO.FALLO, reason, { mensajeOriginal: error?.message ?? null });
 
