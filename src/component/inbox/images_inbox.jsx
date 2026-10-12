@@ -4,6 +4,7 @@ import { socketAppManager } from '../../store/slices/socketio';
 import { useSelector } from 'react-redux';
 import BoxImg from './BoxImg';
 import { getFileToastPos, deleteFileToasPos } from '../../libs/fetch_data/noveltyFecth';
+import { useInbox } from './inboxContext.jsx';
 
 
 
@@ -18,7 +19,9 @@ export default function InboxImg() {
 
     const [localState, setLocalState] = useState(null);
 
-    const [collapsed, setCollapsed] = useState(true);
+    //  Abierto o cerrado, y cuántas hay, viven en InboxProvider: el botón que lo abre está en la barra de
+    //  arriba (InboxButton), no aquí.
+    const { collapsed, setCollapsed, setCount } = useInbox();
 
 
 
@@ -83,18 +86,11 @@ export default function InboxImg() {
 
     const count = listImgState.length;
 
+    //  El contador lo enseña el botón de la barra
+    useEffect(() => { setCount(count); }, [count, setCount]);
+
     return (
         <>
-            {/* Toggle tab — always visible */}
-            <button
-                className="inbox-toggle z-[1001]"
-                onClick={() => setCollapsed(!collapsed)}
-                title='Bandeja de imagenes del Toast POS'
-            >
-                <img className='max-w-none w-[40px]' src='/ico/icons8-imagen-50.png' alt='ico-image-box' />
-                {count > 0 && <span className="inbox-toggle__badge">{count}</span>}
-            </button>
-
             {/* Panel */}
             <aside className={`inbox-panel ${collapsed ? 'inbox-panel--collapsed' : 'inbox-panel--open'} z-[1000]`}>
                 <div className="inbox-panel__header">

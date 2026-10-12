@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import CellTimeInput from './CellTimeInput.jsx';
 
 
 
@@ -93,32 +94,21 @@ export function WrapperText({ classStyles = '', value, updateValue }) {
 
 
 
-    /*  SALIR DEL MODO EDICIÓN
+    /*  EL CAMPO DE LA HORA: HH:MM:SS sin teclear los «:» (CellTimeInput)
      *
-     *  Hacen falta las tres salidas, y ninguna sobra: 'Enter' es la que todo el mundo
-     *  intenta primero, 'Escape' la que se busca cuando uno se arrepiente, y perder el
-     *  foco la que ocurre sola al tocar otra celda.
-     *
-     *  Sin ninguna de ellas la celda se quedaba convertida en campo de texto para
-     *  siempre, y con treinta filas eso llena el register de cajas abiertas.
+     *  Las tres salidas siguen, y ninguna sobra: 'Enter' guarda, 'Escape' descarta y deja la
+     *  hora como estaba, y perder el foco —tocar otra celda— guarda. Sin ellas la celda se
+     *  quedaba convertida en campo para siempre, y con treinta filas eso llena el register de
+     *  cajas abiertas. Solo se anota si la hora cambió.
      */
-    const salirDeEdicion = (event) => {
-        if (event.key === 'Enter' || event.key === 'Escape') {
-            event.preventDefault();
-            setEditing(false);
-        }
-    };
-
-
     if (editing) return (
-        <input
-            className='w-full h-full text-center bg-transparent'
-            type='text'
+        <CellTimeInput
             value={value}
-            onChange={event => updateValue(event.target.value)}
-            onKeyDown={salirDeEdicion}
-            onBlur={() => setEditing(false)}
-            autoFocus
+            onCommit={time => {
+                setEditing(false);
+                if (time !== value) updateValue(time);
+            }}
+            onCancel={() => setEditing(false)}
         />
     );
 

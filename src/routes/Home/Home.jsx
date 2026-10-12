@@ -9,6 +9,7 @@ import { createIo, socketAppManager } from '../../store/slices/socketio.js';
 import imgDefault from '../../../public/img/default.png';
 import NavBar from '../../component/Navbar/NavBar.jsx';
 import InboxImg from '../../component/inbox/images_inbox.jsx';
+import { InboxProvider } from '../../component/inbox/inboxContext.jsx';
 import AsideBar from '../../component/AsideBar/AsideBar.jsx';
 import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
@@ -245,6 +246,9 @@ export default function Home() {
                 render && listMenu.length > 0 ?
                     (
                         <div className="homeComponent">
+                            {/*  La bandeja de imágenes: su botón va en la barra (NavBar) y su panel abajo
+                                 (InboxImg). Comparten si está abierta y cuántas hay (inboxContext.jsx).  */}
+                            <InboxProvider>
                             <NavBar clearLocal={resetLocal} boxModal={configBoxModal} />
 
                             {/*  LA TABLET: el espejo va en la barra de la izquierda y los registers en
@@ -285,6 +289,7 @@ export default function Home() {
                                 )
                             }
                             <InboxImg />
+                            </InboxProvider>
                             <Chat key='chats' />
                             <Notifications />
                             <Await config={openAwaitWindow} close={configAwait.close} />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, appendBlankProcess, applyTabletOrders } from '../../../libs/tickets/tableRecords.js';
+import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, appendBlankProcess, applyTabletOrders, createRecord, stampShift } from '../../../libs/tickets/tableRecords.js';
 import { getCurrentTime } from '../../cells/GridCells.jsx';
 
 
@@ -23,18 +23,20 @@ import { getCurrentTime } from '../../cells/GridCells.jsx';
 // useRegisterStore = «el registro de las mesas»
 // Recibe: { establishmentId   el _id del local: de quién es lo que se guarda
 //           orders            los pedidos que se están siguiendo ahora (useProcessTracking)
-//           simulating }      hay una simulación en marcha
-// Devuelve: { records, writeRecord, writeProcess, addProcess, deleteProcess, addTouch, writeTouch, deleteTouch, clear }
+//           simulating        hay una simulación en marcha
+//           shift }           el turno del toggle de la barra: con él nacen las rotaciones (stampShift)
+// Devuelve: { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear }
 //   records                                          las rotaciones, con las filas en blanco del final
 //   writeRecord(recordId, field, value)              anota un dato de una rotación
 //   writeProcess(recordId, processId, field, value)  anota una hora de un proceso
 //   addProcess(recordId)                             añade a una rotación un proceso en blanco (el «+»)
 //   deleteProcess(recordId, processId)               borra un proceso de una rotación
+//   clearRecord(recordId)                            deja la rotación en blanco, en su sitio (ya guardada en la API)
 //   addTouch(recordId, manager)                      apunta un toque de gerente, con la hora del clic
 //   writeTouch(recordId, touchId, hourTouch)         corrige la hora de un toque
 //   deleteTouch(recordId, touchId)                   borra un toque
 //   clear()                                          vacía el registro entero
-function useRegisterStore({ establishmentId, orders, simulating }) {
+function useRegisterStore({ establishmentId, orders, simulating, shift }) {
 
     const [records, setRecords] = useState(() => withBlankRows([]));
 
@@ -49,13 +51,16 @@ function useRegisterStore({ establishmentId, orders, simulating }) {
     //  SIEMPRE LAS MISMAS: el register va con 'memo', y una función nueva en cada pintado lo repintaría.
     const establishmentRef = useRef(establishmentId);
     const simulatingRef = useRef(simulating);
+    const shiftRef = useRef(shift);
     establishmentRef.current = establishmentId;
     simulatingRef.current = simulating;
+    shiftRef.current = shift;
 
 
     // commit = «dejar puestas unas mesas»: se pintan y, si no se simula, se guardan
+    // Por aquí pasa todo cambio, así que es aquí donde la rotación que acaba de nacer toma el turno (stampShift).
     const commit = useCallback((next) => {
-        const withBlanks = withBlankRows(next);
+        const withBlanks = withBlankRows(stampShift(recordsRef.current, next, shiftRef.current));
         if (withBlanks === recordsRef.current) return;
 
         recordsRef.current = withBlanks;
@@ -125,6 +130,13 @@ function useRegisterStore({ establishmentId, orders, simulating }) {
     }, [commit]);
 
 
+    // clearRecord = «dejar en blanco una rotación», en su sitio: lo que tenía ya está guardado en la API.
+    // Vuelve con un id nuevo: el viejo ya lo tiene la API, y repetirlo daría «ya estaba guardada».
+    const clearRecord = useCallback((recordId) => {
+        commit(recordsRef.current.map(record => (record.id === recordId ? createRecord() : record)));
+    }, [commit]);
+
+
     // changeTouches = «cambiar los toques de una rotación»: 'change' recibe su lista y devuelve la nueva
     const changeTouches = useCallback((recordId, change) => {
         commit(recordsRef.current.map(record => (
@@ -135,7 +147,7 @@ function useRegisterStore({ establishmentId, orders, simulating }) {
     // addTouch = «apuntar un toque de gerente en una rotación», con la hora del clic
     // Recibe: recordId y el botón del gerente ({ ref, name }, de managers.js).
     const addTouch = useCallback((recordId, manager) => {
-        changeTouches(recordId, touches => [...touches, { id: crypto.randomUUID(), ref: manager.ref, name: manager.name, hourTouch: getCurrentTime() }]);
+        changeTouches(recordId, touches => [...touches, { id: crypto.randomUUID(), ref: manager.ref, name: manager.name, hourTouch: getCurrentTime(), createdAt: new Date().toISOString() }]);
     }, [changeTouches]);
 
     // writeTouch = «corregir la hora de un toque»
@@ -153,7 +165,7 @@ function useRegisterStore({ establishmentId, orders, simulating }) {
     const clear = useCallback(() => commit([]), [commit]);
 
 
-    return { records, writeRecord, writeProcess, addProcess, deleteProcess, addTouch, writeTouch, deleteTouch, clear };
+    return { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear };
 }
 
 

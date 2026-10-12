@@ -25,6 +25,7 @@ import './registers.css';
  *  @param {function} writeProcess    anota una hora de un proceso
  *  @param {function} addProcess      añade un proceso en blanco a una rotación
  *  @param {function} deleteProcess   borra un proceso de una rotación
+ *  @param {function} clearRecord     deja una rotación en blanco (ya guardada en la API)
  *  @param {function} addTouch        apunta un toque de gerente en una rotación
  *  @param {function} writeTouch      corrige la hora de un toque
  *  @param {function} deleteTouch     borra un toque
@@ -39,8 +40,9 @@ import './registers.css';
  *  @param {number}   alreadyThere    cuántas tarjetas apartó el censo
  *
  *  @param {Array}    managers        los botones de los gerentes del local (managers.js): una columna a la derecha
+ *  @param {string}   establishmentId el _id del local, para guardar cada rotación (el disquete)
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId }) {
 
     // liveByKey = «lo que dice ahora mismo el seguimiento de cada pedido», por su key
     const liveByKey = useMemo(() => new Map((liveOrders ?? []).map(order => [order.clave, order])), [liveOrders]);
@@ -67,7 +69,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
 
                 {/*  CABECERA FIJA. 'z-10' no es decorativo: sin él las filas que pasan por debajo al
                      desplazarse se dibujan ENCIMA de la cabecera. La celda sin título es la del «+».  */}
-                <div className='sticky top-0 z-10 h-[45px] bg-jx-tarjeta w-full border-b border-jx-regla2' style={grid}>
+                <div className='register-header sticky top-0 z-10 h-[46px] bg-jx-tarjeta w-full' style={grid}>
                     <WrapperCell tall classStyles={headerCell} titulo='Añadir un proceso a mano' />
                     {
                         COLUMNS.map(column => (
@@ -77,6 +79,8 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                         ))
                     }
                     {managers.length > 0 && <WrapperCell tall classStyles={headerCell} titulo='Un botón por cada gerente del local'>Gerentes</WrapperCell>}
+                    <WrapperCell tall classStyles={headerCell} titulo='Guardar la rotación' />
+
                 </div>
 
                 {/*  POR QUÉ NO HAY NADA. Solo sin NINGUNA rotación: en cuanto hay una, la tabla se explica sola.  */}
@@ -105,6 +109,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                             writeProcess={writeProcess}
                             addProcess={addProcess}
                             deleteProcess={deleteProcess}
+                            clearRecord={clearRecord}
                             addTouch={addTouch}
                             writeTouch={writeTouch}
                             deleteTouch={deleteTouch}
@@ -112,6 +117,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                             grid={grid}
                             managers={managers}
                             widthOfManagers={widthOfManagers}
+                            establishmentId={establishmentId}
                         />
                     ))
                 }

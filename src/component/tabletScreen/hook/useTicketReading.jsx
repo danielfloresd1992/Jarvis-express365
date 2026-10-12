@@ -220,7 +220,7 @@ function useTicketReading({ tablet, ai }) {
         // result = «el resultado de la vuelta»: { ok, time, model, seconds, tickets, discarded, error, cause }
         const result = await runInferenceOnce({
             capture: capture,
-            server: { baseUrl: settings.url, apiKey: settings.apiKey, model: server.model },
+            server: { baseUrl: settings.url, apiKey: settings.apiKey, model: server.model, reasoningOff: server.reasoningOff },
             timeoutMs: AI_TIMEOUT_MS,
             signal: controller.signal,
             note: note,

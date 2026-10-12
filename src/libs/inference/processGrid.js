@@ -543,7 +543,12 @@ function refreshRowData(row, ticket, identityIsTrusted = true) {
     // newRow = «la fila nueva»: una copia, para no tocar la que llega
     const newRow = { ...row };
 
-    if (identityIsTrusted && ticket.mesa) newRow.mesa = ticket.mesa;
+    // hidesRealTable = «la mesa de esta lectura taparía una de verdad»
+    // Una lectura sin mesa trae en su lugar el '#ticket' (leerCabecera): eso solo rellena una fila que todavía no
+    // tiene mesa, nunca pisa una de verdad. Una tarjeta que asomaba cortada una vuelta pasaba la fila de «28» a «#142».
+    const hidesRealTable = !esMesaDeVerdad(ticket.mesa) && esMesaDeVerdad(row.mesa);
+
+    if (identityIsTrusted && ticket.mesa && !hidesRealTable) newRow.mesa = ticket.mesa;
     if (identityIsTrusted && ticket.ticket) newRow.ticket = ticket.ticket;
     if (ticket.plato) newRow.plato = ticket.plato;
     if (ticket.canal) newRow.canal = ticket.canal;

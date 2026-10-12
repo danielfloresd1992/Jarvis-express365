@@ -659,7 +659,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 1rem;
-    background: var(--color-jx-verde-texto);
+    /*  El verde de los botones principales (el de «Hoy»), pedido por el usuario en lugar del verde
+        oscuro de texto. OJO: el blanco sobre este verde da 2,31 : 1, por debajo de lo legible para letra
+        pequeña (los botones principales llevan la letra en tinta por eso).                             */
+    background: var(--color-jx-verde);
     color: #ffffff;
     border-bottom: 1px solid var(--color-jx-verde-barra);
     z-index: 1000;
@@ -1113,56 +1116,21 @@
    INBOX PANEL — dark blue futuristic theme
    ══════════════════════════════════════ */
 
-/* ── Floating toggle button ── */
-.inbox-toggle {
-    position: fixed;
-    top: calc(62px + var(--titlebar-h));
-    right: 14px;
-    z-index: 1001;
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    border: 1px solid var(--color-jx-regla2);
-    background: var(--color-jx-tarjeta);
-    color: var(--color-jx-verde-texto);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    /* backdrop-filter eliminado: fondo opaco, blur imperceptible y caro
-       (botón siempre visible que además levita). */
-    /*  Los tres resplandores se van: este botón levita sobre la página, y lo que
-        cuenta eso sobre papel es una sombra proyectada, no un halo de luz.        */
-    box-shadow: 0 4px 12px rgba(47, 42, 30, 0.14);
-    /* Animación infinita eliminada para reducir consumo de CPU. */
-}
-
-.inbox-toggle:hover {
-    animation: none;
-    border-color: var(--color-jx-verde-barra);
-    box-shadow: 0 10px 22px rgba(47, 42, 30, 0.2);
-    transform: scale(1.08) translateY(-6px);
-    background: var(--color-jx-verde-suave);
-}
-
-/* Solo animamos transform (compositado en GPU). La sombra es estática para
-   evitar el repintado por frame que disparaba la CPU. */
-/* Badge counter */
-.inbox-toggle__badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
+/* ── El botón que la abre ──
+   Ya no flota arriba a la derecha: va en la barra de arriba (InboxButton), con el mismo estilo que los
+   demás accesos (.nav-bar__action-btn). Flotando tapaba la esquina de lo que hubiera debajo, y el centro
+   tenía que dejarle un hueco. Su contador es una cápsula al lado del texto: blanca con la cifra en el
+   verde de texto, porque sobre el verde de la barra una cápsula verde no se vería.                      */
+.nav-bar__badge {
     min-width: 18px;
     height: 18px;
     padding: 0 5px;
     border-radius: 9px;
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     font-weight: 800;
-    /*  Relleno verde con letra en TINTA. Blanco sobre este verde daría 2,31 : 1 y en
-        una cifra de 0,62 rem —que ya es pequeña de por sí— sería ilegible del todo.  */
-    color: var(--color-jx-tinta);
-    background: var(--color-jx-verde);
-    display: flex;
+    color: var(--color-jx-verde-texto);
+    background: #ffffff;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
@@ -2579,9 +2547,9 @@ hr {
         padding-bottom: 3.5rem;
     }
 
-    /*   inbox panel: hidden on mobile   */
+    /*   inbox panel: hidden on mobile. Su botón de la barra también: no habría panel que abrir.   */
 
-    .inbox-toggle {
+    .nav-bar__inbox {
         display: none;
     }
 

@@ -8,15 +8,17 @@ import ManagerButtons from './ManagerButtons.jsx';
 import ReportDelayButton from './ReportDelayButton.jsx';
 import RegisterProcessList from './RegisterProcessList.jsx';
 import RegisterTouchList from './RegisterTouchList.jsx';
-import { TOUCH_TOGGLE_SPACE } from './columns.js';
+import TouchToggle from './TouchToggle.jsx';
+import SaveRecordButton from './SaveRecordButton.jsx';
+import { saveRotation } from '../../../../libs/fetch_data/rotationFetching.js';
 
 
 /*  UNA ROTACIÓN DEL REGISTER: una mesa, desde que se ocupa hasta que se limpia
  *
- *      + │ ▸2 Mesa │ Ocupa │ Primera atención │ Duración │ Desocupa │ Limpieza │ Duración │ G1 G2 A1 ▸3
+ *      + │ ▸2 Mesa │ Ocupa │ Primera atención │ Duración │ Desocupa │ Limpieza │ Duración │ G1 G2 A1 │ 3 toques
  *
- *  Cada botón de gerente apunta un toque, con la hora del clic, en 'touch' de la rotación; su flecha, a
- *  la derecha, despliega debajo la lista de toques (RegisterTouchList).
+ *  Cada botón de gerente apunta un toque, con la hora del clic, en 'touch' de la rotación; el contador
+ *  de la derecha (TouchToggle) abre la lista de toques, que flota debajo (RegisterTouchList).
  *
  *  La flecha, dentro de la celda de la mesa, despliega debajo los procesos de la rotación —sus pedidos, con sus cuatro horas cada uno
  *  (RegisterProcessList)— y dice cuántos son. Empiezan cerrados, y se despliegan solos cuando la IA
@@ -39,6 +41,22 @@ import { TOUCH_TOGGLE_SPACE } from './columns.js';
 const FRESH_MS = 5000;
 
 
+/*  UNA CELDA QUE EL PEDIDO PARA LLEVAR NO LLEVA
+ *
+ *  Una rotación para llevar (record.takeOut: su mesa es un '#ticket') es hueca: solo contiene el proceso
+ *  del pedido. Sus horas de mesa, sus duraciones y los toques de gerente no existen, y en su lugar va una
+ *  raya roja (registers.css, 'register-cell--na'), sin dato y sin clic: un «-» diría «todavía no pasó».
+ *  'children' es lo que tiene que seguir viéndose encima, como el aviso de la fila.
+ */
+function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', children }) {
+    return (
+        <WrapperCell classStyles='register-cell--na cursor-default gap-1.5 px-1' titulo={title}>
+            {children}
+        </WrapperCell>
+    );
+}
+
+
 /*  @param {object}   record          la rotación: { id, tableNumber, hourOccupies, hourFirstAttention, process, breakUp, tableCleaning }
  *  @param {Map}      liveByKey       lo que dice ahora mismo el seguimiento de cada pedido, por su key
  *  @param {string}   attentionLimit  el límite de primera atención del local, 'HH:MM:SS'
@@ -47,6 +65,7 @@ const FRESH_MS = 5000;
  *  @param {function} writeProcess    anota (id de la rotación, id del proceso, campo, valor)
  *  @param {function} addProcess      añade un proceso en blanco a la rotación (id)
  *  @param {function} deleteProcess   borra un proceso (id de la rotación, id del proceso)
+ *  @param {function} clearRecord     deja la rotación en blanco (id de la rotación), ya guardada en la API
  *  @param {function} addTouch        apunta un toque de gerente (id de la rotación, gerente)
  *  @param {function} writeTouch      corrige la hora de un toque (id de la rotación, id del toque, hora)
  *  @param {function} deleteTouch     borra un toque (id de la rotación, id del toque)
@@ -54,8 +73,9 @@ const FRESH_MS = 5000;
  *  @param {object}   grid            la rejilla de la fila (tableGrid): la misma que la de la cabecera
  *  @param {Array}    managers        los botones de los gerentes del local (managers.js)
  *  @param {number}   widthOfManagers lo que mide su columna, para que los procesos la dejen libre
+ *  @param {string}   establishmentId el _id del local: a cuál se guarda la rotación (el disquete)
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId }) {
 
     // open = «los procesos están desplegados»
     const [open, setOpen] = useState(false);
@@ -100,6 +120,19 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
 
     // noTable = «la rotación todavía no tiene número de mesa»
     const noTable = String(record.tableNumber ?? '').trim() === '';
+
+    // takeOut = «es un pedido para llevar»: su mesa es un '#ticket' y no lleva horas de mesa ni toques
+    const takeOut = record.takeOut === true;
+
+    //  Al escribir '#14' en la mesa se crea solo el proceso de ese ticket (withTicketProcess, en
+    //  tableRecords.js), y la lista se abre para verlo. Solo cuando aparece, no al montarse la fila: lo que
+    //  vuelve de lo guardado se queda cerrado.
+    // processCountRef = «cuántos procesos tenía la fila»
+    const processCountRef = useRef(record.process.length);
+    useEffect(() => {
+        if (takeOut && record.process.length > processCountRef.current) setOpen(true);
+        processCountRef.current = record.process.length;
+    }, [takeOut, record.process.length]);
 
     // write = «anotar un dato de esta rotación»
     const write = (field) => (value) => writeRecord(record.id, field, value);
@@ -147,6 +180,47 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
         }
 
         addTouch(record.id, manager);
+    };
+
+    // saving = «se está guardando esta rotación»: el disquete se desactiva hasta que conteste la API
+    const [saving, setSaving] = useState(false);
+
+    // clearRow = «limpiar la fila entera»: la rotación queda en blanco en su sitio, con un id nuevo.
+    // Se llama cuando la API confirma que la guardó; con un error la fila se queda como estaba.
+    const clearRow = () => clearRecord(record.id);
+
+    // saveOne = «guardar esta rotación», el disquete. Primero valida: sin número de mesa o sin la hora
+    // de Ocupa no se guarda, y se dice qué falta. Si es la mesa, el cursor va a su celda, como con el «+».
+    // Un pedido para llevar no tiene Ocupa, así que a ese solo se le pide la mesa (su '#ticket').
+    // Luego la manda a la API (saveRotation): si la guardó, la fila se limpia (clearRow); si no, el
+    // aviso de la fila dice por qué.
+    const saveOne = () => {
+
+        // missing = «lo que falta para poder guardar»
+        const missing = [
+            noTable && 'el número de mesa',
+            !takeOut && String(record.hourOccupies ?? '').trim() === '' && 'la hora de Ocupa',
+        ].filter(Boolean);
+
+        if (missing.length > 0) {
+            if (noTable) {
+                tableInputRef.current?.focus();
+                setAskingTable(true);
+            }
+            return setNotice(`Falta ${missing.join(' y ')}`);
+        }
+
+        if (!establishmentId) return setNotice('Elige primero el local');
+        if (saving) return;
+
+        setSaving(true);
+
+        //  La rotación entera, con su local y su id como `clientId` (la API reconoce así la misma
+        //  rotación). Sin lista de campos: lo que crezca el ciclo viaja solo.
+        saveRotation({ ...record, establishment: establishmentId, clientId: record.id })
+            .then(clearRow)
+            .catch(error => setNotice(error.message))
+            .finally(() => setSaving(false));
     };
 
     // alarm = «la peor alarma de sus procesos», para la cuenta de la flecha cuando está cerrada
@@ -198,10 +272,29 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
 
     //  Las clases 'register-rotation…' son los nombres con que se la encuentra en las herramientas del
     //  navegador y en las pruebas, y con los que registers.css pinta la rotación desplegada.
-    //  La fila no lleva fondo propio: debajo están los colores de las columnas (columnStripes), y al pasar
-    //  el ratón solo se oscurece un poco, sin taparlos.
+    //  Una fila en uso no lleva fondo propio: debajo están los colores de las columnas (columnStripes), y
+    //  al pasar el ratón solo se oscurece un poco, sin taparlos.
+    //
+    //  UNA FILA LIBRE VA EN GRIS ('register-rotation--free'): es una carcasa sin estrenar, todavía sin
+    //  'date'. La fecha se le pone la primera vez que se usa —la IA le mete un pedido, o se escribe en
+    //  cualquier celda (tableRecords.js)— y en ese momento se colorea.
+    // free = «la fila está libre»: nadie la ha usado todavía
+    const free = !record.date;
+
+    // noticeBadge = «el aviso de la fila», en la celda de la Duración de la primera atención: también cuando
+    // esa celda va tachada, porque el aviso de guardar un pedido para llevar sale ahí
+    const noticeBadge = notice && (
+        <span
+            className='min-w-0 truncate rounded font-bold text-jx-tinta bg-jx-ocre'
+            style={{ padding: '2px 6px', fontSize: '9px' }}
+            title={notice}
+        >
+            {notice}
+        </span>
+    );
+
     return (
-        <div className={`register-rotation ${open ? 'register-rotation--open' : ''}`}>
+        <div className={`register-rotation ${open ? 'register-rotation--open' : ''} ${free ? 'register-rotation--free' : ''}`}>
 
             {/*  'relative': los toques de gerente flotan justo debajo de esta fila (RegisterTouchList)  */}
             <div className='register-rotation__row relative w-full transition-colors hover:bg-jx-tinta/5' style={grid}>
@@ -241,80 +334,95 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
                     />
                 </WrapperCell>
 
-                <WrapperCell classStyles='text-jx-tinta'>
-                    <WrapperText value={record.hourOccupies} updateValue={write('hourOccupies')} />
-                </WrapperCell>
-
-                <WrapperCell classStyles='text-jx-tinta'>
-                    <WrapperText value={record.hourFirstAttention} updateValue={write('hourFirstAttention')} />
-                </WrapperCell>
-
-                {/*  DURACIÓN de la primera atención. Es un valor calculado, así que no se toca: va sin
-                     'updateValue'. El botón de reportar aparece cuando pasa del límite del local.  */}
-                <WrapperCell classStyles='gap-1.5 px-1'>
-                    <WrapperText
-                        classStyles={noAttentionYet ? 'text-jx-tinta3' : attention.exceeded ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
-                        value={noAttentionYet ? '00:00:00' : attention.timeTotal}
-                    />
-
-                    {attention.exceeded && <ReportDelayButton table={record.tableNumber} onReport={askForReport} />}
-
-                    {
-                        notice && (
-                            <span
-                                className='min-w-0 truncate rounded font-bold text-jx-tinta bg-jx-ocre'
-                                style={{ padding: '2px 6px', fontSize: '9px' }}
-                                title={notice}
-                            >
-                                {notice}
-                            </span>
-                        )
-                    }
-                </WrapperCell>
-
-                <WrapperCell classStyles='text-jx-tinta'>
-                    <WrapperText value={record.breakUp} updateValue={write('breakUp')} />
-                </WrapperCell>
-
-                <WrapperCell classStyles='text-jx-tinta'>
-                    <WrapperText value={record.tableCleaning} updateValue={write('tableCleaning')} />
-                </WrapperCell>
-
-                {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'.  */}
-                <WrapperCell>
-                    <WrapperText
-                        classStyles={noCleaningYet ? 'text-jx-tinta3' : cleaning.exceeded ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
-                        value={noCleaningYet ? '00:00:00' : cleaning.timeTotal}
-                    />
-                </WrapperCell>
-
-                {/*  Un botón por cada gerente del local, y a la derecha la flecha de sus toques (sin toques no
-                     hay flecha). La flecha flota ('absolute') en un hueco reservado, para que los botones no se
-                     muevan cuando aparece. Sin gerentes, no hay columna.  */}
+                {/*  UN PEDIDO PARA LLEVAR no lleva ninguna de las seis celdas de la mesa: van tachadas
+                     (NotApplicableCell), y la de la Duración conserva el aviso de la fila.  */}
                 {
-                    managers.length > 0 && (
-                        <WrapperCell classStyles='relative cursor-default gap-1' estilo={{ paddingRight: TOUCH_TOGGLE_SPACE }}>
-                            <ManagerButtons managers={managers} onTouch={touchOne} />
-                            <span className='absolute right-1 top-1/2 -translate-y-1/2'>
-                                <ProcessToggle
-                                    noun='toque'
-                                    count={record.touch.length}
-                                    open={touchesOpen}
-                                    onToggle={() => setTouchesOpen(current => !current)}
+                    takeOut ? (
+                        <>
+                            <NotApplicableCell />
+                            <NotApplicableCell />
+                            <NotApplicableCell title='Pedido para llevar: no lleva primera atención'>{noticeBadge}</NotApplicableCell>
+                            <NotApplicableCell />
+                            <NotApplicableCell />
+                            <NotApplicableCell title='Pedido para llevar: no lleva limpieza' />
+                        </>
+                    ) : (
+                        <>
+                            <WrapperCell classStyles='text-jx-tinta'>
+                                <WrapperText value={record.hourOccupies} updateValue={write('hourOccupies')} />
+                            </WrapperCell>
+
+                            <WrapperCell classStyles='text-jx-tinta'>
+                                <WrapperText value={record.hourFirstAttention} updateValue={write('hourFirstAttention')} />
+                            </WrapperCell>
+
+                            {/*  DURACIÓN de la primera atención. Es un valor calculado, así que no se toca: va sin
+                                 'updateValue'. El botón de reportar aparece cuando pasa del límite del local.  */}
+                            <WrapperCell classStyles='gap-1.5 px-1'>
+                                <WrapperText
+                                    classStyles={noAttentionYet ? 'text-jx-tinta3' : attention.exceeded ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
+                                    value={noAttentionYet ? '00:00:00' : attention.timeTotal}
                                 />
-                            </span>
-                        </WrapperCell>
+
+                                {attention.exceeded && <ReportDelayButton table={record.tableNumber} onReport={askForReport} />}
+
+                                {noticeBadge}
+                            </WrapperCell>
+
+                            <WrapperCell classStyles='text-jx-tinta'>
+                                <WrapperText value={record.breakUp} updateValue={write('breakUp')} />
+                            </WrapperCell>
+
+                            <WrapperCell classStyles='text-jx-tinta'>
+                                <WrapperText value={record.tableCleaning} updateValue={write('tableCleaning')} />
+                            </WrapperCell>
+
+                            {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'.  */}
+                            <WrapperCell>
+                                <WrapperText
+                                    classStyles={noCleaningYet ? 'text-jx-tinta3' : cleaning.exceeded ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
+                                    value={noCleaningYet ? '00:00:00' : cleaning.timeTotal}
+                                />
+                            </WrapperCell>
+                        </>
                     )
                 }
+
+                {/*  Un botón por cada gerente del local y, tras una raya, el contador de sus toques, que está
+                     siempre (con 0, apagado). Sin gerentes, no hay columna. Un pedido para llevar no lleva
+                     toques: va tachada, y solo si ya tenía alguno (de antes de ponerle el '#') queda el
+                     contador, para poder verlos y borrarlos.  */}
+                {
+                    managers.length > 0 && (
+                        takeOut ? (
+                            <NotApplicableCell title='Pedido para llevar: no lleva toques de gerente'>
+                                {record.touch.length > 0 && <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(current => !current)} />}
+                            </NotApplicableCell>
+                        ) : (
+                            <WrapperCell classStyles='cursor-default gap-1'>
+                                <ManagerButtons managers={managers} dimmed={noTable} onTouch={touchOne} />
+                                <span aria-hidden='true' className='shrink-0 w-px h-[18px] mx-0.5 bg-jx-regla2' />
+                                <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(current => !current)} />
+                            </WrapperCell>
+                        )
+                    )
+                }
+
+                {/*  El disquete: guardar la rotación (ver 'saveOne')  */}
+                <WrapperCell classStyles='cursor-default'>
+                    <SaveRecordButton table={record.tableNumber} waiting={noTable} busy={saving} onSave={saveOne} />
+                </WrapperCell>
 
                 {/*  Los toques de gerente: flotan encima de las filas de abajo, sin empujarlas  */}
                 {
                     touchesOpen && record.touch.length > 0 && (
                         <RegisterTouchList
+                            tableNumber={record.tableNumber}
                             touches={record.touch}
-                            widthOfManagers={widthOfManagers}
+                            managers={managers}
                             onWrite={(touchId, hourTouch) => writeTouch(record.id, touchId, hourTouch)}
                             onDelete={(touchId) => deleteTouch(record.id, touchId)}
+                            onClose={() => setTouchesOpen(false)}
                         />
                     )
                 }

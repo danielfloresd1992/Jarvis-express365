@@ -1,4 +1,4 @@
-import { PROCESS_COLUMNS, PROCESS_GRID, ADD_WIDTH } from './columns.js';
+import { PROCESS_COLUMNS, PROCESS_GRID, PROCESS_STRIPES, ADD_WIDTH, SAVE_WIDTH, headerTint } from './columns.js';
 import RegisterProcessLine from './RegisterProcessLine.jsx';
 
 
@@ -11,6 +11,9 @@ import RegisterProcessLine from './RegisterProcessLine.jsx';
  *
  *  La cabecera es pequeña y apagada a propósito: los procesos son el detalle de la rotación y no pueden
  *  pesar más que ella. Las columnas que rellena la IA llevan un punto verde.
+ *
+ *  Cada columna se reconoce por su color, como las de la rotación pero con una paleta propia
+ *  (PROCESS_COLUMNS): su cabecera va teñida de él, y la tarjeta lleva debajo sus franjas (PROCESS_STRIPES).
  */
 
 
@@ -22,9 +25,9 @@ import RegisterProcessLine from './RegisterProcessLine.jsx';
  */
 export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers }) {
     return (
-        <div className='register-rotation__processes' style={{ paddingLeft: ADD_WIDTH, paddingRight: widthOfManagers }}>
+        <div className='register-rotation__processes' style={{ paddingLeft: ADD_WIDTH, paddingRight: widthOfManagers + SAVE_WIDTH }}>
 
-            <div className='register-process-card'>
+            <div className='register-process-card' style={PROCESS_STRIPES}>
 
                 <div style={PROCESS_GRID}>
                     {
@@ -32,6 +35,7 @@ export default function RegisterProcessList({ record, liveByKey, writeProcess, d
                             <div
                                 key={column.id}
                                 className='min-h-[22px] min-w-0 py-[3px] flex items-center justify-center gap-[5px] text-center leading-[1.15] uppercase text-[10px] font-semibold tracking-[0.5px] text-jx-tinta3 border-b border-b-jx-regla'
+                                style={column.color ? { background: headerTint(column) } : undefined}
                                 title={column.fromTablet ? 'La rellena la lectura de la tablet' : column.computed ? 'Se calcula con las dos horas de su izquierda' : 'Se anota a mano'}
                             >
                                 {column.fromTablet && <span className='size-1.5 shrink-0 rounded-full bg-jx-verde-barra' aria-hidden='true' />}

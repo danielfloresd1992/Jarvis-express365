@@ -83,7 +83,7 @@ export default function ReadingStatus({ diagnosis, censusing, censusReadings, ce
     return (
         <span
             className={`ml-auto min-w-0 pr-2 truncate ${failure || allDiscarded ? 'text-jx-aviso-texto' : 'text-jx-tinta2'}`}
-            style={{ fontSize: '9px' }}
+            style={{ fontSize: '11px' }}
             title={help}
         >
             {text}

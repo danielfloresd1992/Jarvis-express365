@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { SHIFTS } from '../../../libs/tickets/tableRecords.js';
 
 import { useEstablishment } from './useEstablishment.jsx';
 import { useTablet } from './useTablet.jsx';
@@ -55,9 +56,38 @@ import { buildSpreadsheet, buildFileName, downloadSpreadsheet } from '../../../l
  *      name, attention, cleaning                     el nombre del local y sus dos límites de tiempo
  *      tablet, ai, reading, tracking, store,         lo que devuelve cada hook, tal cual
  *      zoom, drag, capture
+ *      shift, shiftLocked, toggleShift               el turno con que nacen las rotaciones, si la hora deja
+ *                                                    cambiarlo, y cambiarlo
  *      disconnectTablet, exportSheet,                lo que pasa cuando se pulsa algo (ver abajo)
  *      clearRegister, reportDelay
  */
+
+
+// SHIFT_KEY = «dónde se guarda el turno en el equipo»
+const SHIFT_KEY = 'register:shift';
+
+// savedShift = «el turno guardado», o 'day' si no hay ninguno (o el almacenamiento está bloqueado)
+function savedShift() {
+    try {
+        const saved = localStorage.getItem(SHIFT_KEY);
+        return SHIFTS.includes(saved) ? saved : 'day';
+    }
+    catch {
+        return 'day';
+    }
+}
+
+// shiftByClock = «el turno que impone la hora del equipo»: 'day' de 08:00:00 a 17:30:00, 'night' de 18:30:00
+// a 07:00:00 del día siguiente, y null en los dos cambios de turno —entre 07:00 y 08:00 y entre 17:30 y
+// 18:30—, que es cuando se elige con el toggle.
+function shiftByClock(now = new Date()) {
+    const seconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    if (seconds >= 8 * 3600 && seconds <= 17.5 * 3600) return 'day';
+    if (seconds >= 18.5 * 3600 || seconds <= 7 * 3600) return 'night';
+    return null;
+}
+
+
 function useTabletSession({ onReportDelay, establishmentName, attentionLimit } = {}) {
 
 
@@ -85,6 +115,36 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
     //  ── 3 · EL REGISTRO DE LAS MESAS ──────────────────────────────────────────────────
 
+    // shift = «el turno con que nacen las rotaciones»: 'day' o 'night'. Cada rotación toma el de ese momento al
+    // nacer y se queda con él (stampShift). shiftLocked = «la hora no deja cambiarlo»: el toggle va desactivado.
+    // Empiezan así solo hasta que el efecto de abajo lea lo guardado y mire la hora, al abrir la app.
+    const [shift, setShift] = useState('day');
+    const [shiftLocked, setShiftLocked] = useState(true);
+
+    // applyShift = «poner el turno»: el que impone la hora (shiftByClock) o, en los cambios de turno, el que se
+    // pide. Lo deja guardado en el equipo.
+    const applyShift = useCallback((wanted) => {
+        const forced = shiftByClock();
+        const next = forced ?? wanted;
+
+        setShift(next);
+        setShiftLocked(forced !== null);
+        try { localStorage.setItem(SHIFT_KEY, next); } catch { /* sin almacenamiento, solo dura la sesión */ }
+    }, []);
+
+    //  Al abrir la app lee el turno guardado en el equipo (savedShift) y lo pone, si la hora lo deja: así se
+    //  conserva al cerrar y volver a abrir. Luego vuelve a mirar cada minuto: con la ventana abierta de 17:00 a
+    //  19:00, sin hacerlo el turno se quedaría en diurno —y el toggle bloqueado— pasadas las 18:30.
+    //  applyShift es estable, así que este efecto corre una sola vez.
+    useEffect(() => {
+        applyShift(savedShift());
+        const timer = setInterval(() => applyShift(savedShift()), 60_000);
+        return () => clearInterval(timer);
+    }, [applyShift]);
+
+    // toggleShift = «mover el toggle»: pide el otro turno, y applyShift decide si la hora lo deja
+    const toggleShift = useCallback(() => applyShift(shift === 'night' ? 'day' : 'night'), [applyShift, shift]);
+
     // clears = «cuántas veces se ha limpiado el registro». Entra en el 'resetKey' del seguimiento:
     // cuando cambia, se lleva por delante lo que esté siguiendo ahora.
     const [clears, setClears] = useState(0);
@@ -107,6 +167,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
         establishmentId: establishment?._id,
         orders: tracking.orders,
         simulating: tablet.simulated,
+        shift,
     });
 
     useSimulatorFeedback({
@@ -208,6 +269,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
         name, attention, cleaning, establishment,
         tablet, ai, reading, tracking, store,
         zoom, drag, capture,
+        shift, shiftLocked, toggleShift,
         disconnectTablet, exportSheet, clearRegister, reportDelay,
     };
 }

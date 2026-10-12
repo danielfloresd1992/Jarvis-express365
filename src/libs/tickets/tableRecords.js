@@ -9,6 +9,11 @@
  *      [{
  *          date,                 cuándo se abrió el registro de la mesa (una Date)
  *          tableNumber,          la mesa: puede llevar letras ('B3') o, sin mesa, el ticket ('#91')
+ *          takeOut,              pedido para llevar: la mesa es un '#ticket'. Una rotación hueca, que solo
+ *                                contiene el proceso: no lleva horas de la mesa ni toques. Sale de tableNumber
+ *                                cada vez que cambia, nunca se escribe a mano (withTable)
+ *          shift,                el turno: 'day' o 'night' (SHIFTS). Se le pone al nacer, con el del
+ *                                toggle de la barra (stampShift), y ya no cambia. null en las de antes
  *          hourOccupies,         'HH:MM:SS'  se ocupa
  *          hourFirstAttention,   'HH:MM:SS'  primera atención
  *          process: [{
@@ -37,10 +42,15 @@
  *  aquí es readRecords y writeRecords, que usan el almacenamiento del navegador.
  *  ══════════════════════════════════════════════════════════════════════════════════════ */
 
+import { esMesaDeVerdad } from './claveDeTicket.js';
+
 
 
 // RECORD_TIMES = «las horas de la mesa»
 export const RECORD_TIMES = ['hourOccupies', 'hourFirstAttention', 'breakUp', 'tableCleaning'];
+
+// SHIFTS = «los turnos de una rotación»: de día o de noche. Los mismos que acepta la API (rotation.schema.js).
+export const SHIFTS = ['day', 'night'];
 
 // PROCESS_FIELDS = «lo que se anota de un proceso», en su orden: su número, su tipo de plato y sus cuatro horas.
 // Las dos duraciones de la línea (listo en tablet − toma de orden, entrega − listo en cocina) no se guardan: se calculan al pintar.
@@ -75,13 +85,17 @@ const DISH_TYPE_FROM_READING = {
 // BLANK_RECORDS = «cuántas mesas en blanco quedan siempre al final», para anotar a mano.
 // Son mesas de verdad, con su identidad, y no huecos que se conviertan en mesa al escribir: así, al
 // escribir el primer carácter, la fila sigue siendo la misma y no se pierde lo que se está tecleando.
-const BLANK_RECORDS = 15;
+const BLANK_RECORDS = 30;
 
 // STORAGE_PREFIX = «el principio de la llave donde se guarda cada local»: 'mesas:<_id del local>'
 const STORAGE_PREFIX = 'mesas';
 
 // MAX_RECORDS = «cuántas mesas se guardan como mucho». Las más recientes.
 const MAX_RECORDS = 400;
+
+// MAX_ROW = «la fila más alta que se acepta al leer». Un número de fila roto (1e9) no puede crear millones de
+// filas en blanco: lo que pase de aquí va detrás, como si no trajera fila.
+const MAX_ROW = 2000;
 
 // RECORD_HOURS = «cuántas horas vale una mesa guardada»
 // Lo bastante para un turno entero, incluido uno que cruce la medianoche, y no tanto como para
@@ -117,12 +131,16 @@ export function createRecord(fields = {}) {
         id: crypto.randomUUID(),
         date: null,
         tableNumber: '',
+        takeOut: false,
+        shift: null,
         hourOccupies: '',
         hourFirstAttention: '',
         process: [],
         breakUp: '',
         tableCleaning: '',
-        touch: [],      //  los toques de gerente: [{ id (UUIDv4), ref (ObjectId del gerente), name, hourTouch 'HH:MM:SS' }]
+        touch: [],      //  los toques de gerente: [{ id (UUIDv4), ref (ObjectId del gerente), name, hourTouch 'HH:MM:SS', createdAt }]
+                        //  createdAt: de uso interno, el momento en que se creó el toque (ISO). No se ve ni se edita:
+                        //  'hourTouch' sí se corrige a mano, y esto no.
         ...fields,
     };
 }
@@ -141,6 +159,57 @@ export const isBlankRecord = (record) => isEmpty(record.tableNumber)
 
 // sameTable = «es la misma mesa». Sin distinguir espacios ni mayúsculas: 'b3 ' es 'B3'.
 const sameTable = (one, other) => !isEmpty(one) && String(one).trim().toLowerCase() === String(other ?? '').trim().toLowerCase();
+
+// isTicketPlaceholder = «la rotación no tiene mesa: en su lugar lleva el ticket» ('#142')
+// Es la regla del pedido para llevar, la misma de isTakeOutTable en la API (rotation.lib.js).
+const isTicketPlaceholder = (tableNumber) => String(tableNumber ?? '').trim().startsWith('#');
+
+// withTable = «la rotación con esta mesa». takeOut va siempre con ella: así no se pueden contradecir.
+const withTable = (record, tableNumber) => ({ ...record, tableNumber, takeOut: isTicketPlaceholder(tableNumber) });
+
+// ticketOfTable = «el número de ticket de una mesa para llevar»: '#14' → '14'. '' si no es un '#' seguido de cifras.
+const ticketOfTable = (tableNumber) => String(tableNumber ?? '').trim().match(/^#\s*(\d+)$/)?.[1] ?? '';
+
+// holdsOnlyTicket = «el proceso no tiene nada más que su número»: ni pedido de la tablet detrás, ni tipo, ni horas
+const holdsOnlyTicket = (process) => isEmpty(process.key) && PROCESS_FIELDS.every(field => field === 'ticketNumber' || isEmpty(process[field]));
+
+
+/*  withTicketProcess = «el proceso del ticket de un pedido para llevar, al día con su mesa»
+ *
+ *  Al escribir '#14' en la mesa, la rotación es el pedido para llevar del ticket 14, y ese pedido es su
+ *  proceso: se crea solo, con ese número. Como la mesa se escribe tecla a tecla ('#1', '#14'), el proceso
+ *  SIGUE a la mesa: el que se creó con '#1' pasa a ser el de '#14', y no quedan dos. El que sigue a la mesa
+ *  es el de a mano (sin 'key') que lleva el número de antes.
+ *
+ *  Si el ticket ya tiene su proceso —lo leyó la IA, o ya se anotó—, no se crea otro. Y si la mesa deja de ser
+ *  '#N' —se borra el número, o se corrige a una mesa de verdad—, el proceso se quita, pero solo si no tiene
+ *  nada más que el número: lo que se anotó en él no se pierde.
+ *
+ *  Recibe: record (la rotación con la mesa nueva) y previousTable (la mesa que tenía).
+ */
+function withTicketProcess(record, previousTable) {
+
+    const before = ticketOfTable(previousTable);
+    const after = ticketOfTable(record.tableNumber);
+    if (before === after) return record;
+
+    // follower = «el proceso que sigue a la mesa»: el de a mano con el número de antes
+    const follower = before ? record.process.find(process => isEmpty(process.key) && process.ticketNumber === before) : undefined;
+
+    // alreadyThere = «el ticket nuevo ya tiene su proceso»
+    const alreadyThere = after !== '' && record.process.some(process => process.ticketNumber === after);
+
+    //  Sin ticket, o con el suyo ya puesto: sobra el que seguía a la mesa, si no tiene nada más que el número
+    if (after === '' || alreadyThere) {
+        return follower && holdsOnlyTicket(follower)
+            ? { ...record, process: record.process.filter(process => process !== follower) }
+            : record;
+    }
+
+    if (follower) return { ...record, process: record.process.map(process => (process === follower ? { ...process, ticketNumber: after } : process)) };
+
+    return { ...record, process: [...record.process, createProcess({ ticketNumber: after })] };
+}
 
 
 
@@ -175,13 +244,19 @@ function firstTrailingBlank(records) {
 
 // setRecordField = «anotar un dato de una mesa»
 // La mesa recibe su fecha la primera vez que se le escribe algo: hasta entonces era una fila en blanco.
+// Al escribir la mesa se decide también si es para llevar: con '#' delante, sí (withTable), y entonces su
+// ticket tiene su proceso (withTicketProcess).
 export function setRecordField(records, recordId, field, value, now = new Date()) {
 
     const index = records.findIndex(record => record.id === recordId);
     if (index === -1 || records[index][field] === value) return records;
 
+    const record = field === 'tableNumber'
+        ? withTicketProcess(withTable(records[index], value), records[index].tableNumber)
+        : { ...records[index], [field]: value };
+
     const next = [...records];
-    next[index] = { ...records[index], [field]: value, date: records[index].date ?? now };
+    next[index] = { ...record, date: records[index].date ?? now };
     return next;
 }
 
@@ -226,6 +301,13 @@ export function setProcessField(records, recordId, processId, field, value, now 
  *
  *  Un pedido sin mesa (para llevar, Uber…) trae en 'mesa' su ticket con '#', así que va a su propia
  *  rotación: '#91'.
+ *
+ *  Pero una tarjeta que asoma CORTADA por el borde tampoco enseña su mesa, y llega igual, con '#'. Por eso:
+ *
+ *      · antes de abrir una '#142' se busca otro curso de ese mismo ticket que ya esté en una mesa de verdad:
+ *        el número de ticket es único, así que es la misma mesa (tableOfTicket).
+ *      · y si la rotación se abrió como '#142' y una lectura posterior trae la mesa, la rotación la toma
+ *        (claimTable). Antes se quedaba con el '#142' para siempre aunque la parrilla ya supiera que era la 28.
  */
 export function applyTabletOrders(records, orders, now = new Date()) {
 
@@ -244,6 +326,32 @@ export function applyTabletOrders(records, orders, now = new Date()) {
         for (const process of record.process) if (!isEmpty(process.key)) tableOf.set(process.key, record.id);
     }
 
+    // claimTable = «la rotación sin mesa del índice toma su mesa de verdad»
+    // Si esa mesa ya tiene OTRA rotación abierta, la '#142' era esa misma ocupación vista antes de saber dónde:
+    // sus procesos pasan a la abierta y ella desaparece. Solo si no tiene nada más que sus procesos —ni horas ni
+    // toques—: lo anotado a mano no se mezcla, y entonces solo se le pone la mesa.
+    const claimTable = (index, table) => {
+        const placeholder = next[index];
+
+        // openIndex = «la otra rotación abierta de esa mesa»
+        let openIndex = -1;
+        for (let i = next.length - 1; i >= 0 && openIndex === -1; i--) {
+            if (i !== index && sameTable(next[i].tableNumber, table) && isEmpty(next[i].breakUp)) openIndex = i;
+        }
+
+        // onlyProcesses = «no tiene nada anotado aparte de sus procesos»
+        const onlyProcesses = RECORD_TIMES.every(field => isEmpty(placeholder[field])) && placeholder.touch.length === 0;
+
+        if (openIndex === -1 || !onlyProcesses) {
+            change(index, withTable(placeholder, table));
+            return;
+        }
+
+        change(openIndex, { ...next[openIndex], process: [...next[openIndex].process, ...placeholder.process] });
+        for (const process of placeholder.process) if (!isEmpty(process.key)) tableOf.set(process.key, next[openIndex].id);
+        next.splice(index, 1);
+    };
+
     for (const order of orders) {
         if (isEmpty(order.clave)) continue;
 
@@ -255,17 +363,26 @@ export function applyTabletOrders(records, orders, now = new Date()) {
             markedReadyOnTablet: order.listoTablet ?? '',
         };
 
+        // table = «la mesa de verdad que trae la lectura», o '' si no la trae (sin mesa, o aún sin leer)
+        const table = esMesaDeVerdad(order.mesa) ? String(order.mesa).trim() : '';
+
         //  1. YA ESTÁ EN UNA MESA
         if (tableOf.has(order.clave)) {
             const index = next.findIndex(record => record.id === tableOf.get(order.clave));
             const updated = updateFromTablet(next[index], order.clave, fromTablet);
             if (updated !== next[index]) change(index, updated);
+
+            //  Estaba en una rotación sin mesa ('#142') y por fin se lee la suya: la rotación la toma.
+            if (table && isTicketPlaceholder(next[index].tableNumber)) claimTable(index, table);
             continue;
         }
 
         //  2. ES NUEVO
         const process = createProcess({ key: order.clave, ...fromTablet });
-        const tableNumber = order.mesa || (order.ticket ? `#${order.ticket}` : '');
+        const tableNumber = table
+            || tableOfTicket(next, fromTablet.ticketNumber)
+            || order.mesa
+            || (order.ticket ? `#${order.ticket}` : '');
 
         // openIndex = «la mesa abierta con ese número»
         let openIndex = -1;
@@ -279,13 +396,29 @@ export function applyTabletOrders(records, orders, now = new Date()) {
             continue;
         }
 
-        const record = createRecord({ date: now, tableNumber, process: [process] });
+        const record = withTable(createRecord({ date: now, process: [process] }), tableNumber);
         if (next === records) next = [...records];
         next.splice(firstTrailingBlank(next), 0, record);
         tableOf.set(order.clave, record.id);
     }
 
     return next;
+}
+
+
+// tableOfTicket = «la mesa de verdad donde ya está ese ticket», o '' si no está en ninguna
+// El número de ticket es único: otro curso del mismo ticket es la misma mesa. Solo cuenta una rotación abierta.
+function tableOfTicket(records, ticketNumber) {
+
+    const ticket = String(ticketNumber ?? '').trim();
+    if (ticket === '') return '';
+
+    for (let index = records.length - 1; index >= 0; index--) {
+        const record = records[index];
+        if (!isEmpty(record.breakUp) || !esMesaDeVerdad(record.tableNumber)) continue;
+        if (record.process.some(process => String(process.ticketNumber).trim() === ticket)) return String(record.tableNumber).trim();
+    }
+    return '';
 }
 
 
@@ -315,6 +448,34 @@ function updateFromTablet(record, key, fromTablet) {
 }
 
 
+/*  stampShift = «a las rotaciones que acaban de nacer, el turno de ahora»
+ *
+ *  Una rotación nace cuando recibe su fecha: la primera vez que se le escribe algo, o cuando la IA abre una
+ *  nueva. En ese momento toma el turno del toggle de la barra (ShiftToggle), y con ese se queda: cambiar el
+ *  toggle después solo cuenta para las que nazcan desde entonces. Las que ya tenían fecha —también las que
+ *  vuelven de lo guardado sin turno, de antes de existir— no se tocan.
+ *
+ *  Recibe: previous (la lista de antes del cambio), next (la de después) y shift ('day' | 'night').
+ *  Devuelve next, la MISMA si ninguna acaba de nacer.
+ */
+export function stampShift(previous, next, shift) {
+
+    if (!SHIFTS.includes(shift)) return next;
+
+    // dated = «las que ya habían nacido antes del cambio»
+    const dated = new Set(previous.filter(record => record.date).map(record => record.id));
+
+    let changed = false;
+    const stamped = next.map(record => {
+        if (!record.date || record.shift || dated.has(record.id)) return record;
+        changed = true;
+        return { ...record, shift };
+    });
+
+    return changed ? stamped : next;
+}
+
+
 // appendBlankProcess = «añadir a una rotación un proceso en blanco», para anotarlo a mano
 // Es lo que hace el botón «+» de la fila: un pedido que la tablet no vio, o que la IA no supo leer.
 // En blanco no se guarda (withoutBlankRows): si nadie le escribe nada, al recargar ya no está.
@@ -338,9 +499,9 @@ export function appendBlankProcess(records, recordId) {
 const storageKey = (localId) => (localId ? `${STORAGE_PREFIX}:${localId}` : '');
 
 
-// readRecords = «leer las mesas guardadas de un local»
+// readRecords = «leer las mesas guardadas de un local», cada una en la fila que ocupaba (placeInRows)
 // NUNCA lanza: sin nada guardado, o con el almacenamiento bloqueado, devuelve una lista vacía.
-// Las mesas de más de RECORD_HOURS no vuelven: son de otro turno.
+// Las mesas de más de RECORD_HOURS no vuelven: son de otro turno, y su fila queda en blanco.
 export function readRecords(localId, now = new Date()) {
 
     const key = storageKey(localId);
@@ -350,9 +511,13 @@ export function readRecords(localId, now = new Date()) {
         const saved = JSON.parse(localStorage.getItem(key));
         if (!Array.isArray(saved)) return [];
 
-        return saved
-            .map(item => reviveRecord(item, now))
-            .filter(record => now - record.date < RECORD_HOURS * 3600 * 1000);
+        //  La fila va aparte y no dentro de la rotación: en memoria la fila es su sitio en la lista, y así
+        //  tampoco viaja a la API al guardarla con el disquete.
+        const rows = saved
+            .map(item => ({ record: reviveRecord(item, now), row: item?.row }))
+            .filter(({ record }) => now - record.date < RECORD_HOURS * 3600 * 1000);
+
+        return placeInRows(rows);
     }
     catch {
         return [];
@@ -360,7 +525,8 @@ export function readRecords(localId, now = new Date()) {
 }
 
 
-// writeRecords = «guardar las mesas de un local». Sin las filas en blanco, y las MAX_RECORDS más recientes.
+// writeRecords = «guardar las mesas de un local»: las que tienen algo, cada una con su fila (withRows), y
+// las MAX_RECORDS más recientes.
 // NUNCA lanza: si el almacenamiento está lleno o bloqueado devuelve false.
 export function writeRecords(localId, records) {
 
@@ -369,13 +535,56 @@ export function writeRecords(localId, records) {
 
     try {
         //  La fecha se guarda como texto (JSON no tiene fechas) y reviveRecord la vuelve a hacer Date.
-        localStorage.setItem(key, JSON.stringify(withoutBlankRows(records).slice(-MAX_RECORDS)));
+        localStorage.setItem(key, JSON.stringify(withRows(records).slice(-MAX_RECORDS)));
         return true;
     }
     catch (error) {
         console.log(error);
         return false;
     }
+}
+
+
+/*  LA FILA DE CADA MESA
+ *
+ *  Una rotación que se guarda en la API queda EN BLANCO EN SU SITIO (clearRecord), y las de debajo no se
+ *  mueven. Pero lo guardado en el equipo no lleva las filas en blanco, así que al recargar ese hueco
+ *  desaparecía y todas las de debajo subían una fila: la mesa que estaba en la 5 volvía en la 2.
+ *
+ *  Por eso cada rotación se guarda con su número de fila ('row', su posición en la lista, contando los
+ *  huecos) y al leerla vuelve a ella. Las dos mitades son withRows, al guardar, y placeInRows, al leer.
+ */
+
+// withRows = «las rotaciones que tienen algo, cada una con la fila que ocupa»: lo que se guarda en el equipo
+// Como withoutBlankRows, pero sin perder dónde estaba cada una.
+export function withRows(records) {
+    return records
+        .map((record, row) => ({ record, row }))
+        .filter(({ record }) => !isBlankRecord(record))
+        .map(({ record, row }) => ({ ...record, process: record.process.filter(process => !isBlankProcess(process)), row }));
+}
+
+
+// placeInRows = «cada rotación en la fila que ocupaba», y los huecos de entre medias en blanco
+// Recibe: rows, [{ record, row }] tal como se leyeron. Devuelve la lista de rotaciones, sin las filas en
+// blanco del final (eso lo pone withBlankRows).
+// Las que no traen fila —guardadas antes de que existiera—, la traen repetida o fuera de rango van detrás de
+// las colocadas, en su orden: nada se pierde por no saber dónde iba.
+export function placeInRows(rows) {
+
+    // placed = «las filas ya ocupadas»: el índice es la fila
+    const placed = [];
+
+    // rest = «las que no tienen una fila válida y libre»
+    const rest = [];
+
+    for (const { record, row } of rows) {
+        if (Number.isInteger(row) && row >= 0 && row <= MAX_ROW && placed[row] === undefined) placed[row] = record;
+        else rest.push(record);
+    }
+
+    //  Array.from recorre también los huecos del array (undefined), que se rellenan con rotaciones en blanco
+    return [...Array.from(placed, record => record ?? createRecord()), ...rest];
 }
 
 
@@ -388,6 +597,12 @@ function reviveRecord(saved, now) {
 
     for (const field of ['tableNumber', ...RECORD_TIMES]) record[field] = String(saved?.[field] ?? '');
 
+    //  No se lee lo guardado: sale de la mesa, y así las de antes de existir el campo también lo tienen.
+    record.takeOut = isTicketPlaceholder(record.tableNumber);
+
+    //  El turno sí se lee: se puso al nacer y no se deduce de nada. Uno que no sea de SHIFTS no vale.
+    record.shift = SHIFTS.includes(saved?.shift) ? saved.shift : null;
+
     const date = new Date(saved?.date ?? now);
     record.date = Number.isFinite(date.getTime()) ? date : now;
 
@@ -398,6 +613,7 @@ function reviveRecord(saved, now) {
         ref: touch?.ref ?? null,
         name: String(touch?.name ?? ''),
         hourTouch: String(touch?.hourTouch ?? ''),
+        createdAt: typeof touch?.createdAt === 'string' ? touch.createdAt : null,   //  los de antes de existir no lo tienen
     }));
     return record;
 }

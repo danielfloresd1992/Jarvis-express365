@@ -1,16 +1,14 @@
 /*  LA BARRA DE LOS REGISTERS
  *
- *  La franja de encima de la tabla. Dentro van, de izquierda a derecha: los botones de exportar y
- *  limpiar (ExportButton, ClearButton) y cómo va la lectura (ReadingStatus).
- *
- *  Los botones van juntos y a la izquierda del estado porque son lo único de aquí que hace algo; el
- *  estado solo informa.
+ *  La franja de encima de la tabla, como la barra de una aplicación de escritorio. Dentro van, de
+ *  izquierda a derecha: las pestañas «Mesas / Registros» (RegisterViewTabs), cómo va la lectura
+ *  (ReadingStatus) y los botones de exportar y limpiar, solo con icono (ExportButton, ClearButton).
  */
 
 
 export default function RegisterBar({ children }) {
     return (
-        <div className='shrink-0 flex items-center gap-1 px-1 pt-1 bg-jx-panel' style={{ WebkitAppRegion: 'no-drag' }}>
+        <div className='shrink-0 flex flex-wrap items-center gap-1.5 px-2 py-1.5 bg-jx-panel border-b border-jx-regla2' style={{ WebkitAppRegion: 'no-drag' }}>
             {children}
         </div>
     );

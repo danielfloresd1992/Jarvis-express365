@@ -11,17 +11,15 @@
 
     Es una FILA: los registers y, en desarrollo, el registro de la inferencia a su derecha.
 
-    El margen de la derecha es el hueco del botón flotante de la bandeja de imágenes (.inbox-toggle):
-    va fijo arriba a la derecha, a 14 px del borde y con 46 px de ancho, y sin este margen tapaba la
-    esquina de arriba de los registers —el estado de la lectura, o los botones del registro de la
-    inferencia—. Son 14 + 46 + 8 de aire, menos los 24 de relleno que ya tiene el centro.
+    Llega hasta el relleno del centro, sin margen propio. Antes dejaba 44 px a la derecha para el botón
+    flotante de la bandeja de imágenes, que tapaba su esquina de arriba; ese botón ahora va en la barra
+    de arriba (InboxButton) y el hueco sobraba.
 
     'color-scheme: light' y la tinta, por lo mismo que en la ventana flotante: el ':root' de
     index.css sigue en oscuro, y sin ellos las barras de desplazamiento saldrían oscuras.        */
 .register-board {
     width: auto;
     align-self: stretch;
-    margin-right: 44px;
     height: calc(100vh - 52px - var(--titlebar-h) - 5rem);
     min-height: 320px;
     display: flex;
@@ -46,11 +44,9 @@
 
 
 /*  ── En el teléfono y en una ventana estrecha ──
-    El botón de la bandeja no se pinta (App.css), así que no hay hueco que dejarle; y el centro
-    lleva 1 rem de relleno arriba en vez de 1,5.                                                 */
+    El centro lleva 1 rem de relleno arriba en vez de 1,5.                                       */
 @media screen and (max-width: 720px) {
     .register-board {
-        margin-right: 0;
         height: calc(100vh - 52px - var(--titlebar-h) - 4.5rem);
     }
 }

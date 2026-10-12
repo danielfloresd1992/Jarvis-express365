@@ -1,65 +1,76 @@
-import { WrapperCell, WrapperText } from '../../../cells/GridCells.jsx';
+import { WrapperText } from '../../../cells/GridCells.jsx';
+import { groupTouches } from './managers.js';
 
 
 /*  LOS TOQUES DE GERENTE DE UNA ROTACIÓN, FLOTANDO DEBAJO DE SU FILA
  *
- *  Uno por cada clic en un botón de gerente: quién y a qué hora. Va 'absolute', pegado a la derecha y
- *  justo debajo de la fila: flota encima de las de abajo sin empujarlas. 'z-[5]' lo pone encima de
- *  ellas pero debajo de la cabecera fija (z-10), para que al desplazar pase por detrás de ella.
+ *  El diseño «A · Lista compacta», elegido por el usuario: arriba la mesa y cuántos toques lleva, con su
+ *  botón de cerrar; debajo, una línea por toque con la placa del gerente (G1, A2…), su nombre, la hora y
+ *  la ✕ de borrar, que se aviva al pasar el ratón.
  *
- *  La hora se corrige como las de los procesos —un clic estampa la de ahora, dos clics abren el campo—
- *  y la ✕ borra el toque. Usa la tarjeta y las líneas de los procesos (registers.css).
+ *  AGRUPADOS POR GERENTE (pedido del usuario): en el orden de sus botones y, dentro de cada uno, por
+ *  hora. Cada línea lleva su placa y su nombre; la primera de cada gerente, una raya más marcada encima.
+ *
+ *  Va 'absolute', pegado a la derecha y justo debajo de la fila: flota encima de las de abajo sin
+ *  empujarlas. 'z-[5]' lo pone encima de ellas pero debajo de la cabecera fija (z-10).
+ *
+ *  La hora se corrige como las de los procesos (WrapperText): dos clics abren el campo.
  */
 
 
-// TOUCH_GRID = «la rejilla de un toque»: el gerente, la hora y el botón de borrar
-const TOUCH_GRID = { display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr) 28px' };
-
-
-/*  @param {Array}    touches          los toques de la rotación: [{ id, ref, name, hourTouch }]
- *  @param {number}   widthOfManagers  lo que mide la columna de los gerentes: la tarjeta mide al menos eso
- *  @param {function} onWrite          corrige la hora de un toque (id del toque, hora)
- *  @param {function} onDelete         borra un toque (id del toque)
+/*  @param {string}   tableNumber  la mesa de la rotación
+ *  @param {Array}    touches      sus toques: [{ id, ref, name, hourTouch }]
+ *  @param {Array}    managers     los botones de los gerentes (managers.js): de ellos salen el orden y la placa
+ *  @param {function} onWrite      corrige la hora de un toque (id del toque, hora)
+ *  @param {function} onDelete     borra un toque (id del toque)
+ *  @param {function} onClose      cierra la lista
  */
-export default function RegisterTouchList({ touches, widthOfManagers, onWrite, onDelete }) {
+export default function RegisterTouchList({ tableNumber, touches, managers, onWrite, onDelete, onClose }) {
+
+    // grouped = «los toques en su orden»: por gerente y, dentro de cada uno, por hora (groupTouches)
+    const grouped = groupTouches(touches, managers);
+
     return (
         <div
             className='register-process-card absolute right-0 top-full z-[5]'
-            style={{ width: Math.max(widthOfManagers, 240), boxShadow: '0 8px 20px rgb(0 0 0 / 0.14)' }}
+            style={{ width: 280, marginTop: 4, boxShadow: '0 12px 28px rgb(47 42 30 / 0.18)' }}
         >
 
-            <div style={TOUCH_GRID}>
-                {
-                    ['Gerente', 'Hora del toque', ''].map(title => (
-                        <div key={title} className='min-h-[22px] py-[3px] flex items-center justify-center uppercase text-[10px] font-semibold tracking-[0.5px] text-jx-tinta3 border-b border-b-jx-regla'>
-                            {title}
-                        </div>
-                    ))
-                }
+            <div className='flex items-center justify-between' style={{ padding: '6px 8px 6px 12px' }}>
+                <div className='flex items-baseline gap-1.5'>
+                    <span className='text-[13px] font-bold text-jx-tinta'>Mesa {tableNumber}</span>
+                    <span className='text-[12px] text-jx-tinta2'>{touches.length} {touches.length === 1 ? 'toque' : 'toques'}</span>
+                </div>
+                <button type='button' className='register-touch-delete register-touch-close' onClick={onClose} aria-label='Cerrar la lista de toques' title='Cerrar'>
+                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.4' strokeLinecap='round' aria-hidden='true'>
+                        <path d='M6 6l12 12' />
+                        <path d='M18 6 6 18' />
+                    </svg>
+                </button>
             </div>
 
             {
-                touches.map(touch => (
-                    <div key={touch.id} className='register-process-line' style={TOUCH_GRID}>
-                        <WrapperCell classStyles='cursor-default text-jx-tinta2'>{touch.name}</WrapperCell>
+                grouped.map(touch => (
+                    <div key={touch.id} className={`register-touch-row ${touch.startsGroup ? 'register-touch-row--group' : ''}`}>
 
-                        <WrapperCell classStyles='text-jx-tinta2'>
+                        {/*  La placa y el nombre, en todas las líneas (pedido del usuario)  */}
+                        {
+                            touch.label
+                                ? <span className={`register-touch-label register-manager--${touch.label.startsWith('A') ? 'a' : 'g'}`}>{touch.label}</span>
+                                : <span />
+                        }
+                        <span className='min-w-0 truncate text-[13px] text-jx-tinta'>{touch.name}</span>
+
+                        <span className='text-[13px] text-jx-tinta' title='Doble clic para corregir la hora'>
                             <WrapperText value={touch.hourTouch} updateValue={hourTouch => onWrite(touch.id, hourTouch)} />
-                        </WrapperCell>
+                        </span>
 
-                        {/*  El relleno y la letra van en línea: la regla global 'button {}' gana a Tailwind.  */}
-                        <WrapperCell>
-                            <button
-                                type='button'
-                                className='text-jx-tinta3 hover:text-red-600'
-                                style={{ padding: 0, fontSize: 12, background: 'transparent' }}
-                                onClick={() => onDelete(touch.id)}
-                                title='Borrar este toque'
-                                aria-label='Borrar este toque'
-                            >
-                                ✕
-                            </button>
-                        </WrapperCell>
+                        <button type='button' className='register-touch-delete' onClick={() => onDelete(touch.id)} aria-label={`Borrar el toque de las ${touch.hourTouch}`} title='Borrar este toque'>
+                            <svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.6' strokeLinecap='round' aria-hidden='true'>
+                                <path d='M6 6l12 12' />
+                                <path d='M18 6 6 18' />
+                            </svg>
+                        </button>
                     </div>
                 ))
             }

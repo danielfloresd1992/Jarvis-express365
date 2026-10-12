@@ -28,16 +28,19 @@ export const COLUMNS = [
 
 // PROCESS_COLUMNS = «las columnas de un proceso», en su orden. El número y las duraciones llevan poco
 // texto y van más estrechas; el tipo de plato, el que más, va más ancho.
+// color = «el color con que se reconoce la columna» (ver processStripes). NINGUNO es de la rotación: los
+// procesos van dentro de su fila y tienen que distinguirse de ella. Salen de los huecos que deja la paleta de
+// COLUMNS, y las columnas vecinas quedan lejos entre sí. Las dos duraciones comparten el suyo, como allá.
 export const PROCESS_COLUMNS = [
-    { id: 'ticketNumber',        title: '# Ticket',         width: 0.8,  fromTablet: true },
-    { id: 'dishType',            title: 'Tipo de plato',    width: 1.25, fromTablet: true },
-    { id: 'orderTaking',         title: 'Toma de orden',    width: 1,    fromTablet: true },
-    { id: 'markedReadyOnTablet', title: 'Listo en tablet',  width: 1,    fromTablet: true },
-    { id: 'tabletDuration',      title: 'Duración',         width: 0.9,  computed: true },   //  listo en tablet − toma de orden
-    { id: 'readyInTheKitchen',   title: 'Listo en cocina',  width: 1 },
-    { id: 'dishDelivery',        title: 'Entrega de plato', width: 1 },
-    { id: 'deliveryDuration',    title: 'Duración',         width: 0.9,  computed: true },   //  entrega de plato − listo en cocina
-    { id: 'delete',              title: '',                 width: 0.35 },                   //  el botón de borrar el proceso
+    { id: 'ticketNumber',        title: '# Ticket',         width: 0.8,  fromTablet: true, color: '#6f7d8c' },   //  pizarra
+    { id: 'dishType',            title: 'Tipo de plato',    width: 1.25, fromTablet: true, color: '#a3a32e' },   //  oliva
+    { id: 'orderTaking',         title: 'Toma de orden',    width: 1,    fromTablet: true, color: '#5560c4' },   //  índigo
+    { id: 'markedReadyOnTablet', title: 'Listo en tablet',  width: 1,    fromTablet: true, color: '#3f9d5a' },   //  verde hoja
+    { id: 'tabletDuration',      title: 'Duración',         width: 0.9,  computed: true,   color: '#a855c2' },   //  orquídea; listo en tablet − toma de orden
+    { id: 'readyInTheKitchen',   title: 'Listo en cocina',  width: 1,                      color: '#c9444f' },   //  granate
+    { id: 'dishDelivery',        title: 'Entrega de plato', width: 1,                      color: '#8c6e54' },   //  sepia
+    { id: 'deliveryDuration',    title: 'Duración',         width: 0.9,  computed: true,   color: '#a855c2' },   //  orquídea; entrega de plato − listo en cocina
+    { id: 'delete',              title: '',                 width: 0.35 },                                        //  el botón de borrar el proceso: sin color
 ];
 
 
@@ -46,16 +49,19 @@ export const PROCESS_COLUMNS = [
 // se quedaba vacía).
 export const ADD_WIDTH = 34;
 
-// MANAGER_BUTTON_SPACE = «lo que ocupa cada botón de gerente», con el hueco hasta el siguiente (ManagerButtons)
-const MANAGER_BUTTON_SPACE = 30;
+// SAVE_WIDTH = «lo que mide la columna del disquete», la última de la fila (SaveRecordButton)
+export const SAVE_WIDTH = 34;
 
-// TOUCH_TOGGLE_SPACE = «lo que ocupa la flecha de los toques», a la derecha de los botones. Se deja
-// siempre, la haya o no, para que la columna no cambie de ancho al apuntar el primer toque.
-export const TOUCH_TOGGLE_SPACE = 40;
+// MANAGER_BUTTON_SPACE = «lo que ocupa cada botón de gerente», con el hueco hasta el siguiente (ManagerButtons)
+const MANAGER_BUTTON_SPACE = 34;
+
+// TOUCHES_SPACE = «lo que ocupa el contador de toques», con la raya que lo separa de los botones
+// (TouchToggle). Está siempre, también con 0, así que la columna no cambia de ancho.
+const TOUCHES_SPACE = 60;
 
 // managersWidth = «lo que mide la columna de los gerentes», a la derecha de la fila, para 'count' botones.
 // 0 = el local no tiene gerentes y la columna no se pinta. Nunca menos de lo que pide su título, «Gerentes».
-export const managersWidth = (count) => (count > 0 ? Math.max(count * MANAGER_BUTTON_SPACE + 10 + TOUCH_TOGGLE_SPACE, 84) : 0);
+export const managersWidth = (count) => (count > 0 ? Math.max(count * MANAGER_BUTTON_SPACE + 10 + TOUCHES_SPACE, 84) : 0);
 
 
 /*  LA REJILLA, y no filas flexibles, es lo que hace que cuadren
@@ -66,8 +72,8 @@ export const managersWidth = (count) => (count > 0 ? Math.max(count * MANAGER_BU
  *  reparte el ancho que haya sin mirar lo que lleva dentro cada celda.
  */
 
-// tableGrid = «la rejilla de las rotaciones»: el «+», las siete columnas y, si el local tiene, los gerentes.
-// Es una función porque la columna de los gerentes mide según cuántos tenga el local.
+// tableGrid = «la rejilla de las rotaciones»: el «+», las siete columnas, los gerentes si el local tiene,
+// y el disquete. Es una función porque la columna de los gerentes mide según cuántos tenga el local.
 // Recibe: widthOfManagers (lo que mide esa columna, de managersWidth; 0 = no se pinta).
 export const tableGrid = (widthOfManagers) => ({
     display: 'grid',
@@ -75,6 +81,7 @@ export const tableGrid = (widthOfManagers) => ({
         `${ADD_WIDTH}px`,
         ...COLUMNS.map(column => `minmax(0, ${column.width}fr)`),
         ...(widthOfManagers > 0 ? [`${widthOfManagers}px`] : []),
+        `${SAVE_WIDTH}px`,
     ].join(' '),
 });
 
@@ -91,8 +98,8 @@ export const PROCESS_GRID = {
  *  franja del mismo color que se apaga hacia abajo.
  *
  *  Las franjas son el fondo de la zona que se desplaza, no de cada celda: así cada una es continua, y las
- *  filas no llevan fondo propio. Cada borde se calcula como lo reparte tableGrid: lo que dejan el «+» y
- *  los gerentes, en proporción a 'width'.
+ *  filas no llevan fondo propio. Cada borde se calcula como lo reparte tableGrid: lo que dejan el «+», los
+ *  gerentes y el disquete, en proporción a 'width'.
  *
  *  Son dos capas: las franjas, y encima un velo del color del lienzo, transparente arriba y casi opaco
  *  abajo, que es el que las apaga. El velo va quieto ('scroll') y las franjas se desplazan con las filas
@@ -110,8 +117,11 @@ export const columnStripes = (widthOfManagers) => {
     // total = «lo que suman los anchos»: el ancho que dejan las columnas fijas se reparte en esa proporción
     const total = COLUMNS.reduce((sum, column) => sum + column.width, 0);
 
+    // rightWidth = «lo que miden las columnas fijas de la derecha»: los gerentes y el disquete
+    const rightWidth = widthOfManagers + SAVE_WIDTH;
+
     // edge = «dónde cae un borde» cuando quedan a su izquierda 'before' de ancho
-    const edge = (before) => `calc(${ADD_WIDTH}px + (100% - ${ADD_WIDTH + widthOfManagers}px) * ${before / total})`;
+    const edge = (before) => `calc(${ADD_WIDTH}px + (100% - ${ADD_WIDTH + rightWidth}px) * ${before / total})`;
 
     let before = 0;
     const stripes = COLUMNS.map(column => {
@@ -124,8 +134,29 @@ export const columnStripes = (widthOfManagers) => {
         backgroundColor: 'var(--color-jx-lienzo)',
         backgroundImage: [
             'linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-jx-lienzo) 75%, transparent))',
-            `linear-gradient(to right, var(--color-jx-lienzo) ${ADD_WIDTH}px, ${stripes.join(', ')}, var(--color-jx-lienzo) calc(100% - ${widthOfManagers}px))`,
+            `linear-gradient(to right, var(--color-jx-lienzo) ${ADD_WIDTH}px, ${stripes.join(', ')}, var(--color-jx-lienzo) calc(100% - ${rightWidth}px))`,
         ].join(', '),
         backgroundAttachment: 'scroll, local',
     };
 };
+
+
+// PROCESS_STRIPES = «el fondo de la tarjeta de los procesos»: una franja del color de cada columna
+// Como las de la rotación, pero sin apagarse hacia abajo: la tarjeta es corta. Y sin columnas fijas que
+// descontar, así que cada borde es la parte de 'width' que queda a su izquierda. Una columna sin color
+// (la de borrar) se queda en el color del lienzo.
+export const PROCESS_STRIPES = (() => {
+
+    // total = «lo que suman los anchos»
+    const total = PROCESS_COLUMNS.reduce((sum, column) => sum + column.width, 0);
+
+    let before = 0;
+    const stripes = PROCESS_COLUMNS.map(column => {
+        const color = column.color ? `color-mix(in srgb, ${column.color} 14%, var(--color-jx-lienzo))` : 'var(--color-jx-lienzo)';
+        const stripe = `${color} ${(before / total) * 100}% ${((before + column.width) / total) * 100}%`;
+        before += column.width;
+        return stripe;
+    });
+
+    return { backgroundImage: `linear-gradient(to right, ${stripes.join(', ')})` };
+})();

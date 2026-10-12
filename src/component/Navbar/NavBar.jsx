@@ -11,6 +11,7 @@ import URL from '../../libs/fetch_data/api_conexion.js';
 import { confirmAuthentication } from '../../libs/fetch_data/authFetch.js';
 import NotificationBell from '../NotificationCenter';
 import TabletButton from '../tabletButton/TabletButton.jsx';
+import InboxButton from '../inbox/InboxButton.jsx';
 
 
 
@@ -132,6 +133,9 @@ function NavBar({ clearLocal, boxModal }) {
                 <li>
                     <NotificationBell />
                 </li>
+
+                {/* La bandeja de imágenes del Toast. Trae su propio <li>, y no sale en el teléfono. */}
+                <InboxButton />
 
                 {!isMobile && (
                     <>

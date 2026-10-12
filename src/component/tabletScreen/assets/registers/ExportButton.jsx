@@ -1,7 +1,7 @@
 /*  EXPORTAR: llevarse el registro —las mesas y sus procesos— a una hoja de cálculo
  *
- *  Su aspecto va en la clase 'vt-boton' de index.css. El tamaño va en 'style' y no en clases: la
- *  regla global 'button {}' de index.css no está en ninguna capa y le gana a las utilidades.
+ *  Solo el icono, como en una barra de escritorio: lo que hace se lee al pasar el ratón. Su aspecto va
+ *  en la clase 'register-icon-button' de registers.css.
  */
 
 
@@ -12,12 +12,15 @@ export default function ExportButton({ onExport }) {
         <button
             type='button'
             onClick={onExport}
-            className='vt-boton'
-            style={{ padding: '3px 10px', fontSize: '10px' }}
+            className='register-icon-button'
             aria-label='Exportar el registro a una hoja de cálculo'
-            title='Descarga el registro en una hoja de cálculo, con el establecimiento y la fecha'
+            title='Exportar: descarga el registro en una hoja de cálculo, con el establecimiento y la fecha'
         >
-            Exportar
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                <path d='M12 3v12' />
+                <path d='m7 10 5 5 5-5' />
+                <path d='M5 21h14' />
+            </svg>
         </button>
     );
 }

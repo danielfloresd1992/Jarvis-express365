@@ -70,7 +70,7 @@ function getModelList(modelsResponse) {
 // De lo que contesta /api/v1/models, solo los que conversan ('llm'). Los de embeddings no leen.
 // Recibe: modelsResponse. Vale la forma de LM Studio ({ models: [{ key, type, loaded_instances, capabilities }] })
 //         y la compatible con OpenAI ({ data: [{ id }] }), que no dice ni el tipo ni si está cargado.
-// Devuelve: [ { name: 'google/gemma-4-12b', loaded: true, vision: true } ]
+// Devuelve: [ { name: 'google/gemma-4-12b', loaded: true, vision: true, reasoningOff: false } ]
 function getLanguageModels(modelsResponse) {
 
     // modelList = «la lista de modelos, tal como la manda el servidor»
@@ -99,7 +99,13 @@ function getLanguageModels(modelsResponse) {
         // vision = «sabe mirar imágenes»
         const vision = model?.capabilities?.vision === true || model?.vision === true;
 
-        languageModels.push({ name, loaded, vision });
+        // reasoningOff = «se le puede apagar el razonamiento»
+        // LM Studio lo dice modelo a modelo en capabilities.reasoning.allowed_options. Un modelo que no
+        // razona no trae esa clave, y si se le manda 'reasoning' contesta un 400. Lo que no lo dice, no lo recibe.
+        const allowedOptions = model?.capabilities?.reasoning?.allowed_options;
+        const reasoningOff = Array.isArray(allowedOptions) && allowedOptions.includes('off');
+
+        languageModels.push({ name, loaded, vision, reasoningOff });
     }
 
     return languageModels;
@@ -536,7 +542,8 @@ function getInferenceStats(data) {
 // Devuelve: { active: true,  model: 'google/gemma-4-12b', models: ['google/gemma-4-12b', …],
 //             visionModels: ['google/gemma-4-12b'], ms: 14,
 //             missingPreferred: 'el-que-se-pidio' | null,   ← se pidió uno que ya no está cargado
-//             blindPreferred:   'el-que-se-pidio' | null }   ← se pidió uno que está pero no ve
+//             blindPreferred:   'el-que-se-pidio' | null,   ← se pidió uno que está pero no ve
+//             reasoningOff:     true | false }              ← al elegido se le puede apagar el razonamiento
 //        o  { active: false, cause: 'no-url' | 'network' | 'cors' | 'auth' | 'no-model' | 'no-vision-model'
 //                                 | 'https-not-supported' | 'timeout' | 'http' | 'cancelled',
 //             error: 'texto en español', ms }   (con 'no-vision-model' vienen además models y visionModels;
@@ -586,10 +593,13 @@ async function checkAiServer({ baseUrl, apiKey, preferred, signal } = {}) {
         // loadedCount = «cuántos de esos están cargados de verdad»
         // Se cuenta aparte porque LM Studio lista también los descargados sin cargar; decir «N cargados»
         // con el largo de la lista mentiría ahí. Con el bot, que solo lista los listos, coinciden.
+        // languageModels = «los modelos de lenguaje, con lo que se sabe de cada uno»
+        const languageModels = getLanguageModels(response.data);
+
         const models = [];
         const visionModels = [];
         let loadedCount = 0;
-        for (const languageModel of getLanguageModels(response.data)) {
+        for (const languageModel of languageModels) {
             models.push(languageModel.name);
             if (languageModel.vision) visionModels.push(languageModel.name);
             if (languageModel.loaded) loadedCount = loadedCount + 1;
@@ -642,7 +652,10 @@ async function checkAiServer({ baseUrl, apiKey, preferred, signal } = {}) {
             else model = wanted;
         }
 
-        return { active: true, model, models, visionModels, reportsVision, ms, missingPreferred, blindPreferred };
+        // reasoningOff = «al modelo con el que se lee se le puede apagar el razonamiento» (ver requestInference)
+        const reasoningOff = languageModels.find(languageModel => languageModel.name === model)?.reasoningOff === true;
+
+        return { active: true, model, models, visionModels, reportsVision, ms, missingPreferred, blindPreferred, reasoningOff };
     }
     catch (error) {
         // ms = «los milisegundos que tardó en fallar» (sin contar la sonda de CORS)
@@ -686,14 +699,15 @@ async function checkAiServer({ baseUrl, apiKey, preferred, signal } = {}) {
 // requestInference = «solicitar la inferencia»
 // STEP 3. Manda UNA imagen al modelo y devuelve su texto, tal cual. NUNCA lanza.
 // Recibe: { baseUrl (la dirección del servidor), apiKey (la clave del menú, si la hay), model (el que dijo
-//           checkAiServer), prompt (OPCIONAL, ver abajo), image (la captura, como data URL),
+//           checkAiServer), reasoningOff (lo que dijo checkAiServer: si a ese modelo se le apaga el razonamiento),
+//           prompt (OPCIONAL, ver abajo), image (la captura, como data URL),
 //           timeoutMs (lo que se le espera) y signal (para cancelar) }
 // Devuelve: { ok: true,  text, seconds, status, stats: { inputTokens, outputTokens, tokensPerSecond, secondsToFirstToken } }
 //        o  { ok: false, cause: 'no-url' | 'network' | 'cors' | 'auth' | 'timeout' | 'http' | 'model-rejected' | 'cancelled',
 //             error: 'texto en español', seconds, status, detail: { code, message, data } }
 // Con 'model-rejected', 'network' o 'cors', quien llama vuelve a hacer checkAiServer antes de la siguiente.
 // Con 'auth' o 'no-url' no: hasta que el usuario no cambie los ajustes, volver a preguntar no arregla nada.
-async function requestInference({ baseUrl, apiKey, model, prompt, image, timeoutMs, signal } = {}) {
+async function requestInference({ baseUrl, apiKey, model, reasoningOff, prompt, image, timeoutMs, signal } = {}) {
 
     // 1. Sin dirección no hay a quién mandársela
     if (!baseUrl) {
@@ -711,6 +725,11 @@ async function requestInference({ baseUrl, apiKey, model, prompt, image, timeout
      *  Es la API PROPIA de LM Studio (/api/v1/chat) y no la compatible con OpenAI porque es la única
      *  que deja apagar el razonamiento: razonando tardaba 29 s por lectura y a veces se quedaba sin
      *  tokens. Para leer tickets no hace falta que piense, solo que copie lo que ve.
+     *
+     *  PERO 'reasoning' SOLO VA A QUIEN LO ADMITE. Un modelo que no razona lo rechaza entero: medido
+     *  el 2026-10-12, qwen3-vl-32b-instruct contestó 400 «does not expose reasoning configuration» a
+     *  cada lectura. checkAiServer mira en la lista de modelos si el elegido lo admite (reasoningOff);
+     *  si no lo dice, no se manda, y un modelo sin razonamiento no piensa de todos modos.
      *
      *  EL TEXTO SOLO VA SI SE PIDE, Y LA VENTANA YA NO LO PIDE.
      *
@@ -735,9 +754,10 @@ async function requestInference({ baseUrl, apiKey, model, prompt, image, timeout
         input: prompt
             ? [{ type: 'text', content: prompt }, { type: 'image', data_url: image }]
             : [{ type: 'image', data_url: image }],
-        reasoning: 'off',
         temperature: 0
     };
+
+    if (reasoningOff) body.reasoning = 'off';
 
     try {
         // 3. Sale la imagen, con la clave si la hay. SIEMPRE con tiempo máximo: una conexión colgada

@@ -113,6 +113,7 @@ function noteCaptureToSend(note, params, image, imageKB) {
         imagenKB: imageKB,
         //  Ya no se manda ningún texto: las instrucciones las pone la pasarela del servidor.
         instrucciones: 'las pone el servidor',
+        razonamiento: server.reasoningOff ? "se apaga (reasoning: 'off')" : 'no se manda: el modelo no lo admite o no lo dice',
         esperaMaximaSegundos: timeoutMs / 1000,
     });
 }
@@ -235,7 +236,8 @@ function noteTicketsFound(note, parsed) {
 // UNA vuelta completa: STEP 2 (la captura, como data URL), STEP 3 (mandarla al modelo) y STEP 4
 // (entender su respuesta). No toca React ni guarda nada: todo lo recibe y todo lo devuelve.
 // Recibe: { capture: { blob, time },             la última captura de la tablet, que viaja ENTERA
-//           server: { baseUrl, apiKey, model },  el servidor de IA, su clave y el modelo (de checkAiServer)
+//           server: { baseUrl, apiKey, model,    el servidor de IA, su clave y el modelo (de checkAiServer),
+//                     reasoningOff },            y si a ese modelo se le apaga el razonamiento (ídem)
 //           timeoutMs, signal,                   cuánto se espera al modelo, y con qué se cancela
 //           note }                               note(tipo, titulo, detalle): apunta en el registro de la inferencia
 // Devuelve: { ok, time, model, seconds, tickets, discarded, error, cause, text, imageKB }
@@ -273,6 +275,7 @@ async function runInferenceOnce(params) {
             apiKey: server.apiKey,
 
             model: server.model,
+            reasoningOff: server.reasoningOff,
             //  Sin 'prompt': las instrucciones las pone la pasarela del servidor. El porqué, y qué
             //  pasa si la dirección no apunta a ella, están en requestInference (aiServer.js).
             image,
