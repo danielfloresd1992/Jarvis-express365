@@ -408,7 +408,8 @@
 /*  Un título que no cabe se recorta en su celda en vez de montarse sobre el de al lado.  */
 .register-saved-header > * { min-width: 0; overflow: hidden; }
 
-.register-saved-row:hover .register-saved-cell--cycle { background: var(--color-jx-panel); }
+/*  'background-color' y no 'background': el atajo borraría la raya de las celdas tachadas (register-cell--na).  */
+.register-saved-row:hover .register-saved-cell--cycle { background-color: var(--color-jx-panel); }
 
 /*  Creador y Edición: la persona en una línea, cortada con «…» si no cabe (la completa, en el 'title').  */
 .register-saved-cell--person { min-width: 0; padding: 0 6px; font-size: 12px; color: var(--color-jx-tinta2); }

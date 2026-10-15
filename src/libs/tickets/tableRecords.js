@@ -164,6 +164,11 @@ const sameTable = (one, other) => !isEmpty(one) && String(one).trim().toLowerCas
 // Es la regla del pedido para llevar, la misma de isTakeOutTable en la API (rotation.lib.js).
 const isTicketPlaceholder = (tableNumber) => String(tableNumber ?? '').trim().startsWith('#');
 
+// isTakeOut = «es un pedido para llevar»: NO cuenta como rotación, porque no hubo mesa ocupada; solo es
+// el proceso de un pedido. Vale para las rotaciones de aquí y para las guardadas (las devuelve la API con
+// 'takeOut'); a una guardada antes de que la API diera el campo le falta, y entonces lo dice su '#ticket'.
+export const isTakeOut = (record) => record?.takeOut ?? isTicketPlaceholder(record?.tableNumber);
+
 // withTable = «la rotación con esta mesa». takeOut va siempre con ella: así no se pueden contradecir.
 const withTable = (record, tableNumber) => ({ ...record, tableNumber, takeOut: isTicketPlaceholder(tableNumber) });
 

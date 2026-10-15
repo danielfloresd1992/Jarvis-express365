@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { getTimeReport } from '../../../../libs/date_time/calculate_time.js';
 import { WrapperText } from '../../../cells/GridCells.jsx';
+import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
 import { COLUMNS } from './columns.js';
 import SavedTextInput from './SavedTextInput.jsx';
 import SavedPerson, { fullName } from './SavedPerson.jsx';
@@ -24,6 +25,11 @@ import RegisterSavedChanges from './RegisterSavedChanges.jsx';
  *  SE CORRIGE: la mesa escribiéndola y las horas con doble clic; los procesos y los toques, en las listas
  *  que despliegan sus cápsulas. Cada cambio sale por 'onEdit' con el _id de lo que cambia. «Hora» no se
  *  corrige: es cuándo se guardó, y la pone el servidor.
+ *
+ *  UN PEDIDO PARA LLEVAR (isTakeOut: su mesa es un '#ticket') no es una rotación: solo trae su proceso.
+ *  Sus horas de mesa, sus dos tiempos y sus toques van tachados, como en la pestaña Mesas; los toques
+ *  solo enseñan su cápsula si ya tenía alguno, para poder verlos y quitarlos. La mesa sí se corrige:
+ *  quitarle el '#' la vuelve una rotación, y la API recalcula 'takeOut' al guardarla.
  *
  *  La lista desplegada FLOTA bajo las columnas del ciclo, encima de las filas de abajo: no estira la fila
  *  (pedido del usuario). Para que se vea de quién es, la fila abierta se oscurece un poco. Se cierra con
@@ -107,9 +113,9 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
     const processCount = rotation.process?.length ?? 0;
     const touchCount = rotation.touch?.length ?? 0;
 
-    // canAddTouches = «se le pueden apuntar toques»: el local tiene gerentes y la mesa no es un pedido para
-    // llevar (takeOut, o su '#ticket' en las guardadas antes de que la API diera el campo)
-    const takeOut = rotation.takeOut ?? String(rotation.tableNumber ?? '').trim().startsWith('#');
+    // takeOut = «es un pedido para llevar», que no es una rotación (isTakeOut)
+    // canAddTouches = «se le pueden apuntar toques»: el local tiene gerentes y no es un pedido para llevar
+    const takeOut = isTakeOut(rotation);
     const canAddTouches = managers.length > 0 && !takeOut;
 
     // edit = «corregir un dato de la rotación»
@@ -132,46 +138,66 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
 
             {/*  Mesa, Ocupa, 1ra Atención, Desocupa y Limpieza, cada una con el color de su columna. La mesa en
                  negrita y se corrige escribiéndola; las horas, con doble clic (WrapperText). La primera
-                 atención en rojo si pasó del límite.  */}
+                 atención en rojo si pasó del límite. En un pedido para llevar, las horas van tachadas.
+                 El color va en 'backgroundColor' y no en 'background', que borraría la raya del tachado.  */}
             {
                 SAVED_COLUMNS.map(column => (
-                    <div
-                        key={column.id}
-                        className={`register-saved-cell register-saved-cell--edit ${column.id === 'tableNumber' ? 'text-[14px] font-bold' : ''} ${column.id === 'hourFirstAttention' && attention?.exceeded ? 'text-jx-critico-texto font-bold' : ''}`}
-                        style={{ background: cellTint(column) }}
-                        title={column.id === 'tableNumber' ? 'Clic para corregir la mesa' : 'Doble clic para corregir la hora'}
-                    >
-                        {
-                            column.id === 'tableNumber'
-                                ? <SavedTextInput value={rotation.tableNumber} onCommit={edit('tableNumber')} label='Número de mesa' required />
-                                : <WrapperText value={rotation[column.id]} updateValue={edit(column.id)} />
-                        }
-                    </div>
+                    takeOut && column.id !== 'tableNumber'
+                        ? <div key={column.id} className='register-saved-cell register-cell--na' style={{ backgroundColor: cellTint(column) }} title='Pedido para llevar: no lleva esta hora' />
+                        : (
+                            <div
+                                key={column.id}
+                                className={`register-saved-cell register-saved-cell--edit ${column.id === 'tableNumber' ? 'text-[14px] font-bold' : ''} ${column.id === 'hourFirstAttention' && attention?.exceeded ? 'text-jx-critico-texto font-bold' : ''}`}
+                                style={{ backgroundColor: cellTint(column) }}
+                                title={column.id === 'tableNumber' ? 'Clic para corregir la mesa' : 'Doble clic para corregir la hora'}
+                            >
+                                {
+                                    column.id === 'tableNumber'
+                                        ? <SavedTextInput value={rotation.tableNumber} onCommit={edit('tableNumber')} label='Número de mesa' required />
+                                        : <WrapperText value={rotation[column.id]} updateValue={edit(column.id)} />
+                                }
+                            </div>
+                        )
                 ))
             }
 
-            {/*  Tiempo de 1ra atención: de Ocupa a Primera atención  */}
-            <div className='register-saved-cell register-saved-cell--cycle'>
-                <span className={`register-saved-chip ${attention?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--attention'}`}>
-                    {attention ? attention.timeTotal : '-'}
-                </span>
-            </div>
+            {
+                takeOut ? (
+                    <>
+                        <div className='register-saved-cell register-saved-cell--cycle register-cell--na' title='Pedido para llevar: no lleva primera atención' />
+                        <div className='register-saved-cell register-saved-cell--cycle register-cell--na' title='Pedido para llevar: no lleva limpieza' />
+                    </>
+                ) : (
+                    <>
+                        {/*  Tiempo de 1ra atención: de Ocupa a Primera atención  */}
+                        <div className='register-saved-cell register-saved-cell--cycle'>
+                            <span className={`register-saved-chip ${attention?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--attention'}`}>
+                                {attention ? attention.timeTotal : '-'}
+                            </span>
+                        </div>
 
-            {/*  Tiempo de limpieza: de Desocupa a Limpieza. Si al guardarla la mesa no se había desocupado, se dice.  */}
-            <div className='register-saved-cell register-saved-cell--cycle'>
-                {
-                    !rotation.breakUp
-                        ? <span className='register-saved-chip register-saved-chip--open' title='La mesa no se había desocupado cuando se guardó'>Sin desocupar</span>
-                        : <span className={`register-saved-chip ${cleaning?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--cleaning'}`}>{cleaning ? cleaning.timeTotal : '-'}</span>
-                }
-            </div>
+                        {/*  Tiempo de limpieza: de Desocupa a Limpieza. Si al guardarla la mesa no se había desocupado, se dice.  */}
+                        <div className='register-saved-cell register-saved-cell--cycle'>
+                            {
+                                !rotation.breakUp
+                                    ? <span className='register-saved-chip register-saved-chip--open' title='La mesa no se había desocupado cuando se guardó'>Sin desocupar</span>
+                                    : <span className={`register-saved-chip ${cleaning?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--cleaning'}`}>{cleaning ? cleaning.timeTotal : '-'}</span>
+                            }
+                        </div>
+                    </>
+                )
+            }
 
-            {/*  Procesos TP (Toast POS) y toques: cada cápsula despliega su lista, una a la vez  */}
+            {/*  Procesos TP (Toast POS) y toques: cada cápsula despliega su lista, una a la vez. Un pedido para
+                 llevar no lleva toques: va tachado, y solo si ya tenía alguno queda su cápsula.  */}
             <div className='register-saved-cell register-saved-cell--cycle'>
                 <RegisterSavedToggle className='register-saved-chip--process' count={processCount} word='proceso' open={open === 'procesos'} onToggle={() => toggle('procesos')} />
             </div>
-            <div className='register-saved-cell register-saved-cell--cycle'>
-                <RegisterSavedToggle className='register-saved-chip--touches' count={touchCount} word='toque' open={open === 'toques'} onToggle={() => toggle('toques')} openEmpty={canAddTouches} />
+            <div className={`register-saved-cell register-saved-cell--cycle ${takeOut ? 'register-cell--na' : ''}`} title={takeOut ? 'Pedido para llevar: no lleva toques de gerente' : undefined}>
+                {
+                    (!takeOut || touchCount > 0)
+                    && <RegisterSavedToggle className='register-saved-chip--touches' count={touchCount} word='toque' open={open === 'toques'} onToggle={() => toggle('toques')} openEmpty={canAddTouches} />
+                }
             </div>
 
             {/*  Creador y Edición, con su foto. La persona de Edición despliega todos los cambios.  */}

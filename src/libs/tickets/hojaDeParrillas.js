@@ -1,5 +1,5 @@
 import { getTimeReport } from '../date_time/calculate_time.js';
-import { withoutBlankRows } from './tableRecords.js';
+import { withoutBlankRows, isTakeOut } from './tableRecords.js';
 
 
 /*  EL REGISTRO DE LAS MESAS, EN UNA HOJA DE CÁLCULO
@@ -118,13 +118,18 @@ function buildSpreadsheet({ establecimiento, ahora = new Date(), registros, limi
     // pedidos = «cuántos procesos hay en total»
     const pedidos = mesas.reduce((total, mesa) => total + mesa.process.length, 0);
 
+    // paraLlevar / rotaciones = «los pedidos para llevar» y «las rotaciones de verdad»: un pedido para
+    // llevar sale en el registro con su proceso, pero no cuenta como rotación (isTakeOut)
+    const paraLlevar = mesas.filter(isTakeOut).length;
+    const rotaciones = mesas.length - paraLlevar;
+
     // lineas = «las líneas del archivo»
     const lineas = [
         fila(['Establecimiento', establecimiento || '(sin establecimiento)']),
         fila(['Fecha', ahora.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })]),
         fila(['Hora', ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })]),
         '',
-        fila(['REGISTRO', `${mesas.length} rotaciones`, `${pedidos} procesos`]),
+        fila(['REGISTRO', `${rotaciones} rotaciones`, `${paraLlevar} para llevar`, `${pedidos} procesos`]),
         fila(COLUMNAS),
     ];
 

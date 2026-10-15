@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import RegisterSavedRow, { SAVED_GRID, SAVED_COLUMNS, CYCLE_TITLES } from './RegisterSavedRow.jsx';
 import { headerTint } from './columns.js';
 import { operationalDayLabel } from '../../../../libs/date_time/operationalDay.js';
+import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
 
 
 /*  LA PESTAÑA «REGISTROS»: LAS ROTACIONES GUARDADAS DEL DÍA
@@ -50,16 +51,22 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
     // loading = «se están trayendo, y todavía no hay ninguna que enseñar»
     const loading = status === 'loading' && rotations.length === 0;
 
+    // takeOutCount / rotationCount = «los pedidos para llevar» y «las rotaciones de verdad». Un pedido para
+    // llevar sale en la lista, pero no cuenta como rotación: no hubo mesa ocupada (isTakeOut).
+    const takeOutCount = rotations.filter(isTakeOut).length;
+    const rotationCount = rotations.length - takeOutCount;
+
     // totalTouches = «los toques de gerente del día», sumando los de todas las rotaciones
     const totalTouches = rotations.reduce((sum, rotation) => sum + (rotation.touch?.length ?? 0), 0);
 
     return (
         <div className='flex-1 min-h-0 flex flex-col bg-jx-lienzo'>
 
-            {/*  El día y los totales: rotaciones y toques de gerente (sin título: el usuario lo quitó)  */}
+            {/*  El día y los totales: rotaciones, pedidos para llevar (si hay) y toques de gerente (sin título: el usuario lo quitó)  */}
             <div className='shrink-0 flex flex-wrap items-center gap-2.5 px-4 py-3 border-b border-jx-regla2'>
                 {day && <span className='text-[13px] font-semibold text-jx-tinta'>{operationalDayLabel(day)} · día operativo</span>}
-                {status === 'ready' && <span className='register-saved-chip register-saved-chip--count'>{rotations.length} {rotations.length === 1 ? 'rotación' : 'rotaciones'}</span>}
+                {status === 'ready' && <span className='register-saved-chip register-saved-chip--count'>{rotationCount} {rotationCount === 1 ? 'rotación' : 'rotaciones'}</span>}
+                {status === 'ready' && takeOutCount > 0 && <span className='register-saved-chip register-saved-chip--process' title='Pedidos sin mesa: su mesa es el #ticket. No cuentan como rotación.'>{takeOutCount} para llevar</span>}
                 {status === 'ready' && <span className='register-saved-chip register-saved-chip--touches-total'>{totalTouches} {totalTouches === 1 ? 'toque' : 'toques'} en total</span>}
                 {status === 'loading' && rotations.length > 0 && <span className='text-[12px] text-jx-tinta3'>actualizando…</span>}
                 {editNotice && <span className='register-saved-chip register-saved-chip--late' role='alert'>No se guardó el cambio: {editNotice}</span>}

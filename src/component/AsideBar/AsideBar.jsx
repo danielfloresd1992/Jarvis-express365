@@ -21,6 +21,9 @@ function AsideBar({ clearLocal, selectNovelty, openBoleanSidebar, onToggleSideba
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const MODE_REGISTER = !(establishment?.processRegister || false); 
+
+    
 
     const closeSesscion = () => {
         axiosInstance.get(`${URL}/auth/logout`)
@@ -75,7 +78,7 @@ function AsideBar({ clearLocal, selectNovelty, openBoleanSidebar, onToggleSideba
                 Menú
             </button>
 
-            <aside className={`sidebar ${openBoleanSidebar ? 'sidebar--open' : ''}`}>
+            <aside className={`sidebar ${MODE_REGISTER || openBoleanSidebar ? 'sidebar--open' : ''}`}>
                 {/* Local name header */}
                 <div className='sidebar__header'>
                     {!isMobile || isTablet ? (
