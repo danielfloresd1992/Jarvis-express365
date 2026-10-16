@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, appendBlankProcess, applyTabletOrders, createRecord, stampShift } from '../../../libs/tickets/tableRecords.js';
+import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, setListOpen, appendBlankProcess, applyTabletOrders, createRecord, stampShift } from '../../../libs/tickets/tableRecords.js';
 import { getCurrentTime } from '../../cells/GridCells.jsx';
 
 
@@ -25,10 +25,11 @@ import { getCurrentTime } from '../../cells/GridCells.jsx';
 //           orders            los pedidos que se están siguiendo ahora (useProcessTracking)
 //           simulating        hay una simulación en marcha
 //           shift }           el turno del toggle de la barra: con él nacen las rotaciones (stampShift)
-// Devuelve: { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders }
+// Devuelve: { records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders }
 //   records                                          las rotaciones, con las filas en blanco del final
 //   writeRecord(recordId, field, value)              anota un dato de una rotación
 //   writeProcess(recordId, processId, field, value)  anota una hora de un proceso
+//   writeListOpen(recordId, list, open)              despliega o pliega una lista de la fila: 'processesOpen' | 'touchesOpen'
 //   addProcess(recordId)                             añade a una rotación un proceso en blanco (el «+»)
 //   deleteProcess(recordId, processId)               borra un proceso de una rotación
 //   clearRecord(recordId)                            deja la rotación en blanco, en su sitio (ya guardada en la API)
@@ -141,6 +142,12 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
         commit(setProcessField(recordsRef.current, recordId, processId, field, value, new Date()));
     }, [commit]);
 
+    // writeListOpen = «desplegar o plegar una lista de la fila». Se guarda como lo demás: al volver a abrir
+    // la app, cada fila está como se dejó.
+    const writeListOpen = useCallback((recordId, list, open) => {
+        commit(setListOpen(recordsRef.current, recordId, list, open));
+    }, [commit]);
+
 
     const addProcess = useCallback((recordId) => {
         commit(appendBlankProcess(recordsRef.current, recordId));
@@ -190,7 +197,7 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
     const clear = useCallback(() => commit([]), [commit]);
 
 
-    return { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders: applyOrders };
+    return { records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders: applyOrders };
 }
 
 

@@ -31,8 +31,9 @@ import { saveRotation } from '../../../../libs/fetch_data/rotationFetching.js';
  *        sabría de qué rotación es.
  *
  *  LA FILA NO GUARDA NADA. La rotación llega entera en 'record' (libs/tickets/tableRecords.js) y todo
- *  lo que se escribe se pide al registro con writeRecord / writeProcess / addProcess. Lo único suyo es
- *  si está desplegada o no.
+ *  lo que se escribe se pide al registro con writeRecord / writeProcess / addProcess. Ni siquiera si sus
+ *  listas están desplegadas: eso también va en la rotación ('processesOpen', 'touchesOpen') y se pide con
+ *  writeListOpen, para que al cerrar la app y volver a abrirla cada fila siga como se dejó.
  */
 
 
@@ -63,7 +64,8 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {string}   cleaningLimit   el límite de limpieza del local, 'HH:MM:SS'
  *  @param {function} writeRecord     anota (id de la rotación, campo, valor)
  *  @param {function} writeProcess    anota (id de la rotación, id del proceso, campo, valor)
- *  @param {function} addProcess      añade un proceso en blanco a la rotación (id)
+ *  @param {function} writeListOpen   despliega o pliega una lista (id de la rotación, 'processesOpen' | 'touchesOpen', boolean)
+ *  @param {function} addProcess     añade un proceso en blanco a la rotación (id)
  *  @param {function} deleteProcess   borra un proceso (id de la rotación, id del proceso)
  *  @param {function} clearRecord     deja la rotación en blanco (id de la rotación), ya guardada en la API
  *  @param {function} addTouch        apunta un toque de gerente (id de la rotación, gerente)
@@ -76,13 +78,16 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {string}   establishmentId el _id del local: a cuál se guarda la rotación (el disquete)
  *  @param {function} onSaved         opcional. La API guardó la rotación: (la rotación guardada)
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved }) {
 
-    // open = «los procesos están desplegados»
-    const [open, setOpen] = useState(false);
+    // open = «los procesos están desplegados»; touchesOpen = «los toques de gerente están desplegados».
+    // Salen de la rotación y no de un estado de la fila: así se guardan en el equipo con ella.
+    const open = record.processesOpen === true;
+    const touchesOpen = record.touchesOpen === true;
 
-    // touchesOpen = «los toques de gerente están desplegados»
-    const [touchesOpen, setTouchesOpen] = useState(false);
+    // setOpen / setTouchesOpen = «desplegar o plegar» cada lista, en la rotación (writeListOpen)
+    const setOpen = (value) => writeListOpen(record.id, 'processesOpen', value);
+    const setTouchesOpen = (value) => writeListOpen(record.id, 'touchesOpen', value);
 
 
     /*  SE DESPLIEGA SOLA CUANDO LA IA LE METE UN PROCESO
@@ -93,7 +98,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
      *
      *  Al montarse la fila no hay nada con qué comparar, y ahí se mira la fecha: la rotación que abre la
      *  IA llega ya con su primer proceso y recién creada, y se abre; la que vuelve de lo guardado al
-     *  recargar es de antes, y se queda cerrada.
+     *  recargar es de antes, y se queda como se dejó ('processesOpen').
      */
 
     // tabletKeys = «los pedidos de la tablet que tiene la rotación», en una sola cadena para compararlos
@@ -127,7 +132,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
 
     //  Al escribir '#14' en la mesa se crea solo el proceso de ese ticket (withTicketProcess, en
     //  tableRecords.js), y la lista se abre para verlo. Solo cuando aparece, no al montarse la fila: lo que
-    //  vuelve de lo guardado se queda cerrado.
+    //  vuelve de lo guardado se queda como se dejó.
     // processCountRef = «cuántos procesos tenía la fila»
     const processCountRef = useRef(record.process.length);
     useEffect(() => {
@@ -324,7 +329,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
                             count={record.process.length}
                             open={open}
                             alarm={alarm}
-                            onToggle={() => setOpen(current => !current)}
+                            onToggle={() => setOpen(!open)}
                         />
                     </span>
                     <input
@@ -402,13 +407,13 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
                     managers.length > 0 && (
                         takeOut ? (
                             <NotApplicableCell title='Pedido para llevar: no lleva toques de gerente'>
-                                {record.touch.length > 0 && <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(current => !current)} />}
+                                {record.touch.length > 0 && <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(!touchesOpen)} />}
                             </NotApplicableCell>
                         ) : (
                             <WrapperCell classStyles='cursor-default gap-1'>
                                 <ManagerButtons managers={managers} dimmed={noTable} onTouch={touchOne} />
                                 <span aria-hidden='true' className='shrink-0 w-px h-[18px] mx-0.5 bg-jx-regla2' />
-                                <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(current => !current)} />
+                                <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(!touchesOpen)} />
                             </WrapperCell>
                         )
                     )

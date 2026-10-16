@@ -7,6 +7,7 @@ import ClearButton from './ClearButton.jsx';
 import ReadingStatus from './ReadingStatus.jsx';
 import RegisterTable from './RegisterTable.jsx';
 import RegisterSaved from './RegisterSaved.jsx';
+import RegisterTabPanel from './RegisterTabPanel.jsx';
 
 
 /*  EL REGISTRO, CON SU BARRA
@@ -21,11 +22,14 @@ import RegisterSaved from './RegisterSaved.jsx';
  *  Recibe la sesión entera en vez de quince props sueltas: todo lo de aquí sale de ella. Como las
  *  demás piezas de assets/, solo pinta y avisa; quien borra, guarda o reporta es la sesión.
  *
- *  LAS DOS PESTAÑAS SE MONTAN SOLO MIENTRAS SE VEN: Mesas (RegisterTable) o Registros (RegisterSaved).
- *  Ninguna guarda nada que tenga que sobrevivir al cambio: las mesas viven en session.store y las
- *  rotaciones guardadas en session.savedRotations, los dos en la sesión. Ahí vive también la pregunta
- *  por los tickets que la IA lee otra vez después de guardarlos (useSavedRotations), que por eso sigue
- *  funcionando aunque este componente no esté en pantalla.
+ *  LAS DOS PESTAÑAS ESTÁN SIEMPRE MONTADAS: Mesas (RegisterTable) y Registros (RegisterSaved). Cambiar
+ *  de pestaña solo enseña una y oculta la otra (RegisterTabPanel), así que la oculta conserva lo suyo
+ *  (pedido del usuario): en Mesas, los procesos y toques desplegados, el aviso de una fila y un guardado
+ *  que la API aún no contestó; en Registros, la lista desplegada de una fila (RegisterSavedRow no la
+ *  cierra al cambiar de pestaña); en las dos, hasta dónde se había bajado.
+ *  Los datos viven en la sesión: las mesas en session.store y las rotaciones guardadas en
+ *  session.savedRotations. Ahí vive también la pregunta por los tickets que la IA lee otra vez después de
+ *  guardarlos (useSavedRotations), que por eso sigue funcionando aunque este componente no esté en pantalla.
  *
  *  Va dentro de una columna flexible (flex-col): la tabla se queda con el alto que sobra.
  */
@@ -80,23 +84,21 @@ export default function Registers({ session, establishment = session.establishme
             </RegisterBar>
 
             {/*  «Registros»: las rotaciones guardadas de hoy, que aquí se pueden corregir y exportar  */}
-            {
-                view === 'registros' && (
-                    <RegisterSaved
-                        saved={saved}
-                        establishmentName={establishment?.name}
-                        attentionLimit={attention}
-                        cleaningLimit={cleaning}
-                        onRetry={loadSaved}
-                        onEdit={editSaved}
-                        onAddTouch={addSavedTouch}
-                        onDeleteTouch={deleteSavedTouch}
-                        editNotice={editNotice}
-                        managers={managers}
-                        onExport={exportWithManagers}
-                    />
-                )
-            }
+            <RegisterTabPanel visible={view === 'registros'}>
+                <RegisterSaved
+                    saved={saved}
+                    establishmentName={establishment?.name}
+                    attentionLimit={attention}
+                    cleaningLimit={cleaning}
+                    onRetry={loadSaved}
+                    onEdit={editSaved}
+                    onAddTouch={addSavedTouch}
+                    onDeleteTouch={deleteSavedTouch}
+                    editNotice={editNotice}
+                    managers={managers}
+                    onExport={exportWithManagers}
+                />
+            </RegisterTabPanel>
 
             {/*  LA TABLA SOLO SE REPINTA CUANDO CAMBIA ALGUNA DE SUS PROPS ('memo'). Por eso aquí no se
                  le pasa ninguna función escrita en línea ni ningún objeto armado en el sitio: serían
@@ -104,34 +106,33 @@ export default function Registers({ session, establishment = session.establishme
 
                  Los seis últimos datos son para cuando está VACÍA: con ellos dice por qué, en vez de
                  enseñar filas en blanco que lo mismo son «todo bien» que «no leo».  */}
-            {
-                view === 'mesas' && (
-                    <RegisterTable
-                        records={store.records}
-                        liveOrders={tracking.orders}
-                        attentionLimit={attention}
-                        cleaningLimit={cleaning}
-                        writeRecord={store.writeRecord}
-                        writeProcess={store.writeProcess}
-                        addProcess={store.addProcess}
-                        deleteProcess={store.deleteProcess}
-                        clearRecord={store.clearRecord}
-                        addTouch={store.addTouch}
-                        writeTouch={store.writeTouch}
-                        deleteTouch={store.deleteTouch}
-                        onReportDelay={reportDelay}
-                        hasReading={Boolean(reading.diagnosis)}
-                        readingError={reading.diagnosis?.error || ''}
-                        censusing={tracking.censusing}
-                        censusReadings={tracking.censusReadings}
-                        censusLength={tracking.censusLength}
-                        alreadyThere={tracking.alreadyThere.size}
-                        managers={managers}
-                        establishmentId={establishment?._id}
-                        onSaved={rememberSaved}
-                    />
-                )
-            }
+            <RegisterTabPanel visible={view === 'mesas'}>
+                <RegisterTable
+                    records={store.records}
+                    liveOrders={tracking.orders}
+                    attentionLimit={attention}
+                    cleaningLimit={cleaning}
+                    writeRecord={store.writeRecord}
+                    writeProcess={store.writeProcess}
+                    writeListOpen={store.writeListOpen}
+                    addProcess={store.addProcess}
+                    deleteProcess={store.deleteProcess}
+                    clearRecord={store.clearRecord}
+                    addTouch={store.addTouch}
+                    writeTouch={store.writeTouch}
+                    deleteTouch={store.deleteTouch}
+                    onReportDelay={reportDelay}
+                    hasReading={Boolean(reading.diagnosis)}
+                    readingError={reading.diagnosis?.error || ''}
+                    censusing={tracking.censusing}
+                    censusReadings={tracking.censusReadings}
+                    censusLength={tracking.censusLength}
+                    alreadyThere={tracking.alreadyThere.size}
+                    managers={managers}
+                    establishmentId={establishment?._id}
+                    onSaved={rememberSaved}
+                />
+            </RegisterTabPanel>
         </>
     );
 }

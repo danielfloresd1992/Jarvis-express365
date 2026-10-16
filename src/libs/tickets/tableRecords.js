@@ -49,6 +49,12 @@ import { esMesaDeVerdad } from './claveDeTicket.js';
 // RECORD_TIMES = «las horas de la mesa»
 export const RECORD_TIMES = ['hourOccupies', 'hourFirstAttention', 'breakUp', 'tableCleaning'];
 
+// OPEN_LISTS = «las listas que se despliegan en una fila de Mesas»: la de procesos y la de toques de gerente.
+// Son de uso interno de Mesas, no datos de la mesa. Se guardan en el equipo con ella, para que al volver a
+// abrir la app cada fila esté como se dejó. A la API viajan con el disquete, pero su validación las descarta
+// (stripUnknown) y el modelo no las tiene.
+export const OPEN_LISTS = ['processesOpen', 'touchesOpen'];
+
 // SHIFTS = «los turnos de una rotación»: de día o de noche. Los mismos que acepta la API (rotation.schema.js).
 export const SHIFTS = ['day', 'night'];
 
@@ -141,6 +147,8 @@ export function createRecord(fields = {}) {
         touch: [],      //  los toques de gerente: [{ id (UUIDv4), ref (ObjectId del gerente), name, hourTouch 'HH:MM:SS', createdAt }]
                         //  createdAt: de uso interno, el momento en que se creó el toque (ISO). No se ve ni se edita:
                         //  'hourTouch' sí se corrige a mano, y esto no.
+        processesOpen: false,   //  de uso interno de Mesas (OPEN_LISTS): la lista de procesos está desplegada
+        touchesOpen: false,     //  de uso interno de Mesas (OPEN_LISTS): la lista de toques de gerente está desplegada
         ...fields,
     };
 }
@@ -479,6 +487,19 @@ export function stampShift(previous, next, shift) {
 }
 
 
+// setListOpen = «desplegar o plegar una lista de una mesa»: la de procesos o la de toques (OPEN_LISTS)
+// No es escribirle a la mesa: no le da fecha ni la hace nacer, como sí hace setRecordField.
+export function setListOpen(records, recordId, list, open) {
+
+    const index = records.findIndex(record => record.id === recordId);
+    if (index === -1 || !OPEN_LISTS.includes(list) || records[index][list] === Boolean(open)) return records;
+
+    const next = [...records];
+    next[index] = { ...records[index], [list]: Boolean(open) };
+    return next;
+}
+
+
 // appendBlankProcess = «añadir a una rotación un proceso en blanco», para anotarlo a mano
 // Es lo que hace el botón «+» de la fila: un pedido que la tablet no vio, o que la IA no supo leer.
 // En blanco no se guarda (withRows): si nadie le escribe nada, al recargar ya no está.
@@ -618,6 +639,9 @@ function reviveRecord(saved, now) {
         hourTouch: String(touch?.hourTouch ?? ''),
         createdAt: typeof touch?.createdAt === 'string' ? touch.createdAt : null,   //  los de antes de existir no lo tienen
     }));
+
+    //  Las listas desplegadas, como se dejaron. Las de antes de existir el campo vuelven plegadas.
+    for (const list of OPEN_LISTS) record[list] = saved?.[list] === true;
     return record;
 }
 

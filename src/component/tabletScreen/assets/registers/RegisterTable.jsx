@@ -23,6 +23,7 @@ import './registers.css';
  *  @param {string}   cleaningLimit   el límite de limpieza del local
  *  @param {function} writeRecord     anota un dato de una rotación
  *  @param {function} writeProcess    anota una hora de un proceso
+ *  @param {function} writeListOpen   despliega o pliega una lista de una rotación ('processesOpen' | 'touchesOpen')
  *  @param {function} addProcess      añade un proceso en blanco a una rotación
  *  @param {function} deleteProcess   borra un proceso de una rotación
  *  @param {function} clearRecord     deja una rotación en blanco (ya guardada en la API)
@@ -43,7 +44,7 @@ import './registers.css';
  *  @param {string}   establishmentId el _id del local, para guardar cada rotación (el disquete)
  *  @param {function} onSaved         opcional. La API guardó una rotación: (la rotación guardada), para la lista de Registros
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved }) {
 
     // liveByKey = «lo que dice ahora mismo el seguimiento de cada pedido», por su key
     const liveByKey = useMemo(() => new Map((liveOrders ?? []).map(order => [order.clave, order])), [liveOrders]);
@@ -108,6 +109,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                             cleaningLimit={cleaningLimit}
                             writeRecord={writeRecord}
                             writeProcess={writeProcess}
+                            writeListOpen={writeListOpen}
                             addProcess={addProcess}
                             deleteProcess={deleteProcess}
                             clearRecord={clearRecord}

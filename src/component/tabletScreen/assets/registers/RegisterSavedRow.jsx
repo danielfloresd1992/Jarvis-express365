@@ -88,16 +88,25 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
     //  dentro de un campo es «deja la hora como estaba», no «cierra». Se escucha 'click' y no 'pointerdown'
     //  para que el campo que se esté corrigiendo se guarde al perder el foco ANTES de que la lista se vaya.
     //  Al abrirse se desplaza lo justo para verla entera: en la última fila quedaría bajo el borde.
+    //
+    //  CAMBIAR DE PESTAÑA NO LA CIERRA: pinchar «Mesas» o «Registros» no cuenta como pinchar fuera, y con
+    //  Registros oculta (Registers la deja montada) no escucha nada de lo que se haga en Mesas. Al volver,
+    //  sigue abierta donde estaba.
     useEffect(() => {
         if (!open) return undefined;
 
         drawerRef.current?.scrollIntoView({ block: 'nearest' });
 
+        // hidden = «la fila está en la pestaña oculta»: con 'display: none' no tiene ninguna caja en pantalla
+        const hidden = () => rowRef.current?.getClientRects().length === 0;
+
         const closeOnEscape = (event) => {
             if (event.key !== 'Escape' || event.defaultPrevented || event.target.closest?.('input, select, textarea')) return;
+            if (hidden()) return;
             setOpen('');
         };
         const closeOnClickOutside = (event) => {
+            if (hidden() || event.target.closest?.('[data-register-tabs]')) return;
             if (!rowRef.current?.contains(event.target)) setOpen('');
         };
 

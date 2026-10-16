@@ -1,7 +1,10 @@
 /*  LAS PESTAÑAS DEL REGISTER: «Mesas» y «Registros»
  *
- *  Cambian lo que enseña el register: la tabla de las rotaciones, o los registros, que todavía no
- *  tienen contenido. Su aspecto va en las clases 'register-tab…' de registers.css.
+ *  Cambian lo que enseña el register: la tabla de las rotaciones, o las rotaciones guardadas. Su
+ *  aspecto va en las clases 'register-tab…' de registers.css.
+ *
+ *  'data-register-tabs' marca la barra de pestañas: la lista desplegada de una fila de Registros
+ *  (RegisterSavedRow) no se cierra al pincharla, para que siga abierta al volver.
  */
 
 
@@ -17,7 +20,7 @@ const TABS = [
  */
 export default function RegisterViewTabs({ view, onChange }) {
     return (
-        <div className='register-tabs'>
+        <div className='register-tabs' data-register-tabs>
             {
                 TABS.map(tab => (
                     <button key={tab.id} type='button' className='register-tab' aria-pressed={view === tab.id} onClick={() => onChange(tab.id)}>
