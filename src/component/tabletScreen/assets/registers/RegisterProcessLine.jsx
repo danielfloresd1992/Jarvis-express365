@@ -17,11 +17,13 @@ import { DISH_TYPES } from '../../../../libs/tickets/tableRecords.js';
  *  La primera es lo que tardó en salir en la tablet (listo en tablet − toma de orden), y la segunda
  *  lo que tardó en llegar a la mesa una vez listo (entrega de plato − listo en cocina).
  *
- *  Las horas van en tinta secundaria, un tono más suave que las de su rotación: son su detalle.
+ *  Los datos van en la tinta principal, como los de su rotación (pedido del usuario: en tinta secundaria,
+ *  y más con la línea atenuada, no se leían). Solo lo vacío —una duración sin sus dos horas— va suave.
  *
  *  LO DE COLOR SALE DE LA LECTURA EN VIVO ('live': lo que dice ahora mismo el seguimiento de este
  *  pedido), no del registro: la raya de la izquierda es la alarma de tiempo (ver alarm.js), la línea
- *  se atenúa cuando el pedido ya salió de la pantalla, y la toma de orden va en ámbar cuando es una
+ *  se atenúa un poco cuando el pedido ya salió de la pantalla (al 75 %: al 60 % el texto quedaba
+ *  ilegible), y la toma de orden va en ámbar cuando es una
  *  estimación. Un proceso anotado a mano, o uno de una sesión anterior, no tiene lectura en vivo y se
  *  pinta sin nada de eso.
  */
@@ -54,11 +56,11 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
 
     return (
         <div
-            className={`register-process-line w-full ${live?.cerrado ? 'opacity-60' : ''}`}
+            className={`register-process-line w-full ${live?.cerrado ? 'opacity-75' : ''}`}
             style={stripe ? { ...PROCESS_GRID, boxShadow: `inset 3px 0 0 ${stripe}` } : PROCESS_GRID}
         >
             {/*  El número de ticket: lo pone la IA, o se escribe en un proceso a mano  */}
-            <WrapperCell classStyles='text-jx-tinta2'>
+            <WrapperCell classStyles='text-jx-tinta'>
                 <input
                     className='w-full h-full text-center bg-transparent tabular-nums'
                     type='text'
@@ -70,7 +72,7 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
             </WrapperCell>
 
             {/*  El tipo de plato, con las opciones del formato del Excel (DISH_TYPES)  */}
-            <WrapperCell classStyles='text-jx-tinta2'>
+            <WrapperCell classStyles='text-jx-tinta'>
                 <select
                     className='w-full h-full text-center bg-transparent cursor-pointer'
                     value={process.dishType}
@@ -83,32 +85,32 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
             </WrapperCell>
 
             <WrapperCell
-                classStyles={estimated ? 'text-jx-ocre-texto italic' : 'text-jx-tinta2'}
+                classStyles={estimated ? 'text-jx-ocre-texto italic' : 'text-jx-tinta'}
                 titulo={estimated ? 'Hora estimada: el ticket ya estaba despachado cuando se le vio, y su contador podía estar parado' : undefined}
             >
                 <WrapperText value={process.orderTaking} updateValue={write('orderTaking')} />
             </WrapperCell>
 
-            <WrapperCell classStyles='text-jx-tinta2'>
+            <WrapperCell classStyles='text-jx-tinta'>
                 <WrapperText value={process.markedReadyOnTablet} updateValue={write('markedReadyOnTablet')} />
             </WrapperCell>
 
             {/*  DURACIÓN en la tablet: de la toma de orden a «listo en tablet». Calculada: sin 'updateValue'.  */}
             <WrapperCell>
-                <WrapperText classStyles={tabletDuration ? 'text-jx-tinta2' : 'text-jx-tinta3'} value={tabletDuration ?? '00:00:00'} />
+                <WrapperText classStyles={tabletDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={tabletDuration ?? '00:00:00'} />
             </WrapperCell>
 
-            <WrapperCell classStyles='text-jx-tinta2'>
+            <WrapperCell classStyles='text-jx-tinta'>
                 <WrapperText value={process.readyInTheKitchen} updateValue={write('readyInTheKitchen')} />
             </WrapperCell>
 
-            <WrapperCell classStyles='text-jx-tinta2'>
+            <WrapperCell classStyles='text-jx-tinta'>
                 <WrapperText value={process.dishDelivery} updateValue={write('dishDelivery')} />
             </WrapperCell>
 
             {/*  DURACIÓN de la entrega: de «listo en cocina» a la mesa. Calculada: sin 'updateValue'.  */}
             <WrapperCell>
-                <WrapperText classStyles={deliveryDuration ? 'text-jx-tinta2' : 'text-jx-tinta3'} value={deliveryDuration ?? '00:00:00'} />
+                <WrapperText classStyles={deliveryDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={deliveryDuration ?? '00:00:00'} />
             </WrapperCell>
 
             {/*  Borrar el proceso. El relleno y la letra van en línea: la regla global 'button {}' gana a Tailwind.  */}

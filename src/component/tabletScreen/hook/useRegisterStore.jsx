@@ -25,7 +25,7 @@ import { getCurrentTime } from '../../cells/GridCells.jsx';
 //           orders            los pedidos que se están siguiendo ahora (useProcessTracking)
 //           simulating        hay una simulación en marcha
 //           shift }           el turno del toggle de la barra: con él nacen las rotaciones (stampShift)
-// Devuelve: { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear }
+// Devuelve: { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders }
 //   records                                          las rotaciones, con las filas en blanco del final
 //   writeRecord(recordId, field, value)              anota un dato de una rotación
 //   writeProcess(recordId, processId, field, value)  anota una hora de un proceso
@@ -36,6 +36,8 @@ import { getCurrentTime } from '../../cells/GridCells.jsx';
 //   writeTouch(recordId, touchId, hourTouch)         corrige la hora de un toque
 //   deleteTouch(recordId, touchId)                   borra un toque
 //   clear()                                          vacía el registro entero
+//   setOrderGuard(guard)                             quién decide si entra un pedido nuevo de la IA: (pedido) => boolean
+//   reapplyOrders()                                  vuelve a pasar los últimos pedidos (tras cambiar lo que decide quien decide)
 function useRegisterStore({ establishmentId, orders, simulating, shift }) {
 
     const [records, setRecords] = useState(() => withBlankRows([]));
@@ -101,10 +103,33 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
     }, [simulating]);
 
 
-    //  2. LO QUE LEE LA IA: cada pedido a su mesa.
+    // orderGuardRef = «quién decide si entra un pedido NUEVO de la IA» (el 4º parámetro de applyTabletOrders).
+    // Lo pone la sesión con setOrderGuard (useSavedRotations): pregunta si el ticket ya se guardó hoy.
+    // null = entran todos. Va en una ref: cambiarlo no tiene por qué repintar nada.
+    const orderGuardRef = useRef(null);
+
+    // ordersRef = «los últimos pedidos que publicó el seguimiento», para volver a pasarlos (reapplyOrders)
+    const ordersRef = useRef(orders);
+    ordersRef.current = orders;
+
+    // applyOrders = «cada pedido a su mesa», preguntando a quien decide (orderGuardRef) por cada pedido nuevo.
+    // También al simular: lo que se guarda con el disquete durante una simulación va a la API de verdad y
+    // sale en «Registros», y el simulador repite números de ticket de una sesión a otra.
+    const applyOrders = useCallback(() => {
+        commit(applyTabletOrders(recordsRef.current, ordersRef.current, new Date(), orderGuardRef.current ?? undefined));
+    }, [commit]);
+
+    //  2. LO QUE LEE LA IA: cada vez que el seguimiento publica pedidos. Y también cuando lo pide quien
+    //     decide (reapplyOrders): al aceptar un ticket ya guardado, entra en ese momento, sin esperar a la
+    //     lectura siguiente.
     useEffect(() => {
-        commit(applyTabletOrders(recordsRef.current, orders, new Date()));
-    }, [orders, commit]);
+        applyOrders();
+    }, [orders, applyOrders]);
+
+    // setOrderGuard = «poner (o quitar, con null) quién decide si entra un pedido nuevo»
+    const setOrderGuard = useCallback((guard) => {
+        orderGuardRef.current = guard;
+    }, []);
 
 
     //  3. LO QUE SE ESCRIBE A MANO. Con useCallback: son SIEMPRE las mismas funciones (ver arriba).
@@ -165,7 +190,7 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
     const clear = useCallback(() => commit([]), [commit]);
 
 
-    return { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear };
+    return { records, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders: applyOrders };
 }
 
 

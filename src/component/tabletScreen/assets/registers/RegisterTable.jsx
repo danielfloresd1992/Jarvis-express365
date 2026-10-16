@@ -41,8 +41,9 @@ import './registers.css';
  *
  *  @param {Array}    managers        los botones de los gerentes del local (managers.js): una columna a la derecha
  *  @param {string}   establishmentId el _id del local, para guardar cada rotación (el disquete)
+ *  @param {function} onSaved         opcional. La API guardó una rotación: (la rotación guardada), para la lista de Registros
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved }) {
 
     // liveByKey = «lo que dice ahora mismo el seguimiento de cada pedido», por su key
     const liveByKey = useMemo(() => new Map((liveOrders ?? []).map(order => [order.clave, order])), [liveOrders]);
@@ -118,6 +119,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                             managers={managers}
                             widthOfManagers={widthOfManagers}
                             establishmentId={establishmentId}
+                            onSaved={onSaved}
                         />
                     ))
                 }

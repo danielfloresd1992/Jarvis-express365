@@ -230,14 +230,6 @@ export function withBlankRows(records) {
 }
 
 
-// withoutBlankRows = «solo lo que tiene algo»: lo que se guarda y lo que se exporta
-export function withoutBlankRows(records) {
-    return records
-        .filter(record => !isBlankRecord(record))
-        .map(record => ({ ...record, process: record.process.filter(process => !isBlankProcess(process)) }));
-}
-
-
 // firstTrailingBlank = «dónde empiezan las mesas en blanco del final». Lo nuevo se mete ahí, delante.
 function firstTrailingBlank(records) {
     let index = records.length;
@@ -313,8 +305,12 @@ export function setProcessField(records, recordId, processId, field, value, now 
  *        el número de ticket es único, así que es la misma mesa (tableOfTicket).
  *      · y si la rotación se abrió como '#142' y una lectura posterior trae la mesa, la rotación la toma
  *        (claimTable). Antes se quedaba con el '#142' para siempre aunque la parrilla ya supiera que era la 28.
+ *
+ *  acceptNewOrder (opcional) decide si un pedido NUEVO entra: recibe el pedido y devuelve true o false. Lo
+ *  pone la ventana para preguntar por los tickets que ya se guardaron hoy (ver Registers). Sin él, entran
+ *  todos. A los que ya están en una mesa no se les pregunta: solo se ponen al día.
  */
-export function applyTabletOrders(records, orders, now = new Date()) {
+export function applyTabletOrders(records, orders, now = new Date(), acceptNewOrder = () => true) {
 
     if (!orders || orders.length === 0) return records;
 
@@ -382,7 +378,9 @@ export function applyTabletOrders(records, orders, now = new Date()) {
             continue;
         }
 
-        //  2. ES NUEVO
+        //  2. ES NUEVO, salvo que no se acepte (un ticket que ya se guardó, y el operador dijo que no)
+        if (!acceptNewOrder(order)) continue;
+
         const process = createProcess({ key: order.clave, ...fromTablet });
         const tableNumber = table
             || tableOfTicket(next, fromTablet.ticketNumber)
@@ -483,7 +481,7 @@ export function stampShift(previous, next, shift) {
 
 // appendBlankProcess = «añadir a una rotación un proceso en blanco», para anotarlo a mano
 // Es lo que hace el botón «+» de la fila: un pedido que la tablet no vio, o que la IA no supo leer.
-// En blanco no se guarda (withoutBlankRows): si nadie le escribe nada, al recargar ya no está.
+// En blanco no se guarda (withRows): si nadie le escribe nada, al recargar ya no está.
 export function appendBlankProcess(records, recordId) {
 
     const index = records.findIndex(record => record.id === recordId);
@@ -561,7 +559,7 @@ export function writeRecords(localId, records) {
  */
 
 // withRows = «las rotaciones que tienen algo, cada una con la fila que ocupa»: lo que se guarda en el equipo
-// Como withoutBlankRows, pero sin perder dónde estaba cada una.
+// Fuera las mesas y los procesos en blanco, sin perder dónde estaba cada una.
 export function withRows(records) {
     return records
         .map((record, row) => ({ record, row }))

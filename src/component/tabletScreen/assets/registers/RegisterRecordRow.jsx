@@ -74,8 +74,9 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {Array}    managers        los botones de los gerentes del local (managers.js)
  *  @param {number}   widthOfManagers lo que mide su columna, para que los procesos la dejen libre
  *  @param {string}   establishmentId el _id del local: a cuál se guarda la rotación (el disquete)
+ *  @param {function} onSaved         opcional. La API guardó la rotación: (la rotación guardada)
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, writeRecord, writeProcess, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved }) {
 
     // open = «los procesos están desplegados»
     const [open, setOpen] = useState(false);
@@ -217,8 +218,13 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
 
         //  La rotación entera, con su local y su id como `clientId` (la API reconoce así la misma
         //  rotación). Sin lista de campos: lo que crezca el ciclo viaja solo.
+        //  Lo que devuelve la API entra en la lista de Registros ANTES de limpiar la fila: así, si la IA
+        //  vuelve a leer alguno de sus tickets, ya consta como guardado y se pregunta (ver Registers).
         saveRotation({ ...record, establishment: establishmentId, clientId: record.id })
-            .then(clearRow)
+            .then(savedRotation => {
+                onSaved?.(savedRotation);
+                clearRow();
+            })
             .catch(error => setNotice(error.message))
             .finally(() => setSaving(false));
     };

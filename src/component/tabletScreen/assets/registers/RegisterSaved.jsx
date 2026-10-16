@@ -3,6 +3,7 @@ import RegisterSavedRow, { SAVED_GRID, SAVED_COLUMNS, CYCLE_TITLES } from './Reg
 import { headerTint } from './columns.js';
 import { operationalDayLabel } from '../../../../libs/date_time/operationalDay.js';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
+import ExportExcelButton from './ExportExcelButton.jsx';
 
 
 /*  LA PESTAÑA «REGISTROS»: LAS ROTACIONES GUARDADAS DEL DÍA
@@ -10,9 +11,10 @@ import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
  *  Las que se guardaron con el disquete, tal como las devuelve api_jarvis365, una fila por rotación y
  *  ordenadas por la hora en que se ocupó la mesa. Arriba, el día y los totales.
  *
- *  No pide nada: los datos le llegan de Registers, que los trae al cargar y cada vez que se abre esta
- *  pestaña. Aquí se pintan, con sus tres estados —trayéndolas, sin ninguna y con error—, y cada fila
- *  deja corregir sus datos, que se le avisan a Registers con 'onEdit'.
+ *  No pide nada y no guarda nada: la lista y lo que la corrige viven en la sesión de la tablet
+ *  (session.savedRotations, hook/useSavedRotations.jsx) y le llegan por props desde Registers. Aquí se
+ *  pintan, con sus tres estados —trayéndolas, sin ninguna y con error—. Por eso se puede desmontar al
+ *  pasar a Mesas sin perder nada, y la búsqueda de tickets ya guardados no depende de que se vea.
  */
 
 
@@ -26,19 +28,20 @@ function secondsOf(time) {
 }
 
 
-/*  @param {object}   saved              lo que trajo Registers: { status, day, documents, message }
+/*  @param {object}   saved              las rotaciones guardadas (useSavedRotations): { status, day, documents, message }
  *                                       status: 'loading' | 'ready' | 'error'
  *  @param {string}   establishmentName  el local, para decir de cuál son
  *  @param {string}   attentionLimit     el límite de primera atención del local
  *  @param {string}   cleaningLimit      el límite de limpieza del local
  *  @param {function} onRetry            volver a pedirlas
- *  @param {function} onEdit             corrige un dato: (data, id) — ver editSaved en Registers
- *  @param {function} onAddTouch         apunta un toque: (id de la rotación, gerente) — ver addSavedTouch en Registers
- *  @param {function} onDeleteTouch      quita un toque: (id del toque) — ver deleteSavedTouch en Registers
+ *  @param {function} onEdit             corrige un dato: (data, id) — ver editSaved en useSavedRotations
+ *  @param {function} onAddTouch         apunta un toque: (id de la rotación, gerente) — ver addSavedTouch en useSavedRotations
+ *  @param {function} onDeleteTouch      quita un toque: (id del toque) — ver deleteSavedTouch en useSavedRotations
  *  @param {string}   editNotice         por qué no se guardó la última corrección ('' si se guardó)
  *  @param {Array}    managers           los botones de los gerentes del local, para las placas de los toques
+ *  @param {function} onExport           opcional. Exportar a Excel; sin él, el botón sale apagado
  */
-export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers }) {
+export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport }) {
 
     const { status, day, documents, message } = saved;
 
@@ -62,14 +65,16 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
     return (
         <div className='flex-1 min-h-0 flex flex-col bg-jx-lienzo'>
 
-            {/*  El día y los totales: rotaciones, pedidos para llevar (si hay) y toques de gerente (sin título: el usuario lo quitó)  */}
-            <div className='shrink-0 flex flex-wrap items-center gap-2.5 px-4 py-3 border-b border-jx-regla2'>
+            {/*  El día y los totales: rotaciones, pedidos para llevar (si hay) y toques de gerente (sin título: el
+                 usuario lo quitó). A la derecha, Exportar a Excel.  */}
+            <div className='shrink-0 flex flex-wrap items-center gap-2.5 px-4 py-2 border-b border-jx-regla2'>
                 {day && <span className='text-[13px] font-semibold text-jx-tinta'>{operationalDayLabel(day)} · día operativo</span>}
                 {status === 'ready' && <span className='register-saved-chip register-saved-chip--count'>{rotationCount} {rotationCount === 1 ? 'rotación' : 'rotaciones'}</span>}
                 {status === 'ready' && takeOutCount > 0 && <span className='register-saved-chip register-saved-chip--process' title='Pedidos sin mesa: su mesa es el #ticket. No cuentan como rotación.'>{takeOutCount} para llevar</span>}
                 {status === 'ready' && <span className='register-saved-chip register-saved-chip--touches-total'>{totalTouches} {totalTouches === 1 ? 'toque' : 'toques'} en total</span>}
                 {status === 'loading' && rotations.length > 0 && <span className='text-[12px] text-jx-tinta3'>actualizando…</span>}
                 {editNotice && <span className='register-saved-chip register-saved-chip--late' role='alert'>No se guardó el cambio: {editNotice}</span>}
+                <ExportExcelButton onExport={onExport} disabled={rotations.length === 0} />
             </div>
 
             {

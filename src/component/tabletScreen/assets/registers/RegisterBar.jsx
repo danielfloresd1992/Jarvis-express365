@@ -2,7 +2,7 @@
  *
  *  La franja de encima de la tabla, como la barra de una aplicación de escritorio. Dentro van, de
  *  izquierda a derecha: las pestañas «Mesas / Registros» (RegisterViewTabs), cómo va la lectura
- *  (ReadingStatus) y los botones de exportar y limpiar, solo con icono (ExportButton, ClearButton).
+ *  (ReadingStatus) y el botón de limpiar, solo con icono (ClearButton).
  */
 
 

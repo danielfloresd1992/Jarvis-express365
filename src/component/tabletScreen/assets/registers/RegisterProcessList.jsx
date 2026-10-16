@@ -9,8 +9,9 @@ import RegisterProcessLine from './RegisterProcessLine.jsx';
  *  metida en una tarjeta clara dentro de la franja de su rotación (ver registers.css). Va debajo de las
  *  columnas de datos: deja libres la del «+», a la izquierda, y la de los gerentes, a la derecha.
  *
- *  La cabecera es pequeña y apagada a propósito: los procesos son el detalle de la rotación y no pueden
- *  pesar más que ella. Las columnas que rellena la IA llevan un punto verde.
+ *  La cabecera es pequeña, para que los procesos no pesen más que su rotación, pero va en la misma tinta
+ *  que la cabecera de la tabla (pedido del usuario: apagada no se leía). Las columnas que rellena la IA
+ *  llevan un punto verde.
  *
  *  Cada columna se reconoce por su color, como las de la rotación pero con una paleta propia
  *  (PROCESS_COLUMNS): su cabecera va teñida de él, y la tarjeta lleva debajo sus franjas (PROCESS_STRIPES).
@@ -34,7 +35,7 @@ export default function RegisterProcessList({ record, liveByKey, writeProcess, d
                         PROCESS_COLUMNS.map(column => (
                             <div
                                 key={column.id}
-                                className='min-h-[22px] min-w-0 py-[3px] flex items-center justify-center gap-[5px] text-center leading-[1.15] uppercase text-[10px] font-semibold tracking-[0.5px] text-jx-tinta3 border-b border-b-jx-regla'
+                                className='min-h-[22px] min-w-0 py-[3px] flex items-center justify-center gap-[5px] text-center leading-[1.15] uppercase text-[10px] font-semibold tracking-[0.5px] text-jx-tinta border-b border-b-jx-regla'
                                 style={column.color ? { background: headerTint(column) } : undefined}
                                 title={column.fromTablet ? 'La rellena la lectura de la tablet' : column.computed ? 'Se calcula con las dos horas de su izquierda' : 'Se anota a mano'}
                             >

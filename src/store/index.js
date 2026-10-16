@@ -9,6 +9,7 @@ import establishment from './slices/establishment.js';
 import alert_line from './slices/alert_line.js';
 import socketIo from "./slices/socketio";
 import reporteDemora from './slices/reporteDemora.js';
+import boxModal from './slices/boxModal.js';
 
 
 
@@ -22,7 +23,8 @@ export const store = configureStore({
         io: socketIo,
         establishment: establishment,
         alert_line: alert_line,
-        reporteDemora: reporteDemora
+        reporteDemora: reporteDemora,
+        boxModal: boxModal
     }
 });
 

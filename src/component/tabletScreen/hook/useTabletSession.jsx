@@ -7,13 +7,13 @@ import { useAiServer } from './useAiServer.jsx';
 import { useTicketReading } from './useTicketReading.jsx';
 import { useProcessTracking } from './useProcessTracking.jsx';
 import { useRegisterStore } from './useRegisterStore.jsx';
+import { useSavedRotations } from './useSavedRotations.jsx';
 import { useSimulatorFeedback } from './useSimulatorFeedback.jsx';
 import { useSendCapture } from './useSendCapture.jsx';
 import { useZoom } from './useZoom.jsx';
 import { useImageDrag } from './useImageDrag.jsx';
 
 import { limiteDeAtencion, limiteDeLimpieza } from '../../../libs/limites/limitesDelLocal.js';
-import { buildSpreadsheet, buildFileName, downloadSpreadsheet } from '../../../libs/tickets/hojaDeParrillas.js';
 
 
 /*  ══════════════════════════════════════════════════════════════════════════════════════
@@ -55,11 +55,11 @@ import { buildSpreadsheet, buildFileName, downloadSpreadsheet } from '../../../l
  *  Devuelve:
  *      name, attention, cleaning                     el nombre del local y sus dos límites de tiempo
  *      tablet, ai, reading, tracking, store,         lo que devuelve cada hook, tal cual
- *      zoom, drag, capture
+ *      savedRotations, zoom, drag, capture
  *      shift, shiftLocked, toggleShift               el turno con que nacen las rotaciones, si la hora deja
  *                                                    cambiarlo, y cambiarlo
- *      disconnectTablet, exportSheet,                lo que pasa cuando se pulsa algo (ver abajo)
- *      clearRegister, reportDelay
+ *      disconnectTablet, clearRegister,              lo que pasa cuando se pulsa algo (ver abajo)
+ *      reportDelay
  */
 
 
@@ -170,6 +170,11 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
         shift,
     });
 
+    //  Las rotaciones ya guardadas en la API (la pestaña «Registros») y la pregunta por los tickets que la IA
+    //  lee otra vez después de guardarlos. Van aquí, en la sesión, y no en la pestaña: la IA lee se vea lo
+    //  que se vea en Home, y la pregunta tiene que estar siempre (ver useSavedRotations).
+    const savedRotations = useSavedRotations({ establishmentName: name, attention, cleaning, store });
+
     useSimulatorFeedback({
         simulating: tablet.simulated,
         orders: tracking.orders,
@@ -204,23 +209,6 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
         //  Y lo de la ventana principal, si la hay.
         window.electronAPI?.enviarTickets?.([]);
-    };
-
-
-    // exportSheet = «…se pide el registro en una hoja de cálculo»
-    const exportSheet = () => {
-        // now = «la fecha y la hora del archivo»
-        const now = new Date();
-
-        const csv = buildSpreadsheet({
-            establecimiento: establishment?.name,
-            ahora: now,
-            registros: store.records,
-            limiteAtencion: attention,
-            limiteLimpieza: cleaning,
-        });
-
-        downloadSpreadsheet(csv, buildFileName(establishment?.name, now));
     };
 
 
@@ -267,10 +255,10 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
     return {
         name, attention, cleaning, establishment,
-        tablet, ai, reading, tracking, store,
+        tablet, ai, reading, tracking, store, savedRotations,
         zoom, drag, capture,
         shift, shiftLocked, toggleShift,
-        disconnectTablet, exportSheet, clearRegister, reportDelay,
+        disconnectTablet, clearRegister, reportDelay,
     };
 }
 

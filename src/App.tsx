@@ -9,6 +9,7 @@ import LoadingPage from './component/loanding/loadingPage.jsx';
 const Home = lazy(() => import('@/routes/Home/Home'));
 
 import ModalData from './component/ModalData/ModalData.jsx';
+import BoxModal from './component/BoxModal/BoxModal.jsx';
 
 
 
@@ -67,6 +68,11 @@ const App: FC = () => {
                     </Routes>
                 </div>
             </AppInitializer>
+
+            {/*  La ventana de aviso de toda la aplicación: una sola, aquí en la raíz. Se abre con
+                 dispatch(showBoxModal({ … })) o con el hook useBoxModal (store/slices/boxModal.js).
+                 Fuera de AppInitializer, para que también avise en el inicio de sesión.  */}
+            <BoxModal />
         </HashRouter>
     );
 };
