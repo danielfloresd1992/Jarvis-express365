@@ -240,12 +240,14 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
     //  ── 3 · EXPORTARLA ────────────────────────────────────────────────────────────────
 
     // exportSaved = «el Excel de lo que enseña la pestaña Registros». Devuelve la promesa: el botón la espera.
-    const exportSaved = useCallback(() => exportCustomerServiceWorkbook({
+    // Recibe: { managers } — los botones de gerentes del local (los tiene la pestaña): de ahí las placas G1, A2…
+    const exportSaved = useCallback(({ managers } = {}) => exportCustomerServiceWorkbook({
         rotations: saved.documents,
         day: saved.day,
         establishmentName,
         attentionLimit: attention,
         cleaningLimit: cleaning,
+        managers,
     }), [saved.documents, saved.day, establishmentName, attention, cleaning]);
 
 

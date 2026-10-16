@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { managerButtons } from './managers.js';
 import RegisterBar from './RegisterBar.jsx';
 import RegisterViewTabs from './RegisterViewTabs.jsx';
@@ -53,6 +53,9 @@ export default function Registers({ session, establishment = session.establishme
         if (view === 'registros') loadSaved();
     }, [view, loadSaved]);
 
+    // exportWithManagers = «exportar a Excel», con los gerentes del local: el Resumen cuenta los toques por placa
+    const exportWithManagers = useCallback(() => exportSaved({ managers }), [exportSaved, managers]);
+
     return (
         <>
             {/*  Las pestañas a la izquierda; a la derecha el estado de la lectura ('ml-auto' lo empuja) y,
@@ -90,7 +93,7 @@ export default function Registers({ session, establishment = session.establishme
                         onDeleteTouch={deleteSavedTouch}
                         editNotice={editNotice}
                         managers={managers}
-                        onExport={exportSaved}
+                        onExport={exportWithManagers}
                     />
                 )
             }

@@ -1,58 +1,61 @@
-import { DISH_TYPES, isTakeOut } from '../tickets/tableRecords.js';
+import { isTakeOut } from '../tickets/tableRecords.js';
 
 
 /*  LA HOJA DE CÁLCULO DE ATENCIÓN AL CLIENTE
  *
  *  Pasa lo que enseña la pestaña «Registros» —las rotaciones guardadas de UN día operativo, con sus
  *  procesos y sus toques de gerente— al Excel con el que se monitoreaba a mano («FORMATO NUEVO 2.3»),
- *  en un .xlsx de dos hojas:
+ *  con SU MISMO ASPECTO: los mismos anchos, altos, fuentes, rellenos, bordes y celdas combinadas que
+ *  «RF58-D-10-09-26 VERIFICADO.xlsm», de donde se copiaron celda a celda.
  *
  *      «Datos Atencion al Cliente»   la tabla DtAtenClient: una fila por mesa, por proceso y por toque
- *      «Resumen»                     totales y promedios, con fórmulas sobre esa tabla
+ *      «Resumen»                     la plantilla verde del original, con fórmulas sobre esa tabla
  *
  *  ══ DE PRINCIPIO A FIN ═════════════════════════════════════════════════════════════════════════════
  *
- *  Todo empieza en exportCustomerServiceWorkbook, al final del archivo. Da seis pasos, en orden, y cada
- *  uno recibe lo que devolvió el anterior:
+ *  Todo empieza en exportCustomerServiceWorkbook, al final del archivo, que da estos pasos en orden:
  *
  *      STEP 1  buildDataRows(rotations, context)   las rotaciones → las filas, en palabras     PURA
  *                ├─ rotationRow                      la de la mesa (un pedido para llevar no la lleva)
  *                ├─ processRows                      una por proceso
- *                └─ touchRows                        una por toque de gerente
+ *                └─ touchRows                        una por toque: PT el primero, OT los demás
  *      STEP 2  buildTable(rows)                    las filas → los valores de Excel             PURA
- *                                                  (horas como fracción del día, duraciones como fórmula)
- *      STEP 3  buildSummary(table, context)        la tabla → las secciones del Resumen         PURA
- *      STEP 4  buildWorkbook(table, summary, …)    todo → el libro de Excel                     ExcelJS
+ *      STEP 3  buildSummary(table, context)        la tabla → las cifras del Resumen, por celda PURA
+ *      STEP 4  buildWorkbook(table, summary, …)    todo → el libro, con el aspecto del original  ExcelJS
  *                ├─ addDataSheet                     «Datos Atencion al Cliente»
- *                └─ addSummarySheet                  «Resumen»
- *      STEP 5  buildFileName(context)              'Atencion al cliente - <local> - <día>.xlsx' PURA
- *      STEP 6  downloadWorkbook(workbook, name)    el archivo, al navegador
- *
- *  Los pasos PUROS no tocan nada: reciben datos y devuelven datos, y se prueban solos (en Node).
+ *                └─ addSummarySheet                  «Resumen»: la plantilla y, encima, las cifras
+ *      STEP 5  finishWorkbook(workbook)            el libro → el archivo, con las filas sobrantes del
+ *                                                  Resumen ocultas (lo único que ExcelJS no sabe hacer)
+ *      STEP 6  buildFileName(context)              'Atencion al cliente - <local> - <día>.xlsx' PURA
+ *      STEP 7  downloadWorkbook(buffer, name)      el archivo, al navegador
  *
  *  ══ LO QUE HAY QUE SABER ═══════════════════════════════════════════════════════════════════════════
  *
- *  · DtAtenClient conserva las 27 columnas del Excel, con sus nombres y en su orden: así sus filas se
- *    pueden pegar en el libro de siempre. Las que la aplicación no anota van vacías (cada una dice por
- *    qué en DATA_COLUMNS). Detrás van cuatro nuevas —Ticket, Fila, Turno y Fecha—: el Excel no tenía
- *    fecha ni turno, y sin ellas los días se mezclaban.
+ *  · DtAtenClient conserva las 27 columnas del Excel, con sus nombres, su orden y su aspecto: así sus
+ *    filas se pueden pegar en el libro de siempre. Detrás van cuatro nuevas —Ticket, Fila, Turno y
+ *    Fecha—: el Excel no tenía fecha ni turno, y sin ellas los días se mezclaban.
  *
- *  · Las duraciones y el Resumen son FÓRMULAS, como en el Excel: si alguien corrige una hora, todo se
- *    recalcula. Y cada fórmula lleva ya su resultado calculado aquí (STEP 2 y STEP 3): Excel abre en
- *    vista protegida lo que se descarga, y ahí no calcula; sin el resultado, la hoja saldría en blanco.
+ *  · PT Y OT. La aplicación no pregunta el tipo de cada toque, pero el original deja claro qué es: un
+ *    OT siempre sigue a un PT en la misma mesa (la 10: PT a las 12:20, OT a las 12:28 y a las 12:53).
+ *    PT es el PRIMER toque de la rotación y OT cada uno de los siguientes, y así se escribe (touchRows).
  *
- *  · Se corrigen los fallos del Excel original: las duraciones que cruzan la medianoche ya no se pierden
- *    (MOD en vez de restar); «Duracion TM» tiene fórmula; los límites son los del local y no 3 y 4
- *    minutos fijos; la limpieza se mide con la Demora y no con la Espera; una mesa con B en medio
- *    (16B) ya no desaparece del recuento; y el total de platos cuenta todos los tipos.
+ *  · LAS PLACAS. El Resumen cuenta los toques por placa (G1…G6, A1…A4). Un toque guarda el nombre de su
+ *    gerente; la placa es la de su botón en el local (managers, los de managerButtons).
  *
- *  · ExcelJS se carga en el STEP 4, la primera vez que alguien exporta: quien nunca exporta no paga
- *    su peso al abrir la aplicación.
+ *  · Las duraciones y el Resumen son FÓRMULAS, como en el Excel, y cada una lleva ya su resultado
+ *    calculado aquí: Excel abre en vista protegida lo que se descarga, y ahí no calcula.
+ *
+ *  · Se corrigen los fallos del original sin tocar su forma: las duraciones que cruzan la medianoche
+ *    ya no se pierden (MOD); «Duracion TM» tiene fórmula; los límites son los del local; las demoras en
+ *    limpieza miran la Demora y no la Espera; una mesa con B en medio (16B) ya no desaparece; Entrada
+ *    cuenta también APPETIZER; y el Total suma las seis líneas, no cuatro.
+ *
+ *  · ExcelJS y JSZip se cargan la primera vez que alguien exporta: quien nunca exporta no paga su peso.
  */
 
 
 
-// ═══════════════════════════════════════ LA FORMA DEL LIBRO ═══════════════════════════════════════
+// ═══════════════════════════════════════ LO COMÚN ═══════════════════════════════════════
 
 // DATA_SHEET / SUMMARY_SHEET = «los nombres de las dos hojas», los del Excel (sin tilde, como allí)
 const DATA_SHEET = 'Datos Atencion al Cliente';
@@ -64,87 +67,240 @@ const DATA_TABLE = 'DtAtenClient';
 // ROW_KIND = «qué es cada fila de la tabla»: lo que va en la columna «Fila»
 const ROW_KIND = { rotation: 'Rotación', process: 'Proceso', touch: 'Toque' };
 
+// TOUCH_KIND = «el tipo de un toque», como en el original: el primero de la rotación y los siguientes
+const TOUCH_KIND = { first: 'PT', other: 'OT' };
+
 // SHIFT_NAMES = «el turno, como se lee»
 const SHIFT_NAMES = { day: 'Diurno', night: 'Nocturno' };
 
-// NUMBER_FORMATS = «cómo se ve cada tipo de número en Excel»
-const NUMBER_FORMATS = {
-    time: 'hh:mm:ss',
-    duration: '[h]:mm:ss',
-    date: 'dd/mm/yyyy',
-    stamp: 'dd/mm/yyyy hh:mm',
-    count: '0',
+// RESTROOM_LIMIT = «cuánto puede durar un uso de baño»: el del original (Resumen!C22)
+const RESTROOM_LIMIT = '00:02:00';
+
+// FALLBACK_LIMIT = «el límite si el local no trae el suyo»: el de primera atención del original
+const FALLBACK_LIMIT = '00:03:00';
+
+// XLSX_TYPE = «el tipo de archivo de un .xlsx»
+const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+// LOGO_URL = «el logo de Amazonas 365 del Resumen», el mismo de la plantilla (va junto a este archivo)
+const LOGO_URL = new URL('./amazonas365.png', import.meta.url).href;
+
+
+
+// ═══════════════════════════════════════ EL ASPECTO DEL ORIGINAL ═══════════════════════════════════════
+//
+//  Todo lo de aquí se copió de «RF58-D-10-09-26 VERIFICADO.xlsm». Los colores van en ARGB ('FF' delante).
+
+// argb = «un color de Excel»: 'A9D18E' → { argb: 'FFA9D18E' }
+const argb = (hex) => ({ argb: `FF${hex}` });
+
+// solid = «un relleno de un color»
+const solid = (hex) => ({ type: 'pattern', pattern: 'solid', fgColor: argb(hex), bgColor: argb(hex) });
+
+// Las fuentes del original
+const CALIBRI_11 = { name: 'Calibri', size: 11 };
+const CALIBRI_15 = { name: 'Calibri', size: 15 };
+const BOOKMAN_14 = { name: 'Bookman Old Style', size: 14 };
+const CENTURY_15_BOLD = { name: 'Century Gothic', size: 15, bold: true };
+
+// Las alineaciones
+const CENTER = { horizontal: 'center', vertical: 'middle', wrapText: true };
+const WRAP = { wrapText: true };
+
+// Los formatos de número
+const TIME_FORMAT = 'h:mm:ss;@';          // horas y duraciones de la tabla de datos
+const SUMMARY_TIME_FORMAT = 'hh:mm:ss;@'; // los tiempos medios del Resumen
+const DATE_FORMAT = 'dd/mm/yyyy';
+
+// border = «un borde con un estilo por lado»: { top: 'thin', bottom: 'medium' } → lo que pide ExcelJS
+const border = (sides) => Object.fromEntries(Object.entries(sides).map(([side, style]) => [side, { style }]));
+
+
+/*  LA HOJA DE DATOS: un aspecto por grupo de columnas
+ *
+ *      rotation   Mesa … Operador          cabecera naranja; Bookman Old Style 14 sobre salmón
+ *      process    Proceso … DemoraTotal    cabecera azul con letra blanca; Calibri 11 sobre gris
+ *      touch      Toque … Duracion TG      cabecera dorada; Calibri 11 sobre amarillo
+ *      restroom   InicioTM … Duracion TM   cabecera verde; Calibri 11 sobre gris
+ *      zone       Zona                     cabecera negra; letra blanca en negrita sobre gris oscuro
+ *      extra      Ticket, Fila, Turno, Fecha (las nuevas): cabecera gris; Calibri 11 sobre gris claro
+ *
+ *  Solo las cabeceras de rotación y de procesos ajustan el texto (headerWrap), como en el original: en
+ *  las demás un título que no cabe se corta («Gerente», en su columna estrecha), en vez de partirse.
+ */
+const DATA_GROUPS = {
+    rotation: { headerFill: 'ED7D31', headerColor: '000000', headerWrap: true, font: BOOKMAN_14, fill: 'F8CBAD', sides: { top: 'thin', left: 'thin', right: 'thin', bottom: 'thin' } },
+    process: { headerFill: '4472C4', headerColor: 'FFFFFF', headerWrap: true, font: CALIBRI_11, fill: 'D9D9D9', sides: { left: 'thin', right: 'thin', bottom: 'thin' } },
+    touch: { headerFill: 'FFC000', headerColor: '000000', font: CALIBRI_11, fill: 'FFE699', sides: { top: 'thin', left: 'thin', right: 'thin', bottom: 'thin' } },
+    restroom: { headerFill: '70AD47', headerColor: '000000', font: CALIBRI_11, fill: 'D9D9D9', sides: { left: 'thin', right: 'thin', bottom: 'thin' } },
+    zone: { headerFill: '000000', headerColor: 'FFFFFF', font: { ...CALIBRI_11, bold: true, color: argb('FFFFFF') }, fill: '808080', sides: {} },
+    extra: { headerFill: '595959', headerColor: 'FFFFFF', font: CALIBRI_11, fill: 'F2F2F2', sides: { top: 'thin', left: 'thin', right: 'thin', bottom: 'thin' } },
 };
 
-// Las letras: Arial en todo el libro
-const FONT = { name: 'Arial', size: 10 };
-const BOLD_FONT = { ...FONT, bold: true };
-const HEADER_FONT = { ...FONT, bold: true, color: { argb: 'FFFFFFFF' } };
-const TITLE_FONT = { name: 'Arial', size: 14, bold: true };
+// DATA_FIRST_COLUMN = «dónde empieza la tabla»: en la B, como en el original (la A queda vacía)
+const DATA_FIRST_COLUMN = 2;
 
-// SECTION_FILL = «el fondo de los títulos de sección del Resumen»
-const SECTION_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEBF7' } };
+// DATA_EMPTY_COLUMN_WIDTH = «el ancho de esa columna A vacía»
+const DATA_EMPTY_COLUMN_WIDTH = 12.28515625;
 
-// DEFAULT_WIDTH = «el ancho de una columna de la tabla que no dice otro»
-const DEFAULT_WIDTH = 11;
+// DATA_HIDDEN_WIDTH = «el ancho de las columnas ocultas a la derecha de la tabla», el del original
+const DATA_HIDDEN_WIDTH = 11.42578125;
 
-// LIMIT_CELLS = «dónde están los dos límites del local en el Resumen»: las fórmulas los miran ahí
-// (ver addSummarySheet), así que cambiar un límite en la hoja recalcula sus «fuera de límite».
-const LIMIT_CELLS = { attention: '$C$6', cleaning: '$C$7' };
+// LAST_EXCEL_COLUMN = «la última columna de una hoja de Excel» (XFD): hasta ahí se ocultan
+const LAST_EXCEL_COLUMN = 16384;
+
+// DATA_HEADER_HEIGHT / DATA_ROW_HEIGHT = «el alto de la cabecera y de cada fila», los del original
+const DATA_HEADER_HEIGHT = 15.75;
+const DATA_ROW_HEIGHT = 18;
 
 
 /*  DATA_COLUMNS = «las columnas de DtAtenClient», en su orden
  *
- *      name      el título, tal cual en el Excel. Es también la clave de cada fila de buildDataRows.
- *      format    'time' (una hora), 'duration' (una resta, que es fórmula), 'date', o nada (texto)
- *      from/to   solo las duraciones: de qué columna a qué columna
- *      width     el ancho, si no es DEFAULT_WIDTH
- *      center    centrada: la mesa y el ticket mezclan números (32) y textos (16B, #14), y cada uno se
- *                alinearía a un lado
+ *      name        el título, tal cual en el Excel. Es también la clave de cada fila de buildDataRows.
+ *      group       su grupo de DATA_GROUPS: de ahí salen su cabecera, su fuente, su relleno y sus bordes
+ *      width       el ancho del original
+ *      format      'time' (una hora), 'duration' (una resta, que es fórmula), 'date', o nada (texto)
+ *      from/to     solo las duraciones: de qué columna a qué columna
+ *      closes      la última de su grupo: el borde de la derecha de la cabecera va mediano
+ *      hidden      oculta, como en el original (D y F). Oculta no deja de calcular: el Resumen la usa.
  */
 const DATA_COLUMNS = [
 
     // ── La rotación de la mesa ──
-    { name: 'Mesa', width: 9, center: true },
-    { name: 'Ocupada', format: 'time' },
-    { name: 'Protocolo', width: 10 },                    // «Ubicado_Host» (SI/NO): la aplicación no lo anota
-    { name: 'Atencion', format: 'time' },
-    { name: 'Espera', format: 'duration', from: 'Ocupada', to: 'Atencion' },
-    { name: 'Desocupa', format: 'time' },
-    { name: 'Despedida', width: 10 },                    // «Despedido_Host» (SI/NO): tampoco se anota
-    { name: 'Limpieza', format: 'time' },
-    { name: 'Demora', format: 'duration', from: 'Desocupa', to: 'Limpieza' },
-    { name: 'Operador', width: 22 },
+    { name: 'Mesa', group: 'rotation', width: 7 },
+    { name: 'Ocupada', group: 'rotation', width: 13.7109375, format: 'time' },
+    { name: 'Protocolo', group: 'rotation', width: 13.7109375, hidden: true }, // «Ubicado_Host» (SI/NO): la aplicación no lo anota
+    { name: 'Atencion', group: 'rotation', width: 13.7109375, format: 'time' },
+    { name: 'Espera', group: 'rotation', width: 13.7109375, format: 'duration', from: 'Ocupada', to: 'Atencion', hidden: true },
+    { name: 'Desocupa', group: 'rotation', width: 13.7109375, format: 'time' },
+    { name: 'Despedida', group: 'rotation', width: 13.85546875 },             // «Despedido_Host» (SI/NO): tampoco se anota
+    { name: 'Limpieza', group: 'rotation', width: 13.7109375, format: 'time' },
+    { name: 'Demora', group: 'rotation', width: 13.7109375, format: 'duration', from: 'Desocupa', to: 'Limpieza' },
+    // Más ancha que en el original (13,71): allí se escribía la inicial y aquí va el nombre y el apellido
+    { name: 'Operador', group: 'rotation', width: 22, closes: true },
 
     // ── Un proceso: un pedido de la mesa ──
-    { name: 'Proceso', width: 13 },
-    { name: 'Orden', format: 'time' },
-    { name: 'Tablet', format: 'time' },
-    { name: 'Cocina', format: 'time' },
-    { name: 'Entrega', format: 'time' },
-    { name: 'Preparacion', format: 'duration', from: 'Orden', to: 'Tablet', width: 12 },
-    { name: 'TiempoEntrega', format: 'duration', from: 'Cocina', to: 'Entrega', width: 14 },
-    { name: 'DemoraTotal', format: 'duration', from: 'Orden', to: 'Entrega', width: 12 },
+    { name: 'Proceso', group: 'process', width: 20.28515625 },
+    { name: 'Orden', group: 'process', width: 13.7109375, format: 'time' },
+    { name: 'Tablet', group: 'process', width: 13.7109375, format: 'time' },
+    { name: 'Cocina', group: 'process', width: 13.7109375, format: 'time' },
+    { name: 'Entrega', group: 'process', width: 13.7109375, format: 'time' },
+    { name: 'Preparacion', group: 'process', width: 15.140625, format: 'duration', from: 'Orden', to: 'Tablet' },
+    { name: 'TiempoEntrega', group: 'process', width: 19.28515625, format: 'duration', from: 'Cocina', to: 'Entrega' },
+    { name: 'DemoraTotal', group: 'process', width: 15.5703125, format: 'duration', from: 'Orden', to: 'Entrega', closes: true },
 
     // ── Un toque de gerente ──
-    { name: 'Toque' },                                   // PT / OT: la aplicación no distingue el tipo
-    { name: 'Gerente', width: 13 },
-    { name: 'InicioTG', format: 'time' },
-    { name: 'FinalizoTG', format: 'time' },              // un toque de la aplicación tiene una sola hora
-    { name: 'Duracion TG', format: 'duration', from: 'InicioTG', to: 'FinalizoTG', width: 12 },
+    { name: 'Toque', group: 'touch', width: 8.5703125 },                       // PT o OT (ver touchRows)
+    { name: 'Gerente', group: 'touch', width: 5.28515625 },
+    { name: 'InicioTG', group: 'touch', width: 13.7109375, format: 'time' },
+    { name: 'FinalizoTG', group: 'touch', width: 13.7109375, format: 'time' }, // un toque de la aplicación tiene una sola hora
+    { name: 'Duracion TG', group: 'touch', width: 15, format: 'duration', from: 'InicioTG', to: 'FinalizoTG', closes: true },
 
     // ── El uso de baño: la aplicación no lo anota; las columnas quedan para pegar en el Excel ──
-    { name: 'InicioTM', format: 'time' },
-    { name: 'FinalizoTM', format: 'time' },
-    { name: 'Duracion TM', format: 'duration', from: 'InicioTM', to: 'FinalizoTM', width: 12 },
-    { name: 'Zona' },                                    // en el Excel nadie la rellenaba
+    { name: 'InicioTM', group: 'restroom', width: 20.28515625, format: 'time' },
+    { name: 'FinalizoTM', group: 'restroom', width: 13.7109375, format: 'time' },
+    { name: 'Duracion TM', group: 'restroom', width: 11.42578125, format: 'duration', from: 'InicioTM', to: 'FinalizoTM' },
+    { name: 'Zona', group: 'zone', width: 11.42578125 },                       // en el Excel nadie la rellenaba
 
     // ── Las nuevas: lo que el Excel no tenía ──
-    { name: 'Ticket', center: true },
-    { name: 'Fila' },                                    // ROW_KIND: Rotación, Proceso o Toque
-    { name: 'Turno' },
-    { name: 'Fecha', format: 'date' },                   // el día operativo (de 08:00 a 07:00)
+    { name: 'Ticket', group: 'extra', width: 11.42578125 },
+    { name: 'Fila', group: 'extra', width: 11.42578125 },                      // ROW_KIND: Rotación, Proceso o Toque
+    { name: 'Turno', group: 'extra', width: 11.42578125 },
+    { name: 'Fecha', group: 'extra', width: 12, format: 'date' },             // el día operativo (de 08:00 a 07:00)
 ];
+
+
+/*  EL RESUMEN: la plantilla del original, de A1 a P23
+ *
+ *      fondo         verde (SUMMARY_GREEN) y blanco (SUMMARY_WHITE), en Calibri 15
+ *      recuadros     blanco, Century Gothic 15 en negrita, borde mediano por fuera y fino por dentro
+ *      combinadas    las 16 del original (SUMMARY_MERGES)
+ *      logo          Amazonas 365, de K10 a P23
+ *      lo demás      de la Q en adelante y de la fila 24 en adelante, oculto (STEP 5)
+ */
+
+// SUMMARY_COLUMN_WIDTHS = «los anchos de la A a la P»
+const SUMMARY_COLUMN_WIDTHS = [4.140625, 35.140625, 7.7109375, 29, 13.28515625, 2.28515625, 5.28515625, 6.85546875, 13.28515625, 4.140625, 19, 7.7109375, 7.42578125, 13.28515625, 21.85546875, 2.42578125];
+
+// SUMMARY_HIDDEN_WIDTH = «el ancho de las columnas ocultas», el del original
+const SUMMARY_HIDDEN_WIDTH = 2.42578125;
+
+// SUMMARY_LAST_ROW / SUMMARY_ROW_HEIGHT / SUMMARY_TALL_ROWS = «hasta qué fila se ve», «su alto» y «las más altas»
+const SUMMARY_LAST_ROW = 23;
+const SUMMARY_ROW_HEIGHT = 20.1;
+const SUMMARY_TALL_ROWS = { 18: 37.5, 19: 38.25, 21: 37.5, 22: 38.25 };
+
+// GREEN = «el verde del fondo» (el acento 6 del tema, aclarado)
+const GREEN = 'A9D18E';
+
+// SUMMARY_GREEN / SUMMARY_WHITE = «lo que va de verde» y «lo que va de blanco, sin borde»
+const SUMMARY_GREEN = ['A1:P1', 'A2:A23', 'J2:J23', 'B4:I4', 'B17:I17', 'B20:I20', 'B23:I23', 'K9:P9', 'P2:P8'];
+const SUMMARY_WHITE = ['F2:I3', 'F18:I19', 'F21:I22', 'M2:M7'];
+
+// SUMMARY_BOXES = «los recuadros»
+const SUMMARY_BOXES = ['B2:C3', 'D2:E3', 'B5:E16', 'G5:I12', 'B18:C19', 'D18:E19', 'B21:C22', 'D21:E22', 'K2:L7', 'K8:L8', 'N2:O7'];
+
+// SUMMARY_MERGES = «las celdas combinadas»
+const SUMMARY_MERGES = ['D2:D3', 'E2:E3', 'B5:B16', 'C5:C6', 'C7:C8', 'C9:C10', 'C11:C12', 'C13:C14', 'C15:C16',
+    'G5:G6', 'G7:G8', 'G9:G10', 'G11:G12', 'O2:O7', 'D21:D22', 'E21:E22'];
+
+// LOGO_ANCHOR = «dónde va el logo»: de K10 a P23, con los desplazamientos del original (columna y fila desde 0)
+const LOGO_ANCHOR = { tl: { col: 10.02, row: 9.48 }, br: { col: 15.62, row: 22.7 } };
+
+// VERSION = «la versión del formato», la que dice el original en K9:L9
+const VERSION = 2.3;
+
+/*  MANAGER_GRID = «la cuadrícula de toques de gerente»: cada placa con su fila de PT (y debajo, la de OT)
+ *  y sus tres columnas: la placa, el tipo y la cuenta. G1…G6 a la izquierda; A1…A4 a la derecha.  */
+const MANAGER_GRID = [
+    ...['G1', 'G2', 'G3', 'G4', 'G5', 'G6'].map((label, index) => ({ label, row: 5 + index * 2, columns: ['C', 'D', 'E'] })),
+    ...['A1', 'A2', 'A3', 'A4'].map((label, index) => ({ label, row: 5 + index * 2, columns: ['G', 'H', 'I'] })),
+];
+
+/*  DISH_GROUPS = «las seis líneas de platos», en la fila del original, con los tipos de la aplicación que
+ *  cuentan en cada una. El original solo miraba 'entrada*', 'pf', 'postre', 'drinks', 'take out' y 'pick
+ *  up'; aquí entran también los demás tipos de la lista (DISH_TYPES), cada uno en la línea que le toca.  */
+const DISH_GROUPS = [
+    { row: 2, label: 'Entrada', types: ['APPETIZER', 'ENTRADA 6', 'ENTRADA 7', 'ENTRADA 8', 'ENTRADA 9', 'SALAD'] },
+    { row: 3, label: 'Plato Fuerte', types: ['PF', 'ENTREE'] },
+    { row: 4, label: 'Postre', types: ['POSTRE', 'DESSER'] },
+    { row: 5, label: 'Drinks', types: ['DRINKS', 'DRINKS BAR'] },
+    { row: 6, label: 'Take Out', types: ['TAKE OUT', 'UBER EATS', 'DOORDASH'] },
+    { row: 7, label: 'Pick Up', types: ['PICK UP'] },
+];
+
+// summaryLabels = «los textos fijos del Resumen», cada uno en su celda (los del original, tal cual)
+function summaryLabels() {
+    const labels = {
+        B2: 'Rotaciones evaluadas',
+        B3: 'Rotaciones en barra',
+        D2: 'Rotaciones totales',
+        B5: 'TOQUES DE GERENTES ',
+        B18: 'Cantidad de demoras en primera atencion',
+        D18: 'Promedio de primera atencion',
+        B19: 'Cantidad de demoras en Limpieza',
+        D19: 'Promedio de Limpieza',
+        B21: 'Cantidad de usos de baño',
+        D21: 'Promedio de usos de baño',
+        B22: 'Cantidad de demoras en uso de baño',
+        O2: 'Tiempo Promedio',
+        K8: 'Total  ',
+    };
+
+    for (const manager of MANAGER_GRID) {
+        const [labelColumn, kindColumn] = manager.columns;
+        labels[`${labelColumn}${manager.row}`] = manager.label;
+        labels[`${kindColumn}${manager.row}`] = TOUCH_KIND.first;
+        labels[`${kindColumn}${manager.row + 1}`] = TOUCH_KIND.other;
+    }
+
+    for (const group of DISH_GROUPS) {
+        labels[`K${group.row}`] = group.label;
+        labels[`M${group.row}`] = '--->';
+    }
+
+    return labels;
+}
 
 
 
@@ -169,10 +325,6 @@ function dateValue(day) {
     const [, year, month, date] = match;
     return new Date(Date.UTC(Number(year), Number(month) - 1, Number(date)));
 }
-
-// wallClock = «la hora de este equipo, como la vería alguien mirando el reloj»
-// ExcelJS escribe las fechas en UTC: sin esto, la hora de exportación saldría corrida 4 horas.
-const wallClock = (date) => new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
 
 // textOrNumber = «una mesa o un ticket como valor de Excel»: '32' → 32 (sin el aviso de «número
 // guardado como texto»), '16B' y '#14' se quedan como texto
@@ -204,17 +356,44 @@ function operationalSeconds(text) {
     return seconds < 8 * 3600 ? seconds + 86400 : seconds;
 }
 
+// byHour = «por la hora del día operativo»; lo que no dice cuándo, al final
+const byHour = (getTime) => (first, second) => (operationalSeconds(getTime(first)) ?? Infinity) - (operationalSeconds(getTime(second)) ?? Infinity);
+
 // startOf = «cuándo empezó una rotación»: la hora de Ocupa, o la toma de orden de su primer proceso si
 // es un pedido para llevar (no tiene Ocupa)
-const startOf = (rotation) => operationalSeconds(rotation.hourOccupies) ?? operationalSeconds(rotation.process?.[0]?.orderTaking);
+const startOf = (rotation) => rotation.hourOccupies || rotation.process?.[0]?.orderTaking;
 
-// sortByStart = «las rotaciones en el orden en que empezaron»; las que no dicen cuándo, al final
-function sortByStart(rotations) {
-    return [...rotations].sort((first, second) => (startOf(first) ?? Infinity) - (startOf(second) ?? Infinity));
+// managerLabel = «la placa del gerente de un toque» (G1, A2…): la de su botón en el local, buscado por su
+// ObjectId o por su nombre, como en la pestaña Mesas (managers.js). Sin botón, su nombre.
+function managerLabel(managers, touch) {
+    const button = managers.find(manager => (touch.ref && manager.ref && String(manager.ref) === String(touch.ref)) || manager.name === touch.name);
+    return button?.label || touch.name || '';
 }
 
 // valueOf = «lo que vale una celda de la tabla»: si es una fórmula, su resultado
 const valueOf = (cell) => (cell !== null && typeof cell === 'object' && 'formula' in cell ? cell.result : cell);
+
+// columnNumber / columnLetters = «la columna de una letra» y al revés: 'P' ↔ 16
+const columnNumber = (letters) => [...letters].reduce((number, letter) => number * 26 + letter.charCodeAt(0) - 64, 0);
+const columnLetters = (number) => (number <= 0 ? '' : columnLetters(Math.floor((number - 1) / 26)) + String.fromCharCode(65 + ((number - 1) % 26)));
+
+// bounds = «los bordes de un rango»: 'B5:E16' → { top: 5, left: 2, bottom: 16, right: 5 }
+function bounds(range) {
+    const [start, end = start] = range.split(':');
+    const [, startColumn, startRow] = /([A-Z]+)(\d+)/.exec(start);
+    const [, endColumn, endRow] = /([A-Z]+)(\d+)/.exec(end);
+    return { top: Number(startRow), left: columnNumber(startColumn), bottom: Number(endRow), right: columnNumber(endColumn) };
+}
+
+// eachCellIn = «cada celda de un rango», con su fila y su columna: para pintar la plantilla
+function eachCellIn(sheet, range, paint) {
+    const { top, left, bottom, right } = bounds(range);
+    for (let row = top; row <= bottom; row += 1) {
+        for (let column = left; column <= right; column += 1) {
+            paint(sheet.getCell(row, column), { row, column, top, left, bottom, right });
+        }
+    }
+}
 
 
 
@@ -230,13 +409,14 @@ const valueOf = (cell) => (cell !== null && typeof cell === 'object' && 'formula
  *  sus procesos, con el '#ticket' en «Mesa».
  *
  *  @param {Array}  rotations  las rotaciones, tal como las devuelve la API (GET /rotation)
- *  @param {object} context    { day: 'AAAA-MM-DD' } — el día operativo, por si una rotación no trae el suyo
+ *  @param {object} context    { day: 'AAAA-MM-DD', managers: los botones de gerentes del local }
  *  @returns {Array} filas: [{ Mesa: '32', Fila: 'Rotación', Ocupada: '10:51:27', … }]
  */
 function buildDataRows(rotations, context) {
+    const managers = context.managers ?? [];
     const rows = [];
 
-    for (const rotation of sortByStart(rotations ?? [])) {
+    for (const rotation of [...(rotations ?? [])].sort(byHour(startOf))) {
 
         // shared = «lo que llevan todas las filas de esta rotación»
         const shared = {
@@ -247,7 +427,7 @@ function buildDataRows(rotations, context) {
 
         if (!isTakeOut(rotation)) rows.push(rotationRow(rotation, shared));
         rows.push(...processRows(rotation, shared));
-        rows.push(...touchRows(rotation, shared));
+        rows.push(...touchRows(rotation, shared, managers));
     }
 
     return rows;
@@ -276,13 +456,17 @@ const processRows = (rotation, shared) => (rotation.process ?? []).map(process =
     Entrega: process.dishDelivery,
 }));
 
-// touchRows = «una fila por toque de gerente»: su placa y su hora
-const touchRows = (rotation, shared) => (rotation.touch ?? []).map(touch => ({
-    ...shared,
-    Fila: ROW_KIND.touch,
-    Gerente: touch.name,
-    InicioTG: touch.hourTouch,
-}));
+// touchRows = «una fila por toque de gerente», por hora: el primero de la rotación es PT («primer toque») y
+// los siguientes, OT («otro toque»), como en el original. Con la placa de su gerente (managerLabel).
+const touchRows = (rotation, shared, managers) => [...(rotation.touch ?? [])]
+    .sort(byHour(touch => touch.hourTouch))
+    .map((touch, position) => ({
+        ...shared,
+        Fila: ROW_KIND.touch,
+        Toque: position === 0 ? TOUCH_KIND.first : TOUCH_KIND.other,
+        Gerente: managerLabel(managers, touch),
+        InicioTG: touch.hourTouch,
+    }));
 
 
 
@@ -343,13 +527,13 @@ function durationCell(column, cells) {
 
 
 
-// ═══════════════════════════════════════ STEP 3 · EL RESUMEN ═══════════════════════════════════════
+// ═══════════════════════════════════════ STEP 3 · LAS CIFRAS DEL RESUMEN ═══════════════════════════════════════
 
-/*  CÓMO SE ESCRIBE UNA CIFRA DEL RESUMEN
+/*  CÓMO SE ESCRIBE UNA CIFRA
  *
  *  Cada cifra se describe UNA vez, con criterios —[columna, regla, texto]—, y de esa descripción salen
- *  las dos cosas: la fórmula de Excel (COUNTIFS, AVERAGEIFS…) y su resultado, calculado aquí sobre la
- *  misma tabla. Así no pueden decir cosas distintas.
+ *  las dos cosas: la fórmula de Excel (COUNTIFS, SUMIFS…) y su resultado, calculado aquí sobre la misma
+ *  tabla. Así no pueden decir cosas distintas.
  *
  *  RULES = «las reglas de un criterio»: cómo se escribe en la fórmula y cómo se comprueba aquí.
  */
@@ -358,7 +542,6 @@ const RULES = {
     startsWith: { criterion: (text) => `"${escapeText(text)}*"`, test: (value, text) => lower(value).startsWith(lower(text)) },
     notStartsWith: { criterion: (text) => `"<>${escapeText(text)}*"`, test: (value, text) => !lower(value).startsWith(lower(text)) },
     isBlank: { criterion: () => '""', test: (value) => isBlank(value) },
-    notBlank: { criterion: () => '"<>"', test: (value) => !isBlank(value) },
 };
 
 // matching = «las filas de la tabla que cumplen todos los criterios»
@@ -367,149 +550,135 @@ const matching = (table, criteria) => table.filter(row => criteria.every(([name,
 // criteriaFormula = «los criterios, en el orden en que los pide COUNTIFS»: 'DtAtenClient[Fila],"Proceso",…'
 const criteriaFormula = (criteria) => criteria.map(([name, rule, text]) => `${columnRef(name)},${RULES[rule].criterion(text)}`).join(',');
 
-// numbersOf = «los números de una columna, en las filas dadas»: AVERAGE y COUNT ignoran lo demás
+// numbersOf = «los números de una columna, en las filas dadas»: COUNT, AVERAGE y SUMIFS ignoran lo demás
 const numbersOf = (rows, name) => rows.map(row => valueOf(row[name])).filter(value => typeof value === 'number');
 
-// average = «la media», o '-' si no hay ninguna (lo mismo que dice IFERROR en la fórmula)
-const average = (numbers) => (numbers.length > 0 ? numbers.reduce((sum, value) => sum + value, 0) / numbers.length : '-');
+// averageOr = «la media, o lo que diga el original cuando no hay ninguna» ('N/A' o ' ')
+const averageOr = (numbers, empty) => (numbers.length > 0 ? numbers.reduce((sum, value) => sum + value, 0) / numbers.length : empty);
 
 
-/*  measure = «las cuatro clases de cifra del Resumen», sobre una tabla y con los límites del local
+/*  measure = «las clases de cifra del Resumen», sobre una tabla. Cada una devuelve { formula, result }.
  *
- *      count(criterios)                     cuántas filas cumplen                 COUNTIFS
- *      countNumbers(columna)                cuántas filas tienen número ahí       COUNT
- *      averageOf(columna, criterios)        la media de la columna                AVERAGE / AVERAGEIFS
- *      countAbove(columna, límite)          cuántas pasan del límite del local    COUNTIF(…, ">"&límite)
- *
- *  Cada una devuelve una celda: { formula, result, format }.
+ *      count(criterios)                       cuántas filas cumplen                    COUNTIFS
+ *      countEach(columna, valores, criterios) cuántas tienen uno de esos valores       COUNTIFS + COUNTIFS…
+ *      averageEach(medida, columna, valores)  la media de la medida (> 0) en esas      (SUMIFS + …) / (COUNTIFS + …)
+ *      averagePositive(columna)               la media de lo que pasa de cero          AVERAGEIF(…, ">0")
+ *      countAbove(columna, 'HH:MM:SS')        cuántas pasan del límite                 COUNTIF(…, ">"&TIMEVALUE(…))
+ *      countNumbers(columna)                  cuántas tienen una hora                  COUNT
  */
-function measure(table, limits) {
+function measure(table) {
     return {
         count: (criteria) => ({
             formula: `COUNTIFS(${criteriaFormula(criteria)})`,
             result: matching(table, criteria).length,
-            format: 'count',
         }),
+
+        countEach: (name, values, criteria) => ({
+            formula: values.map(value => `COUNTIFS(${criteriaFormula([...criteria, [name, 'is', value]])})`).join('+'),
+            result: values.reduce((total, value) => total + matching(table, [...criteria, [name, 'is', value]]).length, 0),
+        }),
+
+        averageEach: (target, name, values) => {
+            const sums = values.map(value => `SUMIFS(${columnRef(target)},${criteriaFormula([[name, 'is', value]])},${columnRef(target)},">0")`).join('+');
+            const counts = values.map(value => `COUNTIFS(${criteriaFormula([[name, 'is', value]])},${columnRef(target)},">0")`).join('+');
+            const numbers = values.flatMap(value => numbersOf(matching(table, [[name, 'is', value]]), target)).filter(number => number > 0);
+            return { formula: `IFERROR((${sums})/(${counts}),"N/A")`, result: averageOr(numbers, 'N/A') };
+        },
+
+        averagePositive: (name) => ({
+            formula: `IFERROR(AVERAGEIF(${columnRef(name)},">0")," ")`,
+            result: averageOr(numbersOf(table, name).filter(number => number > 0), ' '),
+        }),
+
+        countAbove: (name, limitText) => {
+            const limit = timeValue(limitText) ?? timeValue(FALLBACK_LIMIT);
+            return {
+                formula: `COUNTIF(${columnRef(name)},">"&TIMEVALUE("${limitText || FALLBACK_LIMIT}"))`,
+                result: numbersOf(table, name).filter(number => number > limit).length,
+            };
+        },
 
         countNumbers: (name) => ({
             formula: `COUNT(${columnRef(name)})`,
             result: numbersOf(table, name).length,
-            format: 'count',
-        }),
-
-        averageOf: (name, criteria = []) => ({
-            formula: criteria.length > 0
-                ? `IFERROR(AVERAGEIFS(${columnRef(name)},${criteriaFormula(criteria)}),"-")`
-                : `IFERROR(AVERAGE(${columnRef(name)}),"-")`,
-            result: average(numbersOf(matching(table, criteria), name)),
-            format: 'duration',
-        }),
-
-        countAbove: (name, limit) => ({
-            formula: `COUNTIF(${columnRef(name)},">"&${LIMIT_CELLS[limit]})`,
-            result: limits[limit] === null ? 0 : numbersOf(table, name).filter(value => value > limits[limit]).length,
-            format: 'count',
         }),
     };
 }
 
 
-/*  buildSummary = «la tabla → las secciones del Resumen»
+/*  buildSummary = «la tabla → las cifras del Resumen», cada una en la celda del original
  *
- *  Cada sección: { title, header (los títulos de sus columnas de cifras, si tiene más de una), lines }
- *  y cada línea: { label, cells: [celda de measure, …] }. Dónde va cada cosa lo decide addSummarySheet.
+ *  Devuelve { 'C2': { formula, result, format }, … }. Dónde va el resto —los textos, los recuadros, el
+ *  verde— lo pone la plantilla (addSummarySheet).
  *
  *  @param {Array}  table    la de buildTable
  *  @param {object} context  { attentionLimit, cleaningLimit } — los límites del local, 'HH:MM:SS'
  */
 function buildSummary(table, context) {
-
-    const limits = { attention: timeValue(context.attentionLimit), cleaning: timeValue(context.cleaningLimit) };
-    const { count, countNumbers, averageOf, countAbove } = measure(table, limits);
+    const { count, countEach, averageEach, averagePositive, countAbove, countNumbers } = measure(table);
 
     // Los criterios que se repiten
     const isRotation = ['Fila', 'is', ROW_KIND.rotation];
     const isProcess = ['Fila', 'is', ROW_KIND.process];
     const isTouch = ['Fila', 'is', ROW_KIND.touch];
 
-    // dishTypes = «los tipos de plato»: los de la lista de la aplicación y, detrás, cualquier otro que
-    // venga en los datos (de antes de que la lista cambiara). Así la suma de las líneas da el total.
-    const listed = new Set(DISH_TYPES.map(lower));
-    const extraTypes = [...new Set(matching(table, [isProcess]).map(row => valueOf(row.Proceso)).filter(type => !isBlank(type) && !listed.has(lower(type))))];
-    const dishTypes = [...DISH_TYPES, ...extraTypes];
+    const figures = {};
 
-    // managers = «los gerentes que tocaron alguna mesa», por su placa (G1, G2, A1…)
-    const managers = [...new Set(matching(table, [isTouch]).map(row => String(valueOf(row.Gerente) ?? '')).filter(Boolean))]
-        .sort((first, second) => first.localeCompare(second, 'es', { numeric: true }));
+    //  Rotaciones: en sala (sin B delante), en barra (con B delante) y las dos juntas
+    figures.C2 = count([isRotation, ['Mesa', 'notStartsWith', 'B']]);
+    figures.C3 = count([isRotation, ['Mesa', 'startsWith', 'B']]);
+    figures.E2 = { formula: 'SUM(C2:C3)', result: figures.C2.result + figures.C3.result, format: '0' };
 
-    // processLine = «la línea de un tipo de plato»: cuántos y sus tres tiempos medios
-    const processLine = (label, criteria) => ({
-        label,
-        cells: [count(criteria), averageOf('Preparacion', criteria), averageOf('TiempoEntrega', criteria), averageOf('DemoraTotal', criteria)],
-    });
+    //  Toques de gerente: por placa y por tipo, con las celdas de la plantilla como criterio, como el original
+    for (const manager of MANAGER_GRID) {
+        const [labelColumn, kindColumn, countColumn] = manager.columns;
 
-    return [
-        {
-            title: 'Rotaciones',
-            lines: [
-                { label: 'En sala', cells: [count([isRotation, ['Mesa', 'notStartsWith', 'B']])] },
-                { label: 'En barra (mesas que empiezan por B)', cells: [count([isRotation, ['Mesa', 'startsWith', 'B']])] },
-                { label: 'Total de rotaciones', cells: [count([isRotation])] },
-                { label: 'Procesos para llevar (no cuentan como rotación)', cells: [count([isProcess, ['Mesa', 'startsWith', '#']])] },
-            ],
-        },
-        {
-            title: 'Primera atención',
-            lines: [
-                { label: 'Mesas atendidas', cells: [countNumbers('Espera')] },
-                { label: 'Tiempo medio de espera', cells: [averageOf('Espera')] },
-                { label: 'Fuera del límite del local', cells: [countAbove('Espera', 'attention')] },
-                { label: 'Rotaciones sin primera atención', cells: [count([isRotation, ['Atencion', 'isBlank']])] },
-            ],
-        },
-        {
-            title: 'Limpieza',
-            lines: [
-                { label: 'Mesas limpiadas', cells: [countNumbers('Demora')] },
-                { label: 'Tiempo medio de limpieza', cells: [averageOf('Demora')] },
-                { label: 'Fuera del límite del local', cells: [countAbove('Demora', 'cleaning')] },
-                { label: 'Desocupadas sin limpiar', cells: [count([isRotation, ['Desocupa', 'notBlank'], ['Limpieza', 'isBlank']])] },
-            ],
-        },
-        {
-            title: 'Procesos por tipo de plato',
-            header: ['Cantidad', 'Preparación', 'Entrega', 'Tiempo total'],
-            lines: [
-                ...dishTypes.map(type => processLine(type, [isProcess, ['Proceso', 'is', type]])),
-                processLine('Sin tipo', [isProcess, ['Proceso', 'isBlank']]),
-                processLine('Total', [isProcess]),
-            ],
-        },
-        {
-            title: 'Toques de gerente',
-            lines: [
-                ...managers.map(manager => ({ label: manager, cells: [count([isTouch, ['Gerente', 'is', manager]])] })),
-                { label: 'Total', cells: [count([isTouch])] },
-            ],
-        },
-    ];
+        for (const [offset, kind] of [[0, TOUCH_KIND.first], [1, TOUCH_KIND.other]]) {
+            const row = manager.row + offset;
+            figures[`${countColumn}${row}`] = {
+                formula: `COUNTIFS(${criteriaFormula([isTouch])},${columnRef('Gerente')},$${labelColumn}$${manager.row},${columnRef('Toque')},${kindColumn}${row})`,
+                result: matching(table, [isTouch, ['Gerente', 'is', manager.label], ['Toque', 'is', kind]]).length,
+            };
+        }
+    }
+
+    //  Platos: cuántos de cada línea y su tiempo medio de la orden a la entrega; y el total de las seis
+    for (const group of DISH_GROUPS) {
+        figures[`L${group.row}`] = countEach('Proceso', group.types, [isProcess]);
+        figures[`N${group.row}`] = { ...averageEach('DemoraTotal', 'Proceso', group.types), format: SUMMARY_TIME_FORMAT };
+    }
+    figures.L8 = { formula: 'SUM(L2:L7)', result: DISH_GROUPS.reduce((total, group) => total + figures[`L${group.row}`].result, 0) };
+
+    //  Demoras de primera atención y de limpieza, con los límites del local
+    figures.C18 = countAbove('Espera', context.attentionLimit);
+    figures.E18 = { ...averagePositive('Espera'), format: SUMMARY_TIME_FORMAT };
+    figures.C19 = countAbove('Demora', context.cleaningLimit);
+    figures.E19 = { ...averagePositive('Demora'), format: SUMMARY_TIME_FORMAT };
+
+    //  Uso de baño (la aplicación no lo anota: quedan en cero, listas para lo que se pegue)
+    figures.C21 = countNumbers('InicioTM');
+    figures.C22 = countAbove('Duracion TM', RESTROOM_LIMIT);
+    figures.E21 = { ...averagePositive('Duracion TM'), format: SUMMARY_TIME_FORMAT };
+
+    return figures;
 }
 
 
 
 // ═══════════════════════════════════════ STEP 4 · EL LIBRO ═══════════════════════════════════════
 
-/*  buildWorkbook = «todo → el libro de Excel», con sus dos hojas
+/*  buildWorkbook = «todo → el libro de Excel», con sus dos hojas y el aspecto del original
  *
  *  Aquí ya no se decide nada de los datos: solo dónde va cada cosa y cómo se ve. ExcelJS se carga aquí,
  *  la primera vez que se exporta.
  *
- *  @param {Array}  table    la de buildTable
- *  @param {Array}  summary  la de buildSummary
- *  @param {object} context  { establishmentName, day, attentionLimit, cleaningLimit, exportedAt }
- *  @returns {Promise<object>} el libro de ExcelJS, listo para escribirse
+ *  @param {Array}       table    la de buildTable
+ *  @param {object}      summary  la de buildSummary
+ *  @param {object}      context  { exportedAt }
+ *  @param {ArrayBuffer} logo     opcional. El logo del Resumen; sin él, el Resumen sale sin logo.
+ *  @returns {Promise<object>} el libro de ExcelJS
  */
-async function buildWorkbook(table, summary, context) {
+async function buildWorkbook(table, summary, context, logo = null) {
 
     // ExcelJS es CommonJS: según quién lo empaquete (Vite en desarrollo, Rollup al compilar, Node en las
     // pruebas) llega en 'default' o suelto. Se aceptan las dos formas.
@@ -525,124 +694,220 @@ async function buildWorkbook(table, summary, context) {
     workbook.calcProperties.fullCalcOnLoad = true;
 
     addDataSheet(workbook, table);
-    addSummarySheet(workbook, summary, context);
+    addSummarySheet(workbook, summary, logo);
 
     return workbook;
 }
 
 
-/*  addDataSheet = «la hoja de datos»: la tabla DtAtenClient, con la cabecera fija arriba
- *
+/*  addDataSheet = «la hoja de datos»: DtAtenClient en la B, con el aspecto de cada grupo de columnas
+ *  (DATA_GROUPS), la cabecera fija arriba, sin cuadrícula y al 85 %, como el original.
  *  Una tabla de Excel no puede quedarse sin filas: si no hay ninguna, va una vacía.
  */
 function addDataSheet(workbook, table) {
     const sheet = workbook.addWorksheet(DATA_SHEET, {
-        views: [{ state: 'frozen', ySplit: 1 }],
+        views: [{ state: 'frozen', ySplit: 1, showGridLines: false, zoomScale: 85, zoomScaleNormal: 85 }],
         //  Al imprimir: apaisada y todas las columnas en el ancho de la hoja
         pageSetup: { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
     });
 
     const rows = table.length > 0 ? table : [{}];
 
+    sheet.getColumn(1).width = DATA_EMPTY_COLUMN_WIDTH;
+
     sheet.addTable({
         name: DATA_TABLE,
-        ref: 'A1',
+        ref: `${columnLetters(DATA_FIRST_COLUMN)}1`,
         headerRow: true,
-        style: { theme: 'TableStyleMedium2', showRowStripes: true },
+        style: { theme: 'TableStyleLight8', showRowStripes: true },
         columns: DATA_COLUMNS.map(column => ({ name: column.name, filterButton: true })),
         rows: rows.map(cells => DATA_COLUMNS.map(column => cells[column.name] ?? null)),
     });
 
-    //  Ancho, letra y formato, columna a columna
+    //  El aspecto, columna a columna: el de su grupo
     DATA_COLUMNS.forEach((column, index) => {
-        const sheetColumn = sheet.getColumn(index + 1);
-        sheetColumn.width = column.width ?? DEFAULT_WIDTH;
+        const group = DATA_GROUPS[column.group];
+        const sheetColumn = sheet.getColumn(DATA_FIRST_COLUMN + index);
+        sheetColumn.width = column.width;
+        sheetColumn.hidden = Boolean(column.hidden);
 
         sheetColumn.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
-            cell.font = rowNumber === 1 ? HEADER_FONT : FONT;
-            if (rowNumber > 1 && NUMBER_FORMATS[column.format]) cell.numFmt = NUMBER_FORMATS[column.format];
-            if (rowNumber > 1 && column.center) cell.alignment = { horizontal: 'center' };
+            if (rowNumber === 1) {
+                cell.font = { ...CALIBRI_11, bold: true, color: argb(group.headerColor) };
+                cell.fill = solid(group.headerFill);
+                cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: Boolean(group.headerWrap) };
+                cell.border = border({ top: 'medium', bottom: 'medium', left: 'thin', right: column.closes ? 'medium' : 'thin' });
+                return;
+            }
+
+            cell.font = group.font;
+            cell.fill = solid(group.fill);
+            cell.alignment = column.group === 'rotation' ? CENTER : { horizontal: 'center', vertical: 'middle' };
+            cell.border = border(column.closes && column.group === 'touch' ? { ...group.sides, right: 'medium' } : group.sides);
+            if (column.format === 'time' || column.format === 'duration') cell.numFmt = TIME_FORMAT;
+            if (column.format === 'date') cell.numFmt = DATE_FORMAT;
         });
     });
+
+    //  Lo que queda a la derecha de la tabla, oculto, como en el original
+    for (let number = DATA_FIRST_COLUMN + DATA_COLUMNS.length; number <= LAST_EXCEL_COLUMN; number += 1) {
+        const column = sheet.getColumn(number);
+        column.width = DATA_HIDDEN_WIDTH;
+        column.hidden = true;
+    }
+
+    //  Los altos del original
+    sheet.getRow(1).height = DATA_HEADER_HEIGHT;
+    for (let rowNumber = 2; rowNumber <= rows.length + 1; rowNumber += 1) sheet.getRow(rowNumber).height = DATA_ROW_HEIGHT;
 }
 
 
-/*  addSummarySheet = «la hoja del Resumen»
+/*  addSummarySheet = «la hoja del Resumen»: la plantilla del original y, encima, las cifras (buildSummary)
  *
- *      B1        el título
- *      B3:C7     el local, el día, cuándo se exportó y los dos límites del local (LIMIT_CELLS: las
- *                fórmulas de «fuera del límite» los leen de ahí)
- *      B9…       las secciones de buildSummary, una debajo de otra: su título, los títulos de sus
- *                columnas si tiene varias, y sus líneas (la etiqueta en B, las cifras desde C)
+ *      1. columnas y filas: los anchos y altos del original; de la Q en adelante, ocultas
+ *      2. las combinadas, ANTES de pintar: así cada celda conserva su propio borde
+ *      3. el fondo verde y los blancos
+ *      4. los recuadros: borde mediano por fuera, fino por dentro
+ *      5. los textos fijos, la versión y las cifras
+ *      6. el verde y el ámbar de PT y OT cuando pasan de cero (los «Bueno» y «Neutral» de Excel)
+ *      7. el logo
  */
-function addSummarySheet(workbook, summary, context) {
+function addSummarySheet(workbook, summary, logo) {
     const sheet = workbook.addWorksheet(SUMMARY_SHEET, {
-        //  Al imprimir: las cinco columnas en el ancho de la hoja
+        views: [{ showGridLines: false, zoomScale: 85, zoomScaleNormal: 85 }],
+        properties: { defaultRowHeight: SUMMARY_ROW_HEIGHT },
         pageSetup: { fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
     });
 
-    //  La C, más ancha que las otras cifras: lleva también la fecha y hora de la exportación
-    sheet.getColumn(1).width = 2;
-    sheet.getColumn(2).width = 46;
-    sheet.getColumn(3).width = 18;
-    for (const column of [4, 5, 6]) sheet.getColumn(column).width = 14;
-
-    // put = «escribir una celda», con la letra de la hoja y, si lo tiene, su formato
-    const put = (address, value, { font = FONT, format } = {}) => {
-        const cell = sheet.getCell(address);
-        cell.value = value;
-        cell.font = font;
-        if (format) cell.numFmt = NUMBER_FORMATS[format];
-        return cell;
-    };
-
-    // La cabecera
-    put('B1', 'Resumen de atención al cliente', { font: TITLE_FONT });
-    put('B3', 'Local', { font: BOLD_FONT });
-    put('C3', context.establishmentName || '(sin local)');
-    put('B4', 'Día operativo (de 08:00 a 07:00)', { font: BOLD_FONT });
-    put('C4', dateValue(context.day), { format: 'date' });
-    put('B5', 'Exportado', { font: BOLD_FONT });
-    put('C5', wallClock(context.exportedAt), { format: 'stamp' });
-    put('B6', 'Límite de primera atención del local', { font: BOLD_FONT });
-    put('C6', timeValue(context.attentionLimit), { format: 'time' });
-    put('B7', 'Límite de limpieza del local', { font: BOLD_FONT });
-    put('C7', timeValue(context.cleaningLimit), { format: 'time' });
-
-    // Las secciones, una debajo de otra, con una fila en blanco entre ellas
-    let rowNumber = 9;
-
-    for (const section of summary) {
-
-        const title = put(`B${rowNumber}`, section.title, { font: BOLD_FONT });
-        title.fill = SECTION_FILL;
-        (section.header ?? []).forEach((text, index) => {
-            const cell = sheet.getCell(rowNumber, 3 + index);
-            cell.value = text;
-            cell.font = BOLD_FONT;
-            cell.fill = SECTION_FILL;
-        });
-        rowNumber += 1;
-
-        for (const line of section.lines) {
-            put(`B${rowNumber}`, line.label);
-            line.cells.forEach((cell, index) => {
-                const target = sheet.getCell(rowNumber, 3 + index);
-                target.value = { formula: cell.formula, result: cell.result };
-                target.font = FONT;
-                target.numFmt = NUMBER_FORMATS[cell.format];
-                target.alignment = { horizontal: 'right' };
-            });
-            rowNumber += 1;
-        }
-
-        rowNumber += 1;
+    //  1. Columnas y filas
+    SUMMARY_COLUMN_WIDTHS.forEach((width, index) => {
+        const column = sheet.getColumn(index + 1);
+        column.width = width;
+        column.font = CALIBRI_15;
+        column.alignment = WRAP;
+    });
+    for (let number = SUMMARY_COLUMN_WIDTHS.length + 1; number <= LAST_EXCEL_COLUMN; number += 1) {
+        const column = sheet.getColumn(number);
+        column.width = SUMMARY_HIDDEN_WIDTH;
+        column.hidden = true;
     }
+    for (let number = 1; number <= SUMMARY_LAST_ROW; number += 1) {
+        sheet.getRow(number).height = SUMMARY_TALL_ROWS[number] ?? SUMMARY_ROW_HEIGHT;
+    }
+
+    //  2. Las combinadas
+    for (const range of SUMMARY_MERGES) sheet.mergeCells(range);
+
+    //  3. El fondo
+    for (const range of SUMMARY_GREEN) {
+        eachCellIn(sheet, range, (cell) => {
+            cell.fill = solid(GREEN);
+            cell.font = CALIBRI_15;
+            cell.alignment = WRAP;
+        });
+    }
+    for (const range of SUMMARY_WHITE) {
+        eachCellIn(sheet, range, (cell) => {
+            cell.fill = solid('FFFFFF');
+            cell.font = CENTURY_15_BOLD;
+            cell.alignment = CENTER;
+        });
+    }
+
+    //  4. Los recuadros
+    for (const range of SUMMARY_BOXES) {
+        eachCellIn(sheet, range, (cell, { row, column, top, left, bottom, right }) => {
+            cell.fill = solid('FFFFFF');
+            cell.font = CENTURY_15_BOLD;
+            cell.alignment = CENTER;
+            cell.border = border({
+                top: row === top ? 'medium' : 'thin',
+                bottom: row === bottom ? 'medium' : 'thin',
+                left: column === left ? 'medium' : 'thin',
+                right: column === right ? 'medium' : 'thin',
+            });
+        });
+    }
+
+    //  5. Los textos, la versión y las cifras
+    for (const [address, text] of Object.entries(summaryLabels())) sheet.getCell(address).value = text;
+
+    const versionLabel = sheet.getCell('K9');
+    versionLabel.value = 'Version:';
+    versionLabel.alignment = { horizontal: 'right', vertical: 'middle', wrapText: true };
+    sheet.getCell('L9').value = VERSION;
+
+    for (const [address, figure] of Object.entries(summary)) {
+        const cell = sheet.getCell(address);
+        cell.value = { formula: figure.formula, result: figure.result };
+        if (figure.format) cell.numFmt = figure.format;
+    }
+
+    //  6. PT en verde y OT en ámbar cuando pasan de cero
+    for (const manager of MANAGER_GRID) {
+        const countColumn = manager.columns[2];
+        addToneRule(sheet, `${countColumn}${manager.row}`, { font: '006100', fill: 'C6EFCE' });
+        addToneRule(sheet, `${countColumn}${manager.row + 1}`, { font: '9C5700', fill: 'FFEB9C' });
+    }
+
+    //  7. El logo
+    if (logo) {
+        const image = workbook.addImage({ buffer: logo, extension: 'png' });
+        sheet.addImage(image, { ...LOGO_ANCHOR, editAs: 'oneCell' });
+    }
+}
+
+// addToneRule = «el color de una cuenta cuando pasa de cero» (formato condicional)
+function addToneRule(sheet, address, tone) {
+    sheet.addConditionalFormatting({
+        ref: address,
+        rules: [{
+            type: 'cellIs',
+            operator: 'greaterThan',
+            formulae: ['0'],
+            style: { font: { color: argb(tone.font) }, fill: { type: 'pattern', pattern: 'solid', bgColor: argb(tone.fill) } },
+        }],
+    });
 }
 
 
 
-// ═══════════════════════════════════════ STEP 5 · EL NOMBRE ═══════════════════════════════════════
+// ═══════════════════════════════════════ STEP 5 · EL ARCHIVO ═══════════════════════════════════════
+
+/*  finishWorkbook = «el libro → los bytes del .xlsx», con las filas sobrantes del Resumen ocultas
+ *
+ *  El original solo enseña A1:P23: las columnas de la Q en adelante ya van ocultas (addSummarySheet), y
+ *  las filas de la 24 en adelante se ocultan de golpe con 'zeroHeight' en la hoja: «toda fila sin alto
+ *  propio, oculta». ExcelJS no sabe escribir ese atributo, así que se le pone al archivo ya escrito, con
+ *  JSZip (un .xlsx es un zip de XML). Solo esa hoja y solo ese atributo: nada más se toca.
+ *
+ *  @returns {Promise<Uint8Array>} los bytes del archivo
+ */
+async function finishWorkbook(workbook) {
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const loaded = await import('jszip');
+    const JSZip = loaded.default ?? loaded;
+    const zip = await JSZip.loadAsync(buffer);
+
+    // summaryPath = «el XML de la hoja del Resumen»: se busca por su nombre en el libro, no se supone
+    const workbookXml = await zip.file('xl/workbook.xml').async('string');
+    const relationsXml = await zip.file('xl/_rels/workbook.xml.rels').async('string');
+    const sheetId = new RegExp(`<sheet [^>]*name="${SUMMARY_SHEET}"[^>]*r:id="([^"]+)"`).exec(workbookXml)?.[1];
+    const target = sheetId && new RegExp(`Id="${sheetId}"[^>]*Target="([^"]+)"`).exec(relationsXml)?.[1];
+    const summaryPath = target && `xl/${target.replace(/^\/?xl\//, '')}`;
+
+    if (summaryPath && zip.file(summaryPath)) {
+        const sheetXml = await zip.file(summaryPath).async('string');
+        zip.file(summaryPath, sheetXml.replace('<sheetFormatPr ', '<sheetFormatPr zeroHeight="1" '));
+    }
+
+    return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE', mimeType: XLSX_TYPE });
+}
+
+
+
+// ═══════════════════════════════════════ STEP 6 · EL NOMBRE ═══════════════════════════════════════
 
 // buildFileName = «el nombre del archivo»: 'Atencion al cliente - Francisca Doral - 2026-10-15.xlsx'
 // Sin los caracteres que Windows no deja en un nombre de archivo.
@@ -653,15 +918,23 @@ function buildFileName(context) {
 
 
 
-// ═══════════════════════════════════════ STEP 6 · LA DESCARGA ═══════════════════════════════════════
+// ═══════════════════════════════════════ STEP 7 · LA DESCARGA ═══════════════════════════════════════
 
-// XLSX_TYPE = «el tipo de archivo de un .xlsx»
-const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+// loadLogo = «el logo del Resumen, en bytes». Si no carga, el libro sale igual, sin logo.
+async function loadLogo() {
+    try {
+        const response = await fetch(LOGO_URL);
+        return response.ok ? await response.arrayBuffer() : null;
+    }
+    catch (error) {
+        console.log(error);
+        return null;
+    }
+}
 
-// downloadWorkbook = «el libro → un archivo descargado»: se escribe en memoria y se descarga con un
-// enlace que se pulsa solo (en la aplicación de escritorio va a la carpeta de descargas)
-async function downloadWorkbook(workbook, fileName) {
-    const buffer = await workbook.xlsx.writeBuffer();
+// downloadWorkbook = «los bytes → un archivo descargado»: con un enlace que se pulsa solo (en la
+// aplicación de escritorio va a la carpeta de descargas)
+function downloadWorkbook(buffer, fileName) {
     const url = URL.createObjectURL(new Blob([buffer], { type: XLSX_TYPE }));
 
     const link = document.createElement('a');
@@ -688,26 +961,28 @@ async function downloadWorkbook(workbook, fileName) {
  *  @param {string} establishmentName  el local
  *  @param {string} attentionLimit     su límite de primera atención, 'HH:MM:SS'
  *  @param {string} cleaningLimit      su límite de limpieza, 'HH:MM:SS'
+ *  @param {Array}  managers           los botones de gerentes del local (managerButtons): de ahí las placas
  *  @param {Date}   now                cuándo se exporta (para las pruebas; por defecto, ahora)
  *  @returns {Promise<{ fileName, rows }>} el nombre del archivo y cuántas filas lleva la tabla.
  *           Rechaza si algo falla (por ejemplo, si no carga ExcelJS): quien llama lo enseña.
  */
-async function exportCustomerServiceWorkbook({ rotations, day, establishmentName, attentionLimit, cleaningLimit, now = new Date() }) {
+async function exportCustomerServiceWorkbook({ rotations, day, establishmentName, attentionLimit, cleaningLimit, managers = [], now = new Date() }) {
 
     // context = «lo que necesitan los pasos además de los datos»
-    const context = { day, establishmentName, attentionLimit, cleaningLimit, exportedAt: now };
+    const context = { day, establishmentName, attentionLimit, cleaningLimit, managers, exportedAt: now };
 
-    const rows = buildDataRows(rotations, context);                  // STEP 1 · las filas
-    const table = buildTable(rows);                                  // STEP 2 · los valores de Excel
-    const summary = buildSummary(table, context);                    // STEP 3 · el Resumen
-    const workbook = await buildWorkbook(table, summary, context);   // STEP 4 · el libro
-    const fileName = buildFileName(context);                         // STEP 5 · el nombre
+    const rows = buildDataRows(rotations, context);                            // STEP 1 · las filas
+    const table = buildTable(rows);                                            // STEP 2 · los valores de Excel
+    const summary = buildSummary(table, context);                              // STEP 3 · las cifras del Resumen
+    const workbook = await buildWorkbook(table, summary, context, await loadLogo());   // STEP 4 · el libro
+    const buffer = await finishWorkbook(workbook);                             // STEP 5 · el archivo
+    const fileName = buildFileName(context);                                   // STEP 6 · el nombre
 
-    await downloadWorkbook(workbook, fileName);                      // STEP 6 · la descarga
+    downloadWorkbook(buffer, fileName);                                        // STEP 7 · la descarga
 
     return { fileName, rows: rows.length };
 }
 
 
 
-export { exportCustomerServiceWorkbook, buildDataRows, buildTable, buildSummary, buildWorkbook, buildFileName, DATA_COLUMNS };
+export { exportCustomerServiceWorkbook, buildDataRows, buildTable, buildSummary, buildWorkbook, finishWorkbook, buildFileName, DATA_COLUMNS };
