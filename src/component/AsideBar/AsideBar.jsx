@@ -21,9 +21,9 @@ function AsideBar({ clearLocal, selectNovelty, openBoleanSidebar, onToggleSideba
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const MODE_REGISTER = !(establishment?.processRegister || false); 
+    const MODE_REGISTER = establishment?.processRegister || false;
 
-    
+
 
     const closeSesscion = () => {
         axiosInstance.get(`${URL}/auth/logout`)
@@ -78,7 +78,7 @@ function AsideBar({ clearLocal, selectNovelty, openBoleanSidebar, onToggleSideba
                 Menú
             </button>
 
-            <aside className={`sidebar ${MODE_REGISTER || openBoleanSidebar ? 'sidebar--open' : ''}`}>
+            <aside className={`sidebar ${!MODE_REGISTER || openBoleanSidebar ? 'sidebar--open' : ''}`}>
                 {/* Local name header */}
                 <div className='sidebar__header'>
                     {!isMobile || isTablet ? (
@@ -111,24 +111,27 @@ function AsideBar({ clearLocal, selectNovelty, openBoleanSidebar, onToggleSideba
                                 );
                             })}
 
-                            <span className='sidebar__section-label' style={{ marginTop: '0.75rem' }}>Configuración</span>
-                            {configItems.map(item => (
-                                <button
-                                    key={item.id}
-                                    className='sidebar__btn'
-                                    onClick={e => selectNovelty(e.currentTarget.id)}
-                                    id={item.id}
-                                >
-                                    <svg className='sidebar__btn-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d={item.icon} />
-                                    </svg>
-                                    <span className='sidebar__btn-text'>{item.label}</span>
-                                </button>
-                            ))}
+                            {configItems.length > 0 && (
+                                <>
+                                    <span className='sidebar__section-label' style={{ marginTop: '0.75rem' }}>Configuración</span>
+                                    {configItems.map(item => (
+                                        <button
+                                            key={item.id}
+                                            className='sidebar__btn'
+                                            onClick={e => selectNovelty(e.currentTarget.id)}
+                                            id={item.id}
+                                        >
+                                            <svg className='sidebar__btn-icon' viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d={item.icon} />
+                                            </svg>
+                                            <span className='sidebar__btn-text'>{item.label}</span>
+                                        </button>
 
-                            {/*  Y en el hueco que queda hasta el pie, la tablet: el espejo, su estado y
-                                 sus botones. Los registers que llena van en el centro de Home. En el
-                                 teléfono no se pinta nada.  */}
+                                    ))}
+                                </>
+                            )}
+
+
                             <TabletDock />
                         </>
                     ) : (
@@ -180,7 +183,7 @@ function AsideBar({ clearLocal, selectNovelty, openBoleanSidebar, onToggleSideba
 
                                 </span>
                             </div>
-                           
+
                         </div>
                     </div>
 
