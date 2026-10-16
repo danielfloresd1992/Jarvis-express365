@@ -667,13 +667,18 @@
 
 /*  Exportar a Excel (ExportExcelButton), a la derecha de los totales de «Registros»: el logo y la palabra.
     Relleno, borde y letra van aquí porque la regla global 'button {}' gana a Tailwind.  */
+/*  El botón y su menú van juntos, empujados a la derecha de la cabecera; el menú cuelga del botón.  */
+.register-export {
+    position: relative;
+    margin-left: auto;
+}
+
 .register-export-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     height: 28px;
-    margin-left: auto;
-    padding: 0 12px 0 8px;
+    padding: 0 10px 0 8px;
     border: 1px solid var(--color-jx-regla2);
     border-radius: 6px;
     background: var(--color-jx-tarjeta);
@@ -685,6 +690,67 @@
 .register-export-button:hover:not(:disabled) { background: var(--color-jx-hundido); border-color: #21a366; }
 .register-export-button:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }
 .register-export-button:disabled { cursor: not-allowed; opacity: 0.55; }
+.register-export-button[aria-expanded='true'] { background: var(--color-jx-hundido); border-color: #21a366; }
+
+/*  El menú del turno (ExportShiftMenu): alineado a la derecha del botón, por encima de la tabla.  */
+.register-export-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 30;
+    min-width: 260px;
+    padding: 4px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 8px;
+    background: var(--color-jx-tarjeta);
+    box-shadow: 0 10px 24px rgb(47 42 30 / 0.14);
+}
+
+.register-export-menu__title {
+    padding: 6px 8px 4px;
+    color: var(--color-jx-tinta3);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.register-export-menu__item {
+    display: grid;
+    grid-template-columns: 16px auto 1fr;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 8px;
+    border-radius: 6px;
+    color: var(--color-jx-tinta);
+    font-size: 12.5px;
+    text-align: left;
+}
+
+.register-export-menu__item:hover:not(:disabled),
+.register-export-menu__item:focus-visible { background-color: var(--color-jx-hundido); outline: none; }
+.register-export-menu__item:disabled { cursor: not-allowed; color: var(--color-jx-tinta4); }
+
+.register-export-menu__icon { display: inline-flex; color: var(--color-jx-tinta2); }
+.register-export-menu__item:disabled .register-export-menu__icon { color: inherit; }
+.register-export-menu__label { font-weight: 600; }
+
+.register-export-menu__count {
+    justify-self: end;
+    color: var(--color-jx-tinta3);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+}
+.register-export-menu__item:disabled .register-export-menu__count { color: inherit; }
+
+.register-export-menu__note {
+    margin-top: 4px;
+    padding: 6px 8px 4px;
+    border-top: 1px solid var(--color-jx-regla);
+    color: var(--color-jx-tinta3);
+    font-size: 11.5px;
+}
 
 
 /*  El select del tipo de plato, con una flecha fina y apagada en lugar de la del sistema.  */

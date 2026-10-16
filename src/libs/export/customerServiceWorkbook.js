@@ -15,6 +15,7 @@ import { isTakeOut } from '../tickets/tableRecords.js';
  *
  *  Todo empieza en exportCustomerServiceWorkbook, al final del archivo, que da estos pasos en orden:
  *
+ *      STEP 0  pickShift(rotations, shift)         las del turno elegido: todas, diurno o nocturno PURA
  *      STEP 1  buildDataRows(rotations, context)   las rotaciones → las filas, en palabras     PURA
  *                ├─ rotationRow                      la de la mesa (un pedido para llevar no la lleva)
  *                ├─ processRows                      una por proceso
@@ -26,7 +27,7 @@ import { isTakeOut } from '../tickets/tableRecords.js';
  *                └─ addSummarySheet                  «Resumen»: la plantilla y, encima, las cifras
  *      STEP 5  finishWorkbook(workbook)            el libro → el archivo, con las filas sobrantes del
  *                                                  Resumen ocultas (lo único que ExcelJS no sabe hacer)
- *      STEP 6  buildFileName(context)              'Atencion al cliente - <local> - <día>.xlsx' PURA
+ *      STEP 6  buildFileName(context)              'Atencion al cliente - <local> - <día>[ - <turno>].xlsx' PURA
  *      STEP 7  downloadWorkbook(buffer, name)      el archivo, al navegador
  *
  *  ══ LO QUE HAY QUE SABER ═══════════════════════════════════════════════════════════════════════════
@@ -50,6 +51,10 @@ import { isTakeOut } from '../tickets/tableRecords.js';
  *    limpieza miran la Demora y no la Espera; una mesa con B en medio (16B) ya no desaparece; Entrada
  *    cuenta también APPETIZER; y el Total suma las seis líneas, no cuatro.
  *
+ *  · EL TURNO. Se exporta el día entero ('all') o un solo turno ('day', 'night'), y entonces el Resumen
+ *    cuenta solo ese turno y el archivo lleva su nombre detrás. Una rotación sin turno —la API lo deja en
+ *    null hasta que se dice— no se le adivina: solo sale con 'all'.
+ *
  *  · ExcelJS y JSZip se cargan la primera vez que alguien exporta: quien nunca exporta no paga su peso.
  */
 
@@ -72,6 +77,12 @@ const TOUCH_KIND = { first: 'PT', other: 'OT' };
 
 // SHIFT_NAMES = «el turno, como se lee»
 const SHIFT_NAMES = { day: 'Diurno', night: 'Nocturno' };
+
+// EXPORT_SHIFTS = «qué se puede exportar»: el día entero o uno de sus dos turnos
+const EXPORT_SHIFTS = ['all', 'day', 'night'];
+
+// inShift = «la rotación entra en la exportación de ese turno». Con 'all', todas; si no, las de ese turno.
+const inShift = (rotation, shift) => shift === 'all' || rotation?.shift === shift;
 
 // RESTROOM_LIMIT = «cuánto puede durar un uso de baño»: el del original (Resumen!C22)
 const RESTROOM_LIMIT = '00:02:00';
@@ -393,6 +404,15 @@ function eachCellIn(sheet, range, paint) {
             paint(sheet.getCell(row, column), { row, column, top, left, bottom, right });
         }
     }
+}
+
+
+
+// ═══════════════════════════════════════ STEP 0 · EL TURNO ═══════════════════════════════════════
+
+// pickShift = «las rotaciones del turno elegido» (inShift): todas con 'all', o solo las de 'day' o 'night'
+function pickShift(rotations, shift) {
+    return (rotations ?? []).filter(rotation => inShift(rotation, shift));
 }
 
 
@@ -909,11 +929,12 @@ async function finishWorkbook(workbook) {
 
 // ═══════════════════════════════════════ STEP 6 · EL NOMBRE ═══════════════════════════════════════
 
-// buildFileName = «el nombre del archivo»: 'Atencion al cliente - Francisca Doral - 2026-10-15.xlsx'
-// Sin los caracteres que Windows no deja en un nombre de archivo.
+// buildFileName = «el nombre del archivo»: 'Atencion al cliente - Francisca Doral - 2026-10-15.xlsx', y con un
+// solo turno, su nombre detrás: '… - 2026-10-15 - Nocturno.xlsx'. Sin los caracteres que Windows no deja.
 function buildFileName(context) {
     const local = String(context.establishmentName || 'sin local').replace(/[\\/:*?"<>|]+/g, ' ').trim();
-    return `Atencion al cliente - ${local} - ${context.day || 'sin fecha'}.xlsx`;
+    const shift = SHIFT_NAMES[context.shift] ? ` - ${SHIFT_NAMES[context.shift]}` : '';
+    return `Atencion al cliente - ${local} - ${context.day || 'sin fecha'}${shift}.xlsx`;
 }
 
 
@@ -962,16 +983,18 @@ function downloadWorkbook(buffer, fileName) {
  *  @param {string} attentionLimit     su límite de primera atención, 'HH:MM:SS'
  *  @param {string} cleaningLimit      su límite de limpieza, 'HH:MM:SS'
  *  @param {Array}  managers           los botones de gerentes del local (managerButtons): de ahí las placas
+ *  @param {string} shift              qué turno: 'all' (el día entero, por defecto), 'day' o 'night'
  *  @param {Date}   now                cuándo se exporta (para las pruebas; por defecto, ahora)
  *  @returns {Promise<{ fileName, rows }>} el nombre del archivo y cuántas filas lleva la tabla.
  *           Rechaza si algo falla (por ejemplo, si no carga ExcelJS): quien llama lo enseña.
  */
-async function exportCustomerServiceWorkbook({ rotations, day, establishmentName, attentionLimit, cleaningLimit, managers = [], now = new Date() }) {
+async function exportCustomerServiceWorkbook({ rotations, day, establishmentName, attentionLimit, cleaningLimit, managers = [], shift = 'all', now = new Date() }) {
 
-    // context = «lo que necesitan los pasos además de los datos»
-    const context = { day, establishmentName, attentionLimit, cleaningLimit, managers, exportedAt: now };
+    // context = «lo que necesitan los pasos además de los datos». Un turno que no existe es el día entero.
+    const context = { day, establishmentName, attentionLimit, cleaningLimit, managers, shift: EXPORT_SHIFTS.includes(shift) ? shift : 'all', exportedAt: now };
 
-    const rows = buildDataRows(rotations, context);                            // STEP 1 · las filas
+    const picked = pickShift(rotations, context.shift);                        // STEP 0 · el turno
+    const rows = buildDataRows(picked, context);                               // STEP 1 · las filas
     const table = buildTable(rows);                                            // STEP 2 · los valores de Excel
     const summary = buildSummary(table, context);                              // STEP 3 · las cifras del Resumen
     const workbook = await buildWorkbook(table, summary, context, await loadLogo());   // STEP 4 · el libro
@@ -985,4 +1008,4 @@ async function exportCustomerServiceWorkbook({ rotations, day, establishmentName
 
 
 
-export { exportCustomerServiceWorkbook, buildDataRows, buildTable, buildSummary, buildWorkbook, finishWorkbook, buildFileName, DATA_COLUMNS };
+export { exportCustomerServiceWorkbook, pickShift, inShift, buildDataRows, buildTable, buildSummary, buildWorkbook, finishWorkbook, buildFileName, DATA_COLUMNS, EXPORT_SHIFTS };

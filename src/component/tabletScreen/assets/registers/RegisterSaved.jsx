@@ -39,7 +39,7 @@ function secondsOf(time) {
  *  @param {function} onDeleteTouch      quita un toque: (id del toque) — ver deleteSavedTouch en useSavedRotations
  *  @param {string}   editNotice         por qué no se guardó la última corrección ('' si se guardó)
  *  @param {Array}    managers           los botones de los gerentes del local, para las placas de los toques
- *  @param {function} onExport           opcional. Exportar a Excel; sin él, el botón sale apagado
+ *  @param {function} onExport           opcional. Exportar a Excel un turno ('all' | 'day' | 'night'); sin él, el botón sale apagado
  */
 export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport }) {
 
@@ -74,7 +74,7 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
                 {status === 'ready' && <span className='register-saved-chip register-saved-chip--touches-total'>{totalTouches} {totalTouches === 1 ? 'toque' : 'toques'} en total</span>}
                 {status === 'loading' && rotations.length > 0 && <span className='text-[12px] text-jx-tinta3'>actualizando…</span>}
                 {editNotice && <span className='register-saved-chip register-saved-chip--late' role='alert'>No se guardó el cambio: {editNotice}</span>}
-                <ExportExcelButton onExport={onExport} disabled={rotations.length === 0} />
+                <ExportExcelButton rotations={rotations} onExport={onExport} disabled={rotations.length === 0} />
             </div>
 
             {

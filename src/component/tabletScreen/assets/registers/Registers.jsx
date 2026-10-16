@@ -57,8 +57,9 @@ export default function Registers({ session, establishment = session.establishme
         if (view === 'registros') loadSaved();
     }, [view, loadSaved]);
 
-    // exportWithManagers = «exportar a Excel», con los gerentes del local: el Resumen cuenta los toques por placa
-    const exportWithManagers = useCallback(() => exportSaved({ managers }), [exportSaved, managers]);
+    // exportWithManagers = «exportar a Excel un turno» ('all', 'day' o 'night', del menú de Exportar), con los
+    // gerentes del local: el Resumen cuenta los toques por placa
+    const exportWithManagers = useCallback((shift) => exportSaved({ managers, shift }), [exportSaved, managers]);
 
     return (
         <>
