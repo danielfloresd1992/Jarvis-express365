@@ -268,9 +268,10 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
     // con ella dónde acabó el archivo (en el NAS, donde se eligió…: deliverWorkbook).
     // Recibe: { managers     los botones de gerentes del local (los tiene la pestaña): de ahí las placas G1, A2…
     //           shift        qué turno: 'all' (el día entero), 'day' o 'night'. Lo elige el menú de Exportar.
-    //           folderShift } con 'all', en la carpeta de qué turno del NAS va: el de la barra
+    //           folderShift  con 'all', en la carpeta de qué turno del NAS va: el de la barra
+    //           download }   descargarlo en el equipo en vez de guardarlo en el NAS (el botón «Descargar Excel»)
     // Quien exporta es el usuario de la sesión (Redux), y va en el nombre del archivo. En la flotante, sin Redux, no va.
-    const exportSaved = useCallback(({ managers, shift = 'all', folderShift } = {}) => {
+    const exportSaved = useCallback(({ managers, shift = 'all', folderShift, download = false } = {}) => {
         const user = reduxStore?.getState().user;
         return exportCustomerServiceWorkbook({
             rotations: saved.documents,
@@ -281,6 +282,7 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
             managers,
             shift,
             folderShift,
+            download,
             exporter: [user?.name, user?.surName].filter(Boolean).join(' '),
         });
     }, [saved.documents, saved.day, establishmentName, attention, cleaning, reduxStore]);

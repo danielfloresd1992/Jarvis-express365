@@ -15,7 +15,9 @@ import { resolveNasFolder, NAS_ROOT } from './nasFolder.js';
  *                          permiso…) se abre «Guardar como» en la carpeta más honda a la que se llegó, y
  *                          se dice por qué no se guardó solo.
  *
- *  En un navegador, o en una aplicación de escritorio sin actualizar, se descarga como siempre.
+ *  En un navegador, o en una aplicación de escritorio sin actualizar, se descarga como siempre. Y también
+ *  cuando se pide descargar ('download': el botón «Descargar Excel», pedido del usuario): entonces nunca va
+ *  al NAS, y la aplicación de escritorio pregunta dónde guardarlo en el equipo.
  *
  *  Devuelve qué pasó, para que el botón lo diga:
  *      { kind: 'nas',        path }           guardado solo en su carpeta
@@ -35,13 +37,14 @@ const ALL_SHIFTS_REASON = 'No se sabe el turno de la barra, y con los dos turnos
 
 /*  @param {Uint8Array} bytes     el archivo (finishWorkbook)
  *  @param {string}     fileName  su nombre (buildFileName)
- *  @param {object}     context   { day, establishmentName, shift, folderShift }: de qué día, local y turno es, y
- *                                con 'all', en la carpeta de qué turno va ('day' | 'night')
+ *  @param {object}     context   { day, establishmentName, shift, folderShift, download }: de qué día, local y
+ *                                turno es; con 'all', en la carpeta de qué turno va ('day' | 'night'); y si se
+ *                                pidió descargarlo en el equipo en vez de guardarlo en el NAS
  *  @param {object}     desktop   la aplicación de escritorio (window.electronAPI); otra, para las pruebas
  */
-export async function deliverWorkbook(bytes, fileName, { day, establishmentName, shift, folderShift }, desktop = globalThis.window?.electronAPI) {
+export async function deliverWorkbook(bytes, fileName, { day, establishmentName, shift, folderShift, download = false }, desktop = globalThis.window?.electronAPI) {
 
-    if (!desktop?.nasGuardar || !desktop?.nasCarpetas || !desktop?.nasGuardarComo) {
+    if (download || !desktop?.nasGuardar || !desktop?.nasCarpetas || !desktop?.nasGuardarComo) {
         downloadWorkbook(bytes, fileName);
         return { kind: 'downloaded' };
     }

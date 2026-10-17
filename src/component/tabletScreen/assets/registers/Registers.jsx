@@ -62,6 +62,9 @@ export default function Registers({ session, establishment = session.establishme
     // la barra (folderShift).
     const exportWithManagers = useCallback((exported) => exportSaved({ managers, shift: exported, folderShift: shift }), [exportSaved, managers, shift]);
 
+    // downloadWithManagers = «descargar el Excel en este equipo» (el botón «Descargar Excel»): igual, pero nunca al NAS
+    const downloadWithManagers = useCallback((exported) => exportSaved({ managers, shift: exported, download: true }), [exportSaved, managers]);
+
     // addRecoveredHere = «guardar una rotación anotada a mano en Registros», en este local (su _id, como el disquete de Mesas)
     const establishmentId = establishment?._id;
     const addRecoveredHere = useCallback((fields) => addRecovered(fields, establishmentId), [addRecovered, establishmentId]);
@@ -103,6 +106,7 @@ export default function Registers({ session, establishment = session.establishme
                     editNotice={editNotice}
                     managers={managers}
                     onExport={exportWithManagers}
+                    onDownload={downloadWithManagers}
                     onAddRotation={addRecoveredHere}
                     defaultShift={shift}
                 />

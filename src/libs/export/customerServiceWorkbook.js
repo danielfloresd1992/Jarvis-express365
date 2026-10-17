@@ -1114,15 +1114,16 @@ async function loadLogo() {
  *  @param {string} shift              qué turno: 'all' (el día entero, por defecto), 'day' o 'night'
  *  @param {string} folderShift        con 'all', en la carpeta de qué turno del NAS va: el de la barra ('day' | 'night')
  *  @param {string} exporter           quién exporta ('Daniel Flores'): va en el nombre del archivo. Opcional.
+ *  @param {boolean} download          descargarlo en el equipo y no guardarlo en el NAS (el botón «Descargar Excel»)
  *  @param {Date}   now                cuándo se exporta (para las pruebas; por defecto, ahora)
  *  @returns {Promise<{ fileName, rows, delivered }>} el nombre del archivo, cuántas filas lleva la tabla y
  *           dónde acabó (deliverWorkbook: en el NAS, donde se eligió, cancelado o descargado).
  *           Rechaza si algo falla (por ejemplo, si no carga ExcelJS): quien llama lo enseña.
  */
-async function exportCustomerServiceWorkbook({ rotations, day, establishmentName, attentionLimit, cleaningLimit, managers = [], shift = 'all', folderShift, exporter = '', now = new Date() }) {
+async function exportCustomerServiceWorkbook({ rotations, day, establishmentName, attentionLimit, cleaningLimit, managers = [], shift = 'all', folderShift, exporter = '', download = false, now = new Date() }) {
 
     // context = «lo que necesitan los pasos además de los datos». Un turno que no existe es el día entero.
-    const context = { day, establishmentName, attentionLimit, cleaningLimit, managers, shift: EXPORT_SHIFTS.includes(shift) ? shift : 'all', folderShift, exporter, exportedAt: now };
+    const context = { day, establishmentName, attentionLimit, cleaningLimit, managers, shift: EXPORT_SHIFTS.includes(shift) ? shift : 'all', folderShift, exporter, download, exportedAt: now };
 
     const picked = pickShift(rotations, context.shift);                        // STEP 0 · el turno
     const rows = buildDataRows(picked, context);                               // STEP 1 · las filas

@@ -65,9 +65,11 @@ function describe({ rotations, takeOuts }) {
 
 /*  @param {Array}    rotations    las rotaciones guardadas del día, como las enseña Registers
  *  @param {function} onPick       recibe el turno elegido: 'all' | 'day' | 'night'
- *  @param {string}   folderShift  el turno de la barra ('day' | 'night'): la carpeta del NAS de «Todas»
+ *  @param {string}   folderShift  el turno de la barra ('day' | 'night'): la carpeta del NAS de «Todas». Sin él
+ *                                 (el botón de descargar), no hay nota del NAS.
+ *  @param {string}   title        el título del menú: 'Exportar el turno' o 'Descargar el turno'
  */
-export default function ExportShiftMenu({ rotations, onPick, folderShift }) {
+export default function ExportShiftMenu({ rotations, onPick, folderShift, title = 'Exportar el turno' }) {
 
     // allFolder = «la carpeta del NAS a la que va "Todas"», si el Excel va al NAS (hay aplicación de escritorio que sabe)
     const allFolder = globalThis.window?.electronAPI?.nasGuardar ? SHIFT_FOLDERS[folderShift] : null;
@@ -107,7 +109,7 @@ export default function ExportShiftMenu({ rotations, onPick, folderShift }) {
 
     return (
         <div ref={menuRef} role='menu' aria-label='Qué turno exportar' className='register-export-menu' onKeyDown={moveFocus}>
-            <p className='register-export-menu__title' aria-hidden='true'>Exportar el turno</p>
+            <p className='register-export-menu__title' aria-hidden='true'>{title}</p>
 
             {
                 choices.map(choice => (

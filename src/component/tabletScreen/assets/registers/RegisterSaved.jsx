@@ -45,12 +45,14 @@ function secondsOf(time) {
  *  @param {string}   editNotice         por qué no se guardó la última corrección ('' si se guardó)
  *  @param {Array}    managers           los botones de los gerentes del local, para las placas de los toques
  *  @param {function} onExport           opcional. Exportar a Excel un turno ('all' | 'day' | 'night'); sin él, el botón sale apagado
+ *  @param {function} onDownload         opcional. Lo mismo, pero descargándolo en el equipo (nunca al NAS): el botón
+ *                                       «Descargar Excel», junto a Exportar. Sin él, no sale.
  *  @param {function} onAddRotation      opcional. Guarda una rotación anotada a mano: ({ tableNumber, times, shift }) => Promise
  *                                       (addRecovered, en useSavedRotations). Sin ella no se ofrece agregar.
  *  @param {string}   defaultShift       el turno de la barra: con él empieza la rotación nueva, y a su carpeta del NAS va
  *                                       el Excel de «Todas»
  */
-export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport, onAddRotation, defaultShift }) {
+export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport, onDownload, onAddRotation, defaultShift }) {
 
     const { status, day, documents, message } = saved;
 
@@ -87,9 +89,10 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
                 {status === 'loading' && rotations.length > 0 && <span className='text-[12px] text-jx-tinta3'>actualizando…</span>}
                 {editNotice && <span className='register-saved-chip register-saved-chip--late' role='alert'>No se guardó el cambio: {editNotice}</span>}
 
-                {/*  A la derecha, juntos: agregar una rotación a mano y exportar  */}
+                {/*  A la derecha, juntos: agregar una rotación a mano, descargar en el equipo y exportar (al NAS)  */}
                 <div className='ml-auto flex items-center gap-2'>
                     {onAddRotation && <AddRotationButton onAdd={() => setAdding(true)} disabled={adding || !day} />}
+                    {onDownload && <ExportExcelButton rotations={rotations} onExport={onDownload} disabled={rotations.length === 0} download />}
                     <ExportExcelButton rotations={rotations} onExport={onExport} disabled={rotations.length === 0} folderShift={defaultShift} />
                 </div>
             </div>
