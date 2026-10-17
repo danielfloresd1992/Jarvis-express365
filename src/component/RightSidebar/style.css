@@ -82,12 +82,17 @@
     outline-offset: 2px;
 }
 
-/*  Lo único que se desplaza es el formulario, y la cabecera se queda quieta arriba.  */
+/*  Lo único que se desplaza es el formulario, y la cabecera se queda quieta arriba.
+
+    ABAJO VA UN RELLENO DE MÁS: la barra del chat («Chat Jarvis activo», .chat-component en
+    component/chat/style.css) es 'fixed' en el borde de abajo, mide 32 px y va por encima de este panel
+    (z-index 1899 contra 940). Sin este relleno tapaba lo último del formulario: el botón «Enviar» se
+    perdía debajo. Son esos 32 px, más 2rem de aire para el botón y su sombra.  */
 .right-sidebar__body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 1rem 1rem calc(32px + 2rem);
 }
 
 

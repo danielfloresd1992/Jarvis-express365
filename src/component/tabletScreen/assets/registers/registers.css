@@ -369,6 +369,8 @@
     pestaña Mesas (columns.js), y las columnas del ciclo: los dos tiempos, las cápsulas que despliegan
     los procesos y los toques, quién la guardó y quién la corrigió.  */
 
+/*  El texto en 'tinta', como la cabecera de Mesas: sobre el color reforzado de las columnas (TINT_BOOST, en
+    columns.js) 'tinta2' bajaba de 3,5 : 1, y estas letras son de 11 px.  */
 .register-saved-header {
     height: 42px;
     line-height: 1.15;
@@ -376,7 +378,7 @@
     font-weight: 700;
     letter-spacing: 0.6px;
     text-transform: uppercase;
-    color: var(--color-jx-tinta2);
+    color: var(--color-jx-tinta);
     background: var(--color-jx-tarjeta);
     border-bottom: 2px solid color-mix(in srgb, var(--color-jx-regla2) 65%, var(--color-jx-tinta));
 }

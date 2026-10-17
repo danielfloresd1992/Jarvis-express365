@@ -18,6 +18,7 @@ import { blobToFile } from '../../../../libs/script/64toFile.js';
 
 import FormLayaut from '@/component/layaut/form_layaut';
 import { reportDescription } from '../reportDescription.js';
+import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
 
 
 
@@ -205,6 +206,10 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de limpieza - mesa ${table}`, data.userData);
+
+                //  Abierto desde el reloj rojo de una fila de Mesas: el ObjectId de la novedad creada vuelve a esa fila
+                //  ('cleaningDelay' de su rotación). La respuesta es la publicación; la novedad va en 'noveltie'.
+                if (datosIniciales?.recordId) announceReportedDelay({ recordId: datosIniciales.recordId, tipo: 'limpieza', noveltieId: noveltieIdOf(response.data) });
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');

@@ -107,8 +107,17 @@ export const PROCESS_GRID = {
  *  corridas respecto a las columnas; uno 'local' mide el contenido, que es lo que mide la rejilla.
  */
 
+// TINT_BOOST = «cuánto se refuerzan los colores del ciclo de la rotación» (pedido del usuario: un 30 % más). Multiplica
+// la parte de color de la cabecera (headerTint), de las franjas (columnStripes) y de las celdas de Registros (cellTint,
+// en RegisterSavedRow.jsx): 30 % → 39 %, 20 % → 26 %, 16 % → 21 %. Las cabeceras llevan el texto en 'tinta' para
+// seguir leyéndose sobre el color más cargado (8,4 : 1 la que menos).
+export const TINT_BOOST = 1.3;
+
+// tintPercent = «una proporción de color, ya reforzada»: 20 → '26%'
+export const tintPercent = (percent) => `${Math.round(percent * TINT_BOOST)}%`;
+
 // headerTint = «el fondo de la cabecera de una columna»: su color, más fuerte que el de su franja
-export const headerTint = (column) => `color-mix(in srgb, ${column.color} 30%, var(--color-jx-tarjeta))`;
+export const headerTint = (column) => `color-mix(in srgb, ${column.color} ${tintPercent(30)}, var(--color-jx-tarjeta))`;
 
 // columnStripes = «el fondo de la tabla»: las franjas de color de las columnas, apagándose hacia abajo
 // Recibe: widthOfManagers (lo que mide la columna de los gerentes; 0 = no hay).
@@ -125,7 +134,7 @@ export const columnStripes = (widthOfManagers) => {
 
     let before = 0;
     const stripes = COLUMNS.map(column => {
-        const stripe = `color-mix(in srgb, ${column.color} 20%, var(--color-jx-lienzo)) ${edge(before)} ${edge(before + column.width)}`;
+        const stripe = `color-mix(in srgb, ${column.color} ${tintPercent(20)}, var(--color-jx-lienzo)) ${edge(before)} ${edge(before + column.width)}`;
         before += column.width;
         return stripe;
     });

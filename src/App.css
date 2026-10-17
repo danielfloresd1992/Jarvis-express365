@@ -2178,24 +2178,37 @@ hr {
     box-shadow: none;
 }
 
+/*  La «Nota» de los formularios de novedades y demoras (8 formularios usan esta clase).
+    Llevaba letra blanca sin fondo, de cuando el fondo era oscuro: sobre el beige no se veía ni lo escrito ni
+    la pista. Ahora es como el resto de campos del tema (.fi-textarea, en component/inputs/fieldInput.css):
+    tinta sobre 'hundido', el borde de campo que dice «aquí se escribe», la pista en tinta3 y, al escribir,
+    el fondo de tarjeta con el anillo verde de foco.  */
 .box-textArea {
     width: 100%;
     resize: none;
     font-size: 0.9rem;
     font-family: inherit;
-    padding: 0.6rem 0.75rem;
-    border: 1.5px solid var(--slate-200);
+    line-height: 1.5;
+    padding: 0.65rem 0.9rem;
+    border: 1.5px solid var(--color-jx-borde-campo);
     border-radius: 10px;
-    
-    color: white;
-    transition: all 0.2s;
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/*  Una pista va en tinta3; tinta4 es solo para lo deshabilitado (como en .fi-textarea)  */
+.box-textArea::placeholder {
+    color: var(--color-jx-tinta3);
+    opacity: 1;
 }
 
 .box-textArea:focus,
 .box-textArea:focus-visible {
     outline: none;
-    border-color: var(--green-600);
-    box-shadow: 0 0 0 3px rgba(78, 131, 0, 0.1);
+    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-tarjeta);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 22%, transparent);
 }
 
 .textIncident {
@@ -2620,12 +2633,13 @@ hr {
         z-index: 10;
     }
 
+    /*  En el teléfono, más grande; el borde sigue siendo el de campo ('regla2' es de separar, no de escribir)  */
     .box-textArea {
         width: 100%;
         font-size: 1.2rem;
         font-weight: 700;
         padding: 0.5rem 1rem;
-        border: 2px solid var(--color-jx-regla2);
+        border: 2px solid var(--color-jx-borde-campo);
     }
 
     .box-text {

@@ -3,7 +3,7 @@ import { getTimeReport } from '../../../../libs/date_time/calculate_time.js';
 import { exceedsLimit } from '../../../../libs/date_time/timeLimit.js';
 import { WrapperText } from '../../../cells/GridCells.jsx';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
-import { COLUMNS } from './columns.js';
+import { COLUMNS, tintPercent } from './columns.js';
 import SavedTextInput from './SavedTextInput.jsx';
 import SavedPerson, { fullName } from './SavedPerson.jsx';
 import RegisterSavedToggle, { Chevron } from './RegisterSavedToggle.jsx';
@@ -63,8 +63,8 @@ const DRAWER_AREA = { gridColumn: `${SAVED_COLUMNS.length + 2} / -1`, gridRow: '
 // CYCLE_TITLES = «los títulos de las columnas del ciclo», en el orden en que las pinta la fila
 export const CYCLE_TITLES = ['Tiempo de 1ra atención', 'Tiempo de limpieza', 'Procesos TP', 'Toques de gerentes', 'Creador', 'Edición'];
 
-// cellTint = «el fondo de una celda»: el color de su columna, suave
-export const cellTint = (column) => `color-mix(in srgb, ${column.color} 16%, var(--color-jx-lienzo))`;
+// cellTint = «el fondo de una celda»: el color de su columna, suave (reforzado como los demás: tintPercent, en columns.js)
+export const cellTint = (column) => `color-mix(in srgb, ${column.color} ${tintPercent(16)}, var(--color-jx-lienzo))`;
 
 // clock = «una fecha como hora HH:MM de este equipo»
 const clock = (date) => new Date(date).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: false });

@@ -19,6 +19,7 @@ import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
 import FieldInput from '../../../inputs/FieldInput.jsx';
 import { reportDescription } from '../reportDescription.js';
+import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
 
 
 
@@ -215,6 +216,10 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de primera atención - mesa ${table}`, data.userData);
+
+                //  Abierto desde el reloj rojo de una fila de Mesas: el ObjectId de la novedad creada vuelve a esa fila
+                //  ('firstAttentionDelay' de su rotación). La respuesta es la publicación; la novedad va en 'noveltie'.
+                if (datosIniciales?.recordId) announceReportedDelay({ recordId: datosIniciales.recordId, tipo: 'primera atención', noveltieId: noveltieIdOf(response.data) });
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');

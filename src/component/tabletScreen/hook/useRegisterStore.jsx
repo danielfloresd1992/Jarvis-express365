@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, setListOpen, appendBlankProcess, applyTabletOrders, createRecord, stampShift } from '../../../libs/tickets/tableRecords.js';
 import { getCurrentTime } from '../../cells/GridCells.jsx';
+import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
 
 
 /*  EL REGISTRO DE LAS MESAS, EN LA VENTANA
@@ -195,6 +196,15 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
 
     // clear = «vaciar el registro entero». Preguntar antes no es cosa de aquí: lo hace la sesión.
     const clear = useCallback(() => commit([]), [commit]);
+
+
+    //  4. LAS DEMORAS YA REPORTADAS: cuando se envía desde Demoras la alerta que pidió el reloj rojo de una fila,
+    //     el ObjectId de la novedad creada se apunta en su rotación ('firstAttentionDelay' o 'cleaningDelay'), y
+    //     viaja a la API con ella al guardarla. El aviso llega por libs/tickets/reportedDelay.js, también desde la
+    //     ventana principal cuando esta es la flotante. Si la fila ya no está (se guardó y se limpió), no pasa nada.
+    useEffect(() => onReportedDelay(({ recordId, field, noveltieId }) => {
+        commit(setRecordField(recordsRef.current, recordId, field, noveltieId, new Date()));
+    }), [commit]);
 
 
     return { records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders: applyOrders };

@@ -43,6 +43,7 @@
  *  ══════════════════════════════════════════════════════════════════════════════════════ */
 
 import { esMesaDeVerdad } from './claveDeTicket.js';
+import { DELAY_FIELDS, isObjectId } from './reportedDelay.js';
 
 
 
@@ -149,6 +150,9 @@ export function createRecord(fields = {}) {
                         //  'hourTouch' sí se corrige a mano, y esto no.
         processesOpen: false,   //  de uso interno de Mesas (OPEN_LISTS): la lista de procesos está desplegada
         touchesOpen: false,     //  de uso interno de Mesas (OPEN_LISTS): la lista de toques de gerente está desplegada
+        firstAttentionDelay: null,  //  el ObjectId de la novedad que reportó su demora de primera atención, o null
+        cleaningDelay: null,        //  el de su demora de limpieza (los dos: libs/tickets/reportedDelay.js). Van a la API
+                                    //  con el disquete, y el modelo de la rotación los referencia a 'Noveltie'.
         ...fields,
     };
 }
@@ -642,6 +646,9 @@ function reviveRecord(saved, now) {
 
     //  Las listas desplegadas, como se dejaron. Las de antes de existir el campo vuelven plegadas.
     for (const list of OPEN_LISTS) record[list] = saved?.[list] === true;
+
+    //  Las demoras ya reportadas: el ObjectId de su novedad, si es uno de verdad
+    for (const field of Object.values(DELAY_FIELDS)) record[field] = isObjectId(saved?.[field]) ? saved[field] : null;
     return record;
 }
 

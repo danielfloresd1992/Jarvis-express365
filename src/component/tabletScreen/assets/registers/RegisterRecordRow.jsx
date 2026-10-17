@@ -285,9 +285,10 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         //  Los nombres de cada objeto son los que espera su formulario de demoras. 'tipo' dice cuál; sin él, la
         //  ventana principal entiende primera atención (así llegaban antes de existir la limpieza).
         //  'limit' es el tiempo de referencia con que se marcó como demora: el formulario lo dice en su descripción.
+        //  'recordId' es esta fila: al enviar la alerta, el ObjectId de la novedad vuelve a ella (reportedDelay.js).
         const delivered = onReportDelay?.(tipo === 'limpieza'
-            ? { tipo, tableNumber: record.tableNumber, breakUpTime: record.breakUp, cleaningTime: record.tableCleaning, demora: cleaning.timeTotal, limit: cleaningLimit }
-            : { tipo, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: record.hourFirstAttention, demora: attention.timeTotal, limit: attentionLimit });
+            ? { tipo, recordId: record.id, tableNumber: record.tableNumber, breakUpTime: record.breakUp, cleaningTime: record.tableCleaning, demora: cleaning.timeTotal, limit: cleaningLimit }
+            : { tipo, recordId: record.id, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: record.hourFirstAttention, demora: attention.timeTotal, limit: attentionLimit });
 
         //  Si no llegó, hay que decirlo: un botón que no hace nada y tampoco avisa es peor que uno que no
         //  está, porque quien lo pulsa se queda creyendo que reportó.
