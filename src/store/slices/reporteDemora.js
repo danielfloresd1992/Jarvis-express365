@@ -27,8 +27,12 @@ export const reporteDemora = createSlice({
          *  verdad los valores del que ya estaba abierto. Sin él, `useState` conserva su
          *  valor inicial y el segundo reporte no se vería.
          */
+        /*  'tipo' dice qué formulario abre: 'primera atención' (si no viene: así llegaban todos antes) o
+         *  'limpieza'. Va también en el 'id', para que dos reportes de la misma mesa y distinto tipo no se
+         *  confundan.
+         */
         pedirReporteDemora: (state, action) => ({
-            id: `${action.payload?.tableNumber ?? ''}-${action.payload?.recibidoEn ?? ''}`,
+            id: `${action.payload?.tipo ?? 'primera atención'}-${action.payload?.tableNumber ?? ''}-${action.payload?.recibidoEn ?? ''}`,
             ...action.payload,
         }),
 

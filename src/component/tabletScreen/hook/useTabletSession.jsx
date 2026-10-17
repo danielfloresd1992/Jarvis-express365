@@ -13,7 +13,8 @@ import { useSendCapture } from './useSendCapture.jsx';
 import { useZoom } from './useZoom.jsx';
 import { useImageDrag } from './useImageDrag.jsx';
 
-import { limiteDeAtencion, limiteDeLimpieza } from '../../../libs/limites/limitesDelLocal.js';
+import { limitesDelLocal } from '../../../libs/limites/limitesDelLocal.js';
+import { useTimeServices } from './useTimeServices.jsx';
 import { shiftOfTime } from '../../../libs/date_time/operationalDay.js';
 
 
@@ -51,10 +52,12 @@ import { shiftOfTime } from '../../../libs/date_time/operationalDay.js';
 /*  @param {function} onReportDelay      opcional. Qué hacer cuando se pide reportar una demora. Si no
  *                                       viene, se le pide a la ventana principal por el puente de Electron.
  *  @param {string}   establishmentName  opcional. Si no viene, se usa el del local en curso.
- *  @param {string}   attentionLimit     opcional. Si no viene, se deduce del nombre del local.
+ *  @param {string}   attentionLimit     opcional. Si no viene, el configurado en el local (firstAtenttion) o, sin
+ *                                       él, el que se deduce de su nombre.
  *
  *  Devuelve:
  *      name, attention, cleaning                     el nombre del local y sus dos límites de tiempo
+ *      attentionOrigin, cleaningOrigin               de dónde salió cada límite: 'local', 'lista' o 'fijo'
  *      tablet, ai, reading, tracking, store,         lo que devuelve cada hook, tal cual
  *      savedRotations, zoom, drag, capture
  *      shift, shiftLocked, toggleShift               el turno con que nacen las rotaciones, si la hora deja
@@ -95,11 +98,26 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
     // name = «el nombre del local». Manda lo que pase quien nos monte; si no pasa nada, el del local en curso.
     const name = establishmentName ?? establishment?.name ?? '';
 
-    //  Los límites de ESTOS registers salen del nombre del local. Los formularios de novedades
-    //  conservan su propia regla, escrita dentro de cada uno; unificarlas con limitesDelLocal.js está
-    //  pendiente de aprobación.
-    const attention = attentionLimit ?? limiteDeAtencion(name);
-    const cleaning = limiteDeLimpieza(name);
+    //  Los límites de ESTOS registers salen de los tiempos que el local tiene configurados ('timeServices':
+    //  firstAtenttion y TableCleaning, de Redux o de la API, useTimeServices); si no los tiene, del nombre del
+    //  local (limitesDelLocal). Los formularios de novedades conservan su propia regla, escrita dentro de cada
+    //  uno; unificarlas está pendiente de aprobación.
+    const timeServices = useTimeServices(establishment?._id);
+    const limits = limitesDelLocal(name, timeServices);
+    const attention = attentionLimit ?? limits.atencion;
+    const cleaning = limits.limpieza;
+
+    // attentionOrigin / cleaningOrigin = «de dónde sale cada tiempo de referencia»: 'local' (lo configurado en el
+    // local), 'lista' (la lista de nombres, porque el local no lo tiene) o 'fijo' (lo pasó quien monta la sesión).
+    // Lo enseña la celda en rojo al pasar el ratón: así se ve por qué una demora cuenta con un tiempo y no con otro.
+    const attentionOrigin = attentionLimit ? 'fijo' : limits.origen.atencion;
+    const cleaningOrigin = limits.origen.limpieza;
+
+    //  Y en la consola, cada vez que cambian: el local, sus dos tiempos de referencia y de dónde salió cada uno
+    useEffect(() => {
+        if (!name) return;
+        console.info(`[tiempos de referencia] ${name}: primera atención ${attention} (${attentionOrigin}), limpieza ${cleaning} (${cleaningOrigin}). Lo configurado en el local: ${timeServices ? `firstAtenttion ${timeServices.firstAtenttion ?? '-'}, TableCleaning ${timeServices.TableCleaning ?? '-'}` : 'no llegó'}`);
+    }, [name, attention, cleaning, attentionOrigin, cleaningOrigin, timeServices]);
 
 
     //  ── 2 · LA TABLET Y LA LECTURA ────────────────────────────────────────────────────
@@ -250,7 +268,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
 
     return {
-        name, attention, cleaning, establishment,
+        name, attention, cleaning, attentionOrigin, cleaningOrigin, establishment,
         tablet, ai, reading, tracking, store, savedRotations,
         zoom, drag, capture,
         shift, shiftLocked, toggleShift,

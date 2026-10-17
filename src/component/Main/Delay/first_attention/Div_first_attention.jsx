@@ -18,6 +18,7 @@ import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
 import FieldInput from '../../../inputs/FieldInput.jsx';
+import { reportDescription } from '../reportDescription.js';
 
 
 
@@ -353,7 +354,11 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
 
     return (
-        <FormLayaut title={title.es} event={e => sendImg(e)} >
+        <FormLayaut
+            title={title.es}
+            description={datosIniciales ? reportDescription('primera atención', { table, start: time1, end: time2, total: timeTotal, limit: datosIniciales.limit }) : undefined}
+            event={e => sendImg(e)}
+        >
 
 
             {

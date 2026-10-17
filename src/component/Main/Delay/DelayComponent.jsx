@@ -17,17 +17,31 @@ import NoComanda from './no_comanda/NoComanda.jsx'
 
 
 
-/*  @param {object} reporteDemora  un reporte que llegó de la ventana de la tablet.
- *                                 Cuando viene, se abre directamente el formulario de
- *                                 primera atención con sus datos ya puestos.
+/*  @param {object} reporteDemora  un reporte que llegó del register de la tablet (su reloj rojo).
+ *                                 Cuando viene, se abre directamente SU formulario con sus
+ *                                 datos ya puestos: el de primera atención o, si su 'tipo' es
+ *                                 'limpieza', el de limpieza (ver tipoDe).
+ *
+ *                                 Mientras ese reporte está abierto, el menú de botones
+ *                                 NO se enseña (pedido del usuario): se viene a reportar
+ *                                 esa demora, y solo está su formulario. Al enviarlo o
+ *                                 cerrarlo (resetTitle), el menú vuelve.
  *
  *                                 Sin él —el caso de siempre, cuando alguien entra a
  *                                 Demoras a mano— esto se comporta exactamente igual
  *                                 que antes: el menú de botones, sin nada elegido.
  */
+
+
+// tipoDe = «qué formulario pide un reporte»: su 'tipo' ('primera atención' o 'limpieza', los mismos 'id' de los
+// botones de abajo). Sin 'tipo' es de primera atención: así llegaban todos antes de existir la limpieza, también
+// los de una ventana flotante sin actualizar.
+const tipoDe = (reporte) => reporte?.tipo ?? 'primera atención';
+
+
 function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onReporteCerrado }) {
 
-    let [title, setTitle] = useState(reporteDemora ? 'primera atención' : []);
+    let [title, setTitle] = useState(reporteDemora ? tipoDe(reporteDemora) : []);
 
 
     /*  DE DÓNDE VINO LO QUE ESTÁ ABIERTO
@@ -46,9 +60,14 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
     //  el estado inicial solo se lee al montar, y este componente ya está montado.
     useEffect(() => {
         if (!reporteDemora) return;
-        setTitle('primera atención');
+        setTitle(tipoDe(reporteDemora));
         setReporteActivo(reporteDemora);
     }, [reporteDemora?.id]);
+
+
+    // datosPara = «los datos del reporte para ese formulario»: solo si el reporte es suyo. Un reporte de limpieza
+    // no rellena el de primera atención, ni al revés.
+    const datosPara = (tipo) => (reporteActivo && tipoDe(reporteActivo) === tipo ? reporteActivo : null);
 
 
     //  Un clic en cualquiera de los botones es una elección a mano, y por tanto empieza
@@ -65,8 +84,8 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
 
     const render = text => {
         switch (text) {
-            case 'primera atención': return <DivAttention key={reporteActivo?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[0]} datosIniciales={reporteActivo} />;
-            case 'limpieza': return <Divclear awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[1]} />;
+            case 'primera atención': return <DivAttention key={datosPara('primera atención')?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[0]} datosIniciales={datosPara('primera atención')} />;
+            case 'limpieza': return <Divclear key={datosPara('limpieza')?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[1]} datosIniciales={datosPara('limpieza')} />;
             case 'servicio': return <Servises awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[2]} />;
             case 'plato': return <DelayDish awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[3]} />;
             case 'tablet': return <TabletDelay awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[4]} />;
@@ -95,16 +114,21 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
 
     return (
         <>
-            <div className='delay-grid'>
-                <BottonSelection title='Primera atención'              ico={book}        id='primera atención'   event={elegirAMano} />
-                <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={elegirAMano} />
-                <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={elegirAMano} />
-                <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={elegirAMano} />
-                <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={elegirAMano} />
-                <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={elegirAMano} />
-                <BottonSelection title='Error de tiket'                ico={tiketIco}    id='tablet-tiket'       event={elegirAMano} />
-                <BottonSelection title='Plato no comandado'            ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={elegirAMano} />
-            </div>
+            {/*  El menú de botones, salvo con un reporte del register abierto: entonces solo va su formulario  */}
+            {
+                !reporteActivo && (
+                    <div className='delay-grid'>
+                        <BottonSelection title='Primera atención'              ico={book}        id='primera atención'   event={elegirAMano} />
+                        <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={elegirAMano} />
+                        <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={elegirAMano} />
+                        <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={elegirAMano} />
+                        <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={elegirAMano} />
+                        <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={elegirAMano} />
+                        <BottonSelection title='Error de tiket'                ico={tiketIco}    id='tablet-tiket'       event={elegirAMano} />
+                        <BottonSelection title='Plato no comandado'            ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={elegirAMano} />
+                    </div>
+                )
+            }
             {render(title)}
         </>
     );

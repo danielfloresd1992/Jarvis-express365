@@ -44,7 +44,7 @@ import './registers.css';
  *  @param {string}   establishmentId el _id del local, para guardar cada rotación (el disquete)
  *  @param {function} onSaved         opcional. La API guardó una rotación: (la rotación guardada), para la lista de Registros
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved }) {
 
     // liveByKey = «lo que dice ahora mismo el seguimiento de cada pedido», por su key
     const liveByKey = useMemo(() => new Map((liveOrders ?? []).map(order => [order.clave, order])), [liveOrders]);
@@ -107,6 +107,8 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, wri
                             liveByKey={liveByKey}
                             attentionLimit={attentionLimit}
                             cleaningLimit={cleaningLimit}
+                            attentionOrigin={attentionOrigin}
+                            cleaningOrigin={cleaningOrigin}
                             writeRecord={writeRecord}
                             writeProcess={writeProcess}
                             writeListOpen={writeListOpen}

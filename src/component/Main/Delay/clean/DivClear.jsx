@@ -17,11 +17,52 @@ import { blobToFile } from '../../../../libs/script/64toFile.js';
 
 
 import FormLayaut from '@/component/layaut/form_layaut';
+import { reportDescription } from '../reportDescription.js';
 
 
 
 
-function Divclear({ awaitWindow, boxModal, reset, title }) {
+/*  cleaningTotal = «el tiempo de limpieza entre dos horas»: de Desocupa (time1) a Limpieza (time2)
+ *
+ *  Es la cuenta de siempre de este formulario, sacada de 'recepHour' sin cambiarla para poder hacerla también
+ *  al abrirlo ya relleno. Devuelve el texto que se enseña ('❌' donde una hora no se entiende) y el total, que
+ *  solo existe si las dos horas se entienden (null si no).
+ */
+function cleaningTotal(time1, time2) {
+    let hourTotal = time2.split(':')[0] - time1.split(':')[0];
+    let minuteTotal = time2.split(':')[1] - time1.split(':')[1];
+    let secondTotal = time2.split(':')[2] - time1.split(':')[2];
+
+    if (secondTotal < 0) {
+        secondTotal = 60 - Math.abs(secondTotal)
+        --minuteTotal;
+    }
+    if (minuteTotal < 0) {
+        minuteTotal = 60 - Math.abs(minuteTotal);
+        --hourTotal;
+    }
+    if (minuteTotal < 10) minuteTotal = `0${minuteTotal}`
+    if (secondTotal < 10) secondTotal = `0${secondTotal}`
+    if (hourTotal < 9) hourTotal = `0${hourTotal}`;
+
+    const valid = !isNaN(hourTotal) && !isNaN(minuteTotal) && !isNaN(secondTotal);
+    return {
+        text: `${isNaN(hourTotal) ? '❌' : hourTotal}:${isNaN(minuteTotal) ? '❌' : minuteTotal}:${isNaN(secondTotal) ? '❌' : secondTotal}`,
+        total: valid ? `${hourTotal}:${minuteTotal}:${secondTotal}` : null,
+    };
+}
+
+
+
+/*  @param {object} datosIniciales  cuando el formulario se abre desde el register de la tablet (el reloj rojo
+ *                                  de la duración de la limpieza), trae la mesa y las dos horas:
+ *                                  { tableNumber, breakUpTime (Desocupa), cleaningTime (Limpieza) }.
+ *
+ *                                  Solo se usan para arrancar —con su tiempo de limpieza ya calculado—: a partir
+ *                                  de ahí el formulario es el de siempre y se corrige a mano. Abriéndolo por el
+ *                                  camino normal llega vacío y todo se comporta igual que antes.
+ */
+function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
     const users = useSelector(state => state.users);
     const locals = useSelector(state => state.locals);
@@ -31,11 +72,13 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
     const saveNoveltie = useSaveNoveltie();
     const user = useRef(null);
     let [local, setLocal] = useState(null);
-    let [table, setNumberTable] = useState('');
-    let [time1, setTime1] = useState('');
-    let [time2, setTime2] = useState('');
-    let [timeTotal, setTimeTotal] = useState('');
-    let [textResult, setResult] = useState('00:00:00');
+    let [table, setNumberTable] = useState(datosIniciales?.tableNumber ?? '');
+    let [time1, setTime1] = useState(datosIniciales?.breakUpTime ?? '');
+    let [time2, setTime2] = useState(datosIniciales?.cleaningTime ?? '');
+
+    //  Relleno desde el register, el tiempo de limpieza sale ya calculado; a mano, vacío como siempre
+    let [timeTotal, setTimeTotal] = useState(() => (datosIniciales ? cleaningTotal(datosIniciales.breakUpTime ?? '', datosIniciales.cleaningTime ?? '').total ?? '' : ''));
+    let [textResult, setResult] = useState(() => (datosIniciales ? cleaningTotal(datosIniciales.breakUpTime ?? '', datosIniciales.cleaningTime ?? '').text : '00:00:00'));
     let [description, setDescription] = useState('');
     let file1 = useRef(null);
     let file2 = useRef(null);
@@ -170,6 +213,12 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
                 boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
                 user.current = null;
                 setHasFinishedState(true);
+
+                //  Como en primera atención (Div_first_attention): si el reporte vino de la ventana FLOTANTE, se le
+                //  pide que vuelva a subir, porque la carcasa la bajó para dejar ver el formulario. Si vino de la
+                //  tablet de la barra lateral, o se abrió a mano, no se toca nada: pedirlo la abriría.
+                if (datosIniciales?.deLaVentanaFlotante) window.electronAPI?.openTabletWindow?.();
+
                 reset();
             }
         }
@@ -189,27 +238,10 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
     const recepHour = (element) => {
         if (element.id === 'desocupa') setTime1(time1 = element.value);
         if (element.id === 'limpieza') setTime2(time2 = element.value);
-        let hourTotal = time2.split(':')[0] - time1.split(':')[0];
-        let minuteTotal = time2.split(':')[1] - time1.split(':')[1];
-        let secondTotal = time2.split(':')[2] - time1.split(':')[2];
 
-        if (secondTotal < 0) {
-            secondTotal = 60 - Math.abs(secondTotal)
-            --minuteTotal;
-        }
-        if (minuteTotal < 0) {
-            minuteTotal = 60 - Math.abs(minuteTotal);
-            --hourTotal;
-        }
-        if (minuteTotal < 10) minuteTotal = `0${minuteTotal}`
-        if (secondTotal < 10) secondTotal = `0${secondTotal}`
-        if (hourTotal < 9) hourTotal = `0${hourTotal}`;
-
-        setResult(textResult = `${isNaN(hourTotal) ? '❌' : hourTotal}:${isNaN(minuteTotal) ? '❌' : minuteTotal}:${isNaN(secondTotal) ? '❌' : secondTotal}`);
-
-        if (!isNaN(hourTotal) && !isNaN(minuteTotal) && !isNaN(secondTotal)) {
-            setTimeTotal(timeTotal = `${hourTotal}:${minuteTotal}:${secondTotal}`);
-        }
+        const { text, total } = cleaningTotal(time1, time2);
+        setResult(textResult = text);
+        if (total !== null) setTimeTotal(timeTotal = total);
     };
 
 
@@ -259,7 +291,11 @@ function Divclear({ awaitWindow, boxModal, reset, title }) {
 
 
     return (
-        <FormLayaut title={title.es} event={e => sendImg(e)} >
+        <FormLayaut
+            title={title.es}
+            description={datosIniciales ? reportDescription('limpieza', { table, start: time1, end: time2, total: timeTotal, limit: datosIniciales.limit }) : undefined}
+            event={e => sendImg(e)}
+        >
 
             {
                 isMobile ?

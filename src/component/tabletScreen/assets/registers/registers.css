@@ -942,3 +942,13 @@
 .register-export-result__copy:hover { background: var(--color-jx-hundido); }
 .register-export-result__close:focus-visible,
 .register-export-result__copy:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }
+
+
+/*  ── UNA DURACIÓN QUE PASÓ DEL TIEMPO DEL LOCAL (exceedsLimit) ───────────────────────────────────────
+    La celda entera en rojo suave, con su texto en rojo y negrita (RegisterRecordRow): la primera atención
+    contra firstAtenttion y la limpieza contra TableCleaning, los tiempos configurados del local.
+    Una raya roja abajo la marca también para quien no distingue bien el color.  */
+.register-cell--late {
+    background-color: var(--color-jx-critico-suave);
+    box-shadow: inset 0 -2px 0 var(--color-jx-critico);
+}

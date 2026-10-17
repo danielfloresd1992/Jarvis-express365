@@ -43,6 +43,7 @@ export default function Home() {
     const reporteDemora = useSelector(state => state.reporteDemora);
     const [reporteAbierto, setReporteAbierto] = useState(null);
 
+    console.log(selectEstablishment);
 
     useEffect(() => {
         let key = true;
@@ -284,7 +285,7 @@ export default function Home() {
                                         onClick={OpenSidebarNovelty}
                                     >
                                         <span className='relative inline-flex h-2 w-2 shrink-0 rounded-full bg-white' />
-                                        Demora de la mesa {reporteDemora.tableNumber || '?'} — abrir reporte
+                                        Demora de {reporteDemora.tipo === 'limpieza' ? 'limpieza' : 'primera atención'} de la mesa {reporteDemora.tableNumber || '?'} — abrir reporte
                                     </button>
                                 )
                             }

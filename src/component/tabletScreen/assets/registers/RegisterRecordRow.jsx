@@ -1,6 +1,7 @@
 import { memo, useState, useEffect, useMemo, useRef } from 'react';
 import { WrapperCell, WrapperText } from '../../../cells/GridCells.jsx';
 import { getTimeReport } from '../../../../libs/date_time/calculate_time.js';
+import { exceedsLimit } from '../../../../libs/date_time/timeLimit.js';
 import { worstAlarm } from './alarm.js';
 import ProcessToggle from './ProcessToggle.jsx';
 import AddProcessButton from './AddProcessButton.jsx';
@@ -41,6 +42,14 @@ import { saveRotation } from '../../../../libs/fetch_data/rotationFetching.js';
 // de lo guardado al recargar ya tiene una fecha de antes. Ver 'seenKeysRef'.
 const FRESH_MS = 5000;
 
+// originText = «de dónde salió un tiempo de referencia, en palabras», para el aviso de la celda en rojo: así se ve
+// por qué una demora cuenta con ese tiempo (useTabletSession: attentionOrigin y cleaningOrigin)
+const originText = (origin, field) => (
+    origin === 'local' ? `configurado en el local (${field})`
+        : origin === 'fijo' ? 'fijado por la ventana que monta el register'
+            : `de la lista de nombres (limitesDelLocal.js), porque el local no tiene ${field} configurado o no llegó`
+);
+
 
 /*  UNA CELDA QUE EL PEDIDO PARA LLEVAR NO LLEVA
  *
@@ -62,6 +71,8 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {Map}      liveByKey       lo que dice ahora mismo el seguimiento de cada pedido, por su key
  *  @param {string}   attentionLimit  el límite de primera atención del local, 'HH:MM:SS'
  *  @param {string}   cleaningLimit   el límite de limpieza del local, 'HH:MM:SS'
+ *  @param {string}   attentionOrigin de dónde salió el de primera atención: 'local', 'lista' o 'fijo' (useTabletSession)
+ *  @param {string}   cleaningOrigin  de dónde salió el de limpieza: 'local' o 'lista'
  *  @param {function} writeRecord     anota (id de la rotación, campo, valor)
  *  @param {function} writeProcess    anota (id de la rotación, id del proceso, campo, valor)
  *  @param {function} writeListOpen   despliega o pliega una lista (id de la rotación, 'processesOpen' | 'touchesOpen', boolean)
@@ -78,7 +89,7 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {string}   establishmentId el _id del local: a cuál se guarda la rotación (el disquete)
  *  @param {function} onSaved         opcional. La API guardó la rotación: (la rotación guardada)
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved }) {
 
     // open = «los procesos están desplegados»; touchesOpen = «los toques de gerente están desplegados».
     // Salen de la rotación y no de un estado de la fila: así se guardan en el equipo con ella.
@@ -259,18 +270,24 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
 
     const noCleaningYet = record.breakUp === '' || record.tableCleaning === '';
 
+    // attentionLate / cleaningLate = «la duración pasó del tiempo de referencia del local» (exceedsLimit): de
+    // firstAtenttion la primera atención y de TableCleaning la limpieza (ver limitesDelLocal). Su celda va en rojo.
+    const attentionLate = !noAttentionYet && exceedsLimit(attention.timeTotal, attentionLimit);
+    const cleaningLate = !noCleaningYet && exceedsLimit(cleaning.timeTotal, cleaningLimit);
 
-    // askForReport = «pedir el reporte de la demora»
-    const askForReport = () => {
+
+    // askForReport = «pedir el reporte de una demora»: 'primera atención' (de Ocupa a Primera atención) o 'limpieza'
+    // (de Desocupa a Limpieza). Lo pide el reloj rojo de su duración, y se abre «Demoras» en su formulario con la
+    // mesa y las dos horas ya puestas (DelayComponent → Div_first_attention o DivClear, con datosIniciales).
+    const askForReport = (tipo) => {
         if (record.tableNumber === '') return setNotice('Indica el número de mesa');
 
-        //  Los nombres de este objeto son los que espera el formulario de demoras.
-        const delivered = onReportDelay?.({
-            tableNumber: record.tableNumber,
-            customerSeatedTime: record.hourOccupies,
-            firtAtenttionTime: record.hourFirstAttention,
-            demora: attention.timeTotal,
-        });
+        //  Los nombres de cada objeto son los que espera su formulario de demoras. 'tipo' dice cuál; sin él, la
+        //  ventana principal entiende primera atención (así llegaban antes de existir la limpieza).
+        //  'limit' es el tiempo de referencia con que se marcó como demora: el formulario lo dice en su descripción.
+        const delivered = onReportDelay?.(tipo === 'limpieza'
+            ? { tipo, tableNumber: record.tableNumber, breakUpTime: record.breakUp, cleaningTime: record.tableCleaning, demora: cleaning.timeTotal, limit: cleaningLimit }
+            : { tipo, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: record.hourFirstAttention, demora: attention.timeTotal, limit: attentionLimit });
 
         //  Si no llegó, hay que decirlo: un botón que no hace nada y tampoco avisa es peor que uno que no
         //  está, porque quien lo pulsa se queda creyendo que reportó.
@@ -368,14 +385,15 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
                             </WrapperCell>
 
                             {/*  DURACIÓN de la primera atención. Es un valor calculado, así que no se toca: va sin
-                                 'updateValue'. El botón de reportar aparece cuando pasa del límite del local.  */}
-                            <WrapperCell classStyles='gap-1.5 px-1'>
+                                 'updateValue'. Si pasa del tiempo del local (attentionLate), la celda va en rojo
+                                 ('register-cell--late') y aparece el botón de reportar.  */}
+                            <WrapperCell classStyles={`gap-1.5 px-1 ${attentionLate ? 'register-cell--late' : ''}`} titulo={attentionLate ? `Pasó del tiempo de referencia de primera atención: ${attentionLimit}, ${originText(attentionOrigin, 'firstAtenttion')}` : undefined}>
                                 <WrapperText
-                                    classStyles={noAttentionYet ? 'text-jx-tinta3' : attention.exceeded ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
+                                    classStyles={noAttentionYet ? 'text-jx-tinta3' : attentionLate ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
                                     value={noAttentionYet ? '00:00:00' : attention.timeTotal}
                                 />
 
-                                {attention.exceeded && <ReportDelayButton table={record.tableNumber} onReport={askForReport} />}
+                                {attentionLate && <ReportDelayButton table={record.tableNumber} kind='primera atención' onReport={() => askForReport('primera atención')} />}
 
                                 {noticeBadge}
                             </WrapperCell>
@@ -388,12 +406,15 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, w
                                 <WrapperText value={record.tableCleaning} updateValue={write('tableCleaning')} />
                             </WrapperCell>
 
-                            {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'.  */}
-                            <WrapperCell>
+                            {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'. En rojo si pasa
+                                 del tiempo de limpieza del local (cleaningLate), con su reloj para reportarla.  */}
+                            <WrapperCell classStyles={`gap-1.5 px-1 ${cleaningLate ? 'register-cell--late' : ''}`} titulo={cleaningLate ? `Pasó del tiempo de referencia de limpieza: ${cleaningLimit}, ${originText(cleaningOrigin, 'TableCleaning')}` : undefined}>
                                 <WrapperText
-                                    classStyles={noCleaningYet ? 'text-jx-tinta3' : cleaning.exceeded ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
+                                    classStyles={noCleaningYet ? 'text-jx-tinta3' : cleaningLate ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
                                     value={noCleaningYet ? '00:00:00' : cleaning.timeTotal}
                                 />
+
+                                {cleaningLate && <ReportDelayButton table={record.tableNumber} kind='limpieza' onReport={() => askForReport('limpieza')} />}
                             </WrapperCell>
                         </>
                     )

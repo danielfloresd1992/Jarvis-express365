@@ -1,3 +1,6 @@
+import { isConfiguredLimit } from '../date_time/timeLimit.js';
+
+
 /*  ─────────────────────────────────────────────────────────────────────────────
  *  LOS LÍMITES DE TIEMPO DE CADA LOCAL
  *
@@ -24,6 +27,9 @@
  *     renombre un local en el servidor para que pase a medirse con el límite genérico
  *     sin que nadie se entere. Lo correcto es que el límite venga en la configuración
  *     del local, junto al resto de sus datos.
+ *
+ *     La parrilla ya lo hace así: limitesDelLocal (al final) toma los tiempos que el
+ *     local tiene configurados, y esta lista queda para los que no los tienen.
  *  ───────────────────────────────────────────────────────────────────────────── */
 
 
@@ -81,4 +87,34 @@ export function limiteDeAtencion(nombreLocal) {
  */
 export function limiteDeLimpieza(nombreLocal) {
     return esEstricto(nombreLocal) ? LIMITE_ESTRICTO : LIMITE_GENERAL;
+}
+
+
+
+
+/**
+ * Los dos límites del local, tomados de SU CONFIGURACIÓN cuando la tiene.
+ *
+ * Es lo que pedía el aviso de arriba: los tiempos vienen de 'timeServices' del local (api_jarvis365), que se
+ * configuran en el formulario del establecimiento de Client365 —«Primera atención» es `firstAtenttion`, con
+ * esa errata, y «Limpieza de mesa» es `TableCleaning`—. Uno que no está configurado (no viene, o viene en
+ * '00:00:00', que es lo que la API guarda por defecto) cae en la lista de nombres de siempre.
+ *
+ * Lo usa la sesión de la tablet (useTabletSession): el register, Registros y el Excel miden con esto.
+ *
+ * @param {string} nombreLocal  el nombre del local, para la lista de siempre
+ * @param {object} tiempos      su 'timeServices': { firstAtenttion, TableCleaning }, o null si no se tiene
+ * @returns {{ atencion: string, limpieza: string, origen: { atencion: string, limpieza: string } }} los dos, en
+ *          'HH:MM:SS', y de dónde salió cada uno: 'local' (lo configurado) o 'lista' (la lista de nombres). Así se
+ *          puede decir en pantalla por qué una demora cuenta con un tiempo y no con otro.
+ */
+export function limitesDelLocal(nombreLocal, tiempos) {
+    const atencionDelLocal = isConfiguredLimit(tiempos?.firstAtenttion);
+    const limpiezaDelLocal = isConfiguredLimit(tiempos?.TableCleaning);
+
+    return {
+        atencion: atencionDelLocal ? tiempos.firstAtenttion : limiteDeAtencion(nombreLocal),
+        limpieza: limpiezaDelLocal ? tiempos.TableCleaning : limiteDeLimpieza(nombreLocal),
+        origen: { atencion: atencionDelLocal ? 'local' : 'lista', limpieza: limpiezaDelLocal ? 'local' : 'lista' },
+    };
 }

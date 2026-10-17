@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { getTimeReport } from '../../../../libs/date_time/calculate_time.js';
+import { exceedsLimit } from '../../../../libs/date_time/timeLimit.js';
 import { shiftOfTime } from '../../../../libs/date_time/operationalDay.js';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
 import { recoveredMissing } from '../../../../libs/tickets/recoveredRotation.js';
@@ -161,10 +162,10 @@ export default function RegisterSavedNew({ defaultShift, attentionLimit, cleanin
                 ) : (
                     <>
                         <div className='register-saved-cell register-saved-cell--cycle'>
-                            <span className={`register-saved-chip ${attention?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--attention'}`}>{attention ? attention.timeTotal : '-'}</span>
+                            <span className={`register-saved-chip ${attention && exceedsLimit(attention.timeTotal, attentionLimit) ? 'register-saved-chip--late' : 'register-saved-chip--attention'}`}>{attention ? attention.timeTotal : '-'}</span>
                         </div>
                         <div className='register-saved-cell register-saved-cell--cycle'>
-                            <span className={`register-saved-chip ${cleaning?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--cleaning'}`}>{cleaning ? cleaning.timeTotal : '-'}</span>
+                            <span className={`register-saved-chip ${cleaning && exceedsLimit(cleaning.timeTotal, cleaningLimit) ? 'register-saved-chip--late' : 'register-saved-chip--cleaning'}`}>{cleaning ? cleaning.timeTotal : '-'}</span>
                         </div>
                     </>
                 )

@@ -9,3 +9,17 @@ export const getEstablishmentByIdFull = (id) => {
             .catch(error => reject(error))
     });
 };
+
+
+// getTimeServices = «los tiempos de servicio configurados del local»: { firstAtenttion, TableCleaning, … }, o null si
+// el local no los tiene. Solo con 'timeServices' poblado: sin los platos ni los gerentes, que aquí no hacen falta.
+export const getTimeServices = (id) => {
+    return new Promise((resolve, reject) => {
+        axiosInstance.get(`${IP}/local/id=${id}?populate=timeServices`)
+            .then(response => {
+                const timeServices = response.data?.timeServices;
+                resolve(timeServices && typeof timeServices === 'object' ? timeServices : null);
+            })
+            .catch(error => reject(error));
+    });
+};

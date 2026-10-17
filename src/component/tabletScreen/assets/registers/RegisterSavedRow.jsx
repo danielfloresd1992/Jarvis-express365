@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getTimeReport } from '../../../../libs/date_time/calculate_time.js';
+import { exceedsLimit } from '../../../../libs/date_time/timeLimit.js';
 import { WrapperText } from '../../../cells/GridCells.jsx';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
 import { COLUMNS } from './columns.js';
@@ -143,6 +144,10 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
     const attention = rotation.hourFirstAttention ? getTimeReport(rotation.hourOccupies, rotation.hourFirstAttention, attentionLimit) : null;
     const cleaning = rotation.breakUp && rotation.tableCleaning ? getTimeReport(rotation.breakUp, rotation.tableCleaning, cleaningLimit) : null;
 
+    // attentionLate / cleaningLate = «pasó del tiempo de referencia del local» (exceedsLimit: firstAtenttion y TableCleaning)
+    const attentionLate = Boolean(attention) && exceedsLimit(attention.timeTotal, attentionLimit);
+    const cleaningLate = Boolean(cleaning) && exceedsLimit(cleaning.timeTotal, cleaningLimit);
+
     // changeCount / lastChange = «cuántas correcciones tiene» y «la última», la que sale en «Edición»
     const changeCount = rotation.changes?.length ?? 0;
     const lastChange = rotation.changes?.at(-1);
@@ -165,7 +170,7 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
                         : (
                             <div
                                 key={column.id}
-                                className={`register-saved-cell register-saved-cell--edit ${column.id === 'tableNumber' ? 'text-[14px] font-bold' : ''} ${column.id === 'hourFirstAttention' && attention?.exceeded ? 'text-jx-critico-texto font-bold' : ''}`}
+                                className={`register-saved-cell register-saved-cell--edit ${column.id === 'tableNumber' ? 'text-[14px] font-bold' : ''} ${column.id === 'hourFirstAttention' && attentionLate ? 'text-jx-critico-texto font-bold' : ''}`}
                                 style={tintStyle(column)}
                                 title={column.id === 'tableNumber' ? 'Clic para corregir la mesa' : 'Doble clic para corregir la hora'}
                             >
@@ -189,7 +194,7 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
                     <>
                         {/*  Tiempo de 1ra atención: de Ocupa a Primera atención  */}
                         <div className='register-saved-cell register-saved-cell--cycle'>
-                            <span className={`register-saved-chip ${attention?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--attention'}`}>
+                            <span className={`register-saved-chip ${attentionLate ? 'register-saved-chip--late' : 'register-saved-chip--attention'}`}>
                                 {attention ? attention.timeTotal : '-'}
                             </span>
                         </div>
@@ -199,7 +204,7 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
                             {
                                 !rotation.breakUp
                                     ? <span className='register-saved-chip register-saved-chip--open' title='La mesa no se había desocupado cuando se guardó'>Sin desocupar</span>
-                                    : <span className={`register-saved-chip ${cleaning?.exceeded ? 'register-saved-chip--late' : 'register-saved-chip--cleaning'}`}>{cleaning ? cleaning.timeTotal : '-'}</span>
+                                    : <span className={`register-saved-chip ${cleaningLate ? 'register-saved-chip--late' : 'register-saved-chip--cleaning'}`}>{cleaning ? cleaning.timeTotal : '-'}</span>
                             }
                         </div>
                     </>

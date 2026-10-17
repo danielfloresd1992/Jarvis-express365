@@ -41,7 +41,7 @@ import RegisterTabPanel from './RegisterTabPanel.jsx';
  */
 export default function Registers({ session, establishment = session.establishment }) {
 
-    const { reading, tracking, store, savedRotations, attention, cleaning, clearRegister, reportDelay, shift, shiftLocked, toggleShift } = session;
+    const { reading, tracking, store, savedRotations, attention, cleaning, attentionOrigin, cleaningOrigin, clearRegister, reportDelay, shift, shiftLocked, toggleShift } = session;
     const { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, addRecovered, exportSaved } = savedRotations;
 
     // managers = «los botones de los gerentes del local» (managers.js). Se arman una vez por local: un
@@ -124,6 +124,8 @@ export default function Registers({ session, establishment = session.establishme
                     liveOrders={tracking.orders}
                     attentionLimit={attention}
                     cleaningLimit={cleaning}
+                    attentionOrigin={attentionOrigin}
+                    cleaningOrigin={cleaningOrigin}
                     writeRecord={store.writeRecord}
                     writeProcess={store.writeProcess}
                     writeListOpen={store.writeListOpen}
