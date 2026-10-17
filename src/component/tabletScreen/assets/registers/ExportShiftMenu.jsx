@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { inShift } from '../../../../libs/export/customerServiceWorkbook.js';
+import { SHIFT_FOLDERS } from '../../../../libs/export/nasFolder.js';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
 import { Sun, Moon } from './ShiftToggle.jsx';
 
@@ -18,6 +19,9 @@ import { Sun, Moon } from './ShiftToggle.jsx';
  *
  *  Una rotación sin turno no se le adivina (ver inShift, en libs/export/customerServiceWorkbook.js): solo
  *  sale en «Todas», y la nota del pie dice cuántas son, para que no falten sin saber por qué.
+ *
+ *  Con la aplicación de escritorio el Excel va a su carpeta del NAS (libs/export/deliverWorkbook.js), y
+ *  «Todas» a la del turno de la barra: otra nota del pie lo dice, con el nombre de esa carpeta.
  *
  *  Al abrirse, el cursor va a la primera opción que se puede elegir, y las flechas pasan de una a otra.
  *  Cerrarlo (Escape o un clic fuera) es cosa del botón. Su aspecto va en las clases 'register-export-menu…'
@@ -59,10 +63,14 @@ function describe({ rotations, takeOuts }) {
 }
 
 
-/*  @param {Array}    rotations  las rotaciones guardadas del día, como las enseña Registers
- *  @param {function} onPick     recibe el turno elegido: 'all' | 'day' | 'night'
+/*  @param {Array}    rotations    las rotaciones guardadas del día, como las enseña Registers
+ *  @param {function} onPick       recibe el turno elegido: 'all' | 'day' | 'night'
+ *  @param {string}   folderShift  el turno de la barra ('day' | 'night'): la carpeta del NAS de «Todas»
  */
-export default function ExportShiftMenu({ rotations, onPick }) {
+export default function ExportShiftMenu({ rotations, onPick, folderShift }) {
+
+    // allFolder = «la carpeta del NAS a la que va "Todas"», si el Excel va al NAS (hay aplicación de escritorio que sabe)
+    const allFolder = globalThis.window?.electronAPI?.nasGuardar ? SHIFT_FOLDERS[folderShift] : null;
 
     // choices = «cada opción, con lo que lleva y si se puede elegir»
     const choices = useMemo(() => CHOICES.map(choice => {
@@ -122,6 +130,14 @@ export default function ExportShiftMenu({ rotations, onPick }) {
                 unassigned > 0 && (
                     <p className='register-export-menu__note'>
                         {unassigned} sin turno: solo {unassigned === 1 ? 'sale' : 'salen'} en «Todas»
+                    </p>
+                )
+            }
+
+            {
+                allFolder && (
+                    <p className='register-export-menu__note'>
+                        «Todas» se guarda en la carpeta {allFolder}, el turno de la barra
                     </p>
                 )
             }

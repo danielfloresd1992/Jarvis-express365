@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import RegisterSavedRow, { SAVED_GRID, SAVED_COLUMNS, CYCLE_TITLES } from './RegisterSavedRow.jsx';
 import { headerTint } from './columns.js';
 import { operationalDayLabel } from '../../../../libs/date_time/operationalDay.js';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
 import ExportExcelButton from './ExportExcelButton.jsx';
+import AddRotationButton from './AddRotationButton.jsx';
+import RegisterSavedNew from './RegisterSavedNew.jsx';
 
 
 /*  LA PESTAÑA «REGISTROS»: LAS ROTACIONES GUARDADAS DEL DÍA
@@ -15,6 +17,9 @@ import ExportExcelButton from './ExportExcelButton.jsx';
  *  (session.savedRotations, hook/useSavedRotations.jsx) y le llegan por props desde Registers. Aquí se
  *  pintan, con sus tres estados —trayéndolas, sin ninguna y con error—. Por eso se puede desmontar al
  *  pasar a Mesas sin perder nada, y la búsqueda de tickets ya guardados no depende de que se vea.
+ *
+ *  «Agregar rotación» abre encima de la lista una fila para anotar a mano la que no se guardó en su
+ *  momento (RegisterSavedNew): se guarda como recuperada. Lo único que se recuerda aquí es si está abierta.
  */
 
 
@@ -40,10 +45,17 @@ function secondsOf(time) {
  *  @param {string}   editNotice         por qué no se guardó la última corrección ('' si se guardó)
  *  @param {Array}    managers           los botones de los gerentes del local, para las placas de los toques
  *  @param {function} onExport           opcional. Exportar a Excel un turno ('all' | 'day' | 'night'); sin él, el botón sale apagado
+ *  @param {function} onAddRotation      opcional. Guarda una rotación anotada a mano: ({ tableNumber, times, shift }) => Promise
+ *                                       (addRecovered, en useSavedRotations). Sin ella no se ofrece agregar.
+ *  @param {string}   defaultShift       el turno de la barra: con él empieza la rotación nueva, y a su carpeta del NAS va
+ *                                       el Excel de «Todas»
  */
-export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport }) {
+export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport, onAddRotation, defaultShift }) {
 
     const { status, day, documents, message } = saved;
+
+    // adding = «la fila para anotar una rotación a mano está abierta»
+    const [adding, setAdding] = useState(false);
 
     // rotations = «las rotaciones, por la hora en que se ocupó la mesa»
     const rotations = useMemo(
@@ -74,7 +86,12 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
                 {status === 'ready' && <span className='register-saved-chip register-saved-chip--touches-total'>{totalTouches} {totalTouches === 1 ? 'toque' : 'toques'} en total</span>}
                 {status === 'loading' && rotations.length > 0 && <span className='text-[12px] text-jx-tinta3'>actualizando…</span>}
                 {editNotice && <span className='register-saved-chip register-saved-chip--late' role='alert'>No se guardó el cambio: {editNotice}</span>}
-                <ExportExcelButton rotations={rotations} onExport={onExport} disabled={rotations.length === 0} />
+
+                {/*  A la derecha, juntos: agregar una rotación a mano y exportar  */}
+                <div className='ml-auto flex items-center gap-2'>
+                    {onAddRotation && <AddRotationButton onAdd={() => setAdding(true)} disabled={adding || !day} />}
+                    <ExportExcelButton rotations={rotations} onExport={onExport} disabled={rotations.length === 0} folderShift={defaultShift} />
+                </div>
             </div>
 
             {
@@ -104,7 +121,7 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
             }
 
             {
-                status === 'ready' && rotations.length === 0 && (
+                status === 'ready' && rotations.length === 0 && !adding && (
                     <div className='flex-1 flex flex-col items-center justify-center gap-2.5 p-6 text-center'>
                         <span className='text-[14px] font-bold text-jx-tinta'>Todavía no hay rotaciones guardadas hoy{establishmentName ? ` en ${establishmentName}` : ''}</span>
                         <span className='max-w-[340px] text-[12.5px] text-jx-tinta2'>Cada mesa se guarda con el disquete de su fila, en la pestaña Mesas. Las guardadas aparecen aquí.</span>
@@ -113,7 +130,7 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
             }
 
             {
-                rotations.length > 0 && (
+                (rotations.length > 0 || adding) && (
                     <>
                         {/*  La cabecera: Hora, las cuatro columnas de datos teñidas de su color (como en la
                              pestaña Mesas) y las del ciclo (CYCLE_TITLES, en el orden de la fila).  */}
@@ -128,6 +145,19 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
                         </div>
 
                         <div className='flex-1 min-h-0 overflow-y-auto'>
+                            {/*  La rotación que se está anotando a mano, encima de las guardadas  */}
+                            {
+                                adding && (
+                                    <RegisterSavedNew
+                                        defaultShift={defaultShift}
+                                        attentionLimit={attentionLimit}
+                                        cleaningLimit={cleaningLimit}
+                                        onSave={onAddRotation}
+                                        onClose={() => setAdding(false)}
+                                    />
+                                )
+                            }
+
                             {rotations.map(rotation => (
                                 <RegisterSavedRow
                                     key={rotation._id}

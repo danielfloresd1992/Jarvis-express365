@@ -34,6 +34,40 @@ export function operationalDay(now = new Date()) {
 }
 
 
+// CARACAS_OFFSET_HOURS = «cuántas horas va Caracas por detrás de UTC»: cuatro, todo el año (no tiene horario de verano)
+const CARACAS_OFFSET_HOURS = 4;
+
+
+// atOperationalTime = «el instante de una hora 'HH:MM:SS' de un día operativo», en Caracas
+// De las 08:00 en adelante es ese día civil; antes de las 08:00, la madrugada del día siguiente: las 02:00 del
+// día operativo '2026-10-16' son las 02:00 del 17. Así, operationalDay() del resultado es siempre 'day'.
+// Recibe: day ('AAAA-MM-DD') y time ('HH:MM:SS'; sin segundos también vale).
+export function atOperationalTime(day, time) {
+    const [hours = 0, minutes = 0, seconds = 0] = String(time ?? '').split(':').map(Number);
+
+    const instant = new Date(`${day}T00:00:00.000Z`);
+    if (hours < OPENS_AT) instant.setUTCDate(instant.getUTCDate() + 1);
+
+    //  setUTCHours reparte lo que pase de 24 en el día siguiente: las 22:00 de Caracas son las 02:00 UTC
+    instant.setUTCHours(hours + CARACAS_OFFSET_HOURS, minutes || 0, seconds || 0, 0);
+    return instant;
+}
+
+
+// shiftOfTime = «el turno que corresponde a una hora 'HH:MM:SS'»: 'day' de 08:00:00 a 17:30:00, 'night' de
+// 18:30:00 a 07:00:00 del día siguiente, y null en los dos cambios de turno —entre 07:00 y 08:00 y entre 17:30
+// y 18:30—, que se eligen a mano. También null si no es una hora.
+export function shiftOfTime(time) {
+    const [hours, minutes, seconds = 0] = String(time ?? '').split(':').map(Number);
+    if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
+
+    const value = hours * 3600 + minutes * 60 + (seconds || 0);
+    if (value >= 8 * 3600 && value <= 17.5 * 3600) return 'day';
+    if (value >= 18.5 * 3600 || value <= 7 * 3600) return 'night';
+    return null;
+}
+
+
 // operationalDayLabel = «un día operativo dicho con palabras»: '2026-10-11' → 'sábado, 11 de octubre'
 export const operationalDayLabel = (day) =>
     new Date(`${day}T12:00:00Z`).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });

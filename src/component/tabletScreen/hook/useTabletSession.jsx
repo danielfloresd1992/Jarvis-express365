@@ -14,6 +14,7 @@ import { useZoom } from './useZoom.jsx';
 import { useImageDrag } from './useImageDrag.jsx';
 
 import { limiteDeAtencion, limiteDeLimpieza } from '../../../libs/limites/limitesDelLocal.js';
+import { shiftOfTime } from '../../../libs/date_time/operationalDay.js';
 
 
 /*  ══════════════════════════════════════════════════════════════════════════════════════
@@ -77,15 +78,10 @@ function savedShift() {
     }
 }
 
-// shiftByClock = «el turno que impone la hora del equipo»: 'day' de 08:00:00 a 17:30:00, 'night' de 18:30:00
-// a 07:00:00 del día siguiente, y null en los dos cambios de turno —entre 07:00 y 08:00 y entre 17:30 y
-// 18:30—, que es cuando se elige con el toggle.
-function shiftByClock(now = new Date()) {
-    const seconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    if (seconds >= 8 * 3600 && seconds <= 17.5 * 3600) return 'day';
-    if (seconds >= 18.5 * 3600 || seconds <= 7 * 3600) return 'night';
-    return null;
-}
+// shiftByClock = «el turno que impone la hora del equipo» (shiftOfTime): 'day' de 08:00:00 a 17:30:00, 'night'
+// de 18:30:00 a 07:00:00 del día siguiente, y null en los dos cambios de turno —entre 07:00 y 08:00 y entre
+// 17:30 y 18:30—, que es cuando se elige con el toggle. toTimeString empieza por la hora local, 'HH:MM:SS'.
+const shiftByClock = (now = new Date()) => shiftOfTime(now.toTimeString().slice(0, 8));
 
 
 function useTabletSession({ onReportDelay, establishmentName, attentionLimit } = {}) {

@@ -667,10 +667,10 @@
 
 /*  Exportar a Excel (ExportExcelButton), a la derecha de los totales de «Registros»: el logo y la palabra.
     Relleno, borde y letra van aquí porque la regla global 'button {}' gana a Tailwind.  */
-/*  El botón y su menú van juntos, empujados a la derecha de la cabecera; el menú cuelga del botón.  */
+/*  El botón y su menú van juntos; el menú cuelga del botón. A la derecha de la cabecera los lleva su
+    contenedor, junto a «Agregar rotación» (RegisterSaved).  */
 .register-export {
     position: relative;
-    margin-left: auto;
 }
 
 .register-export-button {
@@ -759,3 +759,186 @@
     padding-inline: 4px 16px;
     background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23706859' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 5px center;
 }
+
+
+/*  ── AGREGAR UNA ROTACIÓN A MANO (AddRotationButton, RegisterSavedNew) ──────────────────────────────  */
+
+/*  El botón de la cabecera, hermano de Exportar: el mismo alto y el mismo borde.  */
+.register-add-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 12px 0 9px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 6px;
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.register-add-button:hover:not(:disabled) { background: var(--color-jx-hundido); border-color: var(--color-jx-verde-barra); }
+.register-add-button:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }
+.register-add-button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+/*  La fila nueva: una raya verde a la izquierda y un fondo apenas verde la separan de las guardadas.  */
+.register-new {
+    background: var(--color-jx-verde-suave);
+    box-shadow: inset 3px 0 0 var(--color-jx-verde-barra);
+    border-bottom: 2px solid color-mix(in srgb, var(--color-jx-verde-barra) 35%, var(--color-jx-regla2));
+}
+
+.register-new-tag {
+    padding: 2px 7px;
+    border-radius: 9px;
+    background: var(--color-jx-verde-barra);
+    color: #ffffff;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/*  Una hora sin escribir todavía: toda la celda es el botón que abre el campo.  */
+.register-new-time {
+    width: 100%;
+    height: 100%;
+    min-height: 26px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    color: inherit;
+    cursor: text;
+}
+
+.register-new-time:hover { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-jx-regla2) 50%, var(--color-jx-tinta3)); }
+.register-new-time:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--color-jx-verde-barra); }
+
+/*  El turno: dos botones en un carril, el elegido en blanco con su borde.  */
+.register-new-shift {
+    display: inline-flex;
+    padding: 2px;
+    border-radius: 7px;
+    background: var(--color-jx-hundido);
+}
+
+.register-new-shift button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 9px;
+    border-radius: 5px;
+    color: var(--color-jx-tinta2);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.register-new-shift button[aria-pressed='true'] {
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
+    box-shadow: 0 0 0 1px var(--color-jx-regla2), 0 1px 2px rgb(47 42 30 / 0.08);
+}
+
+.register-new-shift button:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }
+
+/*  Cancelar, discreto; Guardar, en verde.  */
+.register-new-cancel,
+.register-new-save {
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.register-new-cancel { border: 1px solid var(--color-jx-regla2); background: var(--color-jx-tarjeta); color: var(--color-jx-tinta); }
+.register-new-cancel:hover:not(:disabled) { background: var(--color-jx-hundido); }
+.register-new-save { background: var(--color-jx-verde-barra); color: #ffffff; }
+.register-new-save:hover:not(:disabled) { background: var(--color-jx-verde-texto); }
+.register-new-cancel:focus-visible,
+.register-new-save:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 2px; }
+.register-new-cancel:disabled,
+.register-new-save:disabled { cursor: not-allowed; opacity: 0.6; }
+
+/*  Por qué no se guardó: una línea bajo la fila, a lo ancho.  */
+.register-new-notice {
+    align-self: center;
+    padding: 6px 12px;
+    color: var(--color-jx-critico-texto);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+/*  Al pasar el ratón, la fila nueva no se pinta de beige como las guardadas: sigue verde.  */
+.register-new:hover .register-saved-cell--cycle { background-color: transparent; }
+
+
+/*  ── LO RECUPERADO (recovered: true): lo que se anotó a mano después, en Registros ────────────────────
+    La rotación va entera en gris —sus celdas de datos se quedan sin el color de su columna, en
+    RegisterSavedRow (tintStyle), y enseñan este— y cada toque recuperado, en la lista de toques, también.
+    Es 'gris-regla', un tono más oscuro que 'gris-hundido' (pedido del usuario), y el más oscuro de la
+    paleta con el que el texto secundario de la fila (tinta2: Creador, Edición) sigue en 4,5 : 1.
+    Al pasar el ratón, las celdas del ciclo se oscurecen un poco más.  */
+.register-saved-row--recovered { background-color: var(--color-jx-gris-regla); }
+.register-saved-row--recovered:hover .register-saved-cell--cycle { background-color: color-mix(in srgb, var(--color-jx-gris-borde) 8%, var(--color-jx-gris-regla)); }
+.register-saved-touches__row--recovered { background-color: var(--color-jx-gris-regla); }
+
+
+/*  ── DÓNDE QUEDÓ EL EXCEL (ExportResult) ─────────────────────────────────────────────────────────────
+    Cuelga del botón Exportar, como su menú, alineado a la derecha. Verde si se guardó; ámbar si no.  */
+.register-export-result {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 30;
+    width: min(520px, 80vw);
+    padding: 10px 12px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 8px;
+    background: var(--color-jx-tarjeta);
+    box-shadow: 0 10px 24px rgb(47 42 30 / 0.14);
+    font-size: 12.5px;
+    color: var(--color-jx-tinta);
+}
+
+.register-export-result--saved { box-shadow: inset 3px 0 0 var(--color-jx-verde-barra), 0 10px 24px rgb(47 42 30 / 0.14); }
+.register-export-result--warning { background: var(--color-jx-aviso-suave); box-shadow: inset 3px 0 0 var(--color-jx-aviso-texto), 0 10px 24px rgb(47 42 30 / 0.14); }
+
+.register-export-result__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.register-export-result__title { font-weight: 700; }
+.register-export-result--saved .register-export-result__title { color: var(--color-jx-verde-texto); }
+.register-export-result--warning .register-export-result__title { color: var(--color-jx-aviso-texto); }
+
+.register-export-result__close { width: 22px; height: 22px; border-radius: 4px; color: var(--color-jx-tinta3); }
+.register-export-result__close:hover { background: var(--color-jx-hundido); color: var(--color-jx-tinta); }
+
+/*  La ruta: en monoespaciada, partida donde haga falta, y seleccionable entera de un clic.  */
+.register-export-result__path {
+    margin-top: 6px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    background: var(--color-jx-hundido);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    user-select: all;
+}
+
+.register-export-result__reason { margin-top: 6px; color: var(--color-jx-tinta2); line-height: 1.4; }
+
+.register-export-result__copy {
+    margin-top: 8px;
+    height: 26px;
+    padding: 0 10px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 6px;
+    background: var(--color-jx-tarjeta);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.register-export-result__copy:hover { background: var(--color-jx-hundido); }
+.register-export-result__close:focus-visible,
+.register-export-result__copy:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }

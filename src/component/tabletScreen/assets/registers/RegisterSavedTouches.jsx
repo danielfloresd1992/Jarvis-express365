@@ -12,6 +12,8 @@ import ManagerButtons from './ManagerButtons.jsx';
  *  Arriba, los botones de los gerentes del local: cada clic apunta un toque nuevo, con la hora del clic,
  *  igual que en Mesas ('onAdd'). No salen en un pedido para llevar, que no lleva toques.
  *
+ *  Un toque recuperado (recovered: true: se apuntó después, aquí en Registros) va en gris.
+ *
  *  La hora se corrige con doble clic, como las demás, y el cambio sale por 'onEdit' con el _id del toque.
  *  Un toque guardado antes de que la API les diera _id no se puede señalar: se lee, pero no se corrige ni
  *  se quita.
@@ -51,7 +53,12 @@ export default function RegisterSavedTouches({ touches, managers, onEdit, onAdd,
 
                 {
                     grouped.map((touch, position) => (
-                        <div key={touch._id ?? position} role='listitem' className={`register-saved-touches__row ${touch.startsGroup ? 'register-saved-touches__row--group' : ''}`}>
+                        <div
+                            key={touch._id ?? position}
+                            role='listitem'
+                            className={`register-saved-touches__row ${touch.startsGroup ? 'register-saved-touches__row--group' : ''} ${touch.recovered === true ? 'register-saved-touches__row--recovered' : ''}`}
+                            title={touch.recovered === true ? 'Toque recuperado: se apuntó después, en Registros' : undefined}
+                        >
                             {
                                 touch.label
                                     ? <span className={`register-touch-label register-manager--${touch.label.startsWith('A') ? 'a' : 'g'}`}>{touch.label}</span>

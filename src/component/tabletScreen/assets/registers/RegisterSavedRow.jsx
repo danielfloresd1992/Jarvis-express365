@@ -31,6 +31,9 @@ import RegisterSavedChanges from './RegisterSavedChanges.jsx';
  *  solo enseñan su cápsula si ya tenía alguno, para poder verlos y quitarlos. La mesa sí se corrige:
  *  quitarle el '#' la vuelve una rotación, y la API recalcula 'takeOut' al guardarla.
  *
+ *  UNA ROTACIÓN RECUPERADA (recovered: true: se anotó a mano después, en Registros) va entera en gris
+ *  pálido, sin los colores de sus columnas; sus toques recuperados, también en gris (RegisterSavedTouches).
+ *
  *  La lista desplegada FLOTA bajo las columnas del ciclo, encima de las filas de abajo: no estira la fila
  *  (pedido del usuario). Para que se vea de quién es, la fila abierta se oscurece un poco. Se cierra con
  *  su botón, con Escape o pinchando fuera de la fila.
@@ -127,6 +130,12 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
     const takeOut = isTakeOut(rotation);
     const canAddTouches = managers.length > 0 && !takeOut;
 
+    // recovered = «se anotó a mano después, en Registros» (la propiedad 'recovered' de la API): la fila va
+    // entera en gris ('register-saved-row--recovered', en registers.css). Sus celdas de datos se quedan sin el
+    // color de su columna (tintStyle) para que se vea el gris de la fila.
+    const recovered = rotation.recovered === true;
+    const tintStyle = (column) => (recovered ? undefined : { backgroundColor: cellTint(column) });
+
     // edit = «corregir un dato de la rotación»
     const edit = (field) => (value) => onEdit({ [field]: value }, rotation._id);
 
@@ -139,9 +148,9 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
     const lastChange = rotation.changes?.at(-1);
 
     return (
-        <div ref={rowRef} className={`register-saved-row ${open ? 'register-saved-row--open' : ''}`} style={SAVED_GRID}>
+        <div ref={rowRef} className={`register-saved-row ${open ? 'register-saved-row--open' : ''} ${recovered ? 'register-saved-row--recovered' : ''}`} style={SAVED_GRID}>
 
-            <div className='register-saved-cell font-mono tabular-nums' title='Hora en que se guardó'>
+            <div className='register-saved-cell font-mono tabular-nums' title={recovered ? 'Hora en que se guardó · rotación recuperada: se anotó a mano, en Registros' : 'Hora en que se guardó'}>
                 {rotation.createdAt ? clock(rotation.createdAt) : '-'}
             </div>
 
@@ -152,12 +161,12 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
             {
                 SAVED_COLUMNS.map(column => (
                     takeOut && column.id !== 'tableNumber'
-                        ? <div key={column.id} className='register-saved-cell register-cell--na' style={{ backgroundColor: cellTint(column) }} title='Pedido para llevar: no lleva esta hora' />
+                        ? <div key={column.id} className='register-saved-cell register-cell--na' style={tintStyle(column)} title='Pedido para llevar: no lleva esta hora' />
                         : (
                             <div
                                 key={column.id}
                                 className={`register-saved-cell register-saved-cell--edit ${column.id === 'tableNumber' ? 'text-[14px] font-bold' : ''} ${column.id === 'hourFirstAttention' && attention?.exceeded ? 'text-jx-critico-texto font-bold' : ''}`}
-                                style={{ backgroundColor: cellTint(column) }}
+                                style={tintStyle(column)}
                                 title={column.id === 'tableNumber' ? 'Clic para corregir la mesa' : 'Doble clic para corregir la hora'}
                             >
                                 {

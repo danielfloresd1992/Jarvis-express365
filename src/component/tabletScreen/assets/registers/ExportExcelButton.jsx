@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Chevron } from './RegisterSavedToggle.jsx';
 import ExportShiftMenu from './ExportShiftMenu.jsx';
+import ExportResult from './ExportResult.jsx';
 
 
 /*  EXPORTAR A EXCEL: el botón de la pestaña «Registros»
@@ -15,20 +16,28 @@ import ExportShiftMenu from './ExportShiftMenu.jsx';
  *  'onExport' devuelve una promesa (exportCustomerServiceWorkbook, en libs/export): mientras no termina,
  *  el botón se apaga y dice «Exportando…» —la primera vez tarda un poco más, porque carga ExcelJS—, y
  *  si falla se avisa con el motivo. Sin 'onExport' sale apagado.
+ *
+ *  Al terminar, debajo del botón se dice dónde quedó el archivo (ExportResult): con la aplicación de
+ *  escritorio va a su carpeta del NAS, y la ruta se puede copiar.
  */
 
 
 /*  @param {Array}    rotations  las rotaciones guardadas del día: el menú cuenta cuántas hay de cada turno
  *  @param {function} onExport   exportar un turno: ('all' | 'day' | 'night') => Promise (opcional; sin él, apagado)
- *  @param {boolean}  disabled   apagarlo aunque tenga 'onExport' (por ejemplo, si no hay nada que exportar)
+ *  @param {boolean}  disabled     apagarlo aunque tenga 'onExport' (por ejemplo, si no hay nada que exportar)
+ *  @param {string}   folderShift  el turno de la barra: el menú dice que «Todas» va a su carpeta del NAS
  */
-export default function ExportExcelButton({ rotations = [], onExport, disabled = false }) {
+export default function ExportExcelButton({ rotations = [], onExport, disabled = false, folderShift }) {
 
     // busy = «está exportando»: el botón se apaga para no lanzar dos descargas
     const [busy, setBusy] = useState(false);
 
     // menuOpen = «el menú del turno está abierto»
     const [menuOpen, setMenuOpen] = useState(false);
+
+    // result = «dónde quedó el último Excel» (deliverWorkbook), para el aviso; null = sin aviso
+    const [result, setResult] = useState(null);
+    const closeResult = useCallback(() => setResult(null), []);
 
     // off = «el botón no hace nada ahora mismo»
     const off = disabled || busy || !onExport;
@@ -62,9 +71,11 @@ export default function ExportExcelButton({ rotations = [], onExport, disabled =
     // exportShift = «exportar el turno elegido en el menú»
     const exportShift = async (shift) => {
         setMenuOpen(false);
+        setResult(null);
         setBusy(true);
         try {
-            await onExport(shift);
+            const exported = await onExport(shift);
+            setResult(exported?.delivered ?? null);
         }
         catch (error) {
             console.log(error);
@@ -81,7 +92,7 @@ export default function ExportExcelButton({ rotations = [], onExport, disabled =
                 ref={buttonRef}
                 type='button'
                 className='register-export-button'
-                onClick={() => setMenuOpen(current => !current)}
+                onClick={() => { setResult(null); setMenuOpen(current => !current); }}
                 disabled={off}
                 aria-busy={busy}
                 aria-haspopup='menu'
@@ -101,7 +112,8 @@ export default function ExportExcelButton({ rotations = [], onExport, disabled =
                 {!busy && <Chevron open={menuOpen} />}
             </button>
 
-            {menuOpen && <ExportShiftMenu rotations={rotations} onPick={exportShift} />}
+            {menuOpen && <ExportShiftMenu rotations={rotations} onPick={exportShift} folderShift={folderShift} />}
+            {!menuOpen && <ExportResult result={result} onClose={closeResult} />}
         </div>
     );
 }

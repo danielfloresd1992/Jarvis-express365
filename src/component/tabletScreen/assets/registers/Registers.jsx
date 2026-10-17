@@ -42,7 +42,7 @@ import RegisterTabPanel from './RegisterTabPanel.jsx';
 export default function Registers({ session, establishment = session.establishment }) {
 
     const { reading, tracking, store, savedRotations, attention, cleaning, clearRegister, reportDelay, shift, shiftLocked, toggleShift } = session;
-    const { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, exportSaved } = savedRotations;
+    const { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, addRecovered, exportSaved } = savedRotations;
 
     // managers = «los botones de los gerentes del local» (managers.js). Se arman una vez por local: un
     // array nuevo en cada pintado repintaría la tabla entera.
@@ -58,8 +58,13 @@ export default function Registers({ session, establishment = session.establishme
     }, [view, loadSaved]);
 
     // exportWithManagers = «exportar a Excel un turno» ('all', 'day' o 'night', del menú de Exportar), con los
-    // gerentes del local: el Resumen cuenta los toques por placa
-    const exportWithManagers = useCallback((shift) => exportSaved({ managers, shift }), [exportSaved, managers]);
+    // gerentes del local: el Resumen cuenta los toques por placa. «Todas» va en el NAS a la carpeta del turno de
+    // la barra (folderShift).
+    const exportWithManagers = useCallback((exported) => exportSaved({ managers, shift: exported, folderShift: shift }), [exportSaved, managers, shift]);
+
+    // addRecoveredHere = «guardar una rotación anotada a mano en Registros», en este local (su _id, como el disquete de Mesas)
+    const establishmentId = establishment?._id;
+    const addRecoveredHere = useCallback((fields) => addRecovered(fields, establishmentId), [addRecovered, establishmentId]);
 
     return (
         <>
@@ -98,6 +103,8 @@ export default function Registers({ session, establishment = session.establishme
                     editNotice={editNotice}
                     managers={managers}
                     onExport={exportWithManagers}
+                    onAddRotation={addRecoveredHere}
+                    defaultShift={shift}
                 />
             </RegisterTabPanel>
 

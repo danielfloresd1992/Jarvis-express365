@@ -1,7 +1,8 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ReactReduxContext } from 'react-redux';
-import { getRotationsByEstablishment, updateRotation, addRotationTouch, deleteRotationTouch } from '../../../libs/fetch_data/rotationFetching.js';
+import { getRotationsByEstablishment, saveRotation, updateRotation, addRotationTouch, deleteRotationTouch } from '../../../libs/fetch_data/rotationFetching.js';
 import { operationalDay } from '../../../libs/date_time/operationalDay.js';
+import { recoveredRotation } from '../../../libs/tickets/recoveredRotation.js';
 import { exportCustomerServiceWorkbook } from '../../../libs/export/customerServiceWorkbook.js';
 import { findSavedTicket } from '../../../libs/tickets/savedTickets.js';
 import { socketAppManager } from '../../../store/slices/socketio.js';
@@ -25,6 +26,8 @@ import { getCurrentTime } from '../../cells/GridCells.jsx';
  *                        los avisos del socket de la API y con lo que se guarda aquí con el disquete
  *                        (rememberSaved, sin esperar al socket).
  *      2. CORREGIRLA     editSaved, addSavedTouch, deleteSavedTouch: primero en pantalla, luego en la API.
+ *                        Lo que se AÑADE aquí —una rotación entera (addRecovered) o un toque— se anotó
+ *                        después de que pasara, y va a la API con recovered: true.
  *      3. EXPORTARLA     exportSaved: el Excel de atención al cliente (libs/export).
  *      4. LA PREGUNTA    acceptNewOrder, que se le da al registro (store.setOrderGuard) y que este llama
  *                        con cada pedido NUEVO de la IA: si su ticket ya está en la lista (findSavedTicket,
@@ -45,7 +48,7 @@ import { getCurrentTime } from '../../cells/GridCells.jsx';
  *            attention, cleaning sus dos límites, para el Excel
  *            store }             el registro (useRegisterStore): setOrderGuard y reapplyOrders
  *  Devuelve: { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch,
- *              exportSaved, findTicket }
+ *              addRecovered, exportSaved, findTicket }
  */
 
 
@@ -110,6 +113,11 @@ function keepSaved(saved, rotation) {
 
 
 function useSavedRotations({ establishmentName, attention, cleaning, store }) {
+
+    // reduxStore = «el store de Redux de esta ventana», o null en la flotante (que no lo monta). De él salen
+    // quién exporta (el usuario, para el nombre del Excel) y el BoxModal de la pregunta.
+    const reduxStore = useContext(ReactReduxContext)?.store ?? null;
+
 
     //  ── 1 · LA LISTA ──────────────────────────────────────────────────────────────────
 
@@ -211,12 +219,13 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
     }, [failed]);
 
     // addSavedTouch = «apuntar un toque de ese gerente», con la hora del clic. Se espera a la API antes de
-    // pintarlo: el toque necesita el _id que ella le da para poder corregirlo o quitarlo.
+    // pintarlo: el toque necesita el _id que ella le da para poder corregirlo o quitarlo. Apuntado aquí, en
+    // Registros, es un toque recuperado: recovered: true.
     const addSavedTouch = useCallback((rotationId, manager) => {
         if (!rotationId) return;
 
         setEditNotice('');
-        addRotationTouch(rotationId, { ref: manager.ref, name: manager.name, hourTouch: getCurrentTime(), createdAt: new Date().toISOString() })
+        addRotationTouch(rotationId, { ref: manager.ref, name: manager.name, hourTouch: getCurrentTime(), createdAt: new Date().toISOString(), recovered: true })
             .then(updated => setSaved(current => putSaved(current, updated, 'put')))
             .catch(failed);
     }, [failed]);
@@ -237,20 +246,44 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
     }, [failed]);
 
 
+    // addRecovered = «guardar una rotación anotada a mano en Registros» (recoveredRotation: recovered true, en el
+    // día operativo que se enseña). Entra en la lista en cuanto la API la guarda (keepSaved), sin esperar al
+    // socket. Devuelve la promesa: el formulario la espera para cerrarse, o para decir por qué no se guardó.
+    // Recibe: los datos del formulario ({ tableNumber, times, shift }) y el _id del local.
+    const addRecovered = useCallback((fields, establishmentId) => {
+        if (!establishmentId) return Promise.reject(new Error('Elige primero el local'));
+
+        const body = recoveredRotation({ ...fields, day: savedRef.current.day || operationalDay() });
+        return saveRotation({ ...body, establishment: establishmentId })
+            .then(rotation => {
+                setSaved(current => keepSaved(current, rotation));
+                return rotation;
+            });
+    }, []);
+
+
     //  ── 3 · EXPORTARLA ────────────────────────────────────────────────────────────────
 
-    // exportSaved = «el Excel de lo que enseña la pestaña Registros». Devuelve la promesa: el botón la espera.
-    // Recibe: { managers   los botones de gerentes del local (los tiene la pestaña): de ahí las placas G1, A2…
-    //           shift }    qué turno: 'all' (el día entero), 'day' o 'night'. Lo elige el menú de Exportar.
-    const exportSaved = useCallback(({ managers, shift = 'all' } = {}) => exportCustomerServiceWorkbook({
-        rotations: saved.documents,
-        day: saved.day,
-        establishmentName,
-        attentionLimit: attention,
-        cleaningLimit: cleaning,
-        managers,
-        shift,
-    }), [saved.documents, saved.day, establishmentName, attention, cleaning]);
+    // exportSaved = «el Excel de lo que enseña la pestaña Registros». Devuelve la promesa: el botón la espera, y
+    // con ella dónde acabó el archivo (en el NAS, donde se eligió…: deliverWorkbook).
+    // Recibe: { managers     los botones de gerentes del local (los tiene la pestaña): de ahí las placas G1, A2…
+    //           shift        qué turno: 'all' (el día entero), 'day' o 'night'. Lo elige el menú de Exportar.
+    //           folderShift } con 'all', en la carpeta de qué turno del NAS va: el de la barra
+    // Quien exporta es el usuario de la sesión (Redux), y va en el nombre del archivo. En la flotante, sin Redux, no va.
+    const exportSaved = useCallback(({ managers, shift = 'all', folderShift } = {}) => {
+        const user = reduxStore?.getState().user;
+        return exportCustomerServiceWorkbook({
+            rotations: saved.documents,
+            day: saved.day,
+            establishmentName,
+            attentionLimit: attention,
+            cleaningLimit: cleaning,
+            managers,
+            shift,
+            folderShift,
+            exporter: [user?.name, user?.surName].filter(Boolean).join(' '),
+        });
+    }, [saved.documents, saved.day, establishmentName, attention, cleaning, reduxStore]);
 
 
     //  ── 4 · LA PREGUNTA POR LOS TICKETS YA GUARDADOS ──────────────────────────────────
@@ -258,9 +291,6 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
     // findTicket = «dónde está guardado ese ticket hoy»: { rotation, process }, o null. Busca en TODAS las
     // rotaciones de la lista y en todos sus procesos (libs/tickets/savedTickets.js), siempre en la última.
     const findTicket = useCallback((ticketNumber) => findSavedTicket(savedRef.current.documents, ticketNumber), []);
-
-    // reduxStore = «el store de Redux de esta ventana», o null en la flotante (que no lo monta)
-    const reduxStore = useContext(ReactReduxContext)?.store ?? null;
 
     // answersRef = «lo que ya se contestó por cada ticket»: número → true (registrarlo) / false (no)
     // askingRef = «los tickets con la pregunta abierta, todavía sin contestar»
@@ -326,7 +356,7 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
     }, [setOrderGuard, acceptNewOrder]);
 
 
-    return { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, exportSaved, findTicket };
+    return { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, addRecovered, exportSaved, findTicket };
 }
 
 
