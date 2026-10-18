@@ -17,7 +17,7 @@ import { useImgAlternative } from '../../../../hook/useImgAlternative';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
 import FieldInput from '../../../inputs/FieldInput.jsx';
-import { reportDescription } from '../reportDescription.js';
+import { reportDescription, waitingDescription } from '../reportDescription.js';
 import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
 
 
@@ -51,7 +51,9 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
     let timeTotal = calculateTime(time1, time2);
     let [description, setDescription] = useState('');
 
-    const [hasFinishedState, setHasFinishedState] = useState(true);
+    // hasFinishedState = «la mesa ya recibió la primera atención»: false es «¿Sin primera atención aún?» marcada, el
+    // aviso de que sigue sin atender. Así arranca cuando lo pide el triángulo de Ocupa en Mesas ('aviso').
+    const [hasFinishedState, setHasFinishedState] = useState(!datosIniciales?.aviso);
 
     let file1 = useRef(null);
     let file2 = useRef(null);
@@ -219,7 +221,10 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
                 //  Abierto desde el reloj rojo de una fila de Mesas: el ObjectId de la novedad creada vuelve a esa fila
                 //  ('firstAttentionDelay' de su rotación). La respuesta es la publicación; la novedad va en 'noveltie'.
-                if (datosIniciales?.recordId) announceReportedDelay({ recordId: datosIniciales.recordId, tipo: 'primera atención', noveltieId: noveltieIdOf(response.data) });
+                //  La demora va a 'firstAttentionDelay'; el aviso de «sin primera atención aún», a su propia propiedad,
+                //  'firstAttentionWarning' ('aviso'): no es la demora, y apuntarlo como ella la daría por reportada
+                //  antes de que llegue la atención. La fila pone entonces la bandera amarilla en Ocupa.
+                if (datosIniciales?.recordId) announceReportedDelay({ recordId: datosIniciales.recordId, tipo: 'primera atención', aviso: !hasFinishedState, noveltieId: noveltieIdOf(response.data) });
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');
@@ -303,9 +308,11 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
 
 
+                {/*  'checked' y no 'value': sin él la casilla no decía nada del estado, y abierta desde el aviso de Mesas
+                     (que arranca en «sin primera atención») salía sin marcar.  */}
                 <label htmlFor="" className='box-label'>¿Sin primera atención aún?
-                    <input className='box-inputText' type="checkbox" value={hasFinishedState}
-                        onChange={e => setHasFinishedState(state => state = !state)}
+                    <input className='box-inputText' type="checkbox" checked={!hasFinishedState}
+                        onChange={e => setHasFinishedState(!e.target.checked)}
                     />
                 </label>
 
@@ -337,9 +344,11 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
                         </>
                         :
                         <>
+                            {/*  Sin primera atención, esta hora no es la de la atención: es la de ahora, hasta la que
+                                 la mesa lleva esperando.  */}
                             <FieldInput
                                 type="hour"
-                                label="Timpo de la primera atención a la mesa"
+                                label="Hora en que sigue sin primera atención"
                                 value={time2}
                                 onChange={e => setTime2(e)}
                             />
@@ -361,7 +370,11 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
     return (
         <FormLayaut
             title={title.es}
-            description={datosIniciales ? reportDescription('primera atención', { table, start: time1, end: time2, total: timeTotal, limit: datosIniciales.limit }) : undefined}
+            description={datosIniciales
+                ? (hasFinishedState
+                    ? reportDescription('primera atención', { table, start: time1, end: time2, total: timeTotal, limit: datosIniciales.limit })
+                    : waitingDescription('primera atención', { table, start: time1, now: time2, total: timeTotal, limit: datosIniciales.limit }))
+                : undefined}
             event={e => sendImg(e)}
         >
 

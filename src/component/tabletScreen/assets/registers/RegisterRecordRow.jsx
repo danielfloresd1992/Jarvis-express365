@@ -8,6 +8,9 @@ import AddProcessButton from './AddProcessButton.jsx';
 import ManagerButtons from './ManagerButtons.jsx';
 import ReportDelayButton from './ReportDelayButton.jsx';
 import ReportedFlag from './ReportedFlag.jsx';
+import WaitingAlert from './WaitingAlert.jsx';
+import WarnedFlag from './WarnedFlag.jsx';
+import useRotationLoop from '../../hook/useRotationLoop.jsx';
 import RegisterProcessList from './RegisterProcessList.jsx';
 import RegisterTouchList from './RegisterTouchList.jsx';
 import TouchToggle from './TouchToggle.jsx';
@@ -203,6 +206,19 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     // saving = «se está guardando esta rotación»: el disquete se desactiva hasta que conteste la API
     const [saving, setSaving] = useState(false);
 
+    // loop = «el bucle de la rotación» (useRotationLoop, pedido del usuario): un setInterval que arranca al activarse
+    // la rotación —la fila se usa por primera vez y toma fecha— y se para con clearInterval al guardarla (saveOne).
+    // Cada segundo mira sus dos esperas: si lleva demasiado sin primera atención desde Ocupa, sale el triángulo en
+    // Ocupa; si lleva demasiado sin limpiar desde Desocupa, en Desocupa. Un pedido para llevar no lleva ninguna de las
+    // dos horas: no lo necesita.
+    const loop = useRotationLoop({
+        active: Boolean(record.date) && !takeOut,
+        waits: {
+            attention: { since: record.hourOccupies, done: record.hourFirstAttention !== '', limit: attentionLimit },
+            cleaning: { since: record.breakUp, done: record.tableCleaning !== '', limit: cleaningLimit },
+        },
+    });
+
     // clearRow = «limpiar la fila entera»: la rotación queda en blanco en su sitio, con un id nuevo.
     // Se llama cuando la API confirma que la guardó; con un error la fila se queda como estaba.
     const clearRow = () => clearRecord(record.id);
@@ -239,6 +255,9 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         //  vuelve a leer alguno de sus tickets, ya consta como guardado y se pregunta (ver Registers).
         saveRotation({ ...record, establishment: establishmentId, clientId: record.id })
             .then(savedRotation => {
+                //  Guardada: el bucle de la rotación se para aquí, con clearInterval (useRotationLoop). Si la API
+                //  no la guarda, sigue corriendo: la rotación sigue abierta en la fila.
+                loop.stop();
                 onSaved?.(savedRotation);
                 clearRow();
             })
@@ -297,15 +316,30 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     // (de Desocupa a Limpieza). Lo pide el reloj rojo de su duración, y se abre «Demoras» en su formulario con la
     // mesa y las dos horas ya puestas (DelayComponent → Div_first_attention o DivClear, con datosIniciales).
     const askForReport = (tipo) => {
-        if (record.tableNumber === '') return setNotice('Indica el número de mesa');
-
         //  Los nombres de cada objeto son los que espera su formulario de demoras. 'tipo' dice cuál; sin él, la
         //  ventana principal entiende primera atención (así llegaban antes de existir la limpieza).
         //  'limit' es el tiempo de referencia con que se marcó como demora: el formulario lo dice en su descripción.
         //  'recordId' es esta fila: al enviar la alerta, el ObjectId de la novedad vuelve a ella (reportedDelay.js).
-        const delivered = onReportDelay?.(tipo === 'limpieza'
+        deliver(tipo === 'limpieza'
             ? { tipo, recordId: record.id, tableNumber: record.tableNumber, breakUpTime: record.breakUp, cleaningTime: record.tableCleaning, demora: cleaning.timeTotal, limit: cleaningLimit }
             : { tipo, recordId: record.id, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: record.hourFirstAttention, demora: attention.timeTotal, limit: attentionLimit });
+    };
+
+    // askForWarning = «pedir el aviso de que la mesa sigue esperando»: 'primera atención' (desde Ocupa) o 'limpieza'
+    // (desde Desocupa). Lo pide el triángulo de su celda (WaitingAlert) con la hora del clic y lo que lleva esperando.
+    // Abre el mismo formulario que su demora, pero en modo aviso ('aviso': la casilla «¿… aún?» marcada) y con la
+    // hora del clic en lugar de la segunda, que todavía no hay.
+    const askForWarning = (tipo) => (now, waited) => {
+        deliver(tipo === 'limpieza'
+            ? { tipo, aviso: true, recordId: record.id, tableNumber: record.tableNumber, breakUpTime: record.breakUp, cleaningTime: now, demora: waited, limit: cleaningLimit }
+            : { tipo, aviso: true, recordId: record.id, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: now, demora: waited, limit: attentionLimit });
+    };
+
+    // deliver = «mandar el reporte a Demoras», y decir en la fila si no se pudo
+    const deliver = (report) => {
+        if (record.tableNumber === '') return setNotice('Indica el número de mesa');
+
+        const delivered = onReportDelay?.(report);
 
         //  Si no llegó, hay que decirlo: un botón que no hace nada y tampoco avisa es peor que uno que no
         //  está, porque quien lo pulsa se queda creyendo que reportó.
@@ -433,8 +467,18 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                         </>
                     ) : (
                         <>
-                            <WrapperCell classStyles='text-jx-tinta'>
+                            {/*  OCUPA. Si la mesa espera la primera atención más de lo que dice el local (lo mira el
+                                 bucle de la rotación, 'loop'), sale el triángulo de aviso a la derecha. Enviado el
+                                 aviso ('firstAttentionWarning'), en su lugar queda la bandera amarilla.  */}
+                            <WrapperCell classStyles='text-jx-tinta relative'>
                                 <WrapperText value={record.hourOccupies} updateValue={write('hourOccupies')} />
+                                {
+                                    record.firstAttentionWarning
+                                        ? <WarnedFlag kind='primera atención' />
+                                        : loop.overdue.attention && record.hourOccupies !== '' && record.hourFirstAttention === '' && (
+                                            <WaitingAlert kind='primera atención' since={record.hourOccupies} limit={attentionLimit} table={record.tableNumber} onReport={askForWarning('primera atención')} />
+                                        )
+                                }
                             </WrapperCell>
 
                             <WrapperCell classStyles='text-jx-tinta'>
@@ -458,8 +502,18 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                 {noticeBadge}
                             </WrapperCell>
 
-                            <WrapperCell classStyles='text-jx-tinta'>
+                            {/*  DESOCUPA. Como Ocupa: si la mesa espera la limpieza más de lo que dice el local, sale el
+                                 triángulo de aviso a la derecha (lo mira el bucle de la rotación, 'loop'). Enviado el
+                                 aviso ('cleaningWarning'), en su lugar queda la bandera amarilla.  */}
+                            <WrapperCell classStyles='text-jx-tinta relative'>
                                 <WrapperText value={record.breakUp} updateValue={write('breakUp')} />
+                                {
+                                    record.cleaningWarning
+                                        ? <WarnedFlag kind='limpieza' />
+                                        : loop.overdue.cleaning && record.breakUp !== '' && record.tableCleaning === '' && (
+                                            <WaitingAlert kind='limpieza' since={record.breakUp} limit={cleaningLimit} table={record.tableNumber} onReport={askForWarning('limpieza')} />
+                                        )
+                                }
                             </WrapperCell>
 
                             <WrapperCell classStyles='text-jx-tinta'>

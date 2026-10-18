@@ -16,7 +16,7 @@ import { blobToFile } from '../../../../libs/script/64toFile.js';
 
 
 import FormLayaut from '@/component/layaut/form_layaut';
-import { reportDescription } from '../reportDescription.js';
+import { reportDescription, waitingDescription } from '../reportDescription.js';
 import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
 
 
@@ -86,7 +86,9 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
     let TIME_EXCEDING = useRef('00:03:30');
 
-    const [hasFinishedState, setHasFinishedState] = useState(true);
+    // hasFinishedState = «la mesa ya se limpió»: false es «¿Mesa sin limpiar aún?» marcada, el aviso de que sigue sin
+    // limpiar. Así arranca cuando lo pide el triángulo de Desocupa en Mesas ('aviso').
+    const [hasFinishedState, setHasFinishedState] = useState(!datosIniciales?.aviso);
 
     const htmlAdapterRef = useRef(null);
 
@@ -209,7 +211,10 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
                 //  Abierto desde el reloj rojo de una fila de Mesas: el ObjectId de la novedad creada vuelve a esa fila
                 //  ('cleaningDelay' de su rotación). La respuesta es la publicación; la novedad va en 'noveltie'.
-                if (datosIniciales?.recordId) announceReportedDelay({ recordId: datosIniciales.recordId, tipo: 'limpieza', noveltieId: noveltieIdOf(response.data) });
+                //  La demora va a 'cleaningDelay'; el aviso de «sin limpiar aún», a su propia propiedad, 'cleaningWarning'
+                //  ('aviso'): no es la demora, y apuntarlo como ella la daría por reportada antes de que se limpie. La
+                //  fila pone entonces la bandera amarilla en Desocupa.
+                if (datosIniciales?.recordId) announceReportedDelay({ recordId: datosIniciales.recordId, tipo: 'limpieza', aviso: !hasFinishedState, noveltieId: noveltieIdOf(response.data) });
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');
@@ -298,7 +303,11 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
     return (
         <FormLayaut
             title={title.es}
-            description={datosIniciales ? reportDescription('limpieza', { table, start: time1, end: time2, total: timeTotal, limit: datosIniciales.limit }) : undefined}
+            description={datosIniciales
+                ? (hasFinishedState
+                    ? reportDescription('limpieza', { table, start: time1, end: time2, total: timeTotal, limit: datosIniciales.limit })
+                    : waitingDescription('limpieza', { table, start: time1, now: time2, total: timeTotal, limit: datosIniciales.limit }))
+                : undefined}
             event={e => sendImg(e)}
         >
 
@@ -364,9 +373,11 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
                         onChange={e => recepHour(e.target)}
                     />
                 </label>
+                {/*  'checked' y no 'value': sin él la casilla no decía nada del estado, y abierta desde el aviso de Mesas
+                     (que arranca en «sin limpiar») salía sin marcar.  */}
                 <label htmlFor="" className='box-label'>¿Mesa sin limpiar aún?
-                    <input className='box-inputText' type="checkbox" value={hasFinishedState}
-                        onChange={e => setHasFinishedState(state => state = !state)}
+                    <input className='box-inputText' type="checkbox" checked={!hasFinishedState}
+                        onChange={e => setHasFinishedState(!e.target.checked)}
                     />
                 </label>
 

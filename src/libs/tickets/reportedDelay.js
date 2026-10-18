@@ -5,6 +5,9 @@
  *  tiene que quedar en la rotación: en 'firstAttentionDelay' o 'cleaningDelay' (el modelo de la rotación, en
  *  api_jarvis365, los referencia a 'Noveltie' para traerlos con populate).
  *
+ *  Lo mismo con los AVISOS: el triángulo amarillo de Ocupa o Desocupa abre el formulario en modo aviso (la mesa
+ *  sigue esperando), y su novedad queda en 'firstAttentionWarning' o 'cleaningWarning' (WARNING_FIELDS).
+ *
  *  La rotación todavía está en Mesas, sin guardar: lo normal es reportar la demora mientras pasa. Así que el id
  *  se apunta en su fila (useRegisterStore) y viaja a la API con ella al pulsar el disquete.
  *
@@ -28,6 +31,14 @@ const EVENT = 'register:demora-reportada';
 // DELAY_FIELDS = «en qué propiedad de la rotación va cada demora», por su tipo (el 'tipo' del reporte del reloj)
 export const DELAY_FIELDS = { 'primera atención': 'firstAttentionDelay', limpieza: 'cleaningDelay' };
 
+// WARNING_FIELDS = «en qué propiedad va cada AVISO»: el que se envía desde el triángulo amarillo de Ocupa o Desocupa
+// mientras la mesa sigue esperando (el formulario en modo aviso, con su casilla «¿… aún?» marcada). Un aviso no es la
+// demora: va a su propia propiedad y deja la de la demora libre para cuando llegue.
+export const WARNING_FIELDS = { 'primera atención': 'firstAttentionWarning', limpieza: 'cleaningWarning' };
+
+// fieldOf = «la propiedad de la rotación de un aviso o una demora», o undefined si el tipo no es conocido
+const fieldOf = (tipo, aviso) => (aviso ? WARNING_FIELDS : DELAY_FIELDS)[tipo];
+
 // isObjectId = «es un ObjectId de Mongo»: 24 cifras hexadecimales
 export const isObjectId = (value) => typeof value === 'string' && /^[0-9a-f]{24}$/i.test(value);
 
@@ -39,17 +50,18 @@ export const noveltieIdOf = (publication) => {
 };
 
 
-/*  announceReportedDelay = «avisar de que la demora de una fila de Mesas ya se reportó»
+/*  announceReportedDelay = «avisar de que la demora de una fila de Mesas ya se reportó», o su aviso
  *
- *  @param {string} recordId    el id de la fila de Mesas (el 'id' de la rotación, que el reloj manda en el reporte)
- *  @param {string} tipo        'primera atención' | 'limpieza'
- *  @param {string} noveltieId  el ObjectId de la novedad creada
+ *  @param {string}  recordId    el id de la fila de Mesas (el 'id' de la rotación, que el reloj manda en el reporte)
+ *  @param {string}  tipo        'primera atención' | 'limpieza'
+ *  @param {string}  noveltieId  el ObjectId de la novedad creada
+ *  @param {boolean} aviso       es el aviso de que la mesa sigue esperando, no la demora (va a WARNING_FIELDS)
  *  @returns {boolean} si se avisó: sin fila, sin tipo conocido o sin un id válido no hay nada que avisar
  */
-export function announceReportedDelay({ recordId, tipo, noveltieId }) {
-    if (!recordId || !DELAY_FIELDS[tipo] || !isObjectId(noveltieId)) return false;
+export function announceReportedDelay({ recordId, tipo, noveltieId, aviso = false }) {
+    if (!recordId || !fieldOf(tipo, aviso) || !isObjectId(noveltieId)) return false;
 
-    const detail = { recordId, tipo, noveltieId, at: Date.now() };
+    const detail = { recordId, tipo, aviso: aviso === true, noveltieId, at: Date.now() };
     try { localStorage.setItem(KEY, JSON.stringify(detail)); }
     catch { /* almacenamiento bloqueado: la ventana flotante no se enterará, la barra lateral sí (el evento) */ }
 
@@ -59,11 +71,12 @@ export function announceReportedDelay({ recordId, tipo, noveltieId }) {
 
 
 /*  onReportedDelay = «escuchar los avisos»: llama a 'listener' con { recordId, field, noveltieId } por cada uno,
- *  ya con la propiedad de la rotación ('field') que le toca. Devuelve la función que deja de escuchar.
+ *  ya con la propiedad de la rotación ('field') que le toca: la de la demora, o la del aviso si lo es.
+ *  Devuelve la función que deja de escuchar.
  */
 export function onReportedDelay(listener) {
     const deliver = (detail) => {
-        const field = DELAY_FIELDS[detail?.tipo];
+        const field = fieldOf(detail?.tipo, detail?.aviso === true);
         if (field && detail.recordId && isObjectId(detail.noveltieId)) listener({ recordId: detail.recordId, field, noveltieId: detail.noveltieId });
     };
 
