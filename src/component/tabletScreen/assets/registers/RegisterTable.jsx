@@ -72,7 +72,9 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                 {/*  CABECERA FIJA. 'z-10' no es decorativo: sin él las filas que pasan por debajo al
                      desplazarse se dibujan ENCIMA de la cabecera. La celda sin título es la del «+».  */}
                 <div className='register-header sticky top-0 z-10 h-[46px] bg-jx-tarjeta w-full' style={grid}>
-                    <WrapperCell tall classStyles={headerCell} titulo='Añadir un proceso a mano' />
+                    {/*  El «+», Gerentes y el disquete son las columnas de los lados: 'register-rail' les da el mismo
+                         fondo de arriba abajo, en la cabecera y en todas las filas (registers.css)  */}
+                    <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo='Añadir un proceso a mano' />
                     {
                         COLUMNS.map(column => (
                             <WrapperCell key={column.id} tall classStyles={headerCell} estilo={{ background: headerTint(column) }} titulo='Se anota a mano'>
@@ -80,8 +82,8 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                             </WrapperCell>
                         ))
                     }
-                    {managers.length > 0 && <WrapperCell tall classStyles={headerCell} titulo='Un botón por cada gerente del local'>Gerentes</WrapperCell>}
-                    <WrapperCell tall classStyles={headerCell} titulo='Guardar la rotación' />
+                    {managers.length > 0 && <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo='Un botón por cada gerente del local'>Gerentes</WrapperCell>}
+                    <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo='Guardar la rotación' />
 
                 </div>
 

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import RegisterSavedRow, { SAVED_GRID, SAVED_COLUMNS, CYCLE_TITLES } from './RegisterSavedRow.jsx';
 import { headerTint } from './columns.js';
 import { operationalDayLabel } from '../../../../libs/date_time/operationalDay.js';
-import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
+import { rotationTotals } from '../../../../libs/tickets/rotationTotals.js';
 import ExportExcelButton from './ExportExcelButton.jsx';
 import AddRotationButton from './AddRotationButton.jsx';
 import RegisterSavedNew from './RegisterSavedNew.jsx';
@@ -68,13 +68,9 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
     // loading = «se están trayendo, y todavía no hay ninguna que enseñar»
     const loading = status === 'loading' && rotations.length === 0;
 
-    // takeOutCount / rotationCount = «los pedidos para llevar» y «las rotaciones de verdad». Un pedido para
-    // llevar sale en la lista, pero no cuenta como rotación: no hubo mesa ocupada (isTakeOut).
-    const takeOutCount = rotations.filter(isTakeOut).length;
-    const rotationCount = rotations.length - takeOutCount;
-
-    // totalTouches = «los toques de gerente del día», sumando los de todas las rotaciones
-    const totalTouches = rotations.reduce((sum, rotation) => sum + (rotation.touch?.length ?? 0), 0);
+    // rotationCount / takeOutCount / totalTouches = «las rotaciones de verdad», «los pedidos para llevar» y «los
+    // toques de gerente del día». La cuenta vive en libs (rotationTotals): la barra la repite sumando Mesas.
+    const { rotations: rotationCount, takeOut: takeOutCount, touches: totalTouches } = rotationTotals(rotations);
 
     return (
         <div className='flex-1 min-h-0 flex flex-col bg-jx-lienzo'>

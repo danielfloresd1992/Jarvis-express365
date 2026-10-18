@@ -4,8 +4,8 @@ import Icon from '../Icon.jsx';
 /*  QUÉ ESTÁ LEYENDO LA IA
  *
  *  La hora de la captura que se le mandó al modelo en la última vuelta: si avanza, la lectura avanza.
- *  Solo desde 560 px: más estrecho se come el nombre del local, y la barra de abajo (ReadingStatus) ya
- *  dice cómo fue la última.
+ *  Solo desde 560 px: más estrecho se come el nombre del local, y cómo fue la última ya lo dice el
+ *  «Registro de la inferencia».
  */
 
 

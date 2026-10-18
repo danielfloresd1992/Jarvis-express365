@@ -4,7 +4,7 @@ import RegisterBar from './RegisterBar.jsx';
 import RegisterViewTabs from './RegisterViewTabs.jsx';
 import ShiftToggle from './ShiftToggle.jsx';
 import ClearButton from './ClearButton.jsx';
-import ReadingStatus from './ReadingStatus.jsx';
+import RegisterTotals from './RegisterTotals.jsx';
 import RegisterTable from './RegisterTable.jsx';
 import RegisterSaved from './RegisterSaved.jsx';
 import RegisterTabPanel from './RegisterTabPanel.jsx';
@@ -12,8 +12,8 @@ import RegisterTabPanel from './RegisterTabPanel.jsx';
 
 /*  EL REGISTRO, CON SU BARRA
  *
- *  Arriba la barra —limpiar y cómo va la lectura— y debajo el register: una sola tabla con
- *  las rotaciones de las mesas y, desplegados dentro de cada una, sus procesos.
+ *  Arriba la barra —las pestañas, el turno, los totales del día y limpiar— y debajo el register: una sola
+ *  tabla con las rotaciones de las mesas y, desplegados dentro de cada una, sus procesos.
  *
  *  Es la MISMA pieza en los dos sitios donde se ve el registro: abajo en la ventana flotante
  *  (register.controller.jsx) y en el centro de Home (component/RegisterBoard). Por eso se escribe una
@@ -65,31 +65,30 @@ export default function Registers({ session, establishment = session.establishme
     // downloadWithManagers = «descargar el Excel en este equipo» (el botón «Descargar Excel»): igual, pero nunca al NAS
     const downloadWithManagers = useCallback((exported) => exportSaved({ managers, shift: exported, download: true }), [exportSaved, managers]);
 
+    // rowsInUse = «las filas de Mesas en uso»: lo que se perdería al limpiar (ClearButton). Las libres no cuentan.
+    const rowsInUse = useMemo(() => store.records.filter(record => record.date).length, [store.records]);
+
     // addRecoveredHere = «guardar una rotación anotada a mano en Registros», en este local (su _id, como el disquete de Mesas)
     const establishmentId = establishment?._id;
     const addRecoveredHere = useCallback((fields) => addRecovered(fields, establishmentId), [addRecovered, establishmentId]);
 
     return (
         <>
-            {/*  Las pestañas a la izquierda; a la derecha el estado de la lectura ('ml-auto' lo empuja) y,
-                 tras una raya, las dos acciones con icono.  */}
+            {/*  Las pestañas a la izquierda; a la derecha los totales del día ('ml-auto' los empuja) y, tras
+                 una raya, el botón de limpiar.  */}
             <RegisterBar>
                 <RegisterViewTabs view={view} onChange={setView} />
 
                 {/*  El turno con que nacen las rotaciones: de día o de noche (toggleShift, de la sesión)  */}
                 <ShiftToggle shift={shift} locked={shiftLocked} onToggle={toggleShift} />
 
-                <ReadingStatus
-                    diagnosis={reading.diagnosis}
-                    censusing={tracking.censusing}
-                    censusReadings={tracking.censusReadings}
-                    censusLength={tracking.censusLength}
-                    orders={tracking.orders.length}
-                />
+                {/*  Rotaciones y toques de gerente del día, sumando Registros y Mesas (pedido del usuario: en el
+                     sitio de cómo iba la lectura de la IA, que ya se ve en el «Registro de la inferencia»)  */}
+                <RegisterTotals records={store.records} saved={saved} managers={managers} />
 
                 <span aria-hidden='true' className='shrink-0 w-px h-5 mx-1 bg-jx-regla2' />
 
-                <ClearButton onClear={clearRegister} />
+                <ClearButton onClear={clearRegister} pending={rowsInUse} />
             </RegisterBar>
 
             {/*  «Registros»: las rotaciones guardadas de hoy, que aquí se pueden corregir y exportar  */}

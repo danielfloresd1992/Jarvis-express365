@@ -6,8 +6,8 @@
  *  Quien estrenaba la ventana veía la pantalla de Toast llena arriba y esto vacío abajo, y concluía
  *  que no funcionaba.
  *
- *  La barra de encima de la tabla ya lo resume (ReadingStatus), pero en letra de 9 px y en una esquina.
- *  Aquí va con todas las letras, donde se está mirando.
+ *  Aquí va con todas las letras, donde se está mirando. (La barra de encima de la tabla ya no lo dice:
+ *  en su sitio van los totales del día, RegisterTotals.)
  *
  *  Es una franja ENCIMA de las filas libres, que no las sustituye: siguen ahí para anotar a mano lo
  *  que la tablet no ve. Discreta; en ámbar solo si la lectura falla. 'role=status' para que un lector

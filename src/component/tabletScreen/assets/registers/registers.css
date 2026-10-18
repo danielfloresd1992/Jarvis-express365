@@ -2,19 +2,49 @@
    LA ROTACIÓN DESPLEGADA Y SUS PROCESOS
    ═══════════════════════════════════════════════ */
 
-/*  Al desplegarla, la fila de la rotación y sus procesos forman un grupo: los dos sobre la misma franja,
-    un poco más oscura que el resto, con los procesos en una tarjeta clara dentro de ella. Así la rotación
-    pesa más que sus procesos, y se ve dónde termina cada grupo.
+/*  Al desplegarla, la fila de la rotación va sobre una franja un poco más oscura que el resto, y debajo sus
+    procesos, en su tarjeta, sobre un fondo BLANCO (pedido del usuario: el hueco alrededor de la tarjeta —a
+    la izquierda, con la rama, y al pie— quedaba teñido de los colores de las columnas). Así la tarjeta se
+    lee limpia, y el marco de la rotación sigue diciendo dónde termina el grupo.
 
-    La franja es translúcida y no un color: deja ver debajo los colores de las columnas (columnStripes,
-    en columns.js).
+    La franja de la fila es translúcida y no un color: deja ver debajo los colores de las columnas
+    (columnStripes, en columns.js). El fondo de los procesos, en cambio, los tapa.
 
     Va aquí y no en clases de Tailwind porque tiene que ganar a las de las celdas (WrapperCell): lo que
     no está en ninguna capa gana siempre a lo que sí, y las utilidades de Tailwind van en una.          */
 
-.register-rotation--open > .register-rotation__row,
-.register-rotation__processes {
+.register-rotation--open > .register-rotation__row {
     background: color-mix(in srgb, var(--color-jx-tinta) 5%, transparent);
+}
+
+/*  LAS COLUMNAS DE LOS LADOS —el «+» a la izquierda; Gerentes y el disquete a la derecha— llevan el MISMO fondo
+    de arriba abajo (pedido del usuario): en la cabecera, en las filas en uso, desplegadas o no, en los huecos de
+    los procesos y en las filas libres. Antes cambiaban con cada una. Es 'background-color' y no 'background'
+    para no borrar la raya de una celda tachada (register-cell--na). Lo ponen RegisterTable (la cabecera),
+    RegisterRecordRow (las filas) y, en los huecos de los procesos, '.register-rotation__processes'.  */
+:root {
+    --register-rail: color-mix(in srgb, var(--color-jx-tinta) 5%, var(--color-jx-lienzo));
+}
+
+.register-rail {
+    background-color: var(--register-rail);
+}
+
+/*  Los dos lados del hueco —bajo la columna del «+» y bajo las de Gerentes y el disquete— no son blancos: siguen
+    las columnas de la fila (pedido del usuario), con su mismo tono y su raya, de arriba abajo. Sus anchos los
+    pone RegisterProcessList en '--gutter-left' y '--gutter-right' (ADD_WIDTH y gerentes + disquete). Cada raya
+    cae justo donde la de la celda de encima: en el último píxel de la columna del «+», y en el último de la
+    segunda Duración.  */
+.register-rotation__processes {
+    --processes-gutter: var(--register-rail);
+    --processes-rule: color-mix(in srgb, var(--color-jx-tinta) 25%, var(--color-jx-lienzo));
+    background-color: var(--color-jx-fondo);
+    background-image: linear-gradient(to right,
+        var(--processes-gutter) 0 calc(var(--gutter-left, 0px) - 1px),
+        var(--processes-rule) calc(var(--gutter-left, 0px) - 1px) var(--gutter-left, 0px),
+        transparent var(--gutter-left, 0px) calc(100% - var(--gutter-right, 0px) - 1px),
+        var(--processes-rule) calc(100% - var(--gutter-right, 0px) - 1px) calc(100% - var(--gutter-right, 0px)),
+        var(--processes-gutter) calc(100% - var(--gutter-right, 0px)));
 }
 
 /*  Sin la raya de abajo, la fila y sus procesos se leen como una sola pieza. Salvo la tarjeta de los
@@ -366,25 +396,79 @@
     .register-shift__icon { transition: none; }
 }
 
-.register-icon-button {
+/*  LIMPIAR (ClearButton), propuesta «B · Medidores»: una tecla con relieve, como las de los gerentes, con la
+    papelera en rojo porque no se puede deshacer. Se llena de rojo suave al pasar el ratón y se hunde al
+    pulsarla. Con Mesas vacía, plana y apagada. Debajo, al pasar el ratón o llegarle con el teclado, un aviso
+    oscuro con lo que se perdería ('register-clear__tip'): por encima de la cabecera fija de la tabla (z-10).  */
+.register-clear {
+    position: relative;
     flex: none;
-    width: 32px;
-    height: 32px;
-    padding: 0;
+    display: inline-flex;
+}
+
+.register-clear__key {
+    width: 36px;
+    height: 34px;
+    padding: 0 0 2px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--color-jx-regla2);
-    border-radius: 6px;
-    background: var(--color-jx-tarjeta);
-    color: var(--color-jx-tinta);
+    border: 1px solid color-mix(in srgb, var(--color-jx-critico) 35%, var(--color-jx-regla2));
+    border-bottom: 3px solid color-mix(in srgb, var(--color-jx-critico) 50%, var(--color-jx-regla2));
+    border-radius: 8px;
+    background: var(--color-jx-fondo);
+    color: var(--color-jx-critico-texto);
+    transition: background-color 0.15s ease, transform 0.05s ease;
 }
 
-.register-icon-button:hover { background: var(--color-jx-hundido); }
+.register-clear__key:hover:not(:disabled) {
+    background: var(--color-jx-critico-suave);
+    border-color: var(--color-jx-critico);
+    border-bottom-color: color-mix(in srgb, var(--color-jx-critico) 80%, #000000);
+}
 
-/*  Limpiar no se puede deshacer: el icono en rojo, y rojo suave al pasar el ratón.  */
-.register-icon-button--danger { color: var(--color-jx-critico-texto); }
-.register-icon-button--danger:hover { background: var(--color-jx-critico-suave); border-color: var(--color-jx-critico); }
+.register-clear__key:active:not(:disabled) {
+    height: 32px;
+    padding-bottom: 0;
+    border-bottom-width: 1px;
+    transform: translateY(1px);
+}
+
+.register-clear__key:disabled {
+    padding-bottom: 0;
+    border-color: var(--color-jx-regla2);
+    border-bottom-width: 1px;
+    background: transparent;
+    color: var(--color-jx-tinta4);
+    cursor: default;
+}
+
+.register-clear__key:focus-visible { outline: 2px solid var(--color-jx-critico); outline-offset: 1px; }
+
+.register-clear__tip {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 20;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: var(--color-jx-tinta);
+    color: var(--color-jx-fondo);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.register-clear:hover .register-clear__tip,
+.register-clear:focus-within .register-clear__tip {
+    opacity: 1;
+    transform: none;
+}
 
 
 /* ═══════════════════════════════════════════════
@@ -567,6 +651,66 @@
 }
 
 .register-save--waiting:hover { background: var(--color-jx-hundido); color: var(--color-jx-tinta3); }
+
+/*  LOS TOTALES DEL DÍA, EN LA BARRA (RegisterTotals), propuesta «B · Medidores»: dos medidores —rotaciones y
+    toques de gerente—, cada uno con su cifra grande, lo que es, una barra de tramos y su leyenda.  */
+.register-totals {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    min-width: 0;
+    padding-right: 4px;
+}
+
+.register-totals__divider { width: 1px; height: 26px; background: var(--color-jx-regla2); }
+
+.register-meter { display: flex; align-items: center; gap: 9px; }
+.register-meter__icon { flex: none; color: var(--color-jx-tinta3); }
+
+.register-meter__value {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-jx-tinta);
+}
+
+.register-meter__body { display: flex; flex-direction: column; gap: 4px; min-width: 132px; }
+.register-meter__label { font-size: 10.5px; font-weight: 600; line-height: 1; color: var(--color-jx-tinta); }
+
+/*  La barra: cada tramo crece con su cifra ('flex', en RegisterTotals), con 1 px entre tramos.  */
+.register-meter__track {
+    display: flex;
+    gap: 1px;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-jx-regla2) 60%, var(--color-jx-panel));
+}
+
+.register-meter__part { min-width: 3px; }
+
+/*  Mientras llega Registros: la barra a trazos, sin tramos.  */
+.register-meter__track--waiting {
+    box-sizing: border-box;
+    border: 1px dashed var(--color-jx-regla2);
+    background: transparent;
+}
+
+.register-meter__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 9px;
+    font-size: 10px;
+    line-height: 1;
+    color: var(--color-jx-tinta2);
+    white-space: nowrap;
+}
+
+.register-meter__legend b { font-weight: 700; color: var(--color-jx-tinta); }
+.register-meter__legend-item { display: inline-flex; align-items: center; gap: 4px; }
+.register-meter__swatch { width: 7px; height: 7px; border-radius: 2px; }
 
 /*  LA LISTA DE TOQUES (RegisterTouchList): la propuesta «B · Por gerente, con subtotales», elegida por el
     usuario. Una tarjeta con una flechita que apunta al botón de la mano; dentro, una tablita —Inicio, Fin,
@@ -826,7 +970,6 @@
 .register-touch-close:hover { background: var(--color-jx-hundido); color: var(--color-jx-tinta); }
 
 .register-tab:focus-visible,
-.register-icon-button:focus-visible,
 .register-manager:focus-visible,
 .register-touches:focus-visible,
 .register-save:focus-visible,

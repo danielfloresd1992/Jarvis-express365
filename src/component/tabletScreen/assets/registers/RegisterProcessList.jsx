@@ -35,7 +35,16 @@ const BRANCH_INDENT = 28;
  */
 export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers }) {
     return (
-        <div className='register-rotation__processes' style={{ paddingLeft: ADD_WIDTH + BRANCH_INDENT, paddingRight: widthOfManagers + SAVE_WIDTH }}>
+        <div
+            className='register-rotation__processes'
+            style={{
+                paddingLeft: ADD_WIDTH + BRANCH_INDENT,
+                paddingRight: widthOfManagers + SAVE_WIDTH,
+                //  Los dos lados que siguen las columnas de la fila, con su tono y su raya (registers.css)
+                '--gutter-left': `${ADD_WIDTH}px`,
+                '--gutter-right': `${widthOfManagers + SAVE_WIDTH}px`,
+            }}
+        >
 
             {/*  La rama: de la flecha de la mesa a la tarjeta  */}
             <span className='register-process-branch' aria-hidden='true' style={{ left: ADD_WIDTH + 14, width: BRANCH_INDENT - 14 }} />

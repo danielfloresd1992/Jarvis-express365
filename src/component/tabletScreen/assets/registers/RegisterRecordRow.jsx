@@ -58,9 +58,9 @@ const originText = (origin, field) => (
  *  raya roja (registers.css, 'register-cell--na'), sin dato y sin clic: un «-» diría «todavía no pasó».
  *  'children' es lo que tiene que seguir viéndose encima, como el aviso de la fila.
  */
-function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', children }) {
+function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', classStyles = '', children }) {
     return (
-        <WrapperCell classStyles='register-cell--na cursor-default gap-1.5 px-1' titulo={title}>
+        <WrapperCell classStyles={`register-cell--na cursor-default gap-1.5 px-1 ${classStyles}`} titulo={title}>
             {children}
         </WrapperCell>
     );
@@ -341,7 +341,8 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
 
                 {/*  El «+»: un proceso a mano, que entra en el array 'process' de ESTA rotación. En una
                      fila sin mesa sale tenue y, al pulsarlo, pide el número (ver 'addOne').  */}
-                <WrapperCell classStyles='cursor-default'>
+                {/*  'register-rail': el «+», Gerentes y el disquete llevan el mismo fondo en todas las filas  */}
+                <WrapperCell classStyles='register-rail cursor-default'>
                     <AddProcessButton table={record.tableNumber} waiting={noTable} onAdd={addOne} />
                 </WrapperCell>
 
@@ -467,13 +468,13 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                 {
                     managers.length > 0 && (
                         takeOut ? (
-                            <NotApplicableCell title='Pedido para llevar: no lleva toques de gerente'>
+                            <NotApplicableCell title='Pedido para llevar: no lleva toques de gerente' classStyles='register-rail'>
                                 {record.touch.length > 0 && <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(!touchesOpen)} />}
                             </NotApplicableCell>
                         ) : (
                             //  'gap-2' y 'register-managers-cell': la burbuja de cada gerente asoma por su esquina
                             //  (registers.css), y necesita sitio y que la celda no la recorte.
-                            <WrapperCell classStyles='register-managers-cell cursor-default gap-2'>
+                            <WrapperCell classStyles='register-rail register-managers-cell cursor-default gap-2'>
                                 <ManagerButtons managers={managers} touches={record.touch} dimmed={noTable} onTouch={touchOne} />
                                 <span aria-hidden='true' className='shrink-0 w-px h-[18px] mx-0.5 bg-jx-regla2' />
                                 <TouchToggle count={record.touch.length} open={touchesOpen} disabled={noTable} onToggle={() => setTouchesOpen(!touchesOpen)} />
@@ -483,7 +484,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                 }
 
                 {/*  El disquete: guardar la rotación (ver 'saveOne')  */}
-                <WrapperCell classStyles='cursor-default'>
+                <WrapperCell classStyles='register-rail cursor-default'>
                     <SaveRecordButton table={record.tableNumber} waiting={noTable} done={finished} busy={saving} onSave={saveOne} />
                 </WrapperCell>
 

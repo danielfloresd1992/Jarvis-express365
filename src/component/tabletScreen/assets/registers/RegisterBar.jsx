@@ -1,8 +1,8 @@
 /*  LA BARRA DE LOS REGISTERS
  *
  *  La franja de encima de la tabla, como la barra de una aplicación de escritorio. Dentro van, de
- *  izquierda a derecha: las pestañas «Mesas / Registros» (RegisterViewTabs), cómo va la lectura
- *  (ReadingStatus) y el botón de limpiar, solo con icono (ClearButton).
+ *  izquierda a derecha: las pestañas «Mesas / Registros» (RegisterViewTabs), el turno (ShiftToggle), los
+ *  totales del día (RegisterTotals) y el botón de limpiar, solo con icono (ClearButton).
  */
 
 

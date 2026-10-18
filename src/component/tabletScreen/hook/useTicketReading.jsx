@@ -55,7 +55,7 @@ function readSavedModeIA() {
 
 
 // buildDiagnosis = «armar el diagnóstico»
-// PURA. Cómo fue una vuelta: se pinta en la barra del registro (ReadingStatus) y, simulando, viaja al simulador.
+// PURA. Cómo fue una vuelta: la usa el aviso de la tabla vacía (RegisterEmptyNotice) y, simulando, viaja al simulador.
 // Recibe: result (el resultado de runInferenceOnce).
 // Devuelve: { modelo, leidos, descartados, segundos, error }
 // 'leidos' son los objetos que devolvió el modelo; 'descartados', los que no llegaron a ser un ticket.
