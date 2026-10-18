@@ -10,8 +10,9 @@
  *  En una fila SIN MESA ('waiting') sale tenue: está ahí para que se vea dónde se añaden los procesos,
  *  pero no crea nada —quien lo usa (RegisterRecordRow) lleva el cursor a «Mesa» y pide el número—.
  *
- *  Tamaño, relleno y borde van en 'style': la regla global 'button {}' de index.css gana a las
- *  utilidades de Tailwind en esas tres cosas.
+ *  Tamaño, relleno y borde van en la clase 'register-add' de registers.css: la regla global 'button {}' de
+ *  index.css gana a las utilidades de Tailwind en esas tres cosas, y una clase le gana a ella. Así, además,
+ *  la fila libre lo puede achicar (sus filas son más bajas).
  */
 
 
@@ -32,8 +33,8 @@ export default function AddProcessButton({ table, waiting, onAdd }) {
             onClick={onAdd}
             aria-label={what}
             title={what}
-            className='flex items-center justify-center bg-transparent text-jx-tinta3 hover:bg-jx-verde-suave hover:text-jx-verde-texto transition-colors'
-            style={{ width: 22, height: 22, padding: 0, border: '1px solid var(--color-jx-regla2)', borderRadius: 6, opacity: waiting ? 0.45 : 1 }}
+            className='register-add flex items-center justify-center bg-transparent text-jx-tinta3 hover:bg-jx-verde-suave hover:text-jx-verde-texto transition-colors'
+            style={{ opacity: waiting ? 0.45 : 1 }}
         >
             <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.6' strokeLinecap='round' aria-hidden='true'>
                 <line x1='12' y1='5' x2='12' y2='19' />

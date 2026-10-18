@@ -15,7 +15,16 @@ import RegisterProcessLine from './RegisterProcessLine.jsx';
  *
  *  Cada columna se reconoce por su color, como las de la rotación pero con una paleta propia
  *  (PROCESS_COLUMNS): su cabecera va teñida de él, y la tarjeta lleva debajo sus franjas (PROCESS_STRIPES).
+ *
+ *  La tarjeta CUELGA DE SU MESA (propuesta «A · Ordenada», elegida por el usuario): una línea en forma de
+ *  rama baja desde la flecha de la mesa y entra en ella. Por eso la tarjeta empieza BRANCH_INDENT más a la
+ *  derecha que la columna de la mesa.
  */
+
+
+// BRANCH_INDENT = «cuánto se aparta la tarjeta de la columna de la mesa»: el sitio de la rama (registers.css,
+// 'register-process-branch'), que baja justo por debajo de la flecha de la mesa (ProcessToggle)
+const BRANCH_INDENT = 28;
 
 
 /*  @param {object}   record        la rotación: { id, process… }
@@ -26,7 +35,10 @@ import RegisterProcessLine from './RegisterProcessLine.jsx';
  */
 export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers }) {
     return (
-        <div className='register-rotation__processes' style={{ paddingLeft: ADD_WIDTH, paddingRight: widthOfManagers + SAVE_WIDTH }}>
+        <div className='register-rotation__processes' style={{ paddingLeft: ADD_WIDTH + BRANCH_INDENT, paddingRight: widthOfManagers + SAVE_WIDTH }}>
+
+            {/*  La rama: de la flecha de la mesa a la tarjeta  */}
+            <span className='register-process-branch' aria-hidden='true' style={{ left: ADD_WIDTH + 14, width: BRANCH_INDENT - 14 }} />
 
             <div className='register-process-card' style={PROCESS_STRIPES}>
 

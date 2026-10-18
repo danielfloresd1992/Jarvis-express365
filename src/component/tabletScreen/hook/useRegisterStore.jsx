@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, setListOpen, appendBlankProcess, applyTabletOrders, createRecord, stampShift } from '../../../libs/tickets/tableRecords.js';
 import { getCurrentTime } from '../../cells/GridCells.jsx';
+import { randomTouchFinish } from '../../../libs/date_time/touchFinish.js';
+
+// TOUCH_TIMES = «las horas de un toque que se corrigen a mano» (writeTouch): la del toque y la de su fin
+const TOUCH_TIMES = ['hourTouch', 'hourTouchFinish'];
 import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
 
 
@@ -34,8 +38,8 @@ import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
 //   addProcess(recordId)                             añade a una rotación un proceso en blanco (el «+»)
 //   deleteProcess(recordId, processId)               borra un proceso de una rotación
 //   clearRecord(recordId)                            deja la rotación en blanco, en su sitio (ya guardada en la API)
-//   addTouch(recordId, manager)                      apunta un toque de gerente, con la hora del clic
-//   writeTouch(recordId, touchId, hourTouch)         corrige la hora de un toque
+//   addTouch(recordId, manager, times?)              apunta un toque de gerente, con la hora del clic o las escritas a mano
+//   writeTouch(recordId, touchId, field, value)      corrige una hora de un toque: 'hourTouch' o 'hourTouchFinish'
 //   deleteTouch(recordId, touchId)                   borra un toque
 //   clear()                                          vacía el registro entero
 //   setOrderGuard(guard)                             quién decide si entra un pedido nuevo de la IA: (pedido) => boolean
@@ -177,15 +181,20 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
         )));
     }, [commit]);
 
-    // addTouch = «apuntar un toque de gerente en una rotación», con la hora del clic
-    // Recibe: recordId y el botón del gerente ({ ref, name }, de managers.js).
-    const addTouch = useCallback((recordId, manager) => {
-        changeTouches(recordId, touches => [...touches, { id: crypto.randomUUID(), ref: manager.ref, name: manager.name, hourTouch: getCurrentTime(), createdAt: new Date().toISOString() }]);
+    // addTouch = «apuntar un toque de gerente en una rotación», con la hora del clic y su hora de fin: de 5 segundos
+    // a un minuto después, al azar (randomTouchFinish). Desde la fila manual de la lista de toques (RegisterTouchManual)
+    // llegan además las dos horas escritas a mano ('times'), y mandan ellas.
+    // Recibe: recordId, el botón del gerente ({ ref, name }, de managers.js) y, opcional, times ({ hourTouch, hourTouchFinish }).
+    const addTouch = useCallback((recordId, manager, times) => {
+        const hourTouch = times?.hourTouch || getCurrentTime();
+        const hourTouchFinish = times?.hourTouchFinish || randomTouchFinish(hourTouch);
+        changeTouches(recordId, touches => [...touches, { id: crypto.randomUUID(), ref: manager.ref, name: manager.name, hourTouch, hourTouchFinish, createdAt: new Date().toISOString() }]);
     }, [changeTouches]);
 
-    // writeTouch = «corregir la hora de un toque»
-    const writeTouch = useCallback((recordId, touchId, hourTouch) => {
-        changeTouches(recordId, touches => touches.map(touch => (touch.id === touchId ? { ...touch, hourTouch } : touch)));
+    // writeTouch = «corregir una hora de un toque»: la del toque ('hourTouch') o la de su fin ('hourTouchFinish')
+    const writeTouch = useCallback((recordId, touchId, field, value) => {
+        if (!TOUCH_TIMES.includes(field)) return;
+        changeTouches(recordId, touches => touches.map(touch => (touch.id === touchId ? { ...touch, [field]: value } : touch)));
     }, [changeTouches]);
 
     // deleteTouch = «borrar un toque»

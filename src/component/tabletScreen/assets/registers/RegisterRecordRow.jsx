@@ -80,7 +80,7 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {function} deleteProcess   borra un proceso (id de la rotación, id del proceso)
  *  @param {function} clearRecord     deja la rotación en blanco (id de la rotación), ya guardada en la API
  *  @param {function} addTouch        apunta un toque de gerente (id de la rotación, gerente)
- *  @param {function} writeTouch      corrige la hora de un toque (id de la rotación, id del toque, hora)
+ *  @param {function} writeTouch      corrige una hora de un toque (id de la rotación, id del toque, 'hourTouch' o 'hourTouchFinish', hora)
  *  @param {function} deleteTouch     borra un toque (id de la rotación, id del toque)
  *  @param {function} onReportDelay   qué hacer cuando se pide reportar una demora
  *  @param {object}   grid            la rejilla de la fila (tableGrid): la misma que la de la cabecera
@@ -255,8 +255,9 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         [record.hourOccupies, record.hourFirstAttention, attentionLimit]
     );
 
-    //  Mientras falte cualquiera de las dos horas no hay nada que calcular, y la celda va en gris. Con
-    //  una sola hora se pintaba el resultado ilegible en verde, como si todo fuera bien.
+    //  Mientras falte cualquiera de las dos horas no hay nada que calcular, y la celda dice «—» en gris (no
+    //  '00:00:00', que parecía una duración de verdad). Con una sola hora se pintaba el resultado ilegible en
+    //  verde, como si todo fuera bien.
     // noAttentionYet = «todavía no hay duración que calcular»
     const noAttentionYet = record.hourOccupies === '' || record.hourFirstAttention === '';
 
@@ -310,6 +311,16 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     // free = «la fila está libre»: nadie la ha usado todavía
     const free = !record.date;
 
+    // canTouchByHand = «se puede apuntar un toque a mano» desde la lista (RegisterTouchManual): con mesa, y sin ser
+    // un pedido para llevar, que no lleva toques
+    const canTouchByHand = !noTable && !takeOut;
+
+    // finished = «la rotación ya terminó»: la mesa se limpió; un pedido para llevar, cuando se entregaron todos
+    // sus platos. El disquete se pone en verde: es la que toca guardar (SaveRecordButton, 'done').
+    const finished = takeOut
+        ? record.process.length > 0 && record.process.every(process => process.dishDelivery !== '')
+        : record.tableCleaning !== '';
+
     // noticeBadge = «el aviso de la fila», en la celda de la Duración de la primera atención: también cuando
     // esa celda va tachada, porque el aviso de guardar un pedido para llevar sale ahí
     const noticeBadge = notice && (
@@ -339,9 +350,11 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                      filas, la tengan o no. Solo si la celda es tan estrecha que la flecha (unos 40 px) taparía
                      el número (unas 3 cifras, 3ch), el número se aparta lo justo: el relleno sale de que el
                      texto centrado empiece a partir de esos 40 px, y en celdas anchas da 0.
-                     En ocre y con «Nº de mesa» mientras se pide el número (ver 'askingTable'). Desplegada,
-                     la mesa va más gruesa: es la cabeza de su grupo.  */}
-                <WrapperCell classStyles={`relative ${open ? 'font-extrabold' : 'font-semibold'} ${askingTable && noTable ? 'bg-jx-ocre-suave' : ''}`}>
+                     En ocre y con «Nº de mesa» mientras se pide el número (ver 'askingTable').
+                     El número va grande y grueso, y a la derecha el estado de la rotación: terminada o en
+                     curso (la propuesta «A · Ordenada», elegida por el usuario; 'register-mesa-…' en registers.css).
+                     Ese icono se aparta del número como la flecha, con el mismo cálculo.  */}
+                <WrapperCell classStyles={`register-mesa-cell relative ${askingTable && noTable ? 'bg-jx-ocre-suave' : ''}`}>
                     <span className='absolute left-1 top-1/2 -translate-y-1/2'>
                         <ProcessToggle
                             count={record.process.length}
@@ -352,8 +365,11 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                     </span>
                     <input
                         ref={tableInputRef}
-                        className='w-full h-full text-center bg-transparent placeholder:text-jx-ocre-texto placeholder:font-normal'
-                        style={record.process.length > 0 ? { paddingLeft: 'max(0px, calc(80px + 3ch - 100%))' } : undefined}
+                        className='register-mesa-input w-full h-full text-center bg-transparent placeholder:text-jx-ocre-texto placeholder:font-normal'
+                        style={{
+                            paddingLeft: record.process.length > 0 ? 'max(0px, calc(80px + 3ch - 100%))' : undefined,
+                            paddingRight: free ? undefined : 'max(0px, calc(44px + 3ch - 100%))',
+                        }}
                         type='text'
                         value={record.tableNumber}
                         onChange={event => write('tableNumber')(event.target.value)}
@@ -361,6 +377,29 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                         title={askingTable && noTable ? 'Escribe primero el número de mesa: el proceso va dentro de la rotación de esa mesa' : undefined}
                         aria-label='Número de mesa'
                     />
+                    {
+                        !free && (
+                            <span
+                                className={`register-mesa-status register-mesa-status--${finished ? 'done' : 'open'}`}
+                                role='img'
+                                aria-label={finished ? 'Terminada' : 'En curso'}
+                                title={finished ? (takeOut ? 'Terminada: se entregaron sus platos' : 'Terminada: la mesa ya se limpió') : 'En curso'}
+                            >
+                                {
+                                    finished ? (
+                                        <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                                            <path d='M5 12l5 5 9-10' />
+                                        </svg>
+                                    ) : (
+                                        <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.6' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                                            <circle cx='12' cy='12' r='9' />
+                                            <path d='M12 7v5l3 2' />
+                                        </svg>
+                                    )
+                                }
+                            </span>
+                        )
+                    }
                 </WrapperCell>
 
                 {/*  UN PEDIDO PARA LLEVAR no lleva ninguna de las seis celdas de la mesa: van tachadas
@@ -391,7 +430,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             <WrapperCell classStyles={`gap-1.5 px-1 ${attentionLate ? 'register-cell--late' : ''}`} titulo={attentionLate ? `Pasó del tiempo de referencia de primera atención: ${attentionLimit}, ${originText(attentionOrigin, 'firstAtenttion')}` : undefined}>
                                 <WrapperText
                                     classStyles={noAttentionYet ? 'text-jx-tinta3' : attentionLate ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
-                                    value={noAttentionYet ? '00:00:00' : attention.timeTotal}
+                                    value={noAttentionYet ? '—' : attention.timeTotal}
                                 />
 
                                 {attentionLate && <ReportDelayButton table={record.tableNumber} kind='primera atención' onReport={() => askForReport('primera atención')} />}
@@ -412,7 +451,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             <WrapperCell classStyles={`gap-1.5 px-1 ${cleaningLate ? 'register-cell--late' : ''}`} titulo={cleaningLate ? `Pasó del tiempo de referencia de limpieza: ${cleaningLimit}, ${originText(cleaningOrigin, 'TableCleaning')}` : undefined}>
                                 <WrapperText
                                     classStyles={noCleaningYet ? 'text-jx-tinta3' : cleaningLate ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
-                                    value={noCleaningYet ? '00:00:00' : cleaning.timeTotal}
+                                    value={noCleaningYet ? '—' : cleaning.timeTotal}
                                 />
 
                                 {cleaningLate && <ReportDelayButton table={record.tableNumber} kind='limpieza' onReport={() => askForReport('limpieza')} />}
@@ -421,10 +460,10 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                     )
                 }
 
-                {/*  Un botón por cada gerente del local y, tras una raya, el contador de sus toques, que está
-                     siempre (con 0, apagado). Sin gerentes, no hay columna. Un pedido para llevar no lleva
+                {/*  Un botón por cada gerente del local y, tras una raya, el de la lista de toques, que está
+                     siempre (sin mesa, apagado). Sin gerentes, no hay columna. Un pedido para llevar no lleva
                      toques: va tachada, y solo si ya tenía alguno (de antes de ponerle el '#') queda el
-                     contador, para poder verlos y borrarlos.  */}
+                     botón de la lista, para poder verlos y borrarlos.  */}
                 {
                     managers.length > 0 && (
                         takeOut ? (
@@ -432,10 +471,12 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                 {record.touch.length > 0 && <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(!touchesOpen)} />}
                             </NotApplicableCell>
                         ) : (
-                            <WrapperCell classStyles='cursor-default gap-1'>
-                                <ManagerButtons managers={managers} dimmed={noTable} onTouch={touchOne} />
+                            //  'gap-2' y 'register-managers-cell': la burbuja de cada gerente asoma por su esquina
+                            //  (registers.css), y necesita sitio y que la celda no la recorte.
+                            <WrapperCell classStyles='register-managers-cell cursor-default gap-2'>
+                                <ManagerButtons managers={managers} touches={record.touch} dimmed={noTable} onTouch={touchOne} />
                                 <span aria-hidden='true' className='shrink-0 w-px h-[18px] mx-0.5 bg-jx-regla2' />
-                                <TouchToggle count={record.touch.length} open={touchesOpen} onToggle={() => setTouchesOpen(!touchesOpen)} />
+                                <TouchToggle count={record.touch.length} open={touchesOpen} disabled={noTable} onToggle={() => setTouchesOpen(!touchesOpen)} />
                             </WrapperCell>
                         )
                     )
@@ -443,19 +484,21 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
 
                 {/*  El disquete: guardar la rotación (ver 'saveOne')  */}
                 <WrapperCell classStyles='cursor-default'>
-                    <SaveRecordButton table={record.tableNumber} waiting={noTable} busy={saving} onSave={saveOne} />
+                    <SaveRecordButton table={record.tableNumber} waiting={noTable} done={finished} busy={saving} onSave={saveOne} />
                 </WrapperCell>
 
-                {/*  Los toques de gerente: flotan encima de las filas de abajo, sin empujarlas  */}
+                {/*  Los toques de gerente: flotan encima de las filas de abajo, sin empujarlas. Con mesa y sin
+                     ser para llevar se abre también sin toques: su primera fila apunta uno a mano ('onCreate').  */}
                 {
-                    touchesOpen && record.touch.length > 0 && (
+                    touchesOpen && (record.touch.length > 0 || canTouchByHand) && (
                         <RegisterTouchList
                             tableNumber={record.tableNumber}
                             touches={record.touch}
                             managers={managers}
-                            onWrite={(touchId, hourTouch) => writeTouch(record.id, touchId, hourTouch)}
+                            onWrite={(touchId, field, value) => writeTouch(record.id, touchId, field, value)}
                             onDelete={(touchId) => deleteTouch(record.id, touchId)}
                             onClose={() => setTouchesOpen(false)}
+                            onCreate={canTouchByHand ? (manager, times) => addTouch(record.id, manager, times) : undefined}
                         />
                     )
                 }

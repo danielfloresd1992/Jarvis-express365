@@ -25,7 +25,34 @@
 
 .register-rotation__processes {
     padding-block: 2px 8px;
-    border-bottom: 1px solid var(--color-jx-regla2);
+}
+
+/*  EL MARCO DE CADA ROTACIÓN (pedido del usuario): cada rotación en uso va enmarcada por una raya fina de 1 px
+    en 'tinta' —el negro cálido de la paleta, y no un negro puro que chocaría con el beige— al 50 % de transparencia,
+    a los dos lados y al pie. Es la raya más marcada de la fila: las de entre celdas van más claras (ver más abajo). Enmarca el bloque entero ('register-rotation'), así que con los procesos desplegados la mesa y
+    sus pedidos quedan dentro del mismo marco, y la siguiente mesa empieza limpia.
+
+    No lleva raya arriba: ya la pone el pie de la rotación de encima (o la raya de la cabecera), y serían dos
+    juntas. Solo si encima hay una fila libre, que no lleva marco, la pone él.
+
+    Va en un pseudo-elemento por ENCIMA del bloque y no en sus bordes: unos bordes de verdad estrecharían cada
+    fila 2 px respecto a la cabecera, y las columnas dejarían de cuadrar (tableGrid, en columns.js). Las filas
+    libres (las grises, sin estrenar) no lo llevan: entre ellas sigue la regla de siempre.  */
+.register-rotation:not(.register-rotation--free) {
+    position: relative;
+}
+
+.register-rotation:not(.register-rotation--free)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid color-mix(in srgb, var(--color-jx-tinta) 50%, transparent);   /*  50 % de transparencia (pedido del usuario)  */
+    border-top-width: 0;
+    pointer-events: none;
+}
+
+.register-rotation--free + .register-rotation:not(.register-rotation--free)::after {
+    border-top-width: 1px;
 }
 
 .register-process-card {
@@ -35,6 +62,67 @@
     overflow: hidden;
 }
 
+/*  La tarjeta de los PROCESOS, sin borde (pedido del usuario): ya va dentro del marco de su rotación, y el borde
+    de la tarjeta era una raya más. La de los toques de gerente (RegisterTouchList) usa la misma clase y lo
+    conserva: flota encima de las filas de abajo y sin borde se confundiría con ellas.  */
+.register-rotation__processes > .register-process-card {
+    border: none;
+    box-shadow: 0 1px 2px rgb(47 42 30 / 0.14);
+}
+
+/*  LA RAMA (propuesta «A · Ordenada», elegida por el usuario): la tarjeta de los procesos cuelga de su mesa.
+    Una línea baja desde debajo de la flecha de la mesa y dobla hasta la tarjeta, a la altura de su cabecera
+    (2 px de relleno más media cabecera de 22). Dónde empieza y cuánto mide, en RegisterProcessList.  */
+.register-rotation__processes {
+    position: relative;
+}
+
+.register-process-branch {
+    position: absolute;
+    top: 0;
+    height: 13px;
+    border-left: 1.5px solid color-mix(in srgb, var(--color-jx-tinta) 35%, var(--color-jx-regla2));
+    border-bottom: 1.5px solid color-mix(in srgb, var(--color-jx-tinta) 35%, var(--color-jx-regla2));
+    border-bottom-left-radius: 6px;
+    pointer-events: none;
+}
+
+/*  LA MESA: el número grande y grueso, y a la derecha el estado de la rotación —✓ terminada, el reloj en
+    curso— (RegisterRecordRow). El icono no atrapa los clics: debajo sigue el campo del número.  */
+.register-mesa-input {
+    font-size: clamp(12px, 2.2cqw, 15px);
+    font-weight: 800;
+    color: var(--color-jx-tinta);
+}
+
+.register-mesa-status {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    pointer-events: none;
+}
+
+.register-mesa-status--done { color: var(--color-jx-verde-barra); }
+.register-mesa-status--open { color: var(--color-jx-ocre-texto); }
+
+/*  Una hora que todavía no pasó ('-', con 'data-empty' de WrapperText) va apagada: lo que importa son las
+    horas que sí están.  */
+.register-rotation__row p[data-empty],
+.register-process-line p[data-empty] {
+    color: var(--color-jx-tinta3);
+}
+
+/*  El «+» de cada fila (AddProcessButton)  */
+.register-add {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 6px;
+}
+
 /*  Dentro de la tarjeta, sin rayas verticales; y la última línea sin la de abajo, que ya la pone el borde.  */
 .register-process-line > div {
     border-right-color: transparent;
@@ -42,6 +130,34 @@
 
 .register-process-card > :last-child > div {
     border-bottom-color: transparent;
+}
+
+/*  BORRAR UN PROCESO (pedido del usuario: más color, y un icono que se entienda). La papelera —la misma de
+    Limpiar (ClearButton)— en rojo sobre rojo suave, para que se vea entre las franjas de color; al pasar el
+    ratón se llena de rojo con la papelera en blanco, y así se nota que borra.  */
+.register-process-delete {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--color-jx-critico) 45%, transparent);
+    border-radius: 6px;
+    background: var(--color-jx-critico-suave);
+    color: var(--color-jx-critico-texto);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.register-process-delete:hover {
+    background: var(--color-jx-critico);
+    border-color: var(--color-jx-critico);
+    color: #ffffff;
+}
+
+.register-process-delete:focus-visible {
+    outline: 2px solid var(--color-jx-critico);
+    outline-offset: 1px;
 }
 
 /* ═══════════════════════════════════════════════
@@ -58,6 +174,14 @@
 
 .register-header {
     border-bottom: 2px solid color-mix(in srgb, var(--color-jx-regla2) 65%, var(--color-jx-tinta));
+}
+
+/*  En una rotación EN USO, la raya vertical entre celdas, reforzada (pedido del usuario): 'tinta' al 75 % de
+    transparencia, más marcada que la regla2 para seguir cada columna a lo largo de la fila, y más clara que el
+    marco de la rotación (al 50 %), que es el que separa una mesa de otra. Las filas libres siguen con su gris, y
+    la tarjeta de los toques, que flota dentro de la fila, con su borde de siempre.  */
+.register-rotation:not(.register-rotation--free) > .register-rotation__row > div:not(.register-process-card) {
+    border-right-color: color-mix(in srgb, var(--color-jx-tinta) 25%, transparent);
 }
 
 
@@ -83,6 +207,30 @@
 
 .register-rotation--free .register-manager {
     filter: grayscale(1);
+}
+
+/*  Y EN SILENCIO (propuesta «A · Ordenada», elegida por el usuario): más baja, 22 px, y sin nada dentro a la
+    vista —ni los «-», ni las duraciones, ni los botones—, salvo un «+» tenue. Al pasar el ratón, o al
+    escribir en ella, aparece todo como estaba. Se oculta con 'opacity' y no con 'visibility': así una celda
+    vacía sigue atrapando el clic que estampa la hora, que es como se empieza una mesa.  */
+.register-rotation--free > .register-rotation__row > div {
+    height: 22px;
+}
+
+.register-rotation--free > .register-rotation__row:not(:hover):not(:focus-within) > div:not(:first-child) > * {
+    opacity: 0;
+}
+
+.register-rotation--free .register-add {
+    width: 18px;
+    height: 18px;
+    border-color: transparent;
+}
+
+.register-rotation--free .register-manager,
+.register-rotation--free .register-touches,
+.register-rotation--free .register-save {
+    height: 18px;
 }
 
 
@@ -243,82 +391,404 @@
    LOS BOTONES DE GERENTE Y EL CONTADOR DE TOQUES
    ═══════════════════════════════════════════════ */
 
-/*  Gerentes en verde y asistentes en ocre, para distinguirlos de un vistazo. En una fila sin mesa van
-    apagados: pulsarlos solo pide el número.  */
+/*  TECLAS CON RELIEVE Y UN CONTADOR EN CADA GERENTE (pedido del usuario: se veían planos). Gerentes, el
+    botón de la lista de toques y el disquete son teclas: una raya más gruesa y oscura al pie, que al
+    pulsar desaparece y la tecla se hunde. Lo apagado —una fila sin mesa, una lista sin toques— va plano:
+    sin relieve, lo que no hace nada no parece pulsable.
+
+    Gerentes en verde y asistentes en ocre, para distinguirlos de un vistazo. Las clases de color
+    (--g, --a) las usan también las placas de la lista de toques (register-touch-label), así que el
+    relieve va aparte, en '.register-manager.register-manager--g', y las placas no lo llevan.
+
+    Cada gerente lleva en su esquina cuántos toques ha dado en esa mesa (register-manager__count). Asoma
+    por encima de la tecla, así que su celda deja ver lo que se sale (register-managers-cell).  */
+.register-managers-cell {
+    overflow: visible;
+}
+
 .register-manager {
+    position: relative;
     flex: none;
     width: 30px;
-    height: 26px;
-    padding: 0;
+    height: 24px;
+    padding: 0 0 1px;
     border-radius: 6px;
     font-size: 11px;
     font-weight: 700;
     line-height: 1;
-    box-shadow: inset 0 -1px 0 rgb(47 42 30 / 0.08);
+    transition: background-color 0.15s ease, transform 0.05s ease;
 }
 
-.register-manager:active { transform: translateY(1px); box-shadow: none; }
-
 .register-manager--g {
-    background: var(--color-jx-verde-suave);
-    border: 1px solid color-mix(in srgb, var(--color-jx-verde-texto) 40%, #ffffff);
+    background: color-mix(in srgb, var(--color-jx-verde) 14%, #ffffff);
+    border: 1px solid color-mix(in srgb, var(--color-jx-verde-texto) 45%, #ffffff);
     color: var(--color-jx-verde-texto);
 }
 
-.register-manager--g:hover { background: color-mix(in srgb, var(--color-jx-verde-texto) 12%, var(--color-jx-verde-suave)); }
-
 .register-manager--a {
-    background: var(--color-jx-ocre-suave);
-    border: 1px solid color-mix(in srgb, var(--color-jx-ocre) 60%, #ffffff);
+    background: color-mix(in srgb, var(--color-jx-ocre) 25%, #ffffff);
+    border: 1px solid color-mix(in srgb, var(--color-jx-ocre) 70%, #ffffff);
     color: var(--color-jx-ocre-texto);
 }
 
-.register-manager--a:hover { background: color-mix(in srgb, var(--color-jx-ocre) 22%, var(--color-jx-ocre-suave)); }
+.register-manager.register-manager--g { border-bottom: 3px solid color-mix(in srgb, var(--color-jx-verde-texto) 70%, #ffffff); }
+.register-manager.register-manager--a { border-bottom: 3px solid var(--color-jx-tabaco); }
 
-.register-manager--off { opacity: 0.4; }
+.register-manager--g:hover { background: color-mix(in srgb, var(--color-jx-verde) 24%, #ffffff); }
+.register-manager--a:hover { background: color-mix(in srgb, var(--color-jx-ocre) 38%, #ffffff); }
 
-/*  El contador de toques: siempre está, con 0 apagado; abierto, en oscuro.  */
+/*  Pulsada: sin la raya del pie y 2 px más abajo por arriba, con el pie donde estaba.  */
+.register-manager:active {
+    height: 22px;
+    padding-bottom: 0;
+    border-bottom-width: 1px;
+    transform: translateY(1px);
+}
+
+/*  En una fila sin mesa: plana y tenue. Pulsarla solo pide el número.  */
+.register-manager.register-manager--off {
+    opacity: 0.5;
+    padding-bottom: 0;
+    border-bottom-width: 1px;
+}
+
+/*  Los toques de ese gerente en la mesa: una burbuja en la esquina, del color fuerte de su tecla, con un
+    aro del color del lienzo para despegarla. Blanco sobre verde texto da 5,8 : 1, y sobre ocre texto 5,9.  */
+.register-manager__count {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1.5px solid var(--color-jx-lienzo);
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 12px;
+    text-align: center;
+    color: #ffffff;
+    pointer-events: none;
+}
+
+.register-manager--g .register-manager__count { background: var(--color-jx-verde-texto); }
+.register-manager--a .register-manager__count { background: var(--color-jx-ocre-texto); }
+
+/*  La lista de toques: una tecla con la mano y la flecha que dice que despliega. Los números van en
+    cada gerente, así que aquí ya no hay ninguno. Sin toques, plana; abierta, en oscuro.  */
 .register-touches {
     flex: none;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    height: 26px;
-    padding: 0 8px;
-    border: 1px solid var(--color-jx-regla2);
-    border-radius: 13px;
-    background: var(--color-jx-tarjeta);
-    color: var(--color-jx-tinta2);
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1;
+    gap: 3px;
+    height: 24px;
+    padding: 0 5px 1px 6px;
+    border: 1px solid color-mix(in srgb, var(--color-jx-tinta) 22%, var(--color-jx-regla2));
+    border-bottom: 3px solid color-mix(in srgb, var(--color-jx-tinta) 40%, var(--color-jx-regla2));
+    border-radius: 6px;
+    background: var(--color-jx-fondo);
+    color: var(--color-jx-tinta);
+    transition: background-color 0.15s ease, transform 0.05s ease;
 }
 
-.register-touches:hover:not(:disabled) { background: var(--color-jx-hundido); color: var(--color-jx-tinta); }
+.register-touches:hover:not(:disabled) { background: var(--color-jx-hundido); }
+
+.register-touches:active:not(:disabled) {
+    height: 22px;
+    padding-bottom: 0;
+    border-bottom-width: 1px;
+    transform: translateY(1px);
+}
 
 .register-touches--open,
 .register-touches--open:hover:not(:disabled) {
     background: var(--color-jx-tinta);
     border-color: var(--color-jx-tinta);
-    color: var(--color-jx-tarjeta);
+    border-bottom-color: color-mix(in srgb, var(--color-jx-tinta) 60%, #000000);
+    color: var(--color-jx-fondo);
 }
 
-.register-touches:disabled { opacity: 0.45; cursor: default; }
+.register-touches:disabled {
+    padding-bottom: 0;
+    border-color: var(--color-jx-regla2);
+    border-bottom-width: 1px;
+    background: transparent;
+    color: var(--color-jx-tinta4);
+    cursor: default;
+}
 
-/*  La lista de toques (RegisterTouchList): una línea por toque, agrupados por gerente. La primera de
-    cada gerente lleva una raya más marcada encima. La placa usa los colores de su botón.  */
-.register-touch-row {
-    display: grid;
-    grid-template-columns: 30px minmax(0, 1fr) auto 22px;
+/*  EL DISQUETE (SaveRecordButton), también tecla. En verde cuando la rotación ya terminó —la mesa se
+    limpió, o el pedido para llevar se entregó—: es la que toca guardar. Sin mesa, plano. Guardando,
+    hundido y con el giro. Blanco sobre 'verde-barra' da 4,4 : 1; el icono pide 3.  */
+.register-save {
+    flex: none;
+    width: 26px;
+    height: 24px;
+    padding: 0 0 1px;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
-    min-height: 26px;
-    padding: 1px 8px 1px 12px;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--color-jx-tinta) 22%, var(--color-jx-regla2));
+    border-bottom: 3px solid color-mix(in srgb, var(--color-jx-tinta) 40%, var(--color-jx-regla2));
+    border-radius: 6px;
+    background: var(--color-jx-fondo);
+    color: var(--color-jx-tinta);
+    transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.register-save:hover { background: var(--color-jx-verde-suave); color: var(--color-jx-verde-texto); }
+
+.register-save--done {
+    border-color: color-mix(in srgb, var(--color-jx-verde-barra) 80%, #000000);
+    border-bottom-color: color-mix(in srgb, var(--color-jx-verde-barra) 55%, #000000);
+    background: var(--color-jx-verde-barra);
+    color: #ffffff;
+}
+
+.register-save--done:hover { background: color-mix(in srgb, var(--color-jx-verde-barra) 88%, #000000); color: #ffffff; }
+
+.register-save:active:not(:disabled),
+.register-save[aria-busy='true'] {
+    height: 22px;
+    padding-bottom: 0;
+    border-bottom-width: 1px;
+    transform: translateY(1px);
+}
+
+.register-save[aria-busy='true'] { cursor: wait; }
+
+.register-save--waiting {
+    padding-bottom: 0;
+    border-color: var(--color-jx-regla2);
+    border-bottom-width: 1px;
+    background: transparent;
+    color: var(--color-jx-tinta4);
+}
+
+.register-save--waiting:hover { background: var(--color-jx-hundido); color: var(--color-jx-tinta3); }
+
+/*  LA LISTA DE TOQUES (RegisterTouchList): la propuesta «B · Por gerente, con subtotales», elegida por el
+    usuario. Una tarjeta con una flechita que apunta al botón de la mano; dentro, una tablita —Inicio, Fin,
+    Duró— con una cabecera por gerente y el total de la mesa al pie, en oscuro.
+
+    Lleva también 'register-process-card' (la libra de las reglas de las celdas de la fila, de la que es
+    hija); de ella se quita el recorte para que asome la flechita, y por eso el pie redondea sus esquinas.
+    El borde se queda en 'regla2': es el que las reglas de la fila le ponen a la derecha y abajo.  */
+.register-process-card.register-touch-card {
+    --touch-card: color-mix(in srgb, var(--color-jx-lienzo) 45%, #ffffff);
+    width: 336px;
+    margin-top: 7px;
+    overflow: visible;
+    border-radius: 10px;
+    background: var(--touch-card);
+    box-shadow: 0 14px 30px rgb(47 42 30 / 0.2), 0 2px 6px rgb(47 42 30 / 0.08);
+}
+
+/*  La flechita: apunta al centro del botón de la mano, que cae a 62 px del borde derecho de la fila
+    —el disquete (SAVE_WIDTH, 34), el margen de la celda de gerentes (9,5) y medio botón (19)—. Esas
+    medidas salen de columns.js; si cambian, cambia esto. 57 = 62 menos media flechita.  */
+.register-touch-card::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 57px;
+    width: 10px;
+    height: 10px;
+    background: var(--touch-card);
+    border-top: 1px solid var(--color-jx-regla2);
+    border-left: 1px solid var(--color-jx-regla2);
+    transform: rotate(45deg);
+}
+
+.register-touch-card__head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 8px 8px 14px;
+}
+
+.register-touch-card__title { font-size: 14px; font-weight: 700; color: var(--color-jx-tinta); }
+.register-touch-card__count { flex: 1; font-size: 11.5px; color: var(--color-jx-tinta2); }
+.register-touch-card__head .register-touch-close { align-self: center; }
+
+/*  Las columnas, las mismas en la cabecera y en cada toque: orden, Inicio, Fin, Duró y la papelera.  */
+.register-touch-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px 64px 48px 22px;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px 0 12px;
+}
+
+.register-touch-grid--columns {
+    height: 22px;
+    background: var(--color-jx-arena);
+    border-top: 1px solid var(--color-jx-regla);
+    border-bottom: 1px solid var(--color-jx-regla2);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-jx-tinta2);
+}
+
+.register-touch-grid--columns > :nth-child(2),
+.register-touch-grid--columns > :nth-child(3) { text-align: center; }
+.register-touch-grid--columns > :nth-child(4) { text-align: right; }
+
+/*  La cabecera de cada gerente: placa, nombre, cuántos toques y lo que suman. Entre gerentes, la raya
+    marcada; la primera no la lleva, que ya tiene encima la de la cabecera de columnas.  */
+.register-touch-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 30px;
+    padding: 0 34px 0 12px;
+    background: color-mix(in srgb, var(--color-jx-arena) 55%, var(--touch-card));
+    border-top: 1px solid var(--color-jx-regla2);
+}
+
+.register-touch-grid--columns + .register-touch-group { border-top: 0; }
+
+.register-touch-group__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-jx-tinta);
+}
+
+.register-touch-group__count { flex: none; font-size: 11.5px; color: var(--color-jx-tinta2); }
+
+.register-touch-group__total {
+    flex: none;
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-jx-tinta);
+}
+
+/*  Cada toque. Las horas, en la letra de ancho fijo de las celdas (WrapperText); lo que duró, en verde.  */
+.register-touch-line {
+    height: 28px;
     border-top: 1px solid var(--color-jx-regla);
 }
 
-.register-touch-row--group { border-top-color: var(--color-jx-regla2); }
-.register-touch-row:hover { background: var(--color-jx-tarjeta); }
+.register-touch-line:hover { background: var(--color-jx-tarjeta); }
+
+.register-touch-line__order { padding-left: 38px; font-size: 12px; color: var(--color-jx-tinta2); }
+.register-touch-line__time { height: 100%; font-size: 12px; color: var(--color-jx-tinta); cursor: pointer; }
+
+.register-touch-line__lasted {
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-jx-verde-texto);
+}
+
+.register-touch-line__lasted--none { font-weight: 400; color: var(--color-jx-tinta4); }
+.register-touch-line__lasted--wrong { color: var(--color-jx-critico-texto); }
+
+/*  LA FILA MANUAL (RegisterTouchManual), la primera de la lista: gerente, hora del toque, hora de fin y
+    «Crear». Un velo verde muy suave la separa de los toques ya apuntados. Las horas vacías van con el borde
+    a trazos: es un hueco para escribir. El borde de los campos es 'borde-campo', el único que llega a 3 : 1.  */
+.register-touch-manual {
+    height: 34px;
+    background: color-mix(in srgb, var(--color-jx-verde) 6%, var(--touch-card));
+    border-bottom: 1px solid var(--color-jx-regla2);
+}
+
+.register-touch-manual__manager {
+    min-width: 0;
+    width: 100%;
+    height: 24px;
+    padding: 0 2px;
+    border: 1px solid var(--color-jx-borde-campo);
+    border-radius: 5px;
+    background: var(--touch-card);
+    font-size: 12px;
+    color: var(--color-jx-tinta);
+    cursor: pointer;
+}
+
+.register-touch-manual__slot { display: block; height: 24px; font-size: 12px; }
+
+.register-touch-manual__time {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 1px solid var(--color-jx-borde-campo);
+    border-radius: 5px;
+    background: var(--touch-card);
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-jx-tinta);
+}
+
+.register-touch-manual__time--empty { border-style: dashed; color: var(--color-jx-tinta3); }
+.register-touch-manual__time:hover { background: var(--color-jx-hundido); }
+
+/*  «Crear» ocupa las dos últimas columnas (Duró y la papelera). Tecla verde, como el disquete listo.  */
+.register-touch-manual__create {
+    grid-column: span 2;
+    height: 24px;
+    padding: 0 8px 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid color-mix(in srgb, var(--color-jx-verde-barra) 80%, #000000);
+    border-bottom: 3px solid color-mix(in srgb, var(--color-jx-verde-barra) 55%, #000000);
+    border-radius: 6px;
+    background: var(--color-jx-verde-barra);
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.register-touch-manual__create:hover { background: color-mix(in srgb, var(--color-jx-verde-barra) 88%, #000000); }
+.register-touch-manual__create:active { padding-bottom: 0; border-bottom-width: 1px; transform: translateY(1px); }
+
+.register-touch-manual__problem {
+    padding: 5px 12px;
+    border-bottom: 1px solid var(--color-jx-regla2);
+    background: var(--color-jx-critico-suave);
+    font-size: 11.5px;
+    color: var(--color-jx-critico-texto);
+}
+
+/*  Una mesa sin toques: la lista se abre igual (para la fila manual), con este aviso en vez de toques.  */
+.register-touch-empty {
+    padding: 10px 12px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--color-jx-tinta3);
+}
+
+/*  Un toque cuyo gerente ya no tiene botón: placa neutra.  */
+.register-touch-label--none { background: var(--color-jx-hundido); color: var(--color-jx-tinta3); }
+
+/*  El total de la mesa, al pie y en oscuro.  */
+.register-touch-card__total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 34px;
+    padding: 0 34px 0 12px;
+    border-radius: 0 0 9px 9px;
+    background: var(--color-jx-tinta);
+    color: var(--touch-card);
+}
+
+.register-touch-card__total-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+.register-touch-card__total-value { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 .register-touch-label {
     display: inline-flex;
@@ -332,7 +802,8 @@
     line-height: 1;
 }
 
-/*  La ✕ de borrar, apagada hasta que se pasa el ratón por su línea; y la de cerrar, como ella.  */
+/*  Borrar —la papelera en Mesas, la ✕ en Registros—, apagado hasta que se pasa el ratón por su línea; y la
+    ✕ de cerrar, como él.  */
 .register-touch-delete {
     width: 22px;
     height: 22px;
@@ -346,11 +817,11 @@
     color: var(--color-jx-tinta4);
 }
 
-.register-touch-row:hover .register-touch-delete,
+.register-touch-line:hover .register-touch-delete,
 .register-touch-close { color: var(--color-jx-tinta3); }
 
 .register-touch-delete:hover,
-.register-touch-row:hover .register-touch-delete:hover { background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
+.register-touch-line:hover .register-touch-delete:hover { background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
 
 .register-touch-close:hover { background: var(--color-jx-hundido); color: var(--color-jx-tinta); }
 
@@ -358,6 +829,10 @@
 .register-icon-button:focus-visible,
 .register-manager:focus-visible,
 .register-touches:focus-visible,
+.register-save:focus-visible,
+.register-touch-manual__manager:focus-visible,
+.register-touch-manual__time:focus-visible,
+.register-touch-manual__create:focus-visible,
 .register-touch-delete:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }
 
 

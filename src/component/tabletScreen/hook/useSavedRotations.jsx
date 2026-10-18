@@ -8,6 +8,7 @@ import { findSavedTicket } from '../../../libs/tickets/savedTickets.js';
 import { socketAppManager } from '../../../store/slices/socketio.js';
 import { showBoxModal } from '../../../store/slices/boxModal.js';
 import { getCurrentTime } from '../../cells/GridCells.jsx';
+import { randomTouchFinish } from '../../../libs/date_time/touchFinish.js';
 
 
 /*  LAS ROTACIONES YA GUARDADAS DEL DÍA, Y LA PREGUNTA POR LOS TICKETS REPETIDOS
@@ -220,12 +221,13 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
 
     // addSavedTouch = «apuntar un toque de ese gerente», con la hora del clic. Se espera a la API antes de
     // pintarlo: el toque necesita el _id que ella le da para poder corregirlo o quitarlo. Apuntado aquí, en
-    // Registros, es un toque recuperado: recovered: true.
+    // Registros, es un toque recuperado: recovered: true. Como en Mesas, lleva su hora de fin al azar (randomTouchFinish).
     const addSavedTouch = useCallback((rotationId, manager) => {
         if (!rotationId) return;
 
         setEditNotice('');
-        addRotationTouch(rotationId, { ref: manager.ref, name: manager.name, hourTouch: getCurrentTime(), createdAt: new Date().toISOString(), recovered: true })
+        const hourTouch = getCurrentTime();
+        addRotationTouch(rotationId, { ref: manager.ref, name: manager.name, hourTouch, hourTouchFinish: randomTouchFinish(hourTouch), createdAt: new Date().toISOString(), recovered: true })
             .then(updated => setSaved(current => putSaved(current, updated, 'put')))
             .catch(failed);
     }, [failed]);

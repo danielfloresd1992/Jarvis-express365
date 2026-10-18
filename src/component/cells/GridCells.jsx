@@ -56,8 +56,12 @@ export function WrapperCell({ classStyles = '', estilo, titulo, tall = false, ch
  *
  *  Sin `updateValue` la celda es de solo lectura: ni el clic ni el doble clic hacen
  *  nada. Es lo que necesitan las columnas que solo muestran un valor calculado.
+ *
+ *  Con `stampOnClick` en false el clic no estampa nada y solo queda el doble clic. Es
+ *  para las horas en las que «ahora» no tiene sentido: el fin de un toque viejo, por
+ *  ejemplo, no es la hora a la que alguien lo mira (RegisterTouchList).
  */
-export function WrapperText({ classStyles = '', value, updateValue }) {
+export function WrapperText({ classStyles = '', value, updateValue, stampOnClick = true }) {
 
 
     const [editing, setEditing] = useState(false);
@@ -80,7 +84,7 @@ export function WrapperText({ classStyles = '', value, updateValue }) {
      *  Para cambiar una hora ya puesta está el doble clic, que abre el campo.
      */
     const handleClick = () => {
-        if (readOnly) return;
+        if (readOnly || !stampOnClick) return;
         if (value !== '' && value !== undefined && value !== null) return;
         updateValue(getCurrentTime());
     };
@@ -119,7 +123,8 @@ export function WrapperText({ classStyles = '', value, updateValue }) {
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
         >
-            <p className={`tracking-[0.3px] font-mono tabular-nums ${classStyles}`}>{value === '' ? '-' : value}</p>
+            {/*  'data-empty': la hora todavía no pasó. Así se la puede apagar desde fuera (registers.css).  */}
+            <p className={`tracking-[0.3px] font-mono tabular-nums ${classStyles}`} data-empty={value === '' ? 'true' : undefined}>{value === '' ? '-' : value}</p>
         </div>
     );
 }

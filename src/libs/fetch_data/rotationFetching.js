@@ -73,7 +73,7 @@ export const updateRotation = (data, id) => {
 
 // addRotationTouch = «apuntar un toque nuevo en una rotación guardada» (POST /rotation/id=<id>/touch)
 // Resuelve con la rotación entera, ya con el toque (y su _id). Rechaza con el error de rotationError.
-// Recibe: id, el _id de la rotación, y touch, el toque tal cual ({ ref, name, hourTouch, createdAt }).
+// Recibe: id, el _id de la rotación, y touch, el toque tal cual ({ ref, name, hourTouch, hourTouchFinish, createdAt, recovered }).
 export const addRotationTouch = (id, touch) => {
     return new Promise((resolve, reject) => {
         axiosInstance.post(`${IP}/rotation/id=${id}/touch`, touch)

@@ -18,6 +18,20 @@ function managerIndex(managers, touch) {
 }
 
 
+// touchCounts = «cuántos toques lleva cada gerente», en el orden de sus botones: lo que dice la burbuja de
+// cada tecla (ManagerButtons). Con la misma regla que agrupa la lista (managerIndex), así nunca discrepan.
+// Un toque cuyo gerente ya no tiene botón no cuenta en ninguno: sigue en la lista.
+// Recibe: touches ([{ ref, name }]) y managers (los botones, de managerButtons).
+export function touchCounts(touches, managers) {
+    const counts = managers.map(() => 0);
+    touches.forEach(touch => {
+        const position = managerIndex(managers, touch);
+        if (position < managers.length) counts[position] += 1;
+    });
+    return counts;
+}
+
+
 // groupTouches = «los toques agrupados por gerente» (pedido del usuario): en el orden de sus botones y,
 // dentro de cada uno, por hora. Cada toque sale con su placa ('label', G1, A2…; '' si su gerente ya no
 // tiene botón) y 'startsGroup' en la primera línea de cada gerente. Lo usan la lista de toques de la

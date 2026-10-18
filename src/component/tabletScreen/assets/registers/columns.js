@@ -52,11 +52,12 @@ export const ADD_WIDTH = 34;
 // SAVE_WIDTH = «lo que mide la columna del disquete», la última de la fila (SaveRecordButton)
 export const SAVE_WIDTH = 34;
 
-// MANAGER_BUTTON_SPACE = «lo que ocupa cada botón de gerente», con el hueco hasta el siguiente (ManagerButtons)
-const MANAGER_BUTTON_SPACE = 34;
+// MANAGER_BUTTON_SPACE = «lo que ocupa cada botón de gerente», con el hueco hasta el siguiente (ManagerButtons):
+// 30 px de tecla y 8 de hueco, que es por donde asoma la burbuja con sus toques.
+const MANAGER_BUTTON_SPACE = 38;
 
-// TOUCHES_SPACE = «lo que ocupa el contador de toques», con la raya que lo separa de los botones
-// (TouchToggle). Está siempre, también con 0, así que la columna no cambia de ancho.
+// TOUCHES_SPACE = «lo que ocupa el botón de la lista de toques», con la raya que lo separa de los gerentes
+// (TouchToggle). Está siempre, también sin toques, así que la columna no cambia de ancho.
 const TOUCHES_SPACE = 60;
 
 // managersWidth = «lo que mide la columna de los gerentes», a la derecha de la fila, para 'count' botones.
@@ -154,6 +155,7 @@ export const columnStripes = (widthOfManagers) => {
 // Como las de la rotación, pero sin apagarse hacia abajo: la tarjeta es corta. Y sin columnas fijas que
 // descontar, así que cada borde es la parte de 'width' que queda a su izquierda. Una columna sin color
 // (la de borrar) se queda en el color del lienzo.
+// El color va al 29 %: era el 14 %, y el usuario pidió 15 puntos más de opacidad.
 export const PROCESS_STRIPES = (() => {
 
     // total = «lo que suman los anchos»
@@ -161,7 +163,7 @@ export const PROCESS_STRIPES = (() => {
 
     let before = 0;
     const stripes = PROCESS_COLUMNS.map(column => {
-        const color = column.color ? `color-mix(in srgb, ${column.color} 14%, var(--color-jx-lienzo))` : 'var(--color-jx-lienzo)';
+        const color = column.color ? `color-mix(in srgb, ${column.color} 29%, var(--color-jx-lienzo))` : 'var(--color-jx-lienzo)';
         const stripe = `${color} ${(before / total) * 100}% ${((before + column.width) / total) * 100}%`;
         before += column.width;
         return stripe;

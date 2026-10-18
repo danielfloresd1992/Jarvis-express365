@@ -28,7 +28,7 @@ import './registers.css';
  *  @param {function} deleteProcess   borra un proceso de una rotación
  *  @param {function} clearRecord     deja una rotación en blanco (ya guardada en la API)
  *  @param {function} addTouch        apunta un toque de gerente en una rotación
- *  @param {function} writeTouch      corrige la hora de un toque
+ *  @param {function} writeTouch      corrige una hora de un toque: la suya o la de su fin
  *  @param {function} deleteTouch     borra un toque
  *  @param {function} onReportDelay   qué hacer cuando se pide reportar una demora
  *

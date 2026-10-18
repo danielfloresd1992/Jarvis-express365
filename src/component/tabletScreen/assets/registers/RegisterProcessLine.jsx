@@ -97,7 +97,7 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
 
             {/*  DURACIÓN en la tablet: de la toma de orden a «listo en tablet». Calculada: sin 'updateValue'.  */}
             <WrapperCell>
-                <WrapperText classStyles={tabletDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={tabletDuration ?? '00:00:00'} />
+                <WrapperText classStyles={tabletDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={tabletDuration ?? '—'} />
             </WrapperCell>
 
             <WrapperCell classStyles='text-jx-tinta'>
@@ -110,20 +110,26 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
 
             {/*  DURACIÓN de la entrega: de «listo en cocina» a la mesa. Calculada: sin 'updateValue'.  */}
             <WrapperCell>
-                <WrapperText classStyles={deliveryDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={deliveryDuration ?? '00:00:00'} />
+                <WrapperText classStyles={deliveryDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={deliveryDuration ?? '—'} />
             </WrapperCell>
 
-            {/*  Borrar el proceso. El relleno y la letra van en línea: la regla global 'button {}' gana a Tailwind.  */}
+            {/*  Borrar el proceso: la papelera, en rojo (pedido del usuario: la ✕ gris no se veía ni se entendía).
+                El aspecto va en registers.css ('register-process-delete'): la regla global 'button {}' gana a Tailwind.  */}
             <WrapperCell>
                 <button
                     type='button'
-                    className='text-jx-tinta3 hover:text-red-600'
-                    style={{ padding: 0, fontSize: 12, background: 'transparent' }}
+                    className='register-process-delete'
                     onClick={onDelete}
                     title='Borrar este proceso'
                     aria-label='Borrar este proceso'
                 >
-                    ✕
+                    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                        <path d='M3 6h18' />
+                        <path d='M8 6V4h8v2' />
+                        <path d='M6 6l1 14h10l1-14' />
+                        <path d='M10 11v5' />
+                        <path d='M14 11v5' />
+                    </svg>
                 </button>
             </WrapperCell>
         </div>

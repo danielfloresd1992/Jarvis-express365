@@ -145,7 +145,9 @@ export function createRecord(fields = {}) {
         process: [],
         breakUp: '',
         tableCleaning: '',
-        touch: [],      //  los toques de gerente: [{ id (UUIDv4), ref (ObjectId del gerente), name, hourTouch 'HH:MM:SS', createdAt }]
+        touch: [],      //  los toques de gerente: [{ id (UUIDv4), ref (ObjectId del gerente), name, hourTouch 'HH:MM:SS', hourTouchFinish, createdAt }]
+                        //  hourTouchFinish: cuándo terminó el toque, 'HH:MM:SS': de 5 segundos a un minuto después de
+                        //  hourTouch, al azar (libs/date_time/touchFinish.js). '' en los de antes de existir.
                         //  createdAt: de uso interno, el momento en que se creó el toque (ISO). No se ve ni se edita:
                         //  'hourTouch' sí se corrige a mano, y esto no.
         processesOpen: false,   //  de uso interno de Mesas (OPEN_LISTS): la lista de procesos está desplegada
@@ -641,6 +643,7 @@ function reviveRecord(saved, now) {
         ref: touch?.ref ?? null,
         name: String(touch?.name ?? ''),
         hourTouch: String(touch?.hourTouch ?? ''),
+        hourTouchFinish: String(touch?.hourTouchFinish ?? ''),                       //  los de antes de existir no lo tienen
         createdAt: typeof touch?.createdAt === 'string' ? touch.createdAt : null,   //  los de antes de existir no lo tienen
     }));
 
