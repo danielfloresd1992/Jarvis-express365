@@ -13,7 +13,6 @@ import URL from '../../../../libs/fetch_data/api_conexion.js';
 
 import { optionStyles } from '../../../../styles/inputs.jsx';
 
-import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 
 import VideoComponent from '../../sendVideo/videoComponent.jsx';
 import { saveVideo } from '../../../../libs/fetch_data/noveltyFecth.js';
@@ -62,7 +61,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
     let file3 = useRef(null);
     let file4 = useRef(null);
 
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
 
 
 

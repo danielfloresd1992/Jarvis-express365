@@ -8,7 +8,6 @@ import { Search } from '../search/searchComponent.jsx';
 import { isMobile } from 'react-device-detect';
 import { useSelector } from 'react-redux';
 
-import useAdapterResize from '../../../hook/adapter_resize.jsx';
 import { useTextMenu } from '../../../hook/useTextMenu';
 import { useImgAlternative } from '../../../hook/useImgAlternative.jsx';
 
@@ -58,7 +57,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
     const ref = useRef(null);
     const [timeUniqueState, setTimeUniqueState] = useState('');
     const user = useRef(null);
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
 
 
 
@@ -257,7 +256,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
     const printImg = () => {
 
         return (
-            <div className='box-div-imgContain gridx4' style={{ zoom: window.innerWidth < 1350 ? ((window.innerWidth / 1350) - 0.1).toString() : '1' }} ref={htmlAdapterRef}>
+            <div className='box-div-imgContain gridx4' ref={htmlAdapterRef}>
                 {
                     title[0].photos.caption.map((img, index) => (
 

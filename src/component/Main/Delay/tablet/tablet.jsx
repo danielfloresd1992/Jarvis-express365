@@ -11,7 +11,6 @@ import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
 import { ImgBoxImg } from '../../imgBoxComponent/ImgBox';
 import { TABLET_RULES, checkTime } from './model.js';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
-import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 
 
 import { TableInput, TikekInput } from '../../../keysInputs/tableNumber.jsx';
@@ -28,7 +27,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
     const seletedEstableshment = useSelector(state => state.establishment);
     const sessionUser = useSelector(state => state.user);
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
     const config = {
         hiddenBoxText: true,
         edit: true

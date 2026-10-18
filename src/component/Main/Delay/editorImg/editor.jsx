@@ -1,6 +1,7 @@
 import { toPng } from 'html-to-image';
 import { useRef, useState, useEffect } from 'react';
 import { base64ToFile } from '../../../../libs/script/64toFile';
+import { capturePixelRatio } from '../../../../libs/script/captureQuality.js';
 import './style.css';
 import resize from '../../../../../public/ico/resize/resize.svg';
 import moveImg from '../../../../../public/ico/move/move.svg';
@@ -32,7 +33,8 @@ function EditorImg({ img, deleteImg, createNewImg, closeWindow }) {
 
     const saveChangue = () => {
 
-        toPng(newImg.current, { quality: 10 })
+        // A más píxeles que la pantalla (captureQuality.js): editar una foto no la deja más borrosa que la original.
+        toPng(newImg.current, { quality: 10, pixelRatio: capturePixelRatio() })
             .then(dataUrl => {
                 const file = base64ToFile(dataUrl, 'newImage');
                 deleteImg();

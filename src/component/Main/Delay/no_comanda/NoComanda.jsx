@@ -1,8 +1,7 @@
 import './style.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import LayautAlert from '../../../layaut/LayoutAlert.jsx';
-import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { ImgComponent } from '../../SendNovelties/ImageComponent.jsx';
 import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
 import { isMobile } from 'react-device-detect';
@@ -38,7 +37,7 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
     const [dish, setDish] = useState(null);
     const [table, setNumberTable] = useState('');
     const [description, setDescription] = useState('');
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
     const saveNoveltie = useSaveNoveltie();
     let [local, setLocal] = useState(null);
 
@@ -65,7 +64,7 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
     const printImg = () => {
 
         return (
-            <div className='box-div-imgContain gridx4' style={{ zoom: window.innerWidth < 1350 ? ((window.innerWidth / 1350) - 0.1).toString() : '1' }} ref={htmlAdapterRef}>
+            <div className='box-div-imgContain gridx4' ref={htmlAdapterRef}>
                 {
                     title[0].photos.caption.map((img, index) => (
 

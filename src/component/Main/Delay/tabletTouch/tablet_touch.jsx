@@ -1,6 +1,5 @@
 import { useSelector } from 'react-redux';
 import { useState, useRef, useEffect } from 'react';
-import useAdapterResize from '../../../../hook/adapter_resize.jsx'
 //import { useTextMenu } from '../../../../hook/useTextMenu.jsx';
 import { useImgAlternative } from '../../../../hook/useImgAlternative.jsx';
 import { useAlert } from '../../../../hook/useAlert.jsx';
@@ -44,7 +43,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
     const saveNoveltie = useSaveNoveltie();
 
 
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
 
     let [time1, setTime1] = useState(''); //TOMA DE ORDEN
     let [time2, setTime2] = useState(''); //LISTO EN TABLET
@@ -160,7 +159,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                 <p style={{ color: 'rgb(0, 195, 255)', textAlign: 'center', fontSize: '.9rem' }}>marcada en pantalla antes de etar listo en cocina</p>
             </div>
 
-            <div className='box-imgComponenContent gridx4' style={{ zoom: window.innerWidth < 1350 ? ((window.innerWidth / 1350) - 0.1).toString() : '1' }} ref={htmlAdapterRef}>
+            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
                 {
                     title[0].photos.caption.map((iteration, index) => (
 

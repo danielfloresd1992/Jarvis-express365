@@ -9,7 +9,6 @@ import { ImgBoxImg } from '../../imgBoxComponent/ImgBox';
 import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
 import { useImgAlternative } from '../../../../hook/useImgAlternative.jsx';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
-import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import DishInputSelet from '../../../keysInputs/dishInput.jsx';
@@ -45,7 +44,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
     const user = useRef(null);
     let [local, setLocal] = useState(null);
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
 
 
     const timeTotal = returnTimeExceding(time2, time1);
@@ -183,7 +182,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
     return (
         <FormLayaut title={title.es} event={e => sendImg(e)} >
 
-            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef} style={{ zoom: ((window.innerWidth / 1350) - 0.1).toString() }}>
+            <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
                 {
                     title.photos.caption.map((iteration, index) => {
 

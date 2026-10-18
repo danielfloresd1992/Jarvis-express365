@@ -1,4 +1,5 @@
 import { /*toJpeg, toPng,*/ toBlob } from 'html-to-image';
+import { capturePixelRatio } from '../libs/script/captureQuality.js';
 //simport { base64ToFile } from '../util/64toFile';
 
 
@@ -58,7 +59,8 @@ function useImgAlternative(elementHtml, callback, download = true, imageCounting
 
         if (typeof callback === 'function') callback(htmlForImg);
 
-        toBlob(htmlForImg)  // change to blob
+        // A más píxeles que la pantalla (capturePixelRatio): a 1× cada caja salía de 550×300.
+        toBlob(htmlForImg, { pixelRatio: capturePixelRatio() })
             .then(dataUrl => {
                 if (false) {
                     const a = document.createElement('a');

@@ -7,8 +7,8 @@ import { toBlob } from 'html-to-image';
 import { ImgComponent } from './imgComponent.jsx';
 import axiosInstance from '../../../libs/fetch_data/instanceAxios.js';
 import URL from '../../../libs/fetch_data/api_conexion.js';
-import useAdapterResize from '../../../hook/adapter_resize.jsx';
 import { blobToFile } from '../../../libs/script/64toFile.js';
+import { capturePixelRatio } from '../../../libs/script/captureQuality.js';
 import { sendFile } from '../../../libs/fetch_data/multimedia.Fetching.js';
 
 
@@ -17,7 +17,7 @@ function Production({ awaitWindow, boxModal, reset, title }) {
 
 
     const alert = useAlert();
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
     const saveNoveltie = useSaveNoveltie();
     const sessionUser = useSelector(state => state.user);
     let [count, setCount] = useState(3);
@@ -142,7 +142,8 @@ function Production({ awaitWindow, boxModal, reset, title }) {
             }
 
             const text = `*${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}*\nEmpleado realiza producción: ${verb1}, ${verb2}, ${verb3} ${verb4 !== '' ? ` y ${verb4}` : ''}`;
-            const urlImg = await toBlob(htmlAdapterRef.current, { quality: 0.1 })
+            // A más píxeles que la pantalla (captureQuality.js), como las de Demoras. 'quality' no hace nada en PNG.
+            const urlImg = await toBlob(htmlAdapterRef.current, { pixelRatio: capturePixelRatio() })
             const responseUrl = await sendFile(blobToFile(urlImg));
             dataForRequest.imageToShare = responseUrl.data.url;
 

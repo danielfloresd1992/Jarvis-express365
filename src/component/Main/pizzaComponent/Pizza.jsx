@@ -10,7 +10,6 @@ import axiosInstance from '../../../libs/fetch_data/instanceAxios.js';
 
 import URL from '../../../libs/fetch_data/api_conexion.js';
 import { ImgComponent } from '../SendNovelties/ImageComponent.jsx';
-import useAdapterResize from '../../../hook/adapter_resize.jsx';
 import { sendFile } from '../../../libs/fetch_data/multimedia.Fetching.js';
 import { blobToFile } from '../../../libs//script/64toFile.js';
 
@@ -31,7 +30,7 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
     const user = useRef(null);
     let [local, setLocal] = useState(null);
     const menuRef = useRef({});
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
 
 
     useEffect(() => {

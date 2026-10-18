@@ -14,7 +14,6 @@ import { useDataUser } from '../../../../hook/useTextMenu.jsx';
 import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
 import { ImgBoxImg } from '../../imgBoxComponent/ImgBox';
 import { useImgAlternative } from '../../../../hook/useImgAlternative';
-import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
 import FieldInput from '../../../inputs/FieldInput.jsx';
@@ -59,7 +58,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
     let TIME_EXCEDING = useRef('00:03:00');
 
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
 
 
 

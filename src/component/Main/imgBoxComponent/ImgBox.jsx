@@ -7,6 +7,7 @@ import { toBlob } from 'html-to-image';
 import Compressor from 'compressorjs';
 import { useState, useEffect, useRef } from 'react';
 import { blobToFile } from '../../../libs/script/64toFile.js';
+import { SOURCE_MAX_SIZE, SOURCE_QUALITY, capturePixelRatio } from '../../../libs/script/captureQuality.js';
 
 import { EditorImg } from '../Delay/editorImg/editor.jsx';
 import { sendFile } from '../../../libs/fetch_data/multimedia.Fetching.js';
@@ -14,7 +15,7 @@ import { sendFile } from '../../../libs/fetch_data/multimedia.Fetching.js';
 
 
 
-function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, config, redimention = { w: 500, h: 480 } }) {
+function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, config }) {
 
     let imgBackground;
     isMobile ? imgBackground = camera : imgBackground = dropImg;
@@ -45,7 +46,8 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
         language === 'es' ? boxText.current.textContent = data.es : boxText.current.textContent = data.en;
 
 
-        toBlob(imgCanvas.current, { quality: quality })
+        // A más píxeles que la pantalla (capturePixelRatio): a 1× la caja salía de 390×200 y se veía borrosa.
+        toBlob(imgCanvas.current, { quality: quality, pixelRatio: capturePixelRatio() })
             .then(async (dataUrl) => {
                 const responseUrl = await sendFile(blobToFile(dataUrl));
                 const caption = language === 'es' ? boxText.current.textContent = data.es : boxText.current.textContent = data.en;
@@ -77,10 +79,12 @@ function ImgBoxImg({ data, boxModal, deleteImg, setImg, language, index_image, c
 
 
 
+        // Hasta 1920 px por lado y al 92 % (captureQuality.js). Antes: 500×480 como mucho, y 'cuality' mal escrito,
+        // que Compressor ignoraba (usaba su 0,8). Sin 'width'/'height' no agranda las fotos pequeñas.
         new Compressor(file, {
-            cuality: 0.7,
-            width: redimention.w,
-            height: redimention.h,
+            quality: SOURCE_QUALITY,
+            maxWidth: SOURCE_MAX_SIZE,
+            maxHeight: SOURCE_MAX_SIZE,
             success: (compressedResult) => {
                 const fileReader = new FileReader();
                 fileReader.readAsDataURL(compressedResult);

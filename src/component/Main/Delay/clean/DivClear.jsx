@@ -12,7 +12,6 @@ import { Search } from '../../search/searchComponent.jsx';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
 import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
-import useAdapterResize from '../../../../hook/adapter_resize.jsx';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 
 
@@ -89,7 +88,7 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
     const [hasFinishedState, setHasFinishedState] = useState(true);
 
-    const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
+    const htmlAdapterRef = useRef(null);
 
     useEffect(() => {
 

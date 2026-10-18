@@ -10,12 +10,16 @@
     (950 y 1000): si alguien abre la bandeja de imágenes, se pone encima.
 
     Sin 'transform': dentro de un formulario se puede abrir el editor de imágenes, que es
-    'fixed', y con un transform aquí ese editor quedaría encerrado en el panel.               */
+    'fixed', y con un transform aquí ese editor quedaría encerrado en el panel.
+
+    Mide 840 px: eran 700 y el usuario pidió un 20 % más. Nunca más que la ventana ('max-width'): entre 720 y
+    840 px de ancho se saldría por la izquierda.                                               */
 .right-sidebar {
     position: fixed;
     top: calc(52px + var(--titlebar-h));
     right: 0;
-    width: 700px;
+    width: 840px;
+    max-width: 100vw;
     height: calc(100vh - 52px - var(--titlebar-h));
     display: flex;
     flex-direction: column;

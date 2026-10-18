@@ -1633,10 +1633,13 @@ hr {
 
 /* ═══ DROPZONE — Modern Drag & Drop ═══ */
 
+/*  200 px de alto: eran 320, luego 250, y el usuario pidió un 20 % menos. Con el panel de 840 px cada caja mide
+    unos 460 de ancho. Ojo: lo que se envía es una captura de la caja entera (toBlob en ImgBox), así que su alto
+    decide también la forma de la foto.  */
 .dropzone {
     position: relative;
     width: 100%;
-    height: 320px;
+    height: 200px;
     border-radius: 14px;
     border: 2px dashed var(--color-jx-regla2);
     background: var(--color-jx-lienzo);
@@ -1650,10 +1653,9 @@ hr {
     transition: none;
 }
 
-.dropzone:hover {
-    border-color: var(--green-400, #8ab635);
-    background: rgba(78, 131, 0, 0.03);
-}
+/*  Sin efecto al pasar el ratón (pedido del usuario): se queda blanca y con su borde gris. Antes el borde se
+    ponía verde y el fondo se volvía transparente, y asomaba el papel del panel. En el escritorio un clic aquí no
+    hace nada —las imágenes llegan arrastrándolas—, así que el aviso va solo al arrastrar una encima (--dragging).  */
 
 .dropzone--dragging {
     border-color: var(--green-600);
@@ -1745,13 +1747,16 @@ hr {
     justify-content: center;
     cursor: pointer;
     opacity: 0;
+    pointer-events: none;
     transition: all 0.15s ease;
     backdrop-filter: blur(4px);
 }
 
-.dropzone:hover .dropzone__action-btn,
+/*  Borrar (y editar) solo con una imagen puesta. Antes salían también al pasar el ratón por la caja vacía: un
+    cuadro rojo sin nada que borrar. Sin imagen, además, no se pueden pulsar aunque no se vean.  */
 .dropzone--has-image .dropzone__action-btn {
     opacity: 1;
+    pointer-events: auto;
 }
 
 .dropzone__action-btn--delete {
@@ -1777,17 +1782,18 @@ hr {
 }
 
 .dropzone__label {
-    padding: 0.5rem 0.75rem;
-    font-weight: 600;
     color: white;
     background-color: rgb(0, 99, 86);
     border-top: 1px solid var(--slate-100);
     text-align: center;
     margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 0 1rem;
-    width: 40%;
+    font-size: 0.9rem;              /*  era 1.2rem: el usuario la pidió más pequeña  */
+    font-weight: 600;               /*  era 700: el usuario la pidió más fina  */
+    padding: 2px 14px;              /*  eran 0 arriba y abajo y 16 px (1rem) a los lados: el usuario pidió 2 px más
+                                        arriba y abajo, y 2 menos a cada lado  */
+    width: 30%;                     /*  era 40 %: el usuario la pidió más estrecha  */
+    min-width: fit-content;         /*  …pero sin partir el texto en dos líneas: si no cabe, crece lo justo  */
+    white-space: nowrap;
     position: absolute;
     bottom: 0;
     border-radius: 0px 10px 0px 10px;
@@ -2140,15 +2146,21 @@ hr {
     text-align: center;
 }
 
+/*  El caption en la IMAGEN COMPUESTA (useImgAlternative): cada caja a 550×300 y este rótulo encima de su
+    '.dropzone__label'. Lleva su propio ancho y deja partir el texto: los de pantalla (30 % y en una línea) le
+    quedaban justos a 1,2rem, y la compuesta tiene que seguir como estaba.  */
 .text-alternative {
     display: flex;
     border: 2px solid var(--color-jx-regla2);
     height: 40px;
-    color: var(--color-jx-tinta);
+    color: #ffffff;                 /*  era la tinta (casi negra): el usuario la pidió blanca  */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);   /*  el degradado empieza en un verde muy claro (2,3 : 1 con blanco)  */
     font-size: 1.2rem;
     background-image: linear-gradient(90deg, #29c50c, #4f8300e0 45%, #6b7f477a);
     font-weight: 500;
     padding: 0 1rem;
+    width: 40%;
+    white-space: normal;
     min-width: 25%;
     position: absolute;
     bottom: 0;
@@ -2160,12 +2172,14 @@ hr {
     border-radius: 8px;
 }
 
+/*  El caption mientras se captura la caja (ImgBox, createImg): sale así en la foto que se envía. Letra blanca
+    (pedido del usuario), como en pantalla: sobre el verde da 4,6 : 1 en el claro y 6,3 : 1 en el oscuro.  */
 .boxTextSend {
     border: none;
-    color: var(--color-jx-tinta);
+    color: #ffffff;
     background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 500;               /*  era 600: el usuario la pidió más fina  */
 }
 
 /* ── Botón Enviar — 3D blue-green ray-tracing ── */
