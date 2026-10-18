@@ -5,6 +5,7 @@ import RegisterViewTabs from './RegisterViewTabs.jsx';
 import ShiftToggle from './ShiftToggle.jsx';
 import ClearButton from './ClearButton.jsx';
 import RegisterTotals from './RegisterTotals.jsx';
+import RegisterEstablishment from './RegisterEstablishment.jsx';
 import RegisterTable from './RegisterTable.jsx';
 import RegisterSaved from './RegisterSaved.jsx';
 import RegisterTabPanel from './RegisterTabPanel.jsx';
@@ -81,6 +82,9 @@ export default function Registers({ session, establishment = session.establishme
 
                 {/*  El turno con que nacen las rotaciones: de día o de noche (toggleShift, de la sesión)  */}
                 <ShiftToggle shift={shift} locked={shiftLocked} onToggle={toggleShift} />
+
+                {/*  El nombre del local, centrado en el hueco que queda (pedido del usuario)  */}
+                <RegisterEstablishment name={establishment?.name} />
 
                 {/*  Rotaciones y toques de gerente del día, sumando Registros y Mesas (pedido del usuario: en el
                      sitio de cómo iba la lectura de la IA, que ya se ve en el «Registro de la inferencia»)  */}

@@ -658,6 +658,39 @@
 
 .register-save--waiting:hover { background: var(--color-jx-hundido); color: var(--color-jx-tinta3); }
 
+/*  EL NOMBRE DEL LOCAL, EN LA BARRA (RegisterEstablishment; pedido del usuario): ocupa el hueco entre el turno y
+    los totales y va centrado en él. Negrita en tinta, con la tienda en ocre delante; si no cabe, «…».
+    Base 0: solo toma lo que sobra. Con una base mayor, en una barra estrecha empujaba la papelera a otra línea.  */
+.register-establishment {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.register-establishment__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    max-width: 100%;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+    color: var(--color-jx-tinta);
+}
+
+.register-establishment__name svg {
+    flex: none;
+    color: var(--color-jx-ocre-texto);
+}
+
+.register-establishment__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /*  LOS TOTALES DEL DÍA, EN LA BARRA (RegisterTotals), propuesta «B · Medidores»: dos medidores —rotaciones y
     toques de gerente—, cada uno con su cifra grande, lo que es, una barra de tramos y su leyenda.  */
 .register-totals {
