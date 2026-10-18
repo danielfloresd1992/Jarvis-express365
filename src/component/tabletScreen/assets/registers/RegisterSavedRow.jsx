@@ -177,7 +177,7 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
                                 {
                                     column.id === 'tableNumber'
                                         ? <SavedTextInput value={rotation.tableNumber} onCommit={edit('tableNumber')} label='Número de mesa' required />
-                                        : <WrapperText value={rotation[column.id]} updateValue={edit(column.id)} />
+                                        : <WrapperText value={rotation[column.id]} updateValue={edit(column.id)} compact />
                                 }
                             </div>
                         )

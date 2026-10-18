@@ -16,7 +16,7 @@ import { touchDurationSeconds, formatDuration } from '../../../../libs/date_time
  *  tiene duración, enseña '-' y no cuenta en las sumas.
  *
  *  Las dos horas se corrigen como las de los procesos (WrapperText): dos clics abren el campo. La de fin, vacía,
- *  no se estampa con un clic: en un toque viejo «ahora» no es su fin. Un toque sin id (en Registros, uno guardado
+ *  no lleva el reloj de poner la hora: en un toque viejo «ahora» no es su fin. Un toque sin id (en Registros, uno guardado
  *  antes de que la API les diera _id) se lee, pero no se corrige ni se quita.
  *
  *  Un toque recuperado (recovered: true: se apuntó después, en Registros) va en gris.
@@ -128,11 +128,11 @@ export default function RegisterTouchTable({ touches, managers, idOf = byId, onW
                                         <span className='register-touch-line__order'>{index + 1}.º</span>
 
                                         <span className='register-touch-line__time' title={write('hourTouch') ? 'Doble clic para corregir la hora del toque' : undefined}>
-                                            <WrapperText value={touch.hourTouch ?? ''} updateValue={write('hourTouch')} />
+                                            <WrapperText value={touch.hourTouch ?? ''} updateValue={write('hourTouch')} compact />
                                         </span>
 
                                         <span className='register-touch-line__time' title={write('hourTouchFinish') ? 'Doble clic para corregir la hora de fin' : undefined}>
-                                            <WrapperText value={touch.hourTouchFinish ?? ''} updateValue={write('hourTouchFinish')} stampOnClick={false} />
+                                            <WrapperText value={touch.hourTouchFinish ?? ''} updateValue={write('hourTouchFinish')} stampNow={false} compact />
                                         </span>
 
                                         <span className={`register-touch-line__lasted ${lastedCell.look}`} title={lastedCell.why}>{lastedCell.text}</span>

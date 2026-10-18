@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { WrapperCell } from '../../../cells/GridCells.jsx';
 import { isBlankRecord } from '../../../../libs/tickets/tableRecords.js';
-import { COLUMNS, tableGrid, columnStripes, headerTint, managersWidth } from './columns.js';
+import { COLUMNS, tableGrid, columnStripes, headerTint, managersWidth, columnDescription } from './columns.js';
 import RegisterRecordRow from './RegisterRecordRow.jsx';
 import RegisterEmptyNotice from './RegisterEmptyNotice.jsx';
 import './registers.css';
@@ -55,6 +55,9 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
     const grid = useMemo(() => tableGrid(widthOfManagers), [widthOfManagers]);
     const stripes = useMemo(() => columnStripes(widthOfManagers), [widthOfManagers]);
 
+    // limits = «los tiempos de referencia del local», para que la cabecera diga con cuáles se marcan las duraciones
+    const limits = { attentionLimit, cleaningLimit };
+
     // empty = «no hay ninguna rotación con algo»
     const empty = records.every(isBlankRecord);
 
@@ -76,16 +79,17 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                 <div className='register-header sticky top-0 z-10 h-[46px] bg-jx-tarjeta w-full' style={grid}>
                     {/*  El «+», Gerentes y el disquete son las columnas de los lados: 'register-rail' les da el mismo
                          fondo de arriba abajo, en la cabecera y en todas las filas (registers.css)  */}
-                    <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo='Añadir un proceso a mano' />
+                    {/*  Al pasar el ratón, cada una dice qué representa (columnDescription, en columns.js)  */}
+                    <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo={columnDescription('add')} />
                     {
                         COLUMNS.map(column => (
-                            <WrapperCell key={column.id} tall classStyles={headerCell} estilo={{ background: headerTint(column) }} titulo='Se anota a mano'>
+                            <WrapperCell key={column.id} tall classStyles={headerCell} estilo={{ background: headerTint(column) }} titulo={columnDescription(column.id, limits)}>
                                 {column.title}
                             </WrapperCell>
                         ))
                     }
-                    {managers.length > 0 && <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo='Un botón por cada gerente del local'>Gerentes</WrapperCell>}
-                    <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo='Guardar la rotación' />
+                    {managers.length > 0 && <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo={columnDescription('managers')}>Gerentes</WrapperCell>}
+                    <WrapperCell tall classStyles={`${headerCell} register-rail`} titulo={columnDescription('save')} />
 
                 </div>
 

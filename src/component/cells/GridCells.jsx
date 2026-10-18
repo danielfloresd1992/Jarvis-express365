@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CellTimeInput from './CellTimeInput.jsx';
+import './cells.css';
 
 
 
@@ -50,48 +51,83 @@ export function WrapperCell({ classStyles = '', estilo, titulo, tall = false, ch
 
 /*  Celda de tiempo.
  *
- *  Un clic estampa la hora actual —que es como se trabaja en el register: cuando
- *  pasa la cosa, se toca—. Dos clics abren el campo para corregir a mano lo que se
- *  haya estampado mal o llegue tarde.
+ *  LA HORA SE PONE CON EL RELOJ, Y SE VE ANTES DE PONERLA (propuesta «C», elegida por el usuario): al pasar el
+ *  ratón por una celda vacía, el guion se convierte en la hora de ahora, en gris y corriendo, y a la derecha sale un
+ *  reloj negro con las agujas blancas. Con el ratón sobre el reloj esa hora se oscurece —es la que se va a poner— y
+ *  al pulsarlo queda puesta —que es como se trabaja en el register: cuando pasa la cosa, se marca—. Un clic en la
+ *  celda no pone nada. Dos clics abren el campo para corregir a mano lo que se haya puesto mal o llegue tarde.
  *
- *  Sin `updateValue` la celda es de solo lectura: ni el clic ni el doble clic hacen
- *  nada. Es lo que necesitan las columnas que solo muestran un valor calculado.
+ *  Y SE BORRA CON SU SÍMBOLO (pedido del usuario): al pasar el ratón por una celda con hora, a la derecha sale una
+ *  ✕; al pulsarla la celda se queda en blanco.
  *
- *  Con `stampOnClick` en false el clic no estampa nada y solo queda el doble clic. Es
- *  para las horas en las que «ahora» no tiene sentido: el fin de un toque viejo, por
- *  ejemplo, no es la hora a la que alguien lo mira (RegisterTouchList).
+ *  Sin `updateValue` la celda es de solo lectura: ni reloj, ni borrar, ni doble clic. Es lo que necesitan las
+ *  columnas que solo muestran un valor calculado.
+ *
+ *  Con `stampNow` en false no sale el reloj y solo queda el doble clic. Es para las horas en las que «ahora» no
+ *  tiene sentido: el fin de un toque viejo, por ejemplo, no es la hora a la que alguien lo mira (RegisterTouchTable).
+ *
+ *  Con `compact`, para las celdas estrechas (los toques, Registros), ni la vista previa ni el borrar: no caben junto
+ *  a la hora. Queda el reloj sobre el guion, y el doble clic.
  */
-export function WrapperText({ classStyles = '', value, updateValue, stampOnClick = true }) {
+export function WrapperText({ classStyles = '', value, updateValue, stampNow = true, compact = false }) {
 
 
     const [editing, setEditing] = useState(false);
 
     const readOnly = typeof updateValue !== 'function';
 
+    // empty = «la hora todavía no está puesta»
+    const empty = value === '' || value === undefined || value === null;
 
-    /*  UN CLIC ESTAMPA — PERO SOLO SOBRE UNA CELDA VACÍA
+    // hovered = «el ratón está sobre la celda»: solo entonces corre la vista previa
+    const [hovered, setHovered] = useState(false);
+
+    // preview = «la hora de ahora, la que pondría el reloj», al segundo mientras el ratón está encima
+    const [preview, setPreview] = useState('');
+
+
+    /*  EL RELOJ, SOLO EN UNA CELDA VACÍA
      *
-     *  Dos motivos, y los dos duelen:
-     *
-     *  · El navegador, ante un doble clic, dispara click, click y DESPUÉS dblclick.
-     *    Sin esta guarda, los dos primeros clics sellaban la hora actual y el editor
-     *    se abría ya con el valor nuevo: el doble clic destruía justo el dato que
-     *    ibas a corregir, y sin manera de deshacerlo.
-     *
-     *  · Entre los dos registers hay más de cien celdas de hora. Un clic despistado
-     *    en cualquiera de ellas sobrescribía su valor en silencio.
-     *
-     *  Para cambiar una hora ya puesta está el doble clic, que abre el campo.
+     *  Antes un clic en cualquier sitio de la celda la estampaba, y dolía por dos lados: el navegador, ante un
+     *  doble clic, dispara click, click y DESPUÉS dblclick, así que corregir una hora la pisaba antes de abrir el
+     *  campo; y entre los dos registers hay más de cien celdas de hora, donde un clic despistado sobrescribía una
+     *  en silencio. Con el reloj hace falta pulsar a propósito, y solo donde falta la hora: para cambiar una que ya
+     *  está, el doble clic.
      */
-    const handleClick = () => {
-        if (readOnly || !stampOnClick) return;
-        if (value !== '' && value !== undefined && value !== null) return;
+    // canStamp = «sale el reloj»: la celda se edita, la hora tiene sentido «ahora» y todavía no está puesta
+    const canStamp = !readOnly && stampNow && empty;
+
+    // showsPreview = «la celda enseña la hora que pondría el reloj»: con el ratón encima, si cabe
+    const showsPreview = canStamp && !compact && hovered;
+
+    // canClear = «sale el símbolo de borrar»: la celda se edita, cabe, y tiene una hora que quitar
+    const canClear = !readOnly && !compact && !empty;
+
+    //  La vista previa corre mientras el ratón está encima: un setInterval que se apaga al salir. Solo hay una
+    //  celda con el ratón encima a la vez, así que como mucho corre uno.
+    useEffect(() => {
+        if (!showsPreview) return undefined;
+        setPreview(getCurrentTime());
+        const timer = setInterval(() => setPreview(getCurrentTime()), 1000);
+        return () => clearInterval(timer);
+    }, [showsPreview]);
+
+    // stamp = «poner la hora de ahora», desde el reloj
+    const stamp = (event) => {
+        event.stopPropagation();
         updateValue(getCurrentTime());
+    };
+
+    // clear = «dejar la celda en blanco», desde el símbolo de borrar
+    const clear = (event) => {
+        event.stopPropagation();
+        updateValue('');
     };
 
 
     const handleDoubleClick = () => {
         if (readOnly) return;
+        setHovered(false);
         setEditing(true);
     };
 
@@ -119,12 +155,57 @@ export function WrapperText({ classStyles = '', value, updateValue, stampOnClick
 
     return (
         <div
-            className='w-full h-full flex items-center justify-center'
-            onClick={handleClick}
+            className='cell-time w-full h-full flex items-center justify-center'
             onDoubleClick={handleDoubleClick}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
         >
-            {/*  'data-empty': la hora todavía no pasó. Así se la puede apagar desde fuera (registers.css).  */}
-            <p className={`tracking-[0.3px] font-mono tabular-nums ${classStyles}`} data-empty={value === '' ? 'true' : undefined}>{value === '' ? '-' : value}</p>
+            {/*  'data-empty': la hora todavía no pasó. Así se la puede apagar desde fuera (registers.css). Con el
+                 ratón encima de una celda vacía, en lugar del guion va la vista previa (cells.css).  */}
+            <p className={`tracking-[0.3px] font-mono tabular-nums ${classStyles}`} data-empty={value === '' ? 'true' : undefined}>
+                {showsPreview && preview ? <span className='cell-time__preview'>{preview}</span> : value === '' ? '-' : value}
+            </p>
+
+            {/*  El reloj y el borrar: salen al pasar el ratón (cells.css). Su doble clic no abre el campo.  */}
+            {
+                canStamp && (
+                    <button
+                        type='button'
+                        className='cell-time__stamp'
+                        onClick={stamp}
+                        onDoubleClick={event => event.stopPropagation()}
+                        title={showsPreview && preview ? `Poner ${preview}` : 'Poner la hora de ahora'}
+                        aria-label='Poner la hora de ahora'
+                    >
+                        {/*  14 px en un botón de 20: 3 px a cada lado. Con un tamaño impar (13) el margen era de
+                             3,5 px, la pantalla no pinta medios píxeles y el icono quedaba corrido a un lado.  */}
+                        <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.4'
+                             strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                            <circle cx='12' cy='12' r='9' />
+                            <path d='M12 7v5l3 2' />
+                        </svg>
+                    </button>
+                )
+            }
+            {
+                canClear && (
+                    <button
+                        type='button'
+                        className='cell-time__clear'
+                        onClick={clear}
+                        onDoubleClick={event => event.stopPropagation()}
+                        title={`Borrar ${value}: la celda se queda en blanco`}
+                        aria-label={`Borrar la hora ${value}`}
+                    >
+                        {/*  12 px en 20: 4 px a cada lado (el mismo motivo que el reloj)  */}
+                        <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='3'
+                             strokeLinecap='round' aria-hidden='true'>
+                            <path d='M6 6l12 12' />
+                            <path d='M18 6 6 18' />
+                        </svg>
+                    </button>
+                )
+            }
         </div>
     );
 }
@@ -132,7 +213,7 @@ export function WrapperText({ classStyles = '', value, updateValue, stampOnClick
 
 
 
-//  Hora del equipo en 'HH:MM:SS'. Es la que se estampa al tocar una celda, y la
+//  Hora del equipo en 'HH:MM:SS'. Es la que pone el reloj de una celda vacía, y la
 //  misma que usa el seguimiento cuando detecta que un ticket cambió de color.
 export function getCurrentTime() {
     const now = new Date();

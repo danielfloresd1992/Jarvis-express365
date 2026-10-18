@@ -1649,6 +1649,35 @@
 .register-warned__flag { fill: #f6c21a; stroke: #9a6b00; }
 .register-warned__pole { stroke: #7a5500; }
 
+/*  LA CELDA DE OCUPA O DESOCUPA CON SU AVISO (pedido del usuario; waitingLook en RegisterRecordRow):
+      esperando, sin aviso   un marco amarillo que late, como el rojo de la demora: solo opacidad, 1,1 s, y quieto
+                             para quien pide menos movimiento. Ámbar y no el amarillo del triángulo: sobre el azul
+                             claro de Ocupa o el naranja de Desocupa, el amarillo claro no se distingue
+      aviso enviado          fondo amarillo pálido, quieta, con la bandera                                         */
+.register-cell--waiting::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 2px #e0a800;
+    pointer-events: none;
+    animation: register-alert 1.1s ease-in-out infinite;
+}
+
+.register-cell--warned {
+    background-color: color-mix(in srgb, #f6c21a 24%, #ffffff);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .register-cell--waiting::after { animation: none; }
+}
+
+/*  Con el triángulo o la bandera a la derecha de Ocupa o Desocupa, el símbolo de borrar de su hora (cells.css) se
+    va a la izquierda: los dos caben sin taparse, y el aviso sigue donde se le espera.  */
+.register-cell--badge .cell-time__clear {
+    right: auto;
+    left: 5px;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .register-waiting svg { animation: none; }
 }

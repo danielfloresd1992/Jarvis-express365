@@ -1,3 +1,6 @@
+import { isConfiguredLimit } from '../../../../libs/date_time/timeLimit.js';
+
+
 /*  LAS COLUMNAS DEL REGISTER
  *
  *  Dos tablas, una dentro de otra:
@@ -174,3 +177,35 @@ export const PROCESS_STRIPES = (() => {
 
     return { backgroundImage: `linear-gradient(to right, ${stripes.join(', ')})` };
 })();
+
+
+/*  LO QUE SE LEE AL PASAR EL RATÓN POR LA CABECERA (pedido del usuario)
+ *
+ *  El 'title' de cada celda de la cabecera de las rotaciones (RegisterTable): qué representa esa columna y cómo se
+ *  usa. Las dos duraciones dicen además el tiempo de referencia del local con que se marcan en rojo, y las dos horas
+ *  de las que sale una espera (Ocupa y Desocupa), el triángulo y la bandera del aviso.
+ */
+
+// limitText = «el tiempo de referencia del local, dicho para leer», tras «pasa»: 'del tiempo de referencia del local (00:03:30)'
+const limitText = (limit) => `del tiempo de referencia del local${isConfiguredLimit(limit) ? ` (${limit})` : ''}`;
+
+// unsetNote = «lo que se añade si ese tiempo está sin configurar» (en cero): entonces no se marca nada
+const unsetNote = (limit) => (isConfiguredLimit(limit) ? '' : ' El local todavía no tiene configurado ese tiempo: por ahora no se marca nada.');
+
+// STAMP = «cómo se anota una hora», lo mismo en las cuatro
+const STAMP = 'Al pasar el ratón por la celda vacía se ve la hora de ahora y sale un reloj: al pulsarlo, queda puesta. En una celda con hora sale una ✕ que la borra. Doble clic la corrige.';
+
+// columnDescription = «qué representa una columna», por su id: las siete de COLUMNS y las de los lados ('add',
+// 'managers' y 'save'). Recibe los dos tiempos de referencia del local.
+export const columnDescription = (id, { attentionLimit, cleaningLimit } = {}) => ({
+    add: 'Añadir un proceso a mano a la rotación: un pedido que la lectura de la tablet no trajo.',
+    tableNumber: 'El número de mesa de la rotación. Con «#» delante (#14) es un pedido para llevar: lleva su ticket y no tiene horas de mesa. La marca de la derecha dice cómo va: ✓ terminada (la mesa ya se limpió; o, para llevar, se entregaron sus platos) o el reloj, en curso. La flecha despliega sus procesos.',
+    hourOccupies: `Ocupa: la hora en que el cliente se sienta y la mesa queda ocupada. Desde aquí cuenta la espera de la primera atención: si pasa ${limitText(attentionLimit)} sin ella, sale el triángulo amarillo para enviar el aviso, y enviado, la bandera amarilla.${unsetNote(attentionLimit)} ${STAMP}`,
+    hourFirstAttention: `Primera atención: la hora en que el personal atiende a la mesa por primera vez (el protocolo de primera atención). ${STAMP}`,
+    attentionDuration: `Duración de la primera atención: lo que pasó de Ocupa a Primera atención. Se calcula sola. En rojo si pasa ${limitText(attentionLimit)}, con «Reportar» para enviar la demora; enviada, queda «Reportada».${unsetNote(attentionLimit)}`,
+    breakUp: `Desocupa: la hora en que el cliente se va y la mesa queda libre para limpiarla. Desde aquí cuenta la espera de la limpieza: si pasa ${limitText(cleaningLimit)} sin ella, sale el triángulo amarillo para enviar el aviso, y enviado, la bandera amarilla.${unsetNote(cleaningLimit)} ${STAMP}`,
+    tableCleaning: `Limpieza: la hora en que la mesa queda limpia y lista para el siguiente cliente. Con ella la rotación queda terminada. ${STAMP}`,
+    cleaningDuration: `Duración de la limpieza: lo que pasó de Desocupa a Limpieza. Se calcula sola. En rojo si pasa ${limitText(cleaningLimit)}, con «Reportar» para enviar la demora; enviada, queda «Reportada».${unsetNote(cleaningLimit)}`,
+    managers: 'Un botón por cada gerente del local: cada clic apunta un toque de ese gerente en la mesa, con su hora de inicio y su hora de fin. La burbuja cuenta los toques de cada uno, y la mano abre la lista con lo que duró cada toque.',
+    save: 'Guardar la rotación: pide el número de mesa y la hora de Ocupa, la manda a Registros y deja la fila libre. Se pone en verde cuando la rotación ya terminó.',
+}[id] ?? '');

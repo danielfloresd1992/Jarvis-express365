@@ -325,6 +325,22 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
             : { tipo, recordId: record.id, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: record.hourFirstAttention, demora: attention.timeTotal, limit: attentionLimit });
     };
 
+    // attentionWaiting / cleaningWaiting = «sale el triángulo»: la mesa lleva demasiado esperando (el bucle de la
+    // rotación) y todavía no se ha enviado el aviso. La celda lleva además el marco amarillo que late.
+    const attentionWaiting = !record.firstAttentionWarning && loop.overdue.attention && record.hourOccupies !== '' && record.hourFirstAttention === '';
+    const cleaningWaiting = !record.cleaningWarning && loop.overdue.cleaning && record.breakUp !== '' && record.tableCleaning === '';
+
+    // attentionBadge / cleaningBadge = «la celda de Ocupa / Desocupa lleva a la derecha el aviso»: la bandera amarilla
+    // si ya se envió, o el triángulo si la mesa lleva demasiado esperando. Entonces el símbolo de borrar de su hora
+    // se va a la izquierda ('register-cell--badge', registers.css), para no taparlo.
+    const attentionBadge = Boolean(record.firstAttentionWarning) || attentionWaiting;
+    const cleaningBadge = Boolean(record.cleaningWarning) || cleaningWaiting;
+
+    // waitingLook = «cómo va la celda de Ocupa o Desocupa» (pedido del usuario; registers.css):
+    //   esperando, sin aviso   el marco amarillo que late, con el triángulo
+    //   aviso enviado          fondo amarillo pálido, quieta, con la bandera
+    const waitingLook = (waiting, warned) => `${waiting || warned ? 'register-cell--badge' : ''} ${waiting ? 'register-cell--waiting' : warned ? 'register-cell--warned' : ''}`;
+
     // askForWarning = «pedir el aviso de que la mesa sigue esperando»: 'primera atención' (desde Ocupa) o 'limpieza'
     // (desde Desocupa). Lo pide el triángulo de su celda (WaitingAlert) con la hora del clic y lo que lleva esperando.
     // Abre el mismo formulario que su demora, pero en modo aviso ('aviso': la casilla «¿… aún?» marcada) y con la
@@ -470,12 +486,12 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             {/*  OCUPA. Si la mesa espera la primera atención más de lo que dice el local (lo mira el
                                  bucle de la rotación, 'loop'), sale el triángulo de aviso a la derecha. Enviado el
                                  aviso ('firstAttentionWarning'), en su lugar queda la bandera amarilla.  */}
-                            <WrapperCell classStyles='text-jx-tinta relative'>
+                            <WrapperCell classStyles={`text-jx-tinta relative ${waitingLook(attentionWaiting, Boolean(record.firstAttentionWarning))}`}>
                                 <WrapperText value={record.hourOccupies} updateValue={write('hourOccupies')} />
                                 {
                                     record.firstAttentionWarning
                                         ? <WarnedFlag kind='primera atención' />
-                                        : loop.overdue.attention && record.hourOccupies !== '' && record.hourFirstAttention === '' && (
+                                        : attentionBadge && (
                                             <WaitingAlert kind='primera atención' since={record.hourOccupies} limit={attentionLimit} table={record.tableNumber} onReport={askForWarning('primera atención')} />
                                         )
                                 }
@@ -505,12 +521,12 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             {/*  DESOCUPA. Como Ocupa: si la mesa espera la limpieza más de lo que dice el local, sale el
                                  triángulo de aviso a la derecha (lo mira el bucle de la rotación, 'loop'). Enviado el
                                  aviso ('cleaningWarning'), en su lugar queda la bandera amarilla.  */}
-                            <WrapperCell classStyles='text-jx-tinta relative'>
+                            <WrapperCell classStyles={`text-jx-tinta relative ${waitingLook(cleaningWaiting, Boolean(record.cleaningWarning))}`}>
                                 <WrapperText value={record.breakUp} updateValue={write('breakUp')} />
                                 {
                                     record.cleaningWarning
                                         ? <WarnedFlag kind='limpieza' />
-                                        : loop.overdue.cleaning && record.breakUp !== '' && record.tableCleaning === '' && (
+                                        : cleaningBadge && (
                                             <WaitingAlert kind='limpieza' since={record.breakUp} limit={cleaningLimit} table={record.tableNumber} onReport={askForWarning('limpieza')} />
                                         )
                                 }

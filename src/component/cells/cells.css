@@ -1,0 +1,92 @@
+/* ═══════════════════════════════════════════════
+   LAS CELDAS DE HORA (WrapperText, GridCells.jsx)
+   ═══════════════════════════════════════════════
+
+   La propuesta «C · Vista previa de la hora», elegida por el usuario, con el símbolo de borrar que pidió después.
+   Clases y no utilidades de Tailwind: la regla global 'button {}' de index.css les gana en relleno, borde y
+   letra, y una clase le gana a ella.                                                                          */
+
+
+.cell-time {
+    position: relative;
+}
+
+/*  LA VISTA PREVIA: con el ratón sobre una celda vacía, la hora de ahora en gris y subrayada a puntos, corriendo
+    (GridCells.jsx). Con el ratón sobre el reloj se oscurece y pasa a negrita: es la que se va a poner.            */
+.cell-time__preview {
+    color: #8a8270;
+    text-decoration: underline dotted 1px;
+    text-underline-offset: 3px;
+}
+
+.cell-time:has(.cell-time__stamp:hover) .cell-time__preview {
+    color: var(--color-jx-tinta);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/*  LOS DOS BOTONES DE LA DERECHA: el reloj (celda vacía) y el borrar (celda con hora). Escondidos hasta que se
+    pasa el ratón por la celda; con el teclado salen al llegarles el foco. Escondidos no se pueden pulsar: un clic
+    despistado en la celda no pone ni quita nada.                                                              */
+.cell-time__stamp,
+.cell-time__clear {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease, background-color 0.12s ease, color 0.12s ease;
+}
+
+.cell-time:hover .cell-time__stamp,
+.cell-time:hover .cell-time__clear,
+.cell-time__stamp:focus-visible,
+.cell-time__clear:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/*  EL RELOJ: negro, con las agujas blancas. Al pasar el ratón crece un poco.  */
+.cell-time__stamp {
+    border: 0;
+    background: var(--color-jx-tinta);
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgb(47 42 30 / 0.35);
+}
+
+.cell-time__stamp:hover { transform: translateY(-50%) scale(1.12); }
+.cell-time__stamp:active { transform: translateY(-50%) scale(0.94); }
+
+/*  EL BORRAR: una ✕ en tinta sobre blanco, que se pone roja al pasar el ratón: quita la hora.  */
+.cell-time__clear {
+    border: 1.5px solid var(--color-jx-tinta);
+    background: #ffffff;
+    color: var(--color-jx-tinta);
+}
+
+.cell-time__clear:hover {
+    border-color: var(--color-jx-critico);
+    background: var(--color-jx-critico);
+    color: #ffffff;
+}
+
+.cell-time__clear:active { transform: translateY(-50%) scale(0.94); }
+
+.cell-time__stamp:focus-visible,
+.cell-time__clear:focus-visible {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cell-time__stamp,
+    .cell-time__clear { transition: none; }
+}

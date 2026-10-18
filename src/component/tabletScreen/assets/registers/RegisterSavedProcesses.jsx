@@ -58,7 +58,7 @@ export default function RegisterSavedProcesses({ processes, onEdit }) {
                                 {DISH_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                             </select>
 
-                            {HOURS.map(hour => <WrapperText key={hour.id} value={process[hour.id]} updateValue={edit?.(hour.id)} />)}
+                            {HOURS.map(hour => <WrapperText key={hour.id} value={process[hour.id]} updateValue={edit?.(hour.id)} compact />)}
                         </div>
                     );
                 })
