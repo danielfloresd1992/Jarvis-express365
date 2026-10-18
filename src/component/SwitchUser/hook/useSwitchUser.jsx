@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../../store/slices/user.js';
+import { showBoxModal } from '../../../store/slices/boxModal.js';
 import { logIn } from '../../../libs/fetch_data/authFetch.js';
 
 
@@ -13,8 +14,9 @@ import { logIn } from '../../../libs/fetch_data/authFetch.js';
  *         la sesión de la cookie (addCredential.js): nombre, id, permisos y 'dataUser'. La del anterior queda
  *         cerrada, porque ya no queda nada suyo en ella;
  *      2. el usuario nuevo pasa a Redux (state.user) y a la copia de sessionStorage ('session');
- *      3. y nada más: no se navega ni se recarga. Lo que lee 'state.user' (la barra lateral, el chat, el aviso de
- *         'user-data' de Home, los formularios) se pone al día solo, y las mesas siguen donde estaban.
+ *      3. no se navega ni se recarga. Lo que lee 'state.user' (la barra lateral, el chat, el aviso de 'user-data'
+ *         de Home, los formularios) se pone al día solo, y las mesas siguen donde estaban;
+ *      4. el BoxModal de la aplicación avisa que el cambio salió bien, y de quién es ahora la sesión.
  *
  *  Por qué no se cierra antes la sesión vieja (GET /auth/logout): si la clave nueva está mal, el operador se
  *  quedaría sin sesión y con la pantalla a medias. Así, un fallo deja la sesión de antes intacta y se puede cancelar.
@@ -49,6 +51,10 @@ const loginFailure = (error) => {
     if (status === 403) return { field: null, text: serverText ?? 'Este usuario no puede entrar ahora.' };
     return { field: null, text: serverText ?? 'No se pudo iniciar la sesión. Inténtalo de nuevo.' };
 };
+
+
+// fullNameOf = «nombre y apellido», para el aviso: { name: 'Ana', surName: 'Pérez' } → 'Ana Pérez'
+const fullNameOf = (user) => `${user?.name ?? ''} ${user?.surName ?? ''}`.trim() || 'sin nombre';
 
 
 export default function useSwitchUser() {
@@ -105,6 +111,17 @@ export default function useSwitchUser() {
             }
 
             setOpen(false);
+
+            // El aviso de que salió bien (pedido del usuario). Si se volvió a entrar con el mismo usuario, no se
+            // dice que se cerró la sesión de nadie.
+            const sameUser = String(nextUser._id) === String(currentUser?._id);
+            dispatch(showBoxModal({
+                tone: 'success',
+                title: 'Cambio de usuario exitoso',
+                message: sameUser
+                    ? `Sigues con la sesión de ${fullNameOf(nextUser)}.`
+                    : `Ahora la sesión es de ${fullNameOf(nextUser)}.\nLa de ${fullNameOf(currentUser)} quedó cerrada.`,
+            }));
             return true;
         }
         catch (error) {
@@ -114,7 +131,7 @@ export default function useSwitchUser() {
         finally {
             setSending(false);
         }
-    }, [dispatch]);
+    }, [dispatch, currentUser]);
 
 
     return { currentUser, open, sending, failure, openDialog, closeDialog, clearFailure, switchTo };

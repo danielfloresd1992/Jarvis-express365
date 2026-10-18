@@ -19,7 +19,8 @@ export default function SwitchUserController() {
     const processRegister = useSelector(selectProcessRegister);
     const session = useSwitchUser();
 
-    // buttonRef = «la tecla de la barra»: al cerrar el formulario el foco vuelve a ella, y no se pierde en la página
+    // buttonRef = «la tecla de la barra»: al cancelar, el foco vuelve a ella, y no se pierde en la página. Al entrar
+    // no: el foco es del BoxModal que avisa del cambio (su «Aceptar»), y quitárselo haría que Enter reabriera esto.
     const buttonRef = useRef(null);
 
     const cancel = useCallback(() => {
@@ -28,10 +29,7 @@ export default function SwitchUserController() {
         buttonRef.current?.focus();
     }, [session.sending, session.closeDialog]);
 
-    const submit = useCallback(async (credentials) => {
-        const entered = await session.switchTo(credentials);
-        if (entered) buttonRef.current?.focus();
-    }, [session.switchTo]);
+    const submit = session.switchTo;
 
     if (!session.currentUser) return null;
 
