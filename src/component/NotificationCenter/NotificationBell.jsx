@@ -112,7 +112,7 @@ export default function NotificationBell() {
                     )}
                 </span>
 
-                <span>Notificaciones</span>
+                <span className='nav-bar__label'>Notificaciones</span>
 
                 {hasUnread && (
                     // El número se queda mientras haya sin leer, pero se apaga a

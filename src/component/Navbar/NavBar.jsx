@@ -1,17 +1,35 @@
 import { isMobile } from 'react-device-detect';
-import { useEffect, useState, memo } from 'react';
+import { useEffect, memo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '../../store/slices/user.js';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { desconnectIo, socketAppManager } from '../../store/slices/socketio';
-import ListNovelties from './listNovelties.jsx';
 import { socket } from '../../libs/socket/io.js';
 import URL from '../../libs/fetch_data/api_conexion.js';
 import { confirmAuthentication } from '../../libs/fetch_data/authFetch.js';
 import NotificationBell from '../NotificationCenter';
 import TabletButton from '../tabletButton/TabletButton.jsx';
 import InboxButton from '../inbox/InboxButton.jsx';
+import WindowControls from '../titleBar/WindowControls.jsx';
+
+
+/*  LA BARRA DE ARRIBA, QUE EN EL ESCRITORIO ES TAMBIÉN LA DE LA VENTANA
+ *
+ *  La propuesta «B · Clara, integrada con la app», elegida por el usuario: del mismo papel que la tabla, con
+ *  una raya verde de marca arriba, el logo en verde, los accesos en tinta y «Sacar tablet» como tecla verde.
+ *
+ *  Dentro de la aplicación de escritorio se FUNDE con la barra de título (component/titleBar): se arrastra
+ *  para mover la ventana (`WebkitAppRegion: 'drag'`; los botones van con `no-drag`, en App.css), dice el
+ *  nombre de la ventana junto al logo y lleva al final minimizar, maximizar y cerrar (WindowControls).
+ *  Mientras está montada pone `has-app-bar` en el <html>: la barra de título suelta se oculta (index.css).
+ *
+ *  En una ventana estrecha los accesos se quedan en su icono, con el nombre al pasar el ratón (App.css).
+ */
+
+
+// IS_ELECTRON = «corre dentro de la aplicación de escritorio»: solo ahí hay ventana que mover y cerrar
+const IS_ELECTRON = typeof window !== 'undefined' && Boolean(window.electronAPI?.isElectron);
 
 
 
@@ -20,9 +38,17 @@ function NavBar({ clearLocal, boxModal }) {
 
 
     const navigate = useNavigate();
-    const [openList, setOpenList] = useState(false);
     const userSelet = useSelector(state => state.user);
     const dispatch = useDispatch();
+
+
+    //  En el escritorio esta barra hace de barra de título: mientras está montada, la suelta se aparta
+    //  (index.css, 'has-app-bar'). Al salir de Home vuelve, que es la que mueve y cierra la ventana allí.
+    useEffect(() => {
+        if (!IS_ELECTRON) return undefined;
+        document.documentElement.classList.add('has-app-bar');
+        return () => document.documentElement.classList.remove('has-app-bar');
+    }, []);
 
 
 
@@ -112,10 +138,12 @@ function NavBar({ clearLocal, boxModal }) {
 
 
     return (
-        <nav className='nav-bar'>
+        <nav className={`nav-bar ${IS_ELECTRON ? 'nav-bar--window' : ''}`} style={IS_ELECTRON ? { WebkitAppRegion: 'drag' } : undefined}>
             <div className='nav-bar__left'>
                 <div className='nav-bar__brand'>
                     <span className='nav-bar__app-name'>JarvisExpress</span>
+                    {/*  El nombre de la ventana, el que la gente conoce en las estaciones: solo en el escritorio  */}
+                    {IS_ELECTRON && <span className='nav-bar__window-title'>Reportes de alertas</span>}
                 </div>
             </div>
 
@@ -137,29 +165,17 @@ function NavBar({ clearLocal, boxModal }) {
                 {/* La bandeja de imágenes del Toast. Trae su propio <li>, y no sale en el teléfono. */}
                 <InboxButton />
 
+                {/*  «Mis novedades» y su desplegable se quitaron (pedido del usuario)  */}
                 {!isMobile && (
-                    <>
-                        <li>
-                            <button className='nav-bar__action-btn' onClick={() => navigate('/ModalData')}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="2" y="5" width="20" height="14" rx="2" />
-                                    <line x1="2" y1="10" x2="22" y2="10" />
-                                </svg>
-                                Mis bonos
-                            </button>
-                        </li>
-                        <li>
-                            <button className='nav-bar__action-btn' onClick={() => setOpenList(!openList)}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                    <polyline points="14 2 14 8 20 8" />
-                                    <line x1="16" y1="13" x2="8" y2="13" />
-                                    <line x1="16" y1="17" x2="8" y2="17" />
-                                </svg>
-                                Mis novedades
-                            </button>
-                        </li>
-                    </>
+                    <li>
+                        <button type='button' className='nav-bar__action-btn' onClick={() => navigate('/ModalData')} title='Mis bonos'>
+                            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                                <path d='M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1' />
+                                <path d='M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4' />
+                            </svg>
+                            <span className='nav-bar__label'>Mis bonos</span>
+                        </button>
+                    </li>
                 )}
                 <li>
                     <button className='nav-bar__action-btn nav-bar__action-btn--logout' onClick={closeSesscion} title="Cerrar sesión"
@@ -176,7 +192,9 @@ function NavBar({ clearLocal, boxModal }) {
                 </li>
             </ul>
 
-            <ListNovelties open={openList} />
+            {/*  En el escritorio, tras una raya: minimizar, maximizar y cerrar la ventana  */}
+            {IS_ELECTRON && <span className='nav-bar__divider' aria-hidden='true' />}
+            <WindowControls className='nav-bar__window-controls' />
         </nav>
     );
 }

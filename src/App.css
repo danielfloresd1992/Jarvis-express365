@@ -635,58 +635,72 @@
 }
 /* ═══ TOP NAV BAR ═══ */
 
-/*  LA BARRA DE ARRIBA, EN VERDE CON LETRA BLANCA
+/*  LA BARRA DE ARRIBA — la propuesta «B · Clara, integrada con la app», elegida por el usuario
  *
- *  OJO AL VERDE QUE SE USA, que no es el de marca.
+ *  Del mismo papel que la tabla ('panel'), con una raya del verde de marca arriba, el logo en el verde de texto
+ *  y los accesos en tinta. Antes era verde de marca con letra blanca, que se quedaba en 2,31 : 1: ilegible para
+ *  letra pequeña. Ahora la letra es tinta sobre papel y el verde se queda donde aguanta: en la raya, que no lleva
+ *  letra, y en el logo, que es verde de texto (5,3 : 1 sobre el panel).
  *
- *      blanco sobre #29c50c (el de marca)    2,31 : 1    no se lee
- *      blanco sobre #1c8c08 (el de barras)   4,37 : 1    se queda corto
- *      blanco sobre #177406 (el de texto)    5,94 : 1    ✓
+ *  «Sacar tablet» es la acción principal: una tecla verde con relieve, de la misma familia que las de gerente y
+ *  el disquete de Mesas. Con la tablet fuera, la tecla pasa a rojo suave: el siguiente clic la cierra.
  *
- *  El de marca es un verde claro, precioso de relleno cuando lleva TINTA encima, y
- *  justo por eso no aguanta letra blanca. Aquí manda la letra: como tiene que ser
- *  blanca, el fondo se va al verde más oscuro de la paleta.
+ *  EN EL ESCRITORIO es también la barra de la ventana ('nav-bar--window', NavBar.jsx): se arrastra para mover la
+ *  ventana y lleva al final minimizar, maximizar y cerrar (WindowControls). Dentro de una zona arrastrable nada
+ *  responde al clic si no lleva `no-drag`: por eso se lo pone a todo lo que se pulsa.
  *
- *  Es la misma regla de siempre vista del revés: no es «qué letra le pongo a este
- *  verde», es «qué verde aguanta esta letra».                                       */
+ *  Mide 52 px, como antes: el resto de la página cuenta con ese alto (calc(52px + var(--titlebar-h))).        */
 .nav-bar {
     position: fixed;
     top: var(--titlebar-h);
     left: 0;
     width: 100%;
     height: 52px;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.5rem;
     padding: 0 1rem;
-    /*  El verde de los botones principales (el de «Hoy»), pedido por el usuario en lugar del verde
-        oscuro de texto. OJO: el blanco sobre este verde da 2,31 : 1, por debajo de lo legible para letra
-        pequeña (los botones principales llevan la letra en tinta por eso).                             */
-    background: var(--color-jx-verde);
-    color: #ffffff;
-    border-bottom: 1px solid var(--color-jx-verde-barra);
+    background: var(--color-jx-panel);
+    color: var(--color-jx-tinta);
+    border-top: 3px solid var(--color-jx-verde);
+    border-bottom: 1px solid var(--color-jx-regla2);
     z-index: 1000;
-    box-shadow: 0 1px 3px rgba(47, 42, 30, 0.12);
+    --window-controls-bg: var(--color-jx-panel);
 }
 
-/*  Sobre un fondo de color, el ratón se marca aclarando u oscureciendo el PROPIO fondo,
-    no metiendo un color de la paleta clara: cualquiera de ellos sería una mancha.
-    'color-mix' con blanco mantiene el tono y solo sube la luz.                       */
-.nav-bar .nav-bar__action-btn:hover,
-.nav-bar .nav-bar__user {
-    background: color-mix(in srgb, #ffffff 14%, transparent);
+/*  En el escritorio las teclas de la ventana van pegadas al borde derecho, como en Windows.  */
+.nav-bar--window {
+    padding-right: 0;
+    user-select: none;
+}
+
+.nav-bar--window button,
+.nav-bar--window a,
+.nav-bar--window input,
+.nav-bar--window select,
+.nav-bar--window .notif-center {
+    -webkit-app-region: no-drag;
+}
+
+/*  Sobre el papel, el ratón se marca hundiendo el fondo un punto ('hundido'), como en el resto de la app.  */
+.nav-bar .nav-bar__action-btn:hover {
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta);
 }
 
 .nav-bar__left {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-width: 0;
 }
 
 .nav-bar__brand {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0;
 }
 
 .nav-bar__logo {
@@ -697,9 +711,29 @@
 
 .nav-bar__app-name {
     font-family: 'Lobster', 'title', cursive;
-    font-size: 1.15rem;
-    color: #ffffff;
+    font-size: 1.35rem;
+    color: var(--color-jx-verde-texto);
     letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+/*  El nombre de la ventana, tras un punto: solo en el escritorio (NavBar)  */
+.nav-bar__window-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-jx-tinta3);
+    white-space: nowrap;
+}
+
+.nav-bar__window-title::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-jx-borde-campo);
 }
 
 .nav-bar__center {
@@ -713,26 +747,24 @@
     gap: 0.4rem;
     font-size: 0.82rem;
     font-weight: 500;
-    color: #ffffff;
+    color: var(--color-jx-tinta);
     padding: 0.35rem 0.75rem;
-    /*  El fondo lo pone la regla de arriba (un blanco al 14 %), para que la píldora se
-        despegue del verde sin meter un color ajeno.  */
-    border: 1px solid color-mix(in srgb, #ffffff 30%, transparent);
+    background: var(--color-jx-tarjeta);
+    border: 1px solid var(--color-jx-regla2);
     border-radius: 20px;
 }
 
 .nav-bar__user svg {
-    color: #ffffff;
+    color: var(--color-jx-tinta2);
     flex-shrink: 0;
 }
 
-/*  El aro del avatar iba en el verde de marca: sobre un fondo verde no se vería.  */
 .nav-bar__avatar {
     width: 24px;
     height: 24px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1.5px solid #ffffff;
+    border: 1.5px solid var(--color-jx-verde-barra);
     flex-shrink: 0;
 }
 
@@ -740,24 +772,27 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    margin-left: auto;
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .nav-bar__action-btn {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+    gap: 0.45rem;
+    height: 32px;
+    padding: 0 0.7rem;
+    font-size: 12.5px;
     font-weight: 500;
-    color: #ffffff;
+    color: var(--color-jx-tinta2);
     background: none;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
     white-space: nowrap;
 }
 
@@ -765,10 +800,14 @@
     flex-shrink: 0;
 }
 
-/*  Cerrar sesión va un punto más apagado que el resto: nadie quiere pulsarlo por error.
-    Sobre un fondo de color eso se hace bajándole el blanco, no metiendo un gris.      */
+.nav-bar__action-btn:focus-visible {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: 1px;
+}
+
+/*  Cerrar sesión va un punto más apagado que el resto: nadie quiere pulsarlo por error.  */
 .nav-bar__action-btn--logout {
-    color: color-mix(in srgb, #ffffff 78%, transparent);
+    color: var(--color-jx-tinta3);
     padding: 0.4rem;
     margin-left: 0.25rem;
 }
@@ -778,101 +817,106 @@
     background: var(--color-jx-critico-suave);
 }
 
-/*  La ventana de la tablet está fuera: el botón queda marcado en rojo, porque
-    el siguiente clic la cierra.
+/*  «SACAR TABLET», LA ACCIÓN PRINCIPAL: tecla verde con relieve, que se hunde al pulsarla. Blanco sobre el verde
+    de texto da 5,94 : 1.  */
+.nav-bar .nav-bar__action-btn--tablet {
+    margin-right: 0.5rem;
+    padding: 0 0.8rem 2px;
+    border: 1px solid color-mix(in srgb, var(--color-jx-verde-texto) 80%, #000000);
+    border-bottom: 3px solid color-mix(in srgb, var(--color-jx-verde-texto) 62%, #000000);
+    background: var(--color-jx-verde-texto);
+    color: #ffffff;
+    font-weight: 700;
+    transition: background-color 0.15s ease, transform 0.05s ease;
+}
 
-    OJO, ESTE PAR VIAJA CON OTRO SITIO: el mismo estado está escrito a mano en
-    Home.jsx:255-260 con clases arbitrarias de Tailwind. Si se cambia aquí y allí no,
-    el botón y la píldora dejan de ir a juego y nadie se entera hasta verlo.          */
-/*  SOBRE EL HEADER VERDE, ESTE AVISO VA AL REVÉS QUE EN LA PÁGINA: píldora CLARA con
- *  letra roja, no píldora roja con letra clara. Dos motivos, y el segundo pesa más:
- *
- *  · El rojo fuerte y el verde del header tienen casi la misma luminosidad (1,24 : 1),
- *    así que la píldora no se despegaría del fondo. La clara da 5,17 : 1.
- *  · Rojo sobre verde es justo la pareja que peor distingue quien tiene daltonismo, y
- *    como aquí la diferencia sería SOLO de tono, para esa persona desaparecería. Con la
- *    píldora clara la diferencia es de luz, que la ve todo el mundo.                  */
-.nav-bar__action-btn--tablet-open {
-    color: var(--color-jx-critico-texto);
+.nav-bar .nav-bar__action-btn--tablet:hover {
+    background: color-mix(in srgb, var(--color-jx-verde-texto) 88%, #000000);
+    color: #ffffff;
+}
+
+.nav-bar .nav-bar__action-btn--tablet:active {
+    height: 30px;
+    padding-bottom: 0;
+    border-bottom-width: 1px;
+    transform: translateY(1px);
+}
+
+/*  La ventana de la tablet está fuera: la tecla pasa a rojo suave con letra roja, porque el siguiente clic la
+    cierra. Es pareja de la píldora de «reporte en espera» de Home.jsx: si se recolorea una, la otra también.  */
+.nav-bar .nav-bar__action-btn--tablet-open {
+    border-color: color-mix(in srgb, var(--color-jx-critico) 45%, #ffffff);
+    border-bottom-color: color-mix(in srgb, var(--color-jx-critico) 65%, #ffffff);
     background: var(--color-jx-critico-suave);
-}
-
-.nav-bar__action-btn--tablet-open:hover {
     color: var(--color-jx-critico-texto);
+}
+
+.nav-bar .nav-bar__action-btn--tablet-open:hover {
     background: #f6d8d6;
+    color: var(--color-jx-critico-texto);
 }
 
-/* ═══ NOVELTIES LIST DROPDOWN ═══ */
-
-.listConponent {
-    position: fixed;
-    width: 320px;
-    max-height: 70vh;
-    /*  Era un cristal esmerilado sobre el azul marino. Aquí va sólido: sobre papel no
-        hay nada que desenfocar, y lo que despega el desplegable es la sombra.        */
-    background: var(--color-jx-tarjeta);
-    top: calc(58px + var(--titlebar-h));
-    left: 50%;
-    transform: translateX(-50%) translateY(0);
-    padding: 1rem;
-    border-radius: 12px;
-    border: 1px solid var(--color-jx-regla2);
-    box-shadow: 0 12px 32px rgba(47, 42, 30, 0.14);
-    overflow-y: auto;
-    opacity: 1;
-    animation: listOpen 0.25s ease-out;
-    z-index: 1001;
+/*  La raya entre los accesos y las teclas de la ventana  */
+.nav-bar__divider {
+    flex: none;
+    width: 1px;
+    height: 22px;
+    margin: 0 0.25rem 0 0.5rem;
+    background: var(--color-jx-regla2);
 }
 
-.close {
-    transform: translateX(-50%) translateY(-20px);
-    opacity: 0;
-    pointer-events: none;
-    animation: listClose 0.2s ease-in;
+/*  MINIMIZAR, MAXIMIZAR Y CERRAR (WindowControls): del alto de su barra y 46 px de ancho, como en Windows.
+    Cerrar, en rojo al pasar el ratón, con la cruz en blanco (4,80 : 1).  */
+.window-controls {
+    flex: none;
+    display: flex;
+    align-self: stretch;
 }
 
-@keyframes listOpen {
-    from {
-        transform: translateX(-50%) translateY(-10px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes listClose {
-    from {
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-    }
-
-    to {
-        transform: translateX(-50%) translateY(-10px);
-        opacity: 0;
-    }
-}
-
-.listConponent-ul {
-    width: 100%;
+.window-controls__key {
+    width: 46px;
+    height: 100%;
     padding: 0;
-    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-jx-tinta2);
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.listConponent-li {
+.window-controls__key:hover {
+    background: var(--color-jx-hundido);
     color: var(--color-jx-tinta);
-    text-align: left;
-    list-style: none;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-    border-radius: 8px;
-    transition: background 0.15s;
 }
 
-.listConponent-li:hover {
-    background: var(--color-jx-arena);
+.window-controls__key--close:hover {
+    background: var(--color-jx-critico);
+    color: #ffffff;
+}
+
+.window-controls__key:focus-visible {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: -2px;
+}
+
+/*  En la barra de título suelta (32 px) las teclas son algo más estrechas  */
+.window-controls--title-bar .window-controls__key { width: 44px; }
+
+/*  En la barra de navegación, las teclas ocupan todo el alto, bajo la raya verde.  */
+.nav-bar__window-controls { margin-top: -3px; }
+
+/*  VENTANA ESTRECHA: los accesos se quedan en su icono (el nombre sale al pasar el ratón, en su 'title'), salvo
+    «Sacar tablet», que es la acción principal. El nombre de la ventana se va primero.  */
+@media (max-width: 1180px) {
+    .nav-bar__window-title { display: none; }
+}
+
+@media (max-width: 1040px) {
+    .nav-bar__action-btn:not(.nav-bar__action-btn--tablet) .nav-bar__label { display: none; }
+    .nav-bar__action-btn:not(.nav-bar__action-btn--tablet) { padding: 0 0.55rem; }
 }
 
 /* ═══ SIDEBAR ═══ */
@@ -1119,8 +1163,9 @@
 /* ── El botón que la abre ──
    Ya no flota arriba a la derecha: va en la barra de arriba (InboxButton), con el mismo estilo que los
    demás accesos (.nav-bar__action-btn). Flotando tapaba la esquina de lo que hubiera debajo, y el centro
-   tenía que dejarle un hueco. Su contador es una cápsula al lado del texto: blanca con la cifra en el
-   verde de texto, porque sobre el verde de la barra una cápsula verde no se vería.                      */
+   tenía que dejarle un hueco. Su contador es una cápsula al lado del texto: en el verde de texto con la
+   cifra en blanco (5,94 : 1), ahora que la barra es de papel (propuesta B). Verde y no rojo: son imágenes
+   por revisar, no una alarma; el rojo se queda para las notificaciones.                                  */
 .nav-bar__badge {
     min-width: 18px;
     height: 18px;
@@ -1128,8 +1173,8 @@
     border-radius: 9px;
     font-size: 0.68rem;
     font-weight: 800;
-    color: var(--color-jx-verde-texto);
-    background: #ffffff;
+    color: #ffffff;
+    background: var(--color-jx-verde-texto);
     display: inline-flex;
     align-items: center;
     justify-content: center;

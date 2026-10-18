@@ -1,5 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useContext } from 'react';
+import { ReactReduxContext } from 'react-redux';
 import { SHIFTS } from '../../../libs/tickets/tableRecords.js';
+import { showBoxModal } from '../../../store/slices/boxModal.js';
 
 import { useEstablishment } from './useEstablishment.jsx';
 import { useTablet } from './useTablet.jsx';
@@ -226,15 +228,43 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
     };
 
 
-    // clearRegister = «…se vacía el registro»
-    // Se pregunta antes: esto borra trabajo de alguien y no hay forma de deshacerlo.
-    // Limpia las dos cosas, que si no reaparecería por algún lado: las mesas, con lo guardado en el
-    // equipo (store.clear), y lo que el seguimiento tiene ahora mismo (una limpieza más).
-    const clearRegister = () => {
-        if (!window.confirm('Se va a borrar todo el registro —las rotaciones y sus procesos—, incluido lo escrito a mano. No se puede deshacer.\n\n¿Seguir?')) return;
+    // reduxStore = «el store de Redux de esta ventana», o null en la flotante, que no lo monta (ver main.jsx).
+    // Con él se pregunta con el BoxModal; sin él, con window.confirm.
+    const reduxStore = useContext(ReactReduxContext)?.store ?? null;
 
+    // emptyRegister = «vaciar el registro», ya contestado que sí. Limpia las dos cosas, que si no
+    // reaparecería por algún lado: las mesas, con lo guardado en el equipo (store.clear), y lo que el
+    // seguimiento tiene ahora mismo (una limpieza más).
+    const emptyRegister = () => {
         store.clear();
         setClears(count => count + 1);
+    };
+
+    // clearRegister = «…se vacía el registro» (la papelera de la barra, ClearButton)
+    // Se pregunta antes: esto borra trabajo de alguien y no hay forma de deshacerlo. Con el BoxModal de la
+    // aplicación (pedido del usuario), en tono de advertencia, con emptyRegister como lo que hace «Limpiar»;
+    // el aviso dice cuántas rotaciones se pierden y que las de Registros no se tocan.
+    const clearRegister = () => {
+
+        // pending = «las filas de Mesas en uso»: lo que se pierde
+        const pending = store.records.filter(record => record.date).length;
+
+        const message = `Se van a borrar ${pending === 1 ? 'la rotación de Mesas que no se ha guardado' : `las ${pending} rotaciones de Mesas que no se han guardado`}, con sus procesos y sus toques de gerente, incluido lo escrito a mano.\n\nLas de Registros no se tocan. No se puede deshacer.`;
+
+        //  En la flotante, sin Redux: window.confirm, que contesta en el acto
+        if (!reduxStore) {
+            if (window.confirm(`${message}\n\n¿Seguir?`)) emptyRegister();
+            return;
+        }
+
+        reduxStore.dispatch(showBoxModal({
+            tone: 'warning',
+            title: 'Limpiar Mesas',
+            message,
+            onAccept: emptyRegister,
+            acceptLabel: 'Limpiar',
+            cancelLabel: 'Cancelar',
+        }));
     };
 
 

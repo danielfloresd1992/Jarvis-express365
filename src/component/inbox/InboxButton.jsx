@@ -29,10 +29,11 @@ export default function InboxButton() {
                 title='Bandeja de imágenes del Toast POS'
             >
                 <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
-                    <polyline points='22 12 16 12 14 15 10 15 8 12 2 12' />
-                    <path d='M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z' />
+                    <rect x='3' y='3' width='18' height='18' rx='2' />
+                    <circle cx='9' cy='9' r='2' />
+                    <path d='m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21' />
                 </svg>
-                Imágenes
+                <span className='nav-bar__label'>Imágenes</span>
                 {count > 0 && <span className='nav-bar__badge' aria-label={`${count} sin revisar`}>{count}</span>}
             </button>
         </li>

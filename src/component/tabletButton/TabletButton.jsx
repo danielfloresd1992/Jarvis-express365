@@ -57,7 +57,7 @@ export default function TabletButton() {
         <li>
             <button
                 type='button'
-                className={`nav-bar__action-btn ${abierta ? 'nav-bar__action-btn--tablet-open' : ''}`}
+                className={`nav-bar__action-btn nav-bar__action-btn--tablet ${abierta ? 'nav-bar__action-btn--tablet-open' : ''}`}
                 onClick={() => {
                     if (abierta) window.electronAPI?.closeTabletWindow?.();
                     else window.electronAPI?.openTabletWindow?.();
@@ -68,7 +68,7 @@ export default function TabletButton() {
                     <rect x='4' y='2' width='16' height='20' rx='2' />
                     <line x1='12' y1='18' x2='12.01' y2='18' />
                 </svg>
-                {abierta ? 'Quitar tablet' : 'Sacar tablet'}
+                <span className='nav-bar__label'>{abierta ? 'Quitar tablet' : 'Sacar tablet'}</span>
             </button>
         </li>
     );

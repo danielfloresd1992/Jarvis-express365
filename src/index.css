@@ -262,6 +262,17 @@ html.is-electron {
     --titlebar-h: 32px;
 }
 
+/*  EN HOME LA BARRA DE TÍTULO SE FUNDE CON LA DE NAVEGACIÓN (pedido del usuario): la de navegación se arrastra
+    y lleva minimizar, maximizar y cerrar. Mientras está montada pone `has-app-bar` en el <html> (NavBar): la
+    barra de título suelta se oculta y su alto deja de contar, así que todo sube los 32 px que ocupaba.  */
+html.is-electron.has-app-bar {
+    --titlebar-h: 0px;
+}
+
+html.has-app-bar .window-title-bar {
+    display: none;
+}
+
 
 /* ══════════════════════════════════════════════════════════════════════
    VENTANA FLOTANTE DE LA TABLET
