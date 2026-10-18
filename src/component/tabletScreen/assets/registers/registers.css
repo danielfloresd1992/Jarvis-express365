@@ -283,6 +283,12 @@
     border-bottom-width: 0;
 }
 
+/*  La letra de la cabecera, del tamaño de la de los procesos (pedido del usuario). Sin capa, para ganarle a la
+    de WrapperCell, que crece con el ancho de la tabla hasta 13 px.  */
+.register-header-cell {
+    font-size: 10px;
+}
+
 
 /* ═══════════════════════════════════════════════
    LA BARRA: PESTAÑAS Y BOTONES CON ICONO
@@ -1571,4 +1577,88 @@
 .register-cell--late {
     background-color: var(--color-jx-critico-suave);
     box-shadow: inset 0 -2px 0 var(--color-jx-critico);
+}
+
+/*  PASADA Y SIN REPORTAR: un marco rojo que late hasta que se reporte (propuesta «C», elegida por el usuario).
+    El marco es una capa encima de la celda que solo cambia su OPACIDAD: el navegador la anima sin repintar.
+    Animar el 'box-shadow' de la celda repintaría cada fotograma (NotificationCenter.css lo cuenta: así esta app
+    llegó a gastar un 20 % de CPU en reposo). Un latido por 1,1 s, lejos de los tres por segundo que pueden
+    molestar a personas fotosensibles; y quieto para quien pide menos movimiento.  */
+.register-cell--alert {
+    position: relative;
+}
+
+.register-cell--alert::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 2px var(--color-jx-critico);
+    pointer-events: none;
+    animation: register-alert 1.1s ease-in-out infinite;
+}
+
+@keyframes register-alert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.15; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .register-cell--alert::after { animation: none; }
+}
+
+/*  YA REPORTADA: quieta, en rojo claro, con el texto negro (RegisterRecordRow) y la bandera de «Reportada».  */
+.register-cell--reported {
+    background-color: var(--color-jx-critico-suave);
+}
+
+/*  «Reportar» (ReportDelayButton): píldora roja con el reloj y la palabra. Blanco sobre 'critico-texto', 5,2 : 1.  */
+.register-report {
+    flex: none;
+    height: 20px;
+    padding: 0 7px 0 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--color-jx-critico-texto);
+    color: #ffffff;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+}
+
+.register-report:hover { background: color-mix(in srgb, var(--color-jx-critico-texto) 75%, #000000); }
+.register-report:focus-visible { outline: 2px solid var(--color-jx-critico); outline-offset: 1px; }
+
+/*  «Reportada» (ReportedFlag): píldora verde con la bandera y la palabra en blanco, en letra pequeña (pedido del
+    usuario). El verde es el de texto: con el blanco da 5,94 : 1, lo que pide una letra tan pequeña.  */
+.register-reported {
+    flex: none;
+    height: 18px;
+    padding: 0 6px 0 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border-radius: 9px;
+    background: var(--color-jx-verde-texto);
+    color: #ffffff;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/*  En una tabla estrecha no caben la hora y la palabra: se queda el icono (el 'title' dice lo demás). Mide la
+    tabla, no la ventana: es el contenedor de RegisterTable ('@container').  */
+@container (max-width: 1000px) {
+    .register-report__label,
+    .register-reported__label { display: none; }
+    .register-report { width: 20px; padding: 0; justify-content: center; }
+    .register-reported { width: 18px; padding: 0; justify-content: center; }
 }

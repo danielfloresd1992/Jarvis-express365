@@ -59,7 +59,9 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
     const empty = records.every(isBlankRecord);
 
     // headerCell = «el estilo de las celdas de la cabecera». Las de las columnas van además teñidas de su color.
-    const headerCell = 'uppercase tracking-[0.6px] font-semibold bg-jx-tarjeta text-jx-tinta';
+    // La letra, la misma que la cabecera de los procesos (10 px, RegisterProcessList; pedido del usuario): 'register-header-cell'
+    // fija los 10 px en registers.css, porque la de WrapperCell, que crece con el ancho, gana a una utilidad de tamaño.
+    const headerCell = 'register-header-cell uppercase tracking-[0.5px] font-semibold bg-jx-tarjeta text-jx-tinta';
 
     return (
         <div className='w-full flex-1 min-h-0 flex flex-col'>

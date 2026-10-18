@@ -15,14 +15,17 @@
 // COLUMNS = «las columnas de una rotación», en su orden: el de la vida de la mesa
 // color = «el color con que se reconoce la columna» (ver columnStripes). Las dos duraciones comparten
 // el suyo: las dos dicen cuánto tardó algo.
+// Las cinco de una hora miden un 5 % menos que antes (0,95; pedido del usuario), y lo que sueltan se lo lleva la
+// Duración de la limpieza (1 → 1,25): con «Reportar» al lado, el tiempo no cabía y se cortaba por la izquierda. La
+// suma sigue en 7,35, así que las demás no se mueven.
 export const COLUMNS = [
-    { id: 'tableNumber',        title: 'Mesa',             width: 1,    color: '#d9a441' },   //  oro
-    { id: 'hourOccupies',       title: 'Ocupa',            width: 1,    color: '#4a90d9' },   //  azul
-    { id: 'hourFirstAttention', title: 'Primera atención', width: 1,    color: '#22a39f' },   //  turquesa
+    { id: 'tableNumber',        title: 'Mesa',             width: 0.95, color: '#d9a441' },   //  oro
+    { id: 'hourOccupies',       title: 'Ocupa',            width: 0.95, color: '#4a90d9' },   //  azul
+    { id: 'hourFirstAttention', title: 'Primera atención', width: 0.95, color: '#22a39f' },   //  turquesa
     { id: 'attentionDuration',  title: 'Duración',         width: 1.35, color: '#8b6fd6' },   //  violeta; lleva además el botón de reportar
-    { id: 'breakUp',            title: 'Desocupa',         width: 1,    color: '#e07b39' },   //  naranja
-    { id: 'tableCleaning',      title: 'Limpieza',         width: 1,    color: '#d65d9a' },   //  rosa
-    { id: 'cleaningDuration',   title: 'Duración',         width: 1,    color: '#8b6fd6' },   //  violeta
+    { id: 'breakUp',            title: 'Desocupa',         width: 0.95, color: '#e07b39' },   //  naranja
+    { id: 'tableCleaning',      title: 'Limpieza',         width: 0.95, color: '#d65d9a' },   //  rosa
+    { id: 'cleaningDuration',   title: 'Duración',         width: 1.25, color: '#8b6fd6' },   //  violeta; lleva también el botón de reportar
 ];
 
 

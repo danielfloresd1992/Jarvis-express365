@@ -3303,6 +3303,65 @@ hr {
     transform: scale(1.08);
 }
 
+/* ── Bloqueado: se reporta desde Mesas (DelayComponent, con el registro de procesos activo) ──
+   Parecido a un deshabilitado: plano, con el borde a trazos, el icono en gris y sin el salto ni el brillo
+   al pasar el ratón; un candado en la esquina y, bajo su nombre, la nota «Desde Mesas». Sigue siendo un
+   botón (aria-disabled, no disabled): al pulsarlo dice dónde se hace.  */
+.delay-btn-wrap--locked,
+.delay-btn-wrap--locked .delay-btn {
+    cursor: not-allowed;
+}
+
+.delay-btn-wrap--locked .delay-btn,
+.delay-btn-wrap--locked .delay-btn:hover,
+.delay-btn-wrap--locked .delay-btn:active {
+    transform: none;
+    background: var(--color-jx-gris-hundido);
+    border-style: dashed;
+    border-color: var(--color-jx-gris-borde);
+    box-shadow: none;
+}
+
+.delay-btn-wrap--locked .delay-btn::before,
+.delay-btn-wrap--locked .delay-btn::after {
+    display: none;
+}
+
+.delay-btn-wrap--locked .delay-btn-icon,
+.delay-btn-wrap--locked .delay-btn:hover .delay-btn-icon {
+    transform: none;
+    filter: grayscale(1);
+    opacity: 0.4;
+}
+
+.delay-btn-wrap--locked .delay-btn-label {
+    color: var(--color-jx-tinta3);
+}
+
+.delay-btn-lock {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-jx-tinta2);
+    color: #ffffff;
+}
+
+.delay-btn-note {
+    margin-top: -0.3rem;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--color-jx-ocre-texto);
+    text-align: center;
+    line-height: 1.2;
+}
+
 /* ── Etiqueta de texto ── */
 .delay-btn-label {
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;

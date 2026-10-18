@@ -6,6 +6,8 @@ import tablet from '../../../../public/ico/tablet/tablet.svg';
 import touchTablet from '../../../../public/ico/icons8-panel-táctil-100.png';
 import tiketIco from '../../../../public/ico/icons8-boleto-100.png'
 import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { showBoxModal } from '../../../store/slices/boxModal.js';
 import { DivAttention } from './first_attention/Div_first_attention.jsx';
 import { DelayDish } from './delayDish/DelayDish.jsx';
 import { Divclear } from './clean/DivClear.jsx';
@@ -39,6 +41,22 @@ import NoComanda from './no_comanda/NoComanda.jsx'
 const tipoDe = (reporte) => reporte?.tipo ?? 'primera atención';
 
 
+/*  CON EL REGISTRO DE PROCESOS ACTIVO, PRIMERA ATENCIÓN Y LIMPIEZA SE REPORTAN DESDE MESAS (pedido del usuario)
+ *
+ *  Allí cada demora sale de su fila, con el reloj rojo de su duración: el formulario llega con la mesa y las horas
+ *  puestas, y la novedad queda apuntada en su rotación (firstAttentionDelay / cleaningDelay). Reportarla a mano
+ *  desde aquí la dejaría suelta. Así que, con el registro activo, esos dos botones del menú van apagados —con un
+ *  candado y la nota «Desde Mesas»— y al pulsarlos solo dicen dónde se hace. El reporte que llega del reloj rojo
+ *  no pasa por estos botones: abre su formulario directamente, y sigue funcionando igual.
+ */
+
+// FROM_TABLES = «los botones que, con el registro de procesos activo, se reportan desde Mesas»
+const FROM_TABLES = ['primera atención', 'limpieza'];
+
+// FROM_TABLES_MESSAGE = «lo que se le dice a quien pulsa uno de ellos»
+const FROM_TABLES_MESSAGE = 'Con el registro de procesos activo, las demoras de primera atención y de limpieza se reportan desde Mesas: en la fila de la mesa, con el reloj rojo de su duración.\n\nAsí el reporte lleva la mesa y las horas ya puestas, y queda unido a su rotación.';
+
+
 function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onReporteCerrado }) {
 
     let [title, setTitle] = useState(reporteDemora ? tipoDe(reporteDemora) : []);
@@ -70,9 +88,28 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
     const datosPara = (tipo) => (reporteActivo && tipoDe(reporteActivo) === tipo ? reporteActivo : null);
 
 
+    // processRegister = «el local tiene activado el registro de procesos» (Local.processRegister, se activa en
+    // Client365): el de state.establishment, el local elegido. Si ese local está también en la lista que se pide
+    // al abrir (state.locals), manda la lista, que está al día: es la misma regla con que Main enseña o no Mesas,
+    // así los botones solo se bloquean cuando Mesas está a la vista para reportar desde allí.
+    const processRegister = useSelector(state => {
+        const fresh = state.locals?.find?.(local => local._id === state.establishment?._id);
+        return (fresh ?? state.establishment)?.processRegister === true;
+    });
+
+    const dispatch = useDispatch();
+
+    // fromTables = «este botón se reporta desde Mesas»: bloqueado aquí
+    const fromTables = (id) => processRegister && FROM_TABLES.includes(id);
+
     //  Un clic en cualquiera de los botones es una elección a mano, y por tanto empieza
-    //  de cero: se suelta el reporte que hubiera precargado.
+    //  de cero: se suelta el reporte que hubiera precargado. Si el botón se reporta desde
+    //  Mesas, no abre nada: dice dónde se hace (con el BoxModal de la aplicación).
     const elegirAMano = (id) => {
+        if (fromTables(id)) {
+            dispatch(showBoxModal({ tone: 'warning', title: 'Se reporta desde Mesas', message: FROM_TABLES_MESSAGE }));
+            return;
+        }
         setReporteActivo(null);
         setTitle(id);
     };
@@ -118,8 +155,8 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
             {
                 !reporteActivo && (
                     <div className='delay-grid'>
-                        <BottonSelection title='Primera atención'              ico={book}        id='primera atención'   event={elegirAMano} />
-                        <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={elegirAMano} />
+                        <BottonSelection title='Primera atención'              ico={book}        id='primera atención'   event={elegirAMano} locked={fromTables('primera atención')} />
+                        <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={elegirAMano} locked={fromTables('limpieza')} />
                         <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={elegirAMano} />
                         <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={elegirAMano} />
                         <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={elegirAMano} />
@@ -136,23 +173,39 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
 
 
 
-function BottonSelection({ title, ico, id, event }) {
+/*  @param {boolean} locked  opcional. Se reporta desde Mesas: va apagado, con un candado y la nota «Desde Mesas».
+ *                           Es 'aria-disabled' y no 'disabled' a propósito: así sigue enseñando su porqué al
+ *                           pasar el ratón y, al pulsarlo, avisa (ver elegirAMano) en vez de no hacer nada.
+ */
+function BottonSelection({ title, ico, id, event, locked = false }) {
     return (
-        <div className='delay-btn-wrap'>
+        <div className={`delay-btn-wrap ${locked ? 'delay-btn-wrap--locked' : ''}`}>
             <button
                 className='delay-btn'
                 id={id}
                 type='button'
                 onClick={e => event(e.currentTarget.id)}
-                title={title}
+                title={locked ? `${title}: se reporta desde Mesas, con el reloj rojo de la fila` : title}
+                aria-disabled={locked || undefined}
             >
                 <img
                     src={ico}
                     alt={title}
                     className='delay-btn-icon'
                 />
+                {
+                    locked && (
+                        <span className='delay-btn-lock' aria-hidden='true'>
+                            <svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.6' strokeLinecap='round' strokeLinejoin='round'>
+                                <rect x='4' y='11' width='16' height='10' rx='2' />
+                                <path d='M8 11V7a4 4 0 0 1 8 0v4' />
+                            </svg>
+                        </span>
+                    )
+                }
             </button>
             <span className='delay-btn-label'>{title}</span>
+            {locked && <span className='delay-btn-note'>Desde Mesas</span>}
         </div>
     );
 }

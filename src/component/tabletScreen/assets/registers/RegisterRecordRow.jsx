@@ -7,6 +7,7 @@ import ProcessToggle from './ProcessToggle.jsx';
 import AddProcessButton from './AddProcessButton.jsx';
 import ManagerButtons from './ManagerButtons.jsx';
 import ReportDelayButton from './ReportDelayButton.jsx';
+import ReportedFlag from './ReportedFlag.jsx';
 import RegisterProcessList from './RegisterProcessList.jsx';
 import RegisterTouchList from './RegisterTouchList.jsx';
 import TouchToggle from './TouchToggle.jsx';
@@ -276,6 +277,21 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     const attentionLate = !noAttentionYet && exceedsLimit(attention.timeTotal, attentionLimit);
     const cleaningLate = !noCleaningYet && exceedsLimit(cleaning.timeTotal, cleaningLimit);
 
+    // attentionReported / cleaningReported = «su demora ya se reportó»: la fila tiene apuntada la novedad que se envió
+    // desde el botón de reportar (firstAttentionDelay / cleaningDelay, ver reportedDelay.js). En lugar del botón va la
+    // bandera de «Reportada» (ReportedFlag).
+    const attentionReported = Boolean(record.firstAttentionDelay);
+    const cleaningReported = Boolean(record.cleaningDelay);
+
+    // durationLook = «cómo va la celda de una duración» (propuesta «C», elegida por el usuario; registers.css):
+    //   reportada              rojo claro y texto negro, quieta
+    //   pasada, sin reportar   rojo claro, con el marco rojo que late hasta que se reporte
+    //   en tiempo              como siempre
+    const durationLook = (late, reported) => (reported ? 'register-cell--reported' : late ? 'register-cell--late register-cell--alert' : '');
+
+    // durationText = «el color del texto de una duración»: gris sin calcular, negro reportada, rojo pasada, verde en tiempo
+    const durationText = (empty, late, reported) => (empty ? 'text-jx-tinta3' : reported ? 'text-jx-tinta font-bold' : late ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto');
+
 
     // askForReport = «pedir el reporte de una demora»: 'primera atención' (de Ocupa a Primera atención) o 'limpieza'
     // (de Desocupa a Limpieza). Lo pide el reloj rojo de su duración, y se abre «Demoras» en su formulario con la
@@ -426,15 +442,18 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             </WrapperCell>
 
                             {/*  DURACIÓN de la primera atención. Es un valor calculado, así que no se toca: va sin
-                                 'updateValue'. Si pasa del tiempo del local (attentionLate), la celda va en rojo
-                                 ('register-cell--late') y aparece el botón de reportar.  */}
-                            <WrapperCell classStyles={`gap-1.5 px-1 ${attentionLate ? 'register-cell--late' : ''}`} titulo={attentionLate ? `Pasó del tiempo de referencia de primera atención: ${attentionLimit}, ${originText(attentionOrigin, 'firstAtenttion')}` : undefined}>
+                                 'updateValue'. Si pasa del tiempo del local (attentionLate), la celda va en rojo con
+                                 el marco que late y aparece «Reportar»; una vez reportada, queda en rojo claro con
+                                 la bandera de «Reportada» (durationLook).  */}
+                            <WrapperCell classStyles={`gap-1.5 px-1 ${durationLook(attentionLate, attentionReported)}`} titulo={attentionReported ? 'Demora de primera atención reportada' : attentionLate ? `Pasó del tiempo de referencia de primera atención: ${attentionLimit}, ${originText(attentionOrigin, 'firstAtenttion')}` : undefined}>
                                 <WrapperText
-                                    classStyles={noAttentionYet ? 'text-jx-tinta3' : attentionLate ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
+                                    classStyles={durationText(noAttentionYet, attentionLate, attentionReported)}
                                     value={noAttentionYet ? '—' : attention.timeTotal}
                                 />
 
-                                {attentionLate && <ReportDelayButton table={record.tableNumber} kind='primera atención' onReport={() => askForReport('primera atención')} />}
+                                {attentionReported
+                                    ? <ReportedFlag kind='primera atención' />
+                                    : attentionLate && <ReportDelayButton table={record.tableNumber} kind='primera atención' onReport={() => askForReport('primera atención')} />}
 
                                 {noticeBadge}
                             </WrapperCell>
@@ -447,15 +466,17 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                 <WrapperText value={record.tableCleaning} updateValue={write('tableCleaning')} />
                             </WrapperCell>
 
-                            {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'. En rojo si pasa
-                                 del tiempo de limpieza del local (cleaningLate), con su reloj para reportarla.  */}
-                            <WrapperCell classStyles={`gap-1.5 px-1 ${cleaningLate ? 'register-cell--late' : ''}`} titulo={cleaningLate ? `Pasó del tiempo de referencia de limpieza: ${cleaningLimit}, ${originText(cleaningOrigin, 'TableCleaning')}` : undefined}>
+                            {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'. Igual que la de
+                                 primera atención, contra el tiempo de limpieza del local (cleaningLate).  */}
+                            <WrapperCell classStyles={`gap-1.5 px-1 ${durationLook(cleaningLate, cleaningReported)}`} titulo={cleaningReported ? 'Demora de limpieza reportada' : cleaningLate ? `Pasó del tiempo de referencia de limpieza: ${cleaningLimit}, ${originText(cleaningOrigin, 'TableCleaning')}` : undefined}>
                                 <WrapperText
-                                    classStyles={noCleaningYet ? 'text-jx-tinta3' : cleaningLate ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto'}
+                                    classStyles={durationText(noCleaningYet, cleaningLate, cleaningReported)}
                                     value={noCleaningYet ? '—' : cleaning.timeTotal}
                                 />
 
-                                {cleaningLate && <ReportDelayButton table={record.tableNumber} kind='limpieza' onReport={() => askForReport('limpieza')} />}
+                                {cleaningReported
+                                    ? <ReportedFlag kind='limpieza' />
+                                    : cleaningLate && <ReportDelayButton table={record.tableNumber} kind='limpieza' onReport={() => askForReport('limpieza')} />}
                             </WrapperCell>
                         </>
                     )
