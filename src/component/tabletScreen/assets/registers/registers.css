@@ -952,8 +952,8 @@
     line-height: 1;
 }
 
-/*  Borrar —la papelera en Mesas, la ✕ en Registros—, apagado hasta que se pasa el ratón por su línea; y la
-    ✕ de cerrar, como él.  */
+/*  Borrar —la papelera, en Mesas y en Registros—, apagado hasta que se pasa el ratón por su línea; y la ✕ de
+    cerrar, como él.  */
 .register-touch-delete {
     width: 22px;
     height: 22px;
@@ -1233,15 +1233,20 @@
 
 .register-saved-processes__head > span { display: flex; align-items: center; justify-content: center; text-align: center; }
 
-/*  La lista de toques de una rotación guardada: como la de la pestaña Mesas. Arriba, los botones de los
-    gerentes para apuntar uno nuevo; a la derecha de cada toque, la ✕ que lo quita (RegisterSavedTouches).  */
+/*  La lista de toques de una rotación guardada (RegisterSavedTouches): arriba, los botones de los gerentes para
+    apuntar uno nuevo; debajo, la misma tabla que en Mesas (RegisterTouchTable), con Inicio, Fin, Duró y los
+    totales. '--touch-card' es el papel de esa tabla: el mismo que la tarjeta de toques de Mesas.  */
 .register-saved-touches {
+    --touch-card: color-mix(in srgb, var(--color-jx-lienzo) 45%, #ffffff);
     max-width: 460px;
     border: 1px solid var(--color-jx-regla2);
     border-radius: 8px;
-    background: var(--color-jx-tarjeta);
+    background: var(--touch-card);
     overflow: hidden;
 }
+
+/*  Bajo los botones de apuntar, la cabecera de columnas no repite la raya de arriba  */
+.register-saved-touches__add + .register-touch-grid--columns { border-top: 0; }
 
 .register-saved-touches__add {
     display: flex;
@@ -1254,22 +1259,6 @@
     border-bottom: 1px solid var(--color-jx-regla2);
 }
 
-.register-saved-touches__row {
-    display: grid;
-    grid-template-columns: 30px minmax(0, 1fr) auto 22px;
-    align-items: center;
-    gap: 10px;
-    min-height: 26px;
-    padding: 2px 12px;
-    font-size: 12.5px;
-    color: var(--color-jx-tinta);
-    border-top: 1px solid var(--color-jx-regla);
-}
-
-.register-saved-touches__row:first-child { border-top: 0; }
-.register-saved-touches__row--group:not(:first-child) { border-top-color: var(--color-jx-regla2); }
-.register-saved-touches__row--empty { display: block; padding-block: 6px; font-size: 12px; }
-.register-saved-touches__row:hover .register-touch-delete { color: var(--color-jx-tinta3); }
 .register-saved-chip--late { background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
 .register-saved-chip--open { background: var(--color-jx-aviso-suave); color: var(--color-jx-aviso-texto); }
 
@@ -1508,7 +1497,8 @@
     Al pasar el ratón, las celdas del ciclo se oscurecen un poco más.  */
 .register-saved-row--recovered { background-color: var(--color-jx-gris-regla); }
 .register-saved-row--recovered:hover .register-saved-cell--cycle { background-color: color-mix(in srgb, var(--color-jx-gris-borde) 8%, var(--color-jx-gris-regla)); }
-.register-saved-touches__row--recovered { background-color: var(--color-jx-gris-regla); }
+.register-touch-line--recovered,
+.register-touch-line--recovered:hover { background-color: var(--color-jx-gris-regla); }
 
 
 /*  ── DÓNDE QUEDÓ EL EXCEL (ExportResult) ─────────────────────────────────────────────────────────────
