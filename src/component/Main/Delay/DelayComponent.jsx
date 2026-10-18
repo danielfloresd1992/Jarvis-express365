@@ -8,6 +8,7 @@ import tiketIco from '../../../../public/ico/icons8-boleto-100.png'
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { showBoxModal } from '../../../store/slices/boxModal.js';
+import { selectProcessRegister } from '../../../store/slices/establishment.js';
 import { DivAttention } from './first_attention/Div_first_attention.jsx';
 import { DelayDish } from './delayDish/DelayDish.jsx';
 import { Divclear } from './clean/DivClear.jsx';
@@ -88,14 +89,10 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
     const datosPara = (tipo) => (reporteActivo && tipoDe(reporteActivo) === tipo ? reporteActivo : null);
 
 
-    // processRegister = «el local tiene activado el registro de procesos» (Local.processRegister, se activa en
-    // Client365): el de state.establishment, el local elegido. Si ese local está también en la lista que se pide
-    // al abrir (state.locals), manda la lista, que está al día: es la misma regla con que Main enseña o no Mesas,
-    // así los botones solo se bloquean cuando Mesas está a la vista para reportar desde allí.
-    const processRegister = useSelector(state => {
-        const fresh = state.locals?.find?.(local => local._id === state.establishment?._id);
-        return (fresh ?? state.establishment)?.processRegister === true;
-    });
+    // processRegister = «el local tiene activado el registro de procesos» (selectProcessRegister, en el slice del
+    // local): la misma regla con que Main enseña o no Mesas, así los botones solo se bloquean cuando Mesas está a la
+    // vista para reportar desde allí.
+    const processRegister = useSelector(selectProcessRegister);
 
     const dispatch = useDispatch();
 

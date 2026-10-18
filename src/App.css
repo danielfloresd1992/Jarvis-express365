@@ -736,9 +736,16 @@
     background: var(--color-jx-borde-campo);
 }
 
+/*  El hueco entre la marca y los accesos. «Cambiar de usuario» (SwitchUser) va a su derecha, junto a «Sacar
+    tablet», donde lo marcó el usuario. El resto del hueco sigue arrastrando la ventana en el escritorio: solo la
+    tecla lleva 'no-drag'.  */
 .nav-bar__center {
+    flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.75rem;
 }
 
 .nav-bar__user {

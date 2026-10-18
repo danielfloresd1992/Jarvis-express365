@@ -12,6 +12,7 @@ import NotificationBell from '../NotificationCenter';
 import TabletButton from '../tabletButton/TabletButton.jsx';
 import InboxButton from '../inbox/InboxButton.jsx';
 import WindowControls from '../titleBar/WindowControls.jsx';
+import SwitchUserController from '../SwitchUser/switchUser.controller.jsx';
 
 
 /*  LA BARRA DE ARRIBA, QUE EN EL ESCRITORIO ES TAMBIÉN LA DE LA VENTANA
@@ -147,7 +148,10 @@ function NavBar({ clearLocal, boxModal }) {
                 </div>
             </div>
 
-            
+            {/*  En el centro, «Cambiar de usuario»: solo en un local con Mesas (switchUser.controller.jsx)  */}
+            <div className='nav-bar__center'>
+                <SwitchUserController />
+            </div>
 
             <ul className='nav-bar__actions'>
                 {/* Sacar / quitar la ventana de la tablet. Trae su propio <li> y

@@ -1,0 +1,435 @@
+/* ═══════════════════════════════════════════════
+   CAMBIAR DE USUARIO (switchUser.controller.jsx)
+   ═══════════════════════════════════════════════
+
+   Clases y no utilidades de Tailwind: la regla global 'button {}' de index.css les gana en relleno, borde y
+   letra, y una clase le gana a ella. Los colores son los de la paleta ('--color-jx-…', index.css).            */
+
+
+/*  LA TECLA DE LA BARRA: una píldora con la cara de quien tiene la sesión. Hereda de '.nav-bar__action-btn' el
+    alto, la letra y el hundido al pasar el ratón; aquí, el borde de píldora y la cara pegada a la izquierda.  */
+.nav-bar .nav-bar__action-btn--switch-user {
+    gap: 0.5rem;
+    padding: 0 0.75rem 0 0.25rem;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 999px;
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
+    font-weight: 600;
+}
+
+.nav-bar .nav-bar__action-btn--switch-user:hover {
+    border-color: var(--color-jx-borde-campo);
+    background: var(--color-jx-hundido);
+}
+
+.nav-bar .nav-bar__action-btn--switch-user svg {
+    color: var(--color-jx-tinta3);
+}
+
+/*  En una ventana estrecha se va el nombre de la acción (App.css): la píldora se cierra sobre la cara y las flechas  */
+@media (max-width: 1040px) {
+    .nav-bar .nav-bar__action-btn--switch-user { padding: 0 0.55rem 0 0.25rem; }
+}
+
+
+/*  LA CARA: foto redonda o iniciales en ocre  */
+.switch-user-avatar {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--color-jx-ocre-suave);
+    color: var(--color-jx-ocre-texto);
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-jx-ocre) 45%, transparent);
+}
+
+.switch-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.switch-user-avatar--small {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+}
+
+.switch-user-avatar--large {
+    width: 46px;
+    height: 46px;
+    font-size: 16px;
+}
+
+
+/*  EL FONDO: negro, sobre toda la ventana (también sobre la barra). Por debajo del BoxModal (9000), que puede
+    tener que avisar encima. 'no-drag': en el escritorio, la barra de debajo arrastra la ventana.  */
+.switch-user-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 8000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(8, 7, 5, 0.92);
+    -webkit-app-region: no-drag;
+    animation: switch-user-fade 0.16s ease-out;
+}
+
+.switch-user-dialog {
+    width: min(440px, 100%);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 28px 28px 24px;
+    border-radius: 16px;
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
+    border-top: 4px solid var(--color-jx-verde-barra);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    animation: switch-user-rise 0.2s ease-out;
+}
+
+@keyframes switch-user-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes switch-user-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .switch-user-backdrop,
+    .switch-user-dialog { animation: none; }
+}
+
+
+/*  LA CABECERA: las flechas en un cuadro verde suave, el título y lo que no se pierde  */
+.switch-user-dialog__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.switch-user-dialog__icon {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-jx-verde-suave);
+    color: var(--color-jx-verde-texto);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-jx-verde-barra) 25%, transparent);
+}
+
+.switch-user-dialog__title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.switch-user-dialog__subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--color-jx-tinta3);
+}
+
+/*  El rótulo de cada parte: «Sesión actual», «Usuario nuevo»  */
+.switch-user-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--color-jx-tinta3);
+}
+
+
+/*  LA SESIÓN ACTUAL: hundida, con la marca verde de «activa»  */
+.switch-user-current__card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--color-jx-hundido);
+    border: 1px solid var(--color-jx-regla2);
+}
+
+.switch-user-current__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.switch-user-current__name {
+    font-size: 15px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.switch-user-current__position {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-jx-ocre-texto);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.switch-user-current__state {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--color-jx-verde-suave);
+    color: var(--color-jx-verde-texto);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.switch-user-current__state::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-jx-verde-barra);
+}
+
+.switch-user-current__note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 0 4px;
+    font-size: 12px;
+    color: var(--color-jx-tinta3);
+}
+
+
+/*  EL FORMULARIO  */
+.switch-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.switch-user-form .switch-user-eyebrow { margin-bottom: -4px; }
+
+.switch-user-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.switch-user-field__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-jx-tinta2);
+}
+
+/*  La caja del campo: el icono, la entrada y (en la clave) el ojo. El borde se marca en verde al escribir y en
+    rojo cuando el error es de este campo.  */
+.switch-user-field__box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 6px 0 12px;
+    border-radius: 10px;
+    border: 1px solid var(--color-jx-borde-campo);
+    background: var(--color-jx-fondo);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.switch-user-field__box:focus-within {
+    border-color: var(--color-jx-verde-barra);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 18%, transparent);
+}
+
+.switch-user-field__box--error,
+.switch-user-field__box--error:focus-within {
+    border-color: var(--color-jx-critico);
+    background: var(--color-jx-critico-suave);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-critico) 16%, transparent);
+}
+
+.switch-user-field__icon {
+    flex: none;
+    color: var(--color-jx-tinta3);
+}
+
+.switch-user-field__box--error .switch-user-field__icon { color: var(--color-jx-critico-texto); }
+
+.switch-user-field__input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--color-jx-tinta);
+    font: inherit;
+    font-size: 14.5px;
+}
+
+.switch-user-field__input::placeholder { color: var(--color-jx-tinta4); }
+.switch-user-field__input:disabled { color: var(--color-jx-tinta3); }
+
+.switch-user-field__toggle {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--color-jx-tinta3);
+}
+
+.switch-user-field__toggle:hover {
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta);
+}
+
+.switch-user-field__toggle:focus-visible {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: 1px;
+}
+
+/*  El error de un campo, debajo de él  */
+.switch-user-field__error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-jx-critico-texto);
+}
+
+/*  La marca «!» de los dos errores, el de un campo y el general  */
+.switch-user-field__error::before,
+.switch-user-form__error::before {
+    content: '!';
+    flex: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-jx-critico);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/*  El error que no es de ningún campo (sin conexión, sin entrada laboral, inhabilitado): en una franja, encima de
+    las teclas  */
+.switch-user-form__error {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--color-jx-critico-suave);
+    border: 1px solid color-mix(in srgb, var(--color-jx-critico) 35%, transparent);
+    color: var(--color-jx-critico-texto);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+
+/*  LAS TECLAS: «Cancelar» plana, «Entrar» verde con relieve, de la familia de «Sacar tablet»  */
+.switch-user-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.switch-user-key {
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.switch-user-key:focus-visible {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: 2px;
+}
+
+.switch-user-key:disabled { cursor: default; }
+
+.switch-user-key--cancel {
+    border: 1px solid var(--color-jx-regla2);
+    background: transparent;
+    color: var(--color-jx-tinta2);
+}
+
+.switch-user-key--cancel:hover:not(:disabled) {
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta);
+}
+
+.switch-user-key--enter {
+    min-width: 128px;
+    padding-bottom: 2px;
+    border: 1px solid color-mix(in srgb, var(--color-jx-verde-texto) 80%, #000000);
+    border-bottom: 3px solid color-mix(in srgb, var(--color-jx-verde-texto) 62%, #000000);
+    background: var(--color-jx-verde-texto);
+    color: #ffffff;
+}
+
+.switch-user-key--enter:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-jx-verde-texto) 88%, #000000);
+}
+
+.switch-user-key--enter:active:not(:disabled) {
+    padding-bottom: 0;
+    border-bottom-width: 1px;
+    transform: translateY(2px);
+}
+
+.switch-user-key--enter:disabled {
+    background: color-mix(in srgb, var(--color-jx-verde-texto) 70%, #ffffff);
+}
+
+.switch-user-key__spinner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #ffffff;
+    animation: switch-user-spin 0.7s linear infinite;
+}
+
+@keyframes switch-user-spin { to { transform: rotate(360deg); } }
