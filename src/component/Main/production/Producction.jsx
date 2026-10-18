@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { useAlert } from '../../../hook/useAlert';
 import { useSaveNoveltie } from '../../../hook/useSaveNoveltie';
 import './style.css';
@@ -18,6 +19,7 @@ function Production({ awaitWindow, boxModal, reset, title }) {
     const alert = useAlert();
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
     const saveNoveltie = useSaveNoveltie();
+    const sessionUser = useSelector(state => state.user);
     let [count, setCount] = useState(3);
     let [verb1, setVerb1] = useState('');
     let [verb2, setVerb2] = useState('');
@@ -155,8 +157,8 @@ function Production({ awaitWindow, boxModal, reset, title }) {
 
 
             dataForRequest.title = 'Empleado realiza producción';
-            dataForRequest.userName = `${JSON.parse(sessionStorage.getItem('session')).name} ${JSON.parse(sessionStorage.getItem('session')).surName}`;
-            dataForRequest.userId = JSON.parse(sessionStorage.getItem('session'))._id;
+            dataForRequest.userName = `${sessionUser.name} ${sessionUser.surName}`;
+            dataForRequest.userId = sessionUser._id;
             dataForRequest.localName = JSON.parse(localStorage.getItem('local_appExpress'))[0].name;
             dataForRequest.localId = JSON.parse(localStorage.getItem('local_appExpress'))[0]._id;
             dataForRequest.description = `Empleado realiza producción: ${verb1}, ${verb2}, ${verb3} ${verb4 !== '' ? ` y ${verb4}` : ''}`;
@@ -166,7 +168,7 @@ function Production({ awaitWindow, boxModal, reset, title }) {
 
             const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest);
 
-            saveNoveltie.save(`Empleado realiza produción - ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}`, JSON.parse(sessionStorage.getItem('session')));
+            saveNoveltie.save(`Empleado realiza produción - ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}`, { userName: dataForRequest.userName });
             alert.request(`Producción en ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}. por validar`);
             console.log(response);
             boxModal.open({ title: 'Aviso', description: 'Producción entregado.' });

@@ -29,6 +29,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
     const seletedEstableshment = useSelector(state => state.establishment);
+    const sessionUser = useSelector(state => state.user);
 
 
     const alert = useAlert();
@@ -89,7 +90,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 
 
 
-            const data = useDataUser(user.current, seletedEstableshment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user.current, seletedEstableshment, sessionUser, localStorage.getItem('local_appExpress'));
 
             const text = textAssembly({
                 establishmentName: data.localData.name,

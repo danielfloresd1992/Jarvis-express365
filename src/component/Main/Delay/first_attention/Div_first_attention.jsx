@@ -35,6 +35,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
 
     const users = useSelector(state => state.users);
+    const sessionUser = useSelector(state => state.user);
     const locals = useSelector(state => state.locals);
 
 
@@ -133,7 +134,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
             let text;
 
-            const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user.current, local, sessionUser, localStorage.getItem('local_appExpress'));
 
             if (
                 data.localData.name === 'Mister Aventura' ||

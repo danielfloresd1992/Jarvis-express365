@@ -33,6 +33,7 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
 
     const saveNoveltie = useSaveNoveltie();
     const users = useSelector(state => state.users);
+    const sessionUser = useSelector(state => state.user);
     let [local, setLocal] = useState(null);
 
 
@@ -79,7 +80,7 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
         try {
             if (files.length < title[0].photos.caption.length) throw new Error('Imagenes incompletas');
 
-            const data = useDataUser(null, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(null, local, sessionUser, localStorage.getItem('local_appExpress'));
             let text;
 
 

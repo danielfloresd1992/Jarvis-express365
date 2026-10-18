@@ -30,6 +30,7 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
 
 
     const seletedEstableshment = useSelector(state => state.establishment);
+    const sessionUser = useSelector(state => state.user);
 
     const [files, setFiles] = useState([]);
     // Plato desde el selector del establecimiento (objeto con nameDishe),
@@ -98,7 +99,7 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
             if (!dish) throw new Error('Seleccione el tipo de plato');
             if (files.filter(Boolean).length < title[0].photos.caption.length) throw new Error('Imagenes incompletas');
 
-            const data = useDataUser(null, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(null, local, sessionUser, localStorage.getItem('local_appExpress'));
 
             // Texto final armado por partes, como assemble_text en TabletDelay:
             // local + encabezado + mesa (opcional) + cuerpo + cierre + nota

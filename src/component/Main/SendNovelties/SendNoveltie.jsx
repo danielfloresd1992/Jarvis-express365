@@ -34,6 +34,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
     const saveNoveltieList = useSaveNoveltie();
 
     const users = useSelector(state => state.users);
+    const sessionUser = useSelector(state => state.user);
     const locals = useSelector(state => state.locals);
 
     const keySubmit = useRef(true);
@@ -89,7 +90,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
 
                 let dataForRequest = {};
-                const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+                const data = useDataUser(user.current, local, sessionUser, localStorage.getItem('local_appExpress'));
                 const LANG = local.lang;
                 const localData = local;
                 let urlVideo;

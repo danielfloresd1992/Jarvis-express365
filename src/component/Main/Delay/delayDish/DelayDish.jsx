@@ -28,6 +28,7 @@ import DishInputSelet from '@/component/keysInputs/dishInput.jsx'
 function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
     const users = useSelector(state => state.users);
+    const sessionUser = useSelector(state => state.user);
     const locals = useSelector(state => state.locals);
     const seletedEstableshment = useSelector(state => state.establishment);
 
@@ -87,7 +88,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
                 urlVideo = await saveVideo(videoState);
             }
             console.log(urlVideo);
-            const data = useDataUser(user.current, seletedEstableshment, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user.current, seletedEstableshment, sessionUser, localStorage.getItem('local_appExpress'));
 
             let text;
             const FOR_MISTER01 = `${seletedEstableshment.franchise === 'Mister01' ? `tiempo que excede: ${returnTimeExceding(timeTotal, TIME_EXCEDING)}` : ''}`;

@@ -27,6 +27,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
 
     const seletedEstableshment = useSelector(state => state.establishment);
+    const sessionUser = useSelector(state => state.user);
     const { htmlAdapterRef } = useAdapterResize({ breackWidth: 1350 });
     const config = {
         hiddenBoxText: true,
@@ -94,7 +95,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
             if (!dish) throw new Error('Seleccione el tipo de plato');
 
-            const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+            const data = useDataUser(user.current, local, sessionUser, localStorage.getItem('local_appExpress'));
             const text = assemble_text({
                 localName: local?.name,
                 dish: dish,

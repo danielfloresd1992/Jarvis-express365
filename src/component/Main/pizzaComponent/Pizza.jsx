@@ -21,6 +21,7 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
 
 
     const users = useSelector(state => state.users);
+    const sessionUser = useSelector(state => state.user);
     const locals = useSelector(state => state.locals);
     const sectionHtmlRef = useRef(null);
     const alert = useAlert();
@@ -72,7 +73,7 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
         let descriptionMenu;
         const caption = [];
 
-        const data = useDataUser(user.current, local, sessionStorage.getItem('session'), localStorage.getItem('local_appExpress'));
+        const data = useDataUser(user.current, local, sessionUser, localStorage.getItem('local_appExpress'));
 
         if (data.LANG === 'es') {
 

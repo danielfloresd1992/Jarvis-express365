@@ -48,22 +48,25 @@ function useTextMenu({
 }
 
 
-function useDataUser(user, local, storangeUser, storangeLocal){
+//  'sessionUser' es el usuario de la sesión, el de Redux (state.user): lo llenan el login y también 'isAuth' al
+//  recargar, cosa que la copia de sessionStorage no hacía. 'user' es el operador elegido en el buscador del
+//  móvil; si no se eligió ninguno, firma el de la sesión.
+function useDataUser(user, local, sessionUser, storangeLocal){
     const userData = {};
     const localData = {};
     let LANG = null;
-    
+
+    const author = (isMobile && user) ? user : sessionUser;
+    userData.userName = `${author.name} ${author.surName}`;
+    userData.userId = author._id;
+
     if(isMobile){
-        userData.userName = `${user.name} ${user.surName}`;
-        userData.userId = user._id;
         localData.name = local.name;
         localData.franchise = local.franchise;
         localData.localId = local._id;
         LANG = local.lang;
     }
     else{
-        userData.userName = `${JSON.parse(storangeUser).name} ${JSON.parse(storangeUser).surName}`;
-        userData.userId = JSON.parse(storangeUser)._id;
         localData.name = JSON.parse(storangeLocal)[0].name;
         localData.localId = JSON.parse(storangeLocal)[0]._id;
         localData.franchise = JSON.parse(storangeLocal)[0].franchise;
