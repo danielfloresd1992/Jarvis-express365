@@ -11,8 +11,10 @@ import { useEffect, useState } from 'react';
  *
  *      nas         guardado solo en su carpeta                 verde
  *      chosen      guardado donde se eligió en «Guardar como»  verde, y por qué no fue solo (si hubo un porqué)
+ *      picked      guardado con el «Guardar como» del          verde, con el nombre del archivo: el navegador
+ *                  navegador («Descargar Excel»)               no dice la carpeta, y no hay ruta que copiar
  *      cancelled   se cerró «Guardar como» sin guardar         ámbar, con el porqué; sin porqué no se dice nada
- *      downloaded  descargado (sin aplicación de escritorio)   no se dice nada: es lo de siempre
+ *      downloaded  descargado (navegador sin selector)         no se dice nada: es lo de siempre
  *
  *  La ruta se puede seleccionar y copiar. El aviso verde se va solo a los VISIBLE_MS; el ámbar se queda
  *  hasta cerrarlo, porque dice algo que hay que leer. Su aspecto, en 'register-export-result…' de registers.css.
@@ -31,8 +33,9 @@ export default function ExportResult({ result, onClose }) {
     // copied = «la ruta ya se copió»: el botón lo dice un momento
     const [copied, setCopied] = useState(false);
 
-    // saved = «se guardó en algún sitio»
-    const saved = result?.kind === 'nas' || result?.kind === 'chosen';
+    // saved = «se guardó en algún sitio»; withPath = «y se sabe la ruta entera», para copiarla
+    const saved = result?.kind === 'nas' || result?.kind === 'chosen' || result?.kind === 'picked';
+    const withPath = saved && result.kind !== 'picked';
 
     useEffect(() => {
         if (!saved) return undefined;
@@ -52,7 +55,7 @@ export default function ExportResult({ result, onClose }) {
         <div className={`register-export-result ${saved ? 'register-export-result--saved' : 'register-export-result--warning'}`} role='status'>
             <div className='register-export-result__head'>
                 <span className='register-export-result__title'>
-                    {result.kind === 'nas' ? '✓ Guardado en el NAS' : result.kind === 'chosen' ? '✓ Guardado' : 'No se guardó el Excel'}
+                    {result.kind === 'nas' ? '✓ Guardado en el NAS' : saved ? '✓ Guardado' : 'No se guardó el Excel'}
                 </span>
                 <button type='button' className='register-export-result__close' onClick={onClose} aria-label='Cerrar el aviso'>✕</button>
             </div>
@@ -62,7 +65,7 @@ export default function ExportResult({ result, onClose }) {
             {result.reason && <p className='register-export-result__reason'>{saved ? `No se guardó solo: ${result.reason}` : result.reason}</p>}
 
             {
-                saved && (
+                withPath && (
                     <button type='button' className='register-export-result__copy' onClick={copyPath}>
                         {copied ? 'Ruta copiada' : 'Copiar ruta'}
                     </button>

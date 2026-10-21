@@ -1,5 +1,5 @@
 import { isTakeOut } from '../tickets/tableRecords.js';
-import { deliverWorkbook } from './deliverWorkbook.js';
+import { deliverWorkbook, chooseDownloadTarget } from './deliverWorkbook.js';
 
 
 /*  LA HOJA DE CÁLCULO DE ATENCIÓN AL CLIENTE
@@ -32,6 +32,9 @@ import { deliverWorkbook } from './deliverWorkbook.js';
  *      STEP 6  buildFileName(context)              'Atencion al cliente - <local> - <día>[ - <turno>][ - <quién>].xlsx' PURA
  *      STEP 7  deliverWorkbook(buffer, name, …)    el archivo, a su carpeta del NAS (con la aplicación de
  *                                                  escritorio: nasFolder.js la busca) o, si no, descargado
+ *
+ *  Con «Descargar Excel» el nombre (STEP 6) va antes que todo: con él se abre el «Guardar como» del navegador
+ *  (chooseDownloadTarget), que solo se deja abrir justo después del clic, y lo elegido llega a STEP 7.
  *
  *  ══ LO QUE HAY QUE SABER ═══════════════════════════════════════════════════════════════════════════
  *
@@ -1085,7 +1088,8 @@ function buildFileName(context) {
 
 // ═══════════════════════════════════════ STEP 7 · LA ENTREGA ═══════════════════════════════════════
 //
-//  deliverWorkbook (deliverWorkbook.js): a su carpeta del NAS con la aplicación de escritorio, o descargado.
+//  deliverWorkbook (deliverWorkbook.js): a su carpeta del NAS con la aplicación de escritorio; con «Descargar Excel»,
+//  donde se eligió en el «Guardar como» del navegador; o descargado.
 
 // loadLogo = «el logo del Resumen, en bytes». Si no carga, el libro sale igual, sin logo.
 async function loadLogo() {
@@ -1115,10 +1119,12 @@ async function loadLogo() {
  *  @param {string} shift              qué turno: 'all' (el día entero, por defecto), 'day' o 'night'
  *  @param {string} folderShift        con 'all', en la carpeta de qué turno del NAS va: el de la barra ('day' | 'night')
  *  @param {string} exporter           quién exporta ('Daniel Flores'): va en el nombre del archivo. Opcional.
- *  @param {boolean} download          descargarlo en el equipo y no guardarlo en el NAS (el botón «Descargar Excel»)
+ *  @param {boolean} download          guardarlo en el equipo y no en el NAS (el botón «Descargar Excel»): con el
+ *                                     «Guardar como» del navegador, o descargado si no lo tiene
  *  @param {Date}   now                cuándo se exporta (para las pruebas; por defecto, ahora)
  *  @returns {Promise<{ fileName, rows, delivered }>} el nombre del archivo, cuántas filas lleva la tabla y
- *           dónde acabó (deliverWorkbook: en el NAS, donde se eligió, cancelado o descargado).
+ *           dónde acabó (deliverWorkbook: en el NAS, donde se eligió, cancelado o descargado). Si se cerró el
+ *           «Guardar como» del navegador sin elegir, no se arma nada: rows 0 y delivered { kind: 'cancelled' }.
  *           Rechaza si algo falla (por ejemplo, si no carga ExcelJS): quien llama lo enseña.
  */
 async function exportCustomerServiceWorkbook({ rotations, day, establishmentName, attentionLimit, cleaningLimit, managers = [], shift = 'all', folderShift, exporter = '', download = false, now = new Date() }) {
@@ -1126,14 +1132,19 @@ async function exportCustomerServiceWorkbook({ rotations, day, establishmentName
     // context = «lo que necesitan los pasos además de los datos». Un turno que no existe es el día entero.
     const context = { day, establishmentName, attentionLimit, cleaningLimit, managers, shift: EXPORT_SHIFTS.includes(shift) ? shift : 'all', folderShift, exporter, download, exportedAt: now };
 
+    //  El nombre va primero: «Descargar Excel» pregunta dónde guardarlo antes de nada (chooseDownloadTarget), porque
+    //  el navegador solo abre su «Guardar como» justo después del clic. Si se cierra sin elegir, no se arma el libro.
+    const fileName = buildFileName(context);                                   // STEP 6 · el nombre
+    const target = download ? await chooseDownloadTarget(fileName) : null;
+    if (target?.cancelled) return { fileName, rows: 0, delivered: { kind: 'cancelled' } };
+
     const picked = pickShift(rotations, context.shift);                        // STEP 0 · el turno
     const rows = buildDataRows(picked, context);                               // STEP 1 · las filas
     const table = buildTable(rows);                                            // STEP 2 · los valores de Excel
     const summary = buildSummary(table, context);                              // STEP 3 · las cifras del Resumen
     const workbook = await buildWorkbook(table, summary, context, await loadLogo());   // STEP 4 · el libro
     const buffer = await finishWorkbook(workbook);                             // STEP 5 · el archivo
-    const fileName = buildFileName(context);                                   // STEP 6 · el nombre
-    const delivered = await deliverWorkbook(buffer, fileName, context);        // STEP 7 · al NAS, o descargado
+    const delivered = await deliverWorkbook(buffer, fileName, { ...context, target }); // STEP 7 · al NAS, o donde se eligió
 
     return { fileName, rows: rows.length, delivered };
 }

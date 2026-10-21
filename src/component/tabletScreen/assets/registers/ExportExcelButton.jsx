@@ -21,8 +21,11 @@ import ExportResult from './ExportResult.jsx';
  *  escritorio va a su carpeta del NAS, y la ruta se puede copiar.
  *
  *  EL MISMO BOTÓN, PARA DESCARGAR ('download'): «Descargar Excel», con una flecha en vez del logo. Tiene el
- *  mismo menú del turno, pero su 'onExport' nunca va al NAS: el Excel se descarga en el equipo (en la
- *  aplicación de escritorio, Windows pregunta dónde guardarlo). Pedido del usuario, al lado de Exportar.
+ *  mismo menú del turno, pero su 'onExport' nunca va al NAS ni usa la aplicación de escritorio: al elegir el
+ *  turno se abre el «Guardar como» del navegador (showSaveFilePicker, igual en Chrome, Edge y la aplicación de
+ *  escritorio) para elegir dónde y con qué nombre; sin él, se descarga como siempre. Pedido del usuario, al lado
+ *  de Exportar. Por eso exportShift no espera nada antes de onExport: el navegador solo abre el selector justo
+ *  después del clic.
  */
 
 

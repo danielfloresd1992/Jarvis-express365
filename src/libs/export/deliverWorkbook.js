@@ -15,15 +15,21 @@ import { resolveNasFolder, NAS_ROOT } from './nasFolder.js';
  *                          permiso…) se abre «Guardar como» en la carpeta más honda a la que se llegó, y
  *                          se dice por qué no se guardó solo.
  *
- *  En un navegador, o en una aplicación de escritorio sin actualizar, se descarga como siempre. Y también
- *  cuando se pide descargar ('download': el botón «Descargar Excel», pedido del usuario): entonces nunca va
- *  al NAS, y la aplicación de escritorio pregunta dónde guardarlo en el equipo.
+ *  En un navegador, o en una aplicación de escritorio sin actualizar, se descarga como siempre.
+ *
+ *  EL BOTÓN «DESCARGAR EXCEL» ('download') nunca va al NAS ni usa la aplicación de escritorio (pedido del usuario):
+ *  usa el «Guardar como» propio del navegador (showSaveFilePicker), que se abre en Chrome, en Edge y en la
+ *  aplicación de escritorio igual. Se pregunta ANTES de armar el libro (chooseDownloadTarget, desde
+ *  exportCustomerServiceWorkbook): el navegador solo abre el selector justo después del clic, y armar el libro
+ *  tarda. Lo elegido llega aquí en 'target'. Sin selector (un navegador que no lo tiene), se descarga como siempre.
  *
  *  Devuelve qué pasó, para que el botón lo diga:
  *      { kind: 'nas',        path }           guardado solo en su carpeta
  *      { kind: 'chosen',     path, reason }   guardado donde se eligió; 'reason', por qué no fue solo
+ *      { kind: 'picked',     path }           guardado donde se eligió con el selector del navegador; 'path' es
+ *                                             solo el nombre del archivo: el navegador no da la carpeta
  *      { kind: 'cancelled',  reason }         se cerró «Guardar como» sin guardar
- *      { kind: 'downloaded' }                 descargado (sin aplicación de escritorio)
+ *      { kind: 'downloaded' }                 descargado
  *  Rechaza si no se pudo escribir ni eligiendo la carpeta.
  */
 
@@ -34,15 +40,50 @@ const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.s
 // ALL_SHIFTS_REASON = «por qué "Todas" no se guardó sola»: no se supo el turno de la barra
 const ALL_SHIFTS_REASON = 'No se sabe el turno de la barra, y con los dos turnos no hay una carpeta de turno: elige dónde guardarlo';
 
+// PICKER_TYPES = «qué archivo guarda el selector del navegador»: un libro de Excel
+const PICKER_TYPES = [{ description: 'Libro de Excel', accept: { [XLSX_TYPE]: ['.xlsx'] } }];
+
+
+/*  chooseDownloadTarget = «preguntar dónde guardar el Excel», con el «Guardar como» del navegador
+ *
+ *  Hay que llamarla en cuanto se pulsa, antes de cualquier espera larga: el navegador solo abre el selector justo
+ *  después de un clic.
+ *
+ *  @param {string}   fileName  el nombre que se propone
+ *  @param {function} picker    el selector (window.showSaveFilePicker); otro, para las pruebas
+ *  @returns {Promise<{ handle } | { cancelled: true } | null>}  el archivo elegido; que se cerró sin elegir; o null si
+ *           el navegador no tiene selector o no lo dejó abrir (entonces se descarga como siempre)
+ */
+export async function chooseDownloadTarget(fileName, picker = globalThis.window?.showSaveFilePicker) {
+    if (typeof picker !== 'function') return null;
+
+    try {
+        const handle = await picker.call(globalThis.window, { suggestedName: fileName, types: PICKER_TYPES });
+        return { handle };
+    }
+    catch (error) {
+        if (error?.name === 'AbortError') return { cancelled: true };
+        console.log('No se pudo abrir el selector de archivos; se descarga como siempre:', error);
+        return null;
+    }
+}
+
 
 /*  @param {Uint8Array} bytes     el archivo (finishWorkbook)
  *  @param {string}     fileName  su nombre (buildFileName)
- *  @param {object}     context   { day, establishmentName, shift, folderShift, download }: de qué día, local y
- *                                turno es; con 'all', en la carpeta de qué turno va ('day' | 'night'); y si se
- *                                pidió descargarlo en el equipo en vez de guardarlo en el NAS
+ *  @param {object}     context   { day, establishmentName, shift, folderShift, download, target }: de qué día, local y
+ *                                turno es; con 'all', en la carpeta de qué turno va ('day' | 'night'); si se pidió
+ *                                descargarlo en el equipo en vez de guardarlo en el NAS; y, entonces, dónde se eligió
+ *                                guardarlo (chooseDownloadTarget)
  *  @param {object}     desktop   la aplicación de escritorio (window.electronAPI); otra, para las pruebas
  */
-export async function deliverWorkbook(bytes, fileName, { day, establishmentName, shift, folderShift, download = false }, desktop = globalThis.window?.electronAPI) {
+export async function deliverWorkbook(bytes, fileName, { day, establishmentName, shift, folderShift, download = false, target = null }, desktop = globalThis.window?.electronAPI) {
+
+    //  «Descargar Excel» con el selector del navegador: se escribe en el archivo elegido
+    if (download && target?.handle) {
+        await writeToFile(target.handle, bytes);
+        return { kind: 'picked', path: target.handle.name ?? fileName };
+    }
 
     if (download || !desktop?.nasGuardar || !desktop?.nasCarpetas || !desktop?.nasGuardarComo) {
         downloadWorkbook(bytes, fileName);
@@ -84,6 +125,18 @@ export async function deliverWorkbook(bytes, fileName, { day, establishmentName,
     if (chosen?.ok) return { kind: 'chosen', path: chosen.ruta, reason };
     if (chosen?.cancelado) return { kind: 'cancelled', reason };
     throw new Error(chosen?.error ?? reason ?? 'No se pudo guardar el Excel');
+}
+
+
+// writeToFile = «los bytes → el archivo que se eligió en el selector del navegador»
+async function writeToFile(handle, bytes) {
+    const writable = await handle.createWritable();
+    try {
+        await writable.write(new Blob([bytes], { type: XLSX_TYPE }));
+    }
+    finally {
+        await writable.close();
+    }
 }
 
 
