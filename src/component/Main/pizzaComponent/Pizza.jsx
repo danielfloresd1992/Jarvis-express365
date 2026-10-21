@@ -6,12 +6,14 @@ import { Search } from '../search/searchComponent.jsx';
 import { useSaveNoveltie } from '../../../hook/useSaveNoveltie';
 import { useDataUser } from '../../../hook/useTextMenu.jsx';
 import { ImgBoxImg } from '../imgBoxComponent/ImgBox.jsx';
-import axiosInstance from '../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../libs/fetch_data/sessionAxios.js';
 
 import URL from '../../../libs/fetch_data/api_conexion.js';
 import { ImgComponent } from '../SendNovelties/ImageComponent.jsx';
 import { sendFile } from '../../../libs/fetch_data/multimedia.Fetching.js';
 import { blobToFile } from '../../../libs//script/64toFile.js';
+import AddonField from '../../inputs/AddonField.jsx';
+import ChoiceRow from '../../inputs/ChoiceRow.jsx';
 
 
 
@@ -65,7 +67,7 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
         e.preventDefault();
         console.log(menuRef);
 
-        if (files.length < 1) return boxModal.open({ title: 'Error', description: 'Selecione una puta imagen, JILIPOLLAS!' });
+        if (files.length < 1) return boxModal.open({ title: 'Falta la imagen', description: 'Adjunta la imagen de la pizza antes de enviar.' });
 
         awaitWindow.open('Enviando novedad');
         let text;
@@ -102,36 +104,37 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
         dataForRequest.alertId = title._id;
 
 
-        axiosInstance.post(`${URL}/novelties`, dataForRequest)
-            .then(response => {
-                console.log(response);
-                if (response.status === 200) {
-                    saveNoveltie.save(`Pick up}`, data.userData);
-                    alert.request(`Calidad de pizza en ${data.localData.name}. por validar`);
-                    user.current = null;
-                    setLocal(local = null);
-                    boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
-                    reset('');
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                awaitWindow.close();
+        //  Se ESPERA la respuesta: antes la petición iba suelta y el «Enviando…» se cerraba en el acto (se podía volver
+        //  a enviar). Ahora sigue abierto hasta el final, también mientras se vuelve a entrar si la sesión venció
+        //  (sessionAxios).
+        try {
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest);
+            console.log(response);
+            if (response.status === 200) {
+                saveNoveltie.save(`Pick up}`, data.userData);
+                alert.request(`Calidad de pizza en ${data.localData.name}. por validar`);
+                user.current = null;
+                setLocal(local = null);
+                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                reset('');
+            }
+        }
+        catch (err) {
+            console.log(err);
 
-                // El motivo que dio el servidor, no un texto fijo. El
-                // interceptor de instanceAxios ya dejó en `err.message` lo que
-                // respondió jarvis_api —por ejemplo, que el establecimiento
-                // tiene una caída de DVR y no puede reportar—. Con un texto
-                // fijo el operador no sabe qué pasó y vuelve a intentar.
-                boxModal.open({
-                    title: 'Error',
-                    description: err.message || 'No se pudo enviar la novedad',
-                });
-            })
-            .finally(() => {
-                awaitWindow.close();
+            // El motivo que dio el servidor, no un texto fijo. El
+            // interceptor ya dejó en `err.message` lo que respondió
+            // jarvis_api —por ejemplo, que el establecimiento tiene una
+            // caída de DVR y no puede reportar—. Con un texto fijo el
+            // operador no sabe qué pasó y vuelve a intentar.
+            boxModal.open({
+                title: 'Error',
+                description: err.message || 'No se pudo enviar la novedad',
             });
-        awaitWindow.close();
+        }
+        finally {
+            awaitWindow.close();
+        }
     };
 
 
@@ -162,48 +165,25 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
                 <div className='box-div-imputContain'>
                     <div className='box-inputContain box-static'>
 
-                        <label className='box-label' htmlFor=""> Apariencia
-                            <label><input onChange={e => menuRef.current.appearance = e.target.value} required={true} type='radio' name='Apariencia' value='✅' /> SI</label>
-                            <label><input onChange={e => menuRef.current.appearance = e.target.value} required={true} type='radio' name='Apariencia' value='❌' /> NO</label>
-                        </label>
+                        {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): mesa y ticket con la etiqueta
+                             pegada, en una fila, y cada pregunta de sí o no como una fila con sus dos botones. Los
+                             valores son los de siempre (✅ / ❌) y van a la misma ref.  */}
+                        <div className='ff-row ff-row--two'>
+                            <AddonField id='pizza-mesa' label='Mesa' required onChange={value => menuRef.current.table = value} />
+                            <AddonField id='pizza-ticket' label='Ticket' required onChange={value => menuRef.current.tiket = value} />
+                        </div>
 
-                        <label className='box-label' htmlFor=""> Tamaño
-                            <label><input onChange={e => menuRef.current.size = e.target.value} required={true} type='radio' name='Tamaño' value='✅' /> SI</label>
-                            <label><input onChange={e => menuRef.current.size = e.target.value} required={true} type='radio' name='Tamaño' value='❌' /> NO</label>
-                        </label>
+                        <ChoiceRow name='Apariencia' title='Apariencia' onChange={value => menuRef.current.appearance = value} />
+                        <ChoiceRow name='Tamaño' title='Tamaño' onChange={value => menuRef.current.size = value} />
+                        <ChoiceRow name='Ingredientes' title='Ingredientes' onChange={value => menuRef.current.ingredients = value} />
+                        <ChoiceRow name='delivery' title='Envío de delivery' onChange={value => menuRef.current.delivery = value} />
+                        <ChoiceRow name='desechada' title='Es desechada' onChange={value => menuRef.current.thrown = value} />
 
-                        <label className='box-label' htmlFor=""> Ingredientes
-                            <label><input onChange={e => menuRef.current.ingredients = e.target.value} required={true} type='radio' name='Ingredientes' value='✅' /> SI</label>
-                            <label><input onChange={e => menuRef.current.ingredients = e.target.value} required={true} type='radio' name='Ingredientes' value='❌' /> NO</label>
-                        </label>
-
-                        <label htmlFor="" className='box-label'> Numero de mesa
-                            <input className='box-inputText' type="text" id="entrega plato" required
-                                onChange={e => menuRef.current.table = e.target.value}
-                            />
-                        </label>
-
-                        <label className='box-label' htmlFor=""> Envio de delivery
-                            <label><input onChange={e => menuRef.current.delivery = e.target.value} required={true} type='radio' name='delivery' value='✅' /> SI</label>
-                            <label><input onChange={e => menuRef.current.delivery = e.target.value} required={true} type='radio' name='delivery' value='❌' /> NO</label>
-                        </label>
-
-                        <label htmlFor="" className='box-label'> Numero de tiket
-                            <input className='box-inputText' type="text" id="entrega plato" required
-                                onChange={e => menuRef.current.tiket = e.target.value}
-                            />
-                        </label>
-
-                        <label className='box-label' htmlFor=""> Es desechada
-                            <label><input onChange={e => menuRef.current.thrown = e.target.value} required={true} type='radio' name='desechada' value='✅' /> SI</label>
-                            <label><input onChange={e => menuRef.current.thrown = e.target.value} required={true} type='radio' name='desechada' value='❌' /> NO</label>
-                        </label>
-
-                        <label className='box-label' htmlFor=""> Tipo de plato
+                        <label className='box-label' htmlFor='pizza-tipo'> Tipo de plato
 
                             <select
+                                id='pizza-tipo'
                                 className='box-inputText'
-                                style={{ textAlign: 'left' }}
                                 valueDefauld='Selecione'
                                 required
                                 onChange={e => menuRef.current.type = e.target.value}

@@ -10,7 +10,7 @@ import { returnTimeExceding } from '../../../../libs/date_time/time.js';
 import { useImgAlternative } from '../../../../hook/useImgAlternative';
 import { Search } from '../../search/searchComponent.jsx';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
-import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../../libs/fetch_data/sessionAxios.js';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 
@@ -18,6 +18,12 @@ import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
 import { reportDescription, waitingDescription } from '../reportDescription.js';
 import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
+import TimeTrack, { TrackNote, isClock } from '../../../inputs/TimeTrack.jsx';
+import LimitBar from '../../../inputs/LimitBar.jsx';
+import SwitchRow from '../../../inputs/SwitchRow.jsx';
+import AddonField from '../../../inputs/AddonField.jsx';
+import { exceedsLimit, secondsOf } from '../../../../libs/date_time/timeLimit.js';
+import { clockDuration } from '../../../../libs/date_time/waitingTime.js';
 
 
 
@@ -89,6 +95,14 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
     // hasFinishedState = «la mesa ya se limpió»: false es «¿Mesa sin limpiar aún?» marcada, el aviso de que sigue sin
     // limpiar. Así arranca cuando lo pide el triángulo de Desocupa en Mesas ('aviso').
     const [hasFinishedState, setHasFinishedState] = useState(!datosIniciales?.aviso);
+
+    // cleaningShown = «lo que tardó, para enseñarlo»: la cuenta de siempre (cleaningTotal), solo con las dos horas bien
+    // escritas. cleaningLimit = «el tiempo con que se mide»: el de Mesas si viene de ahí, si no el de la regla de este
+    // formulario. cleaningLate / cleaningOver = «se pasó» y «cuánto».
+    const cleaningShown = isClock(time1) && isClock(time2) ? cleaningTotal(time1, time2).total ?? '' : '';
+    const cleaningLimit = datosIniciales?.limit ?? TIME_EXCEDING.current;
+    const cleaningLate = cleaningShown !== '' && exceedsLimit(cleaningShown, cleaningLimit);
+    const cleaningOver = cleaningLate ? clockDuration(secondsOf(cleaningShown) - secondsOf(cleaningLimit)) : '';
 
     const htmlAdapterRef = useRef(null);
 
@@ -204,7 +218,7 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
                 init: time1,
                 end: time2,
             };
-            const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest)
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de limpieza - mesa ${table}`, data.userData);
@@ -359,59 +373,49 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
             }
 
 
+            {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): la mesa con la etiqueta pegada; si sigue sin
+                 limpiar, un interruptor (antes una casilla con la pregunta al revés); las dos horas sobre el recorrido
+                 de la mesa, y lo que tardó contra el límite en una barra.  */}
             <div className='box-inputContain box-div-imputContain'>
-                <label className='box-label' htmlFor=""> Número de mesa
-                    <input className='box-inputText' type="text" id="table" value={table} required
-                        onChange={e => {
-                            setNumberTable(table = e.target.value);
-                        }}
-                    />
-                </label>
+                <div className='ff-row ff-row--two'>
+                    <AddonField id='limpieza-mesa' label='Mesa' value={table} onChange={value => setNumberTable(table = value)} required />
+                </div>
 
-                <label className='box-label' htmlFor=""> Tiempo de desocupa
-                    <input className='box-inputText' type="text" id="desocupa" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => recepHour(e.target)}
-                    />
-                </label>
-                {/*  'checked' y no 'value': sin él la casilla no decía nada del estado, y abierta desde el aviso de Mesas
-                     (que arranca en «sin limpiar») salía sin marcar.  */}
-                <label htmlFor="" className='box-label'>¿Mesa sin limpiar aún?
-                    <input className='box-inputText' type="checkbox" checked={!hasFinishedState}
-                        onChange={e => setHasFinishedState(!e.target.checked)}
-                    />
-                </label>
+                {/*  'checked' y no 'value': abierta desde el aviso de Mesas (que arranca en «sin limpiar») tiene que salir
+                     encendido.  */}
+                <SwitchRow
+                    id='limpieza-aun'
+                    title='Mesa sin limpiar aún (aviso)'
+                    description='La segunda hora es la de ahora: la mesa sigue sin limpiar'
+                    checked={!hasFinishedState}
+                    onChange={waiting => setHasFinishedState(!waiting)}
+                />
 
-                {
-                    hasFinishedState ?
-                        <>
-                            <label htmlFor="" className='box-label'> Timpo de limpieza
-                                <input className='box-inputText' type="text" id="limpieza" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                                    onChange={e => recepHour(e.target)}
-                                />
-                            </label>
-                            <p className='box-textHourResult'>Tiempo total: <span>{textResult}</span></p>
-                        </>
-                        :
-                        <>
-                            <label htmlFor="" className='box-label'>Hora actual sin limpiar
-                                <input className='box-inputText' type="text" id="limpieza" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                                    onChange={e => recepHour(e.target)}
-                                />
-                            </label>
-                            <p className='box-textHourResult'>Tiempo sin ser limpiada aún: {returnTimeExceding(time2, time1)}</p>
-                        </>
-                }
+                {/*  Sin limpiar, la segunda hora no es la de la limpieza: es la de ahora, hasta la que la mesa lleva
+                     esperando. 'recepHour' recibe el id y el valor, como recibía el campo.  */}
+                <TimeTrack
+                    title='Recorrido de la mesa'
+                    steps={[
+                        { id: 'desocupa', label: 'Desocupa', value: time1, onChange: value => recepHour({ id: 'desocupa', value }), note: <TrackNote tone='pending'>Empieza a contar</TrackNote> },
+                        {
+                            id: 'limpieza',
+                            label: hasFinishedState ? 'Limpieza' : 'Hora de ahora',
+                            value: time2,
+                            onChange: value => recepHour({ id: 'limpieza', value }),
+                            late: cleaningLate,
+                            note: cleaningShown
+                                ? <TrackNote tone={cleaningLate ? 'late' : 'plain'} duration={cleaningShown}>{hasFinishedState ? 'en limpiarla' : 'sin limpiar'}{cleaningLate ? ` · +${cleaningOver}` : ''}</TrackNote>
+                                : <TrackNote tone='pending'>{isClock(time1) ? 'Falta esta hora' : 'Falta la hora de Desocupa'}</TrackNote>,
+                        },
+                    ]}
+                />
 
-                {
-                    local?.name && local.franchise === 'Mister01' ?
-                        (
-                            <p className='box-textHourResult'>Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING.current)}</span></p>
-                        )
-                        :
-                        (
-                            null
-                        )
-                }
+                <LimitBar
+                    title={hasFinishedState ? 'Limpieza, contra el límite del local' : 'Sin limpiar, contra el límite del local'}
+                    elapsed={cleaningShown}
+                    limit={cleaningLimit}
+                />
+
                 <label className='box-label' htmlFor=""> Nota
                     <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
                 </label>

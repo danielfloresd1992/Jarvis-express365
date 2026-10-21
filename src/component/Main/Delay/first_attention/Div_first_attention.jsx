@@ -1,6 +1,6 @@
 //import './style.css';
 import { useState, useRef, useEffect } from 'react';
-import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../../libs/fetch_data/sessionAxios.js';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
 import { isMobile } from 'react-device-detect';
@@ -16,9 +16,14 @@ import { ImgBoxImg } from '../../imgBoxComponent/ImgBox';
 import { useImgAlternative } from '../../../../hook/useImgAlternative';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import FormLayaut from '@/component/layaut/form_layaut';
-import FieldInput from '../../../inputs/FieldInput.jsx';
 import { reportDescription, waitingDescription } from '../reportDescription.js';
 import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
+import TimeTrack, { TrackNote, isClock } from '../../../inputs/TimeTrack.jsx';
+import LimitBar from '../../../inputs/LimitBar.jsx';
+import SwitchRow from '../../../inputs/SwitchRow.jsx';
+import AddonField from '../../../inputs/AddonField.jsx';
+import { exceedsLimit, secondsOf } from '../../../../libs/date_time/timeLimit.js';
+import { clockDuration } from '../../../../libs/date_time/waitingTime.js';
 
 
 
@@ -59,6 +64,12 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
     let file2 = useRef(null);
 
     let TIME_EXCEDING = useRef('00:03:00');
+
+    // attentionLimit = «el tiempo de primera atención con que se mide»: el de Mesas si viene de ahí (el configurado en
+    // el local), si no el de la regla de este formulario. attentionLate / attentionOver = «se pasó» y «cuánto».
+    const attentionLimit = datosIniciales?.limit ?? TIME_EXCEDING.current;
+    const attentionLate = isClock(time1) && isClock(time2) && exceedsLimit(timeTotal, attentionLimit);
+    const attentionOver = attentionLate ? clockDuration(secondsOf(timeTotal) - secondsOf(attentionLimit)) : '';
 
     const htmlAdapterRef = useRef(null);
 
@@ -214,7 +225,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
                 end: time2,
             };
 
-            const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest)
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de primera atención - mesa ${table}`, data.userData);
@@ -290,74 +301,48 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
         return (
             <div className='box-inputContain box-div-imputContain'
             >
-                <label className='box-label' htmlFor=""> Número de mesa
-                    <input className='box-inputText' type="text" id="table" value={table} required
-                        onChange={e => {
-                            setNumberTable(table = e.target.value);
-                        }}
-                    />
-                </label>
+                {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): la mesa con la etiqueta pegada; si sigue
+                     sin primera atención, un interruptor (antes una casilla con la pregunta al revés); las dos horas
+                     sobre el recorrido de la mesa, y lo que tardó contra el límite en una barra.  */}
+                <div className='ff-row ff-row--two'>
+                    <AddonField id='atencion-mesa' label='Mesa' value={table} onChange={value => setNumberTable(table = value)} required />
+                </div>
 
-
-                <FieldInput
-                    type="hour"
-                    label="Tiempo del ocupa de la mesa"
-                    value={time1}
-                    onChange={v => setTime1(v)}
+                {/*  'checked' y no 'value': abierta desde el aviso de Mesas (que arranca en «sin primera atención») tiene
+                     que salir encendido.  */}
+                <SwitchRow
+                    id='atencion-aun'
+                    title='Sin primera atención aún (aviso)'
+                    description='La segunda hora es la de ahora: la mesa sigue esperando'
+                    checked={!hasFinishedState}
+                    onChange={waiting => setHasFinishedState(!waiting)}
                 />
 
+                {/*  Sin primera atención, la segunda hora no es la de la atención: es la de ahora, hasta la que la mesa
+                     lleva esperando.  */}
+                <TimeTrack
+                    title='Recorrido de la mesa'
+                    steps={[
+                        { id: 'atencion-ocupa', label: 'Ocupa', value: time1, onChange: setTime1, note: <TrackNote tone='pending'>Empieza a contar</TrackNote> },
+                        {
+                            id: 'atencion-segunda',
+                            label: hasFinishedState ? 'Primera atención' : 'Hora de ahora',
+                            value: time2,
+                            onChange: setTime2,
+                            late: attentionLate,
+                            note: isClock(time1) && isClock(time2)
+                                ? <TrackNote tone={attentionLate ? 'late' : 'plain'} duration={timeTotal}>{hasFinishedState ? 'en recibirla' : 'esperando'}{attentionLate ? ` · +${attentionOver}` : ''}</TrackNote>
+                                : <TrackNote tone='pending'>{isClock(time1) ? 'Falta esta hora' : 'Falta la hora de Ocupa'}</TrackNote>,
+                        },
+                    ]}
+                />
 
+                <LimitBar
+                    title={hasFinishedState ? 'Primera atención, contra el límite del local' : 'Esperando, contra el límite del local'}
+                    elapsed={isClock(time1) && isClock(time2) ? timeTotal : ''}
+                    limit={attentionLimit}
+                />
 
-                {/*  'checked' y no 'value': sin él la casilla no decía nada del estado, y abierta desde el aviso de Mesas
-                     (que arranca en «sin primera atención») salía sin marcar.  */}
-                <label htmlFor="" className='box-label'>¿Sin primera atención aún?
-                    <input className='box-inputText' type="checkbox" checked={!hasFinishedState}
-                        onChange={e => setHasFinishedState(!e.target.checked)}
-                    />
-                </label>
-
-
-                {
-                    hasFinishedState ?
-                        <>
-                            <FieldInput
-                                type="hour"
-                                label="Timpo de la primera atención a la mesa"
-                                value={time2}
-                                onChange={v => setTime2(v)}
-                            />
-
-
-
-                            <p className='box-textHourResult' >Tiempo total en recibir la primera atención a la mesa: <span>{calculateTime(time1, time2)}</span></p>
-
-                            {
-                                localData.franchise === 'Mister01' ?
-                                    (
-                                        <p className='box-textHourResult' >Tiempo excedido: <span>{calculateTime(calculateTime(time1, time2), TIME_EXCEDING.current)}</span></p>
-                                    )
-                                    :
-                                    (
-                                        null
-                                    )
-                            }
-                        </>
-                        :
-                        <>
-                            {/*  Sin primera atención, esta hora no es la de la atención: es la de ahora, hasta la que
-                                 la mesa lleva esperando.  */}
-                            <FieldInput
-                                type="hour"
-                                label="Hora en que sigue sin primera atención"
-                                value={time2}
-                                onChange={e => setTime2(e)}
-                            />
-
-
-
-                            <p className='box-textHourResult'>Tiempo en que continua sin primera atención: {returnTimeExceding(time2, time1)}</p>
-                        </>
-                }
                 <label className='box-label' htmlFor="">Nota
                     <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
                 </label>

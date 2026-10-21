@@ -19,6 +19,8 @@ import FormLayaut from '@/component/layaut/form_layaut';
 
 import { TableInput, TikekInput } from '@/component/keysInputs/tableNumber';
 import DishInputSelet from '@/component/keysInputs/dishInput.jsx'
+import TimeTrack, { TrackNote, isClock } from '@/component/inputs/TimeTrack.jsx';
+import SwitchRow from '@/component/inputs/SwitchRow.jsx';
 
 import { checkTime } from '../tablet/model.js';
 
@@ -57,6 +59,13 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
     const delayPreparationInKichen = returnTimeExceding(time3, time1);
     // TOTAL HASTA LA ENTREGA
     const timeTotalDelay = returnTimeExceding(time4, time1);
+
+    // sinceOrder = «la nota de una hora del recorrido: lo que tardó desde la toma de orden», o qué falta para saberlo
+    const sinceOrder = (time, duration, text) => (
+        isClock(time1) && isClock(time)
+            ? <TrackNote duration={duration}>{text}</TrackNote>
+            : <TrackNote tone='pending'>{isClock(time1) ? 'Falta esta hora' : 'Falta la toma de orden'}</TrackNote>
+    );
     //CALCULO PARA VALIDAR TIEMPO
     //const timeDelaySubtraction = checkTime(dish, delayPreparationTable);
     //PARA EL TEXTO DEL MENU
@@ -187,20 +196,16 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
             <div className='box-inputContain box-div-imputContain'>
 
                 <>
-                    <label className='vc-toggle' htmlFor='vc-requiere-video-tt'>
-                        <input
-                            id='vc-requiere-video-tt'
-                            className='vc-toggle__input'
-                            type='checkbox'
-                            checked={isRequieredVideoState}
-                            onChange={e => {
-                                if (!e.target.checked) setVideoState(null);
-                                setIsRequieredVideo(e.target.checked);
-                            }}
-                        />
-                        <span className='vc-toggle__switch' />
-                        <span className='vc-toggle__text'>Adjuntar video</span>
-                    </label>
+                    <SwitchRow
+                        id='vc-requiere-video-tt'
+                        title='Adjuntar video'
+                        description='El video va con la novedad, además de las imágenes'
+                        checked={isRequieredVideoState}
+                        onChange={checked => {
+                            if (!checked) setVideoState(null);
+                            setIsRequieredVideo(checked);
+                        }}
+                    />
 
                     {
                         isRequieredVideoState ?
@@ -215,61 +220,39 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
 
 
 
-                <TikekInput
-                    value={tiket}
-                    onChangeEvent={(value) => setTiket(value)}
-                />
-
-                <TableInput
-                    value={table}
-                    onChangeEvent={(value) => setNumberTable(value)}
-                />
-
-                <DishInputSelet
-                    value={dish.current}
-                    onChangeEvent={(dish) => {
-                        setDish(dish.nameDishe);
-                    }}
-                    dishes={seletedEstableshment?.dishes}
-                />
-
-
-
-
-                <label className='box-label' htmlFor=""> Toma de orden
-                    <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime1(e.target.value)}
+                {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): ticket, mesa y plato en una fila, y las
+                     cuatro horas sobre el recorrido del pedido, con lo que tardó hasta cada una. Aquí lo que importa es
+                     que se marcó en la tablet antes de estar listo en cocina: la nota de cocina es el tiempo real.  */}
+                <div className='ff-row'>
+                    <TikekInput
+                        value={tiket}
+                        onChangeEvent={(value) => setTiket(value)}
                     />
-                </label>
 
-
-                <label className='box-label' htmlFor=""> Listo en tablet
-                    <input className='box-inputText' type="text" id="Listo-tablet" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime2(e.target.value)}
+                    <TableInput
+                        value={table}
+                        onChangeEvent={(value) => setNumberTable(value)}
                     />
-                </label>
 
-
-
-                <label htmlFor="" className='box-label'> Listo en cocina
-                    <input className='box-inputText' type="text" id="listo-cocina" value={time3} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime3(e.target.value)}
+                    {/*  'dish' es el nombre del plato (un texto): el campo quiere el plato  */}
+                    <DishInputSelet
+                        value={dish ? { nameDishe: dish } : null}
+                        onChangeEvent={(dish) => {
+                            setDish(dish.nameDishe);
+                        }}
+                        dishes={seletedEstableshment?.dishes}
                     />
-                </label>
-
-
-
-                <label htmlFor="" className='box-label'> Entrega de plato
-                    <input className='box-inputText' type="text" id="entrega plato" value={time4} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime4(e.target.value)}
-                    />
-                </label>
-
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1rem 0' }}>
-                    <p className='box-textHourResult'>Tiempo total en cocina: <span>{delayPreparationInKichen}</span></p>
-                    <p className='box-textHourResult'>Tiempo total en tablet: <span>{delayPreparationTable}</span></p>
-                    <p className='box-textHourResult'>Tiempo total en entrega de plato: <span>{timeTotalDelay}</span></p>
                 </div>
+
+                <TimeTrack
+                    title='Recorrido del pedido'
+                    steps={[
+                        { id: 'toma-orden', label: 'Toma de orden', value: time1, onChange: setTime1, note: <TrackNote tone='pending'>Empieza a contar</TrackNote> },
+                        { id: 'listo-tablet', label: 'Listo en tablet', value: time2, onChange: setTime2, note: sinceOrder(time2, delayPreparationTable, 'en tablet: lo que dice Toast') },
+                        { id: 'listo-cocina', label: 'Listo en cocina', value: time3, onChange: setTime3, note: sinceOrder(time3, delayPreparationInKichen, 'en cocina: el tiempo real de preparación') },
+                        { id: 'entrega-plato', label: 'Entrega de plato', value: time4, onChange: setTime4, note: sinceOrder(time4, timeTotalDelay, 'en total') },
+                    ]}
+                />
 
 
                 <button className='btnSend'>Enviar</button>

@@ -1,48 +1,50 @@
 import { useState, useEffect, useRef } from 'react';
+import AddonField from '../inputs/AddonField.jsx';
 
 
+/*  LA MESA Y EL TICKET DE LOS FORMULARIOS DE DEMORAS (propuesta «C · Línea de tiempo», elegida por el usuario)
+ *
+ *  Un campo con la etiqueta pegada ([ Mesa | 20 ]) y, debajo, la casilla para cuando no lo lleva. Antes la pregunta
+ *  era «¿no se necesita número de mesa?» y, MARCADA, significaba justo lo contrario: que sí se necesitaba. Ahora la
+ *  casilla dice lo que hace —«Sin número de mesa»— y, marcada, apaga el campo, que se queda punteado diciendo «Sin
+ *  mesa». La mesa queda vacía, como antes.
+ *
+ *  Van en una fila con el plato (la clase 'ff-row' en el formulario).
+ */
 
+
+/*  @param {function} onChangeEvent  recibe el número de mesa ('' si no lleva)
+ *  @param {boolean}  disabled       el plato no pide mesa (requiresTableNumber === false): no se pinta
+ *  @param {string}   value
+ */
 export function TableInput({ onChangeEvent, disabled, value }) {
 
-
-    const [tableNeeded, setTableNeeded] = useState(true);
-
+    // withoutTable = «se marcó Sin número de mesa»
+    const [withoutTable, setWithoutTable] = useState(false);
 
     if (disabled) return null;
 
     return (
-        <div style={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '.5rem'
-        }}>
-            <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                <p>¿no se necesita numero de mesa?</p>
-                <input type='checkbox'
-                    checked={tableNeeded}
-                    onChange={e => {
-                        if (!e.target.checked) onChangeEvent('');
-                        setTableNeeded(e.target.checked)
+        <div className='ff-field'>
+            <AddonField
+                id='ff-mesa'
+                label='Mesa'
+                value={value}
+                onChange={onChangeEvent}
+                required
+                off={withoutTable ? 'Sin mesa' : undefined}
+            />
+            <label className='ff-check'>
+                <input
+                    type='checkbox'
+                    checked={withoutTable}
+                    onChange={event => {
+                        if (event.target.checked) onChangeEvent('');
+                        setWithoutTable(event.target.checked);
                     }}
                 />
+                Sin número de mesa
             </label>
-
-            {
-                tableNeeded ?
-                    <label className='box-label' > Número de mesa
-                        <input
-                            className='box-inputText'
-                            type="text"
-                            id="inicio"
-                            value={value}
-                            required
-                            onChange={e => onChangeEvent(e.target.value)}
-                        />
-                    </label>
-                    :
-                    null
-            }
         </div>
     );
 }
@@ -50,61 +52,54 @@ export function TableInput({ onChangeEvent, disabled, value }) {
 
 
 
+/*  @param {function} onChangeEvent  recibe el número de ticket ('' si no lleva)
+ *  @param {string}   value
+ */
 export function TikekInput({ onChangeEvent, value }) {
 
-
-    const [tableNeeded, setTableNeeded] = useState(true);
+    // withoutTicket = «se marcó Sin número de ticket»
+    const [withoutTicket, setWithoutTicket] = useState(false);
     const inputRef = useRef(null);
 
 
-
+    //  Es un campo de número: la rueda del ratón encima lo cambiaría sin querer al bajar por el formulario
     useEffect(() => {
-        const preventScrollEvent = (e) => {
-            e.preventDefault();
+        const preventScrollEvent = (event) => {
+            event.preventDefault();
         };
 
-        if(inputRef.current) inputRef.current.addEventListener('wheel', preventScrollEvent, {passive: false})
-        
-
+        const input = inputRef.current;
+        if (input) input.addEventListener('wheel', preventScrollEvent, { passive: false });
 
         return () => {
-            if(inputRef.current) inputRef.current.removeEventListener('wheel', preventScrollEvent);
-        }
+            if (input) input.removeEventListener('wheel', preventScrollEvent);
+        };
     }, [inputRef]);
 
 
-
     return (
-
-        <>
-            <label htmlFor="" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexDirection: 'column' }}>
-                <p>¿no se necesita numero de Ticket?</p>
-                <input type='checkbox'
-                    checked={tableNeeded}
-                    onChange={e => {
-                        if (!e.target.checked) onChangeEvent('');
-                        setTableNeeded(e.target.checked)
+        <div className='ff-field'>
+            <AddonField
+                id='ff-ticket'
+                label='Ticket'
+                type='number'
+                value={value}
+                onChange={onChangeEvent}
+                required
+                inputRef={inputRef}
+                off={withoutTicket ? 'Sin ticket' : undefined}
+            />
+            <label className='ff-check'>
+                <input
+                    type='checkbox'
+                    checked={withoutTicket}
+                    onChange={event => {
+                        if (event.target.checked) onChangeEvent('');
+                        setWithoutTicket(event.target.checked);
                     }}
                 />
+                Sin número de ticket
             </label>
-
-            {
-                tableNeeded ?
-                    <label className='box-label' > Número de Ticket
-                        <input
-                            className='box-inputText'
-                            id="inicio"
-                            value={value}
-                            required
-                            onChange={e => onChangeEvent(e.target.value)}
-                            type='number'
-                            ref={inputRef}
-                        />
-                    </label>
-                    :
-                    null
-            }
-        </>
-
+        </div>
     );
 }

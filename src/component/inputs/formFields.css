@@ -1,0 +1,490 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LOS CAMPOS DE LOS FORMULARIOS: LA PROPUESTA «C · LÍNEA DE TIEMPO» (ff-*)
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Elegida por el usuario en el lienzo de Design. Las horas se escriben sobre el
+   recorrido del pedido o de la mesa (TimeTrack), y lo que tardó se ve contra su
+   límite en una barra (LimitBar). Ticket, mesa y plato llevan la etiqueta pegada
+   al campo (AddonField). Las preguntas de sí o no son un interruptor con su
+   explicación (SwitchRow).
+
+   Las reglas de siempre: el contorno de un campo es 'borde-campo' (3 : 1, lo
+   único que dice dónde se escribe); el foco, el anillo verde; una hora mal
+   escrita, en rojo y diciendo cómo se escribe. Las horas, en monoespaciada: así
+   los dígitos de una columna quedan uno debajo del otro.                       */
+
+
+.ff-mono {
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+/*  El ':root' de index.css fija 'color-scheme: dark', y el navegador pintaba negras sus casillas y sus listas
+    desplegables. Estas piezas van sobre papel: esquema claro.  */
+.ff-addon,
+.ff-field,
+.ff-check,
+.ff-switch-row,
+.ff-choice,
+.ff-track,
+.ff-limit { color-scheme: light; }
+
+
+/* ── EL CAMPO CON LA ETIQUETA PEGADA (AddonField) ───────────────────────── */
+
+.ff-addon {
+    display: flex;
+    width: 100%;
+    height: 42px;
+    box-sizing: border-box;
+    border: 1.5px solid var(--color-jx-borde-campo);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-jx-fondo);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ff-addon:focus-within {
+    border-color: var(--color-jx-verde-barra);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 22%, transparent);
+}
+
+.ff-addon__label {
+    flex: none;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    background: var(--color-jx-arena);
+    border-right: 1px solid var(--color-jx-regla2);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-jx-tinta2);
+    white-space: nowrap;
+}
+
+.ff-addon:focus-within .ff-addon__label {
+    background: var(--color-jx-verde-suave);
+    color: var(--color-jx-verde-texto);
+}
+
+/*  El control de dentro no lleva borde ni fondo propios: los pone la caja. Va con el padre ('.ff-addon') para que
+    gane a '.box-inputText' si un formulario deja las dos clases.  */
+.ff-addon .ff-addon__control {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-jx-tinta);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    outline: none;
+    box-shadow: none;
+}
+
+.ff-addon .ff-addon__control.ff-mono { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-weight: 700; }
+
+/*  Sin las flechitas del número: el ticket se escribe, no se sube de uno en uno  */
+.ff-addon .ff-addon__control::-webkit-outer-spin-button,
+.ff-addon .ff-addon__control::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ff-addon .ff-addon__control[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+
+.ff-addon--select { position: relative; }
+.ff-addon--select .ff-addon__control { appearance: none; -webkit-appearance: none; padding-right: 34px; cursor: pointer; }
+.ff-addon__chevron { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-jx-tinta); }
+
+.ff-addon .ff-addon__control > option { background: var(--color-jx-fondo); color: var(--color-jx-tinta); }
+
+/*  Sin número: la caja se apaga, punteada, y dice por qué  */
+.ff-addon--off {
+    border-style: dashed;
+    border-color: var(--color-jx-tinta4);
+    background: var(--color-jx-arena);
+}
+
+.ff-addon--off .ff-addon__label { background: transparent; border-right: 1px dashed var(--color-jx-tinta4); color: var(--color-jx-tinta4); }
+.ff-addon--off .ff-addon__control { color: var(--color-jx-tinta4); }
+
+/*  El campo y su casilla «Sin número…» debajo  */
+.ff-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    width: 100%;
+}
+
+/*  Ticket, mesa y plato en una fila (1 · 1 · 2), y en una ventana estrecha uno debajo de otro  */
+.ff-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+    gap: 12px;
+    width: 100%;
+    align-items: start;
+}
+
+.ff-row--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/*  Mesa y plato, sin ticket: el plato con el doble de sitio  */
+.ff-row--table-dish { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+
+@media (max-width: 640px) {
+    .ff-row,
+    .ff-row--two,
+    .ff-row--table-dish { grid-template-columns: minmax(0, 1fr); }
+}
+
+
+/* ── LA CASILLA PEQUEÑA («Sin número de ticket») ─────────────────────────── */
+
+.ff-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-jx-tinta);
+    cursor: pointer;
+    user-select: none;
+}
+
+.ff-check input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex: none;
+    accent-color: var(--color-jx-verde-barra);
+    cursor: pointer;
+}
+
+
+/* ── EL INTERRUPTOR CON SU EXPLICACIÓN (SwitchRow) ──────────────────────── */
+
+.ff-switch-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 10px;
+    background: var(--color-jx-fondo);
+    cursor: pointer;
+    user-select: none;
+    text-align: left;
+}
+
+.ff-switch-row__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ff-switch-row__title { font-size: 14px; font-weight: 600; color: var(--color-jx-tinta); }
+.ff-switch-row__description { font-size: 12px; color: var(--color-jx-tinta2); }
+
+/*  La casilla de verdad, invisible: la que se ve es '.ff-switch'. Sigue en el orden del teclado.  */
+.ff-switch-row__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+}
+
+.ff-switch {
+    position: relative;
+    flex: none;
+    width: 40px;
+    height: 24px;
+    border-radius: 12px;
+    background: var(--color-jx-borde-campo);
+    transition: background-color 0.18s ease;
+}
+
+.ff-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.18s ease;
+}
+
+/*  Encendido: verde de barra con la bolita blanca (4,6 : 1)  */
+.ff-switch-row__input:checked + .ff-switch { background: var(--color-jx-verde-barra); }
+.ff-switch-row__input:checked + .ff-switch::after { transform: translateX(16px); }
+.ff-switch-row__input:focus-visible + .ff-switch { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 28%, transparent); }
+.ff-switch-row:has(.ff-switch-row__input:checked) { border-color: var(--color-jx-verde-barra); background: var(--color-jx-verde-suave); }
+
+@media (prefers-reduced-motion: reduce) {
+    .ff-switch,
+    .ff-switch::after { transition: none; }
+}
+
+
+/* ── LA PREGUNTA QUE HAY QUE CONTESTAR (ChoiceRow) ──────────────────────────
+   Como el interruptor, pero con «Sí» y «No» en píldoras: sin respuesta por
+   defecto. La elegida, en tinta con el texto claro.                           */
+
+.ff-choice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px 10px 14px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 10px;
+    background: var(--color-jx-fondo);
+    text-align: left;
+}
+
+.ff-choice__title { font-size: 14px; font-weight: 600; color: var(--color-jx-tinta); }
+
+.ff-choice__options {
+    flex: none;
+    display: inline-flex;
+    padding: 3px;
+    border: 1.5px solid var(--color-jx-borde-campo);
+    border-radius: 10px;
+    background: var(--color-jx-arena);
+}
+
+.ff-choice__option {
+    position: relative;
+    display: inline-flex;
+    padding: 6px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-jx-tinta);
+    cursor: pointer;
+    user-select: none;
+}
+
+/*  El radio de verdad, invisible pero en su sitio: así el aviso de «contesta esto» del formulario sale ahí  */
+.ff-choice__option input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.ff-choice__option:has(input:checked) { background: var(--color-jx-tinta); color: var(--color-jx-lienzo); font-weight: 700; }
+.ff-choice__option:has(input:focus-visible) { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 28%, transparent); }
+
+
+/* ── EL RECORRIDO (TimeTrack) ──────────────────────────────────────────────
+   Una fila por hora: el punto en su raya, el nombre, la hora y, a la derecha,
+   lo que tardó hasta ella. El tramo que pasó de su límite, en rojo.            */
+
+.ff-track {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    text-align: left;
+}
+
+.ff-track__title {
+    padding: 0;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-jx-tinta);
+}
+
+.ff-track__title span { font-weight: 400; color: var(--color-jx-tinta2); }
+
+.ff-step {
+    display: grid;
+    grid-template-columns: 24px minmax(110px, 160px) 150px minmax(0, 1fr);
+    column-gap: 14px;
+    align-items: center;
+    min-height: 60px;
+}
+
+.ff-step__rail { position: relative; align-self: stretch; }
+
+.ff-step__line {
+    position: absolute;
+    left: 11px;
+    width: 2px;
+    background: var(--color-jx-tinta4);
+}
+
+.ff-step__line--top { top: 0; height: 50%; }
+.ff-step__line--bottom { top: 50%; bottom: 0; }
+.ff-step__line--late { background: var(--color-jx-critico); }
+
+.ff-step__node {
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    box-sizing: border-box;
+    margin-top: -7px;
+    border-radius: 50%;
+}
+
+.ff-step__node--done { background: var(--color-jx-tinta); }
+.ff-step__node--late { background: var(--color-jx-critico); }
+.ff-step__node--empty { border: 2px solid var(--color-jx-tinta4); background: var(--color-jx-lienzo); }
+
+.ff-step__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-jx-tinta);
+}
+
+/*  La hora. Va con el padre ('.ff-step'), como el control de AddonField  */
+.ff-step .ff-time {
+    width: 100%;
+    height: 40px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    border: 1.5px solid var(--color-jx-borde-campo);
+    border-radius: 8px;
+    background: var(--color-jx-fondo);
+    color: var(--color-jx-tinta);
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.3px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ff-step .ff-time::placeholder { color: var(--color-jx-tinta3); font-weight: 500; }
+
+.ff-step .ff-time:focus {
+    border-color: var(--color-jx-verde-barra);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 22%, transparent);
+}
+
+.ff-step--invalid .ff-time {
+    border-color: var(--color-jx-critico-texto);
+    background: var(--color-jx-critico-suave);
+}
+
+.ff-step--invalid .ff-step__label { color: var(--color-jx-critico-texto); }
+
+.ff-step__note { min-width: 0; font-size: 12.5px; color: var(--color-jx-tinta2); }
+
+/*  Lo que tardó hasta esa hora  */
+.ff-note b { font-weight: 700; color: var(--color-jx-tinta); }
+.ff-note--pending { color: var(--color-jx-tinta2); }
+.ff-note--ok { color: var(--color-jx-verde-texto); }
+.ff-note--ok b { color: var(--color-jx-verde-texto); }
+
+/*  Si en un formulario estrecho no cabe en una línea, parte por sus trozos y se queda en rectángulo redondeado  */
+.ff-note--late {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+    padding: 5px 10px;
+    border: 1px solid var(--color-jx-critico);
+    border-radius: 12px;
+    background: var(--color-jx-critico-suave);
+    color: var(--color-jx-critico-texto);
+    font-weight: 700;
+}
+
+.ff-note--late b { color: var(--color-jx-critico-texto); }
+
+.ff-error {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-jx-critico-texto);
+}
+
+/*  En una ventana estrecha, la nota baja debajo de la hora  */
+@media (max-width: 640px) {
+    .ff-step { grid-template-columns: 24px minmax(0, 1fr) 130px; row-gap: 4px; padding: 8px 0; }
+    .ff-step__note { grid-column: 2 / -1; }
+}
+
+
+/* ── CONTRA EL LÍMITE (LimitBar) ───────────────────────────────────────────
+   Verde hasta el límite, rojo lo que se pasó, y la raya del límite encima.    */
+
+.ff-limit {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 18px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 12px;
+    background: var(--color-jx-fondo);
+    text-align: left;
+}
+
+.ff-limit__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ff-limit__title { font-size: 14px; font-weight: 600; color: var(--color-jx-tinta); }
+.ff-limit__figure { font-size: 13px; font-weight: 700; }
+.ff-limit__figure b { font-size: 20px; }
+.ff-limit--late .ff-limit__figure { color: var(--color-jx-critico-texto); }
+.ff-limit--ok .ff-limit__figure { color: var(--color-jx-verde-texto); }
+
+.ff-limit__bar {
+    position: relative;
+    height: 12px;
+    border-radius: 6px;
+    background: var(--color-jx-regla);
+}
+
+.ff-limit__fill,
+.ff-limit__over {
+    position: absolute;
+    top: 0;
+    height: 100%;
+}
+
+.ff-limit__fill { left: 0; border-radius: 6px; background: var(--color-jx-verde-barra); }
+.ff-limit--late .ff-limit__fill { border-radius: 6px 0 0 6px; }
+.ff-limit__over { border-radius: 0 6px 6px 0; background: var(--color-jx-critico); }
+
+.ff-limit__mark {
+    position: absolute;
+    top: -5px;
+    width: 2px;
+    height: 22px;
+    margin-left: -1px;
+    background: var(--color-jx-tinta);
+}
+
+.ff-limit__scale { position: relative; height: 16px; font-size: 12px; color: var(--color-jx-tinta2); }
+.ff-limit__scale > span { position: absolute; top: 0; white-space: nowrap; }
+.ff-limit__limit { transform: translateX(-50%); font-weight: 600; color: var(--color-jx-tinta); }
+.ff-limit__limit--end { transform: translateX(-100%); }
+
+.ff-limit__note {
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--color-jx-aviso-suave);
+    color: var(--color-jx-aviso-texto);
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.4;
+}

@@ -7,7 +7,7 @@ import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
 import { isMobile } from 'react-device-detect';
 import { useDataUser } from '../../../../hook/useTextMenu.jsx';
 import { useImgAlternative } from '../../../../hook/useImgAlternative.jsx';
-import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../../libs/fetch_data/sessionAxios.js';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
@@ -140,7 +140,7 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
             dataForRequest.alertId = title[0]._id;
 
 
-            const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest)
 
             if (response.status === 200) {
                 saveNoveltie.save(`Plato no comandado - ${dish.nameDishe}`, data.userData);
@@ -177,20 +177,22 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
 
             {printImg()}
 
-            <div className='box-inputContain box-div-imputContain' style={{ gap: '2rem', position: 'relative' }}>
+            <div className='box-inputContain box-div-imputContain'>
 
-                <TableInput
-                    value={table}
-                    onChangeEvent={(value) => setNumberTable(value)}
-                />
+                {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): mesa y plato en una fila  */}
+                <div className='ff-row ff-row--table-dish'>
+                    <TableInput
+                        value={table}
+                        onChangeEvent={(value) => setNumberTable(value)}
+                    />
 
-                <DishInputSelet
-                    value={dish}
-                    onChangeEvent={(dish) => setDish(dish)}
-                    dishes={seletedEstableshment?.dishes}
-                />
+                    <DishInputSelet
+                        value={dish}
+                        onChangeEvent={(dish) => setDish(dish)}
+                        dishes={seletedEstableshment?.dishes}
+                    />
+                </div>
 
-                <br />
                 <label className='box-label' htmlFor="">Nota
                     <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(e.target.value)}></textarea>
                 </label>

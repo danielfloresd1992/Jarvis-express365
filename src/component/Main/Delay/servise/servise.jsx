@@ -6,7 +6,7 @@ import { useAlert } from '../../../../hook/useAlert';
 import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie';
 import { useDataUser } from '../../../../hook/useTextMenu.jsx';
 import { ImgBoxImg } from '../../imgBoxComponent/ImgBox';
-import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../../libs/fetch_data/sessionAxios.js';
 import { useImgAlternative } from '../../../../hook/useImgAlternative.jsx';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
@@ -19,6 +19,7 @@ import { isMobile } from 'react-device-detect';
 
 import FormLayaut from '@/component/layaut/form_layaut';
 import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
+import TimeTrack, { TrackNote, isClock } from '../../../inputs/TimeTrack.jsx';
 
 
 
@@ -148,7 +149,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                 end: time2,
             };
 
-            const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest)
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de servicio`, data.userData);
@@ -198,39 +199,34 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                 <div className='box-inputContain box-static'>
 
 
-                    <TableInput
-                        value={table}
-                        onChangeEvent={(value) => setNumberTable(value)}
-                        disabled={dish?.requiresTableNumber === false}
-                    />
-
-
-
-
-                    <DishInputSelet
-                        value={dish}
-                        onChangeEvent={(dish) => setDish(dish)}
-                        dishes={seletedEstableshment?.dishes}
-                    />
-
-
-
-
-                    <label className='box-label' htmlFor=""> Toma de orden
-                        <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required
-                            onChange={e => setTime1(e.target.value)}
+                    {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): mesa y plato en una fila, y las dos
+                         horas sobre el recorrido del servicio, con el total en la segunda  */}
+                    <div className='ff-row ff-row--table-dish'>
+                        <TableInput
+                            value={table}
+                            onChangeEvent={(value) => setNumberTable(value)}
+                            disabled={dish?.requiresTableNumber === false}
                         />
-                    </label>
 
-
-
-                    <label htmlFor="" className='box-label'> Entrega de servicio
-                        <input className='box-inputText' type="text" id="entrega plato" pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" value={time2} required
-                            onChange={e => setTime2(e.target.value)}
+                        <DishInputSelet
+                            value={dish}
+                            onChangeEvent={(dish) => setDish(dish)}
+                            dishes={seletedEstableshment?.dishes}
                         />
-                    </label>
+                    </div>
 
-                    <p className='box-textHourResult'>Tiempo total: <span>{timeTotal}</span></p>
+                    <TimeTrack
+                        title='Recorrido del servicio'
+                        steps={[
+                            { id: 'toma-orden', label: 'Toma de orden', value: time1, onChange: setTime1, note: <TrackNote tone='pending'>Empieza a contar</TrackNote> },
+                            {
+                                id: 'entrega-servicio', label: 'Entrega de servicio', value: time2, onChange: setTime2,
+                                note: isClock(time1) && isClock(time2)
+                                    ? <TrackNote duration={timeTotal}>en total</TrackNote>
+                                    : <TrackNote tone='pending'>{isClock(time1) ? 'Falta esta hora' : 'Falta la toma de orden'}</TrackNote>,
+                            },
+                        ]}
+                    />
                     <label className='box-label' htmlFor=""> Nota
                         <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>
                     </label>

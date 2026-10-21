@@ -43,20 +43,25 @@ import NoComanda from './no_comanda/NoComanda.jsx'
 const tipoDe = (reporte) => reporte?.tipo ?? 'primera atención';
 
 
-/*  CON EL REGISTRO DE PROCESOS ACTIVO, PRIMERA ATENCIÓN Y LIMPIEZA SE REPORTAN DESDE MESAS (pedido del usuario)
+/*  CON EL REGISTRO DE PROCESOS ACTIVO, PRIMERA ATENCIÓN, LIMPIEZA Y TABLET SE REPORTAN DESDE MESAS (pedido del usuario)
  *
- *  Allí cada demora sale de su fila, con el reloj rojo de su duración: el formulario llega con la mesa y las horas
- *  puestas, y la novedad queda apuntada en su rotación (firstAttentionDelay / cleaningDelay). Reportarla a mano
- *  desde aquí la dejaría suelta. Así que, con el registro activo, esos dos botones del menú van apagados —con un
- *  candado y la nota «Desde Mesas»— y al pulsarlos solo dicen dónde se hace. El reporte que llega del reloj rojo
- *  no pasa por estos botones: abre su formulario directamente, y sigue funcionando igual.
+ *  Allí cada demora sale de su fila: la de primera atención y la de limpieza, con el reloj rojo de su duración; la de
+ *  preparación (el formulario «Tablet»), con el icono de cocina de su proceso. El formulario llega con la mesa y las
+ *  horas puestas, y la novedad queda apuntada en su rotación (firstAttentionDelay / cleaningDelay) o en su proceso
+ *  (preparationDelay). Reportarla a mano desde aquí la dejaría suelta. Así que, con el registro activo, esos tres
+ *  botones del menú van apagados —con un candado y la nota «Desde Mesas»— y al pulsarlos solo dicen dónde se hace. El
+ *  reporte que llega de Mesas no pasa por estos botones: abre su formulario directamente, y sigue funcionando igual.
  */
 
-// FROM_TABLES = «los botones que, con el registro de procesos activo, se reportan desde Mesas»
-const FROM_TABLES = ['primera atención', 'limpieza'];
+// FROM_TABLES = «los botones que, con el registro de procesos activo, se reportan desde Mesas», y desde dónde de la fila
+const FROM_TABLES = {
+    'primera atención': 'con el reloj rojo de la fila',
+    limpieza: 'con el reloj rojo de la fila',
+    tablet: 'con el icono de cocina del pedido',
+};
 
 // FROM_TABLES_MESSAGE = «lo que se le dice a quien pulsa uno de ellos»
-const FROM_TABLES_MESSAGE = 'Con el registro de procesos activo, las demoras de primera atención y de limpieza se reportan desde Mesas: en la fila de la mesa, con el reloj rojo de su duración.\n\nAsí el reporte lleva la mesa y las horas ya puestas, y queda unido a su rotación.';
+const FROM_TABLES_MESSAGE = 'Con el registro de procesos activo, estas demoras se reportan desde Mesas:\n\n· Primera atención y limpieza, en la fila de la mesa, con el reloj rojo de su duración.\n· Tablet (la demora de preparación), en el pedido, con el icono de cocina de su duración.\n\nAsí el reporte lleva la mesa y las horas ya puestas, y queda unido a su rotación.';
 
 
 function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onReporteCerrado }) {
@@ -98,7 +103,7 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
     const dispatch = useDispatch();
 
     // fromTables = «este botón se reporta desde Mesas»: bloqueado aquí
-    const fromTables = (id) => processRegister && FROM_TABLES.includes(id);
+    const fromTables = (id) => processRegister && id in FROM_TABLES;
 
     //  Un clic en cualquiera de los botones es una elección a mano, y por tanto empieza
     //  de cero: se suelta el reporte que hubiera precargado. Si el botón se reporta desde
@@ -157,7 +162,7 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
                         <BottonSelection title='Limpieza'                      ico={serviseSvg}  id='limpieza'           event={elegirAMano} locked={fromTables('limpieza')} />
                         <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={elegirAMano} />
                         <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={elegirAMano} />
-                        <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={elegirAMano} />
+                        <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={elegirAMano} locked={fromTables('tablet')} />
                         <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={elegirAMano} />
                         <BottonSelection title='Error de tiket'                ico={tiketIco}    id='tablet-tiket'       event={elegirAMano} />
                         <BottonSelection title='Plato no comandado'            ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={elegirAMano} />
@@ -183,7 +188,7 @@ function BottonSelection({ title, ico, id, event, locked = false }) {
                 id={id}
                 type='button'
                 onClick={e => event(e.currentTarget.id)}
-                title={locked ? `${title}: se reporta desde Mesas, con el reloj rojo de la fila` : title}
+                title={locked ? `${title}: se reporta desde Mesas, ${FROM_TABLES[id]}` : title}
                 aria-disabled={locked || undefined}
             >
                 <img

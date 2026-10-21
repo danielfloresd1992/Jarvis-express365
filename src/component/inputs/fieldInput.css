@@ -12,15 +12,15 @@
     width: 100%;
 }
 
-/* La etiqueta no es un acento: es texto secundario, y en verde de marca
-   no se leería. Va en tinta2. */
+/* La etiqueta, como en el resto de formularios (propuesta «C · Línea de tiempo», elegida por el usuario): en
+   minúscula y en tinta, encima y a la izquierda. En mayúsculas se leía como un título. */
 .fi-label {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-jx-tinta2);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-jx-tinta);
 }
 
 /* ── Base de input / select / textarea ── */
@@ -28,17 +28,23 @@
 .fi-select,
 .fi-textarea {
     width: 100%;
+    box-sizing: border-box;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 15px;
+    font-weight: 500;
     color: var(--color-jx-tinta);
-    background: var(--color-jx-hundido);
+    background: var(--color-jx-fondo);
     /* 'borde-campo' y no 'regla': el contorno tiene que decir "aquí se escribe". */
     border: 1.5px solid var(--color-jx-borde-campo);
-    border-radius: 10px;
-    padding: 0.65rem 0.9rem;
+    border-radius: 8px;
+    padding: 0 12px;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
+
+.fi-input,
+.fi-select { height: 42px; }
+.fi-textarea { padding: 10px 12px; }
 
 /* Una pista va en tinta3; tinta4 es solo para lo deshabilitado. */
 .fi-input::placeholder,
@@ -52,14 +58,16 @@
 .fi-select:focus,
 .fi-textarea:focus {
     border-color: var(--color-jx-verde-barra);
-    background: var(--color-jx-tarjeta);
+    background: var(--color-jx-fondo);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 22%, transparent);
 }
 
-/* Rojo porque significa "no válido", no por estilo: se mantiene la familia. */
-.fi-input:invalid,
-.fi-select:invalid {
-    border-color: var(--color-jx-critico);
+/* Rojo porque significa "no válido", no por estilo. Solo después de tocarlo (':user-invalid'): con ':invalid' cada
+   campo obligatorio salía en rojo, vacío, desde que se abría el formulario. */
+.fi-input:user-invalid,
+.fi-select:user-invalid {
+    border-color: var(--color-jx-critico-texto);
+    background: var(--color-jx-critico-suave);
 }
 
 /* ── Select ── */
@@ -69,13 +77,13 @@
     -webkit-appearance: none;
     padding-right: 2.4rem;
     /* El color de la flecha va DENTRO de la URL: ahí no entra var(), hay que
-       cambiarlo a mano. Es un icono, así que 'verde-barra' (#1c8c08). */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231c8c08' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+       cambiarlo a mano. En tinta (#2f2a1e), como la de los demás campos. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232f2a1e' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.9rem center;
+    background-position: right 13px center;
 }
 .fi-select > option {
-    background: var(--color-jx-tarjeta);
+    background: var(--color-jx-fondo);
     color: var(--color-jx-tinta);
 }
 
@@ -87,21 +95,25 @@
 }
 
 /* ── Checkbox (toggle switch) ── */
+/* Como el interruptor de los demás formularios (SwitchRow, formFields.css): una fila blanca, y verde encendida */
 .fi-toggle {
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
     cursor: pointer;
     user-select: none;
-    padding: 0.55rem 0.9rem;
-    border-radius: 12px;
-    background: var(--color-jx-arena);
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--color-jx-fondo);
     border: 1px solid var(--color-jx-regla2);
     transition: border-color 0.18s ease, background 0.18s ease;
 }
 .fi-toggle:hover {
     border-color: var(--color-jx-borde-campo);
-    background: var(--color-jx-tarjeta);
+}
+.fi-toggle:has(.fi-toggle__input:checked) {
+    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-suave);
 }
 .fi-toggle__input {
     position: absolute;
@@ -109,40 +121,33 @@
     width: 0;
     height: 0;
 }
+/* El carril apagado en 'borde-campo' con la bolita blanca (3,6 : 1); encendido, en 'verde-barra' y no en el verde
+   de relleno: con la bolita blanca da 4,6 : 1, y el de relleno se quedaba en 2,31. */
 .fi-toggle__switch {
     position: relative;
-    width: 42px;
-    height: 22px;
-    border-radius: 100px;
-    background: var(--color-jx-hundido);
-    border: 1px solid var(--color-jx-borde-campo);
+    width: 40px;
+    height: 24px;
+    border-radius: 12px;
+    background: var(--color-jx-borde-campo);
     flex-shrink: 0;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
 }
-/* La bolita apagada en tinta3: blanca sobre marfil no se vería. La sombra es de
-   profundidad, así que se queda, pero en tinta cálida y no en negro. */
 .fi-toggle__switch::after {
     content: '';
     position: absolute;
-    top: 50%;
+    top: 3px;
     left: 3px;
-    transform: translateY(-50%);
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    background: var(--color-jx-tinta3);
-    box-shadow: 0 1px 3px color-mix(in srgb, var(--color-jx-tinta) 18%, transparent);
-    transition: left 0.2s ease, background 0.2s ease;
+    background: #ffffff;
+    transition: left 0.2s ease;
 }
-/* Encendido: el carril es relleno verde y la bolita va en tinta, nunca blanca
-   (blanco sobre verde da 2,31 : 1). Resplandor de 14 px quitado. */
 .fi-toggle__input:checked + .fi-toggle__switch {
-    background: var(--color-jx-verde);
-    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-barra);
 }
 .fi-toggle__input:checked + .fi-toggle__switch::after {
-    left: 23px;
-    background: var(--color-jx-tinta);
+    left: 19px;
 }
 .fi-toggle__input:focus-visible + .fi-toggle__switch {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 28%, transparent);
@@ -229,13 +234,13 @@
     width: 100%;
     padding: 0.5rem 0.75rem;
     border: 1.5px solid var(--color-jx-borde-campo);
-    border-radius: 10px;
-    background: var(--color-jx-hundido);
+    border-radius: 8px;
+    background: var(--color-jx-fondo);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 .fi-hour:focus-within {
     border-color: var(--color-jx-verde-barra);
-    background: var(--color-jx-tarjeta);
+    background: var(--color-jx-fondo);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-jx-verde-barra) 22%, transparent);
 }
 .fi-hour__seg {
@@ -246,7 +251,7 @@
     width: 2.2ch;
     padding: 0.15rem 0;
     text-align: center;
-    font-family: 'Inter', monospace;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
     font-size: 1.35rem;
     font-weight: 800;
     letter-spacing: 0.05em;

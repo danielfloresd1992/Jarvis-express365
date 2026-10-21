@@ -5,7 +5,7 @@ import { useSaveNoveltie } from '../../../hook/useSaveNoveltie';
 import './style.css';
 import { toBlob } from 'html-to-image';
 import { ImgComponent } from './imgComponent.jsx';
-import axiosInstance from '../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../libs/fetch_data/sessionAxios.js';
 import URL from '../../../libs/fetch_data/api_conexion.js';
 import { blobToFile } from '../../../libs/script/64toFile.js';
 import { capturePixelRatio } from '../../../libs/script/captureQuality.js';
@@ -167,7 +167,7 @@ function Production({ awaitWindow, boxModal, reset, title }) {
             dataForRequest.alertId = title._id;
 
 
-            const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest);
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest);
 
             saveNoveltie.save(`Empleado realiza produción - ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}`, { userName: dataForRequest.userName });
             alert.request(`Producción en ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}. por validar`);

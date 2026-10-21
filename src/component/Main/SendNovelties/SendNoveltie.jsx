@@ -1,4 +1,4 @@
-import axiosInstance from '../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../libs/fetch_data/sessionAxios.js';
 import { useState, useRef, useEffect } from 'react';
 import { useAlert } from '../../../hook/useAlert';
 import { useSaveNoveltie } from '../../../hook/useSaveNoveltie';
@@ -13,6 +13,9 @@ import { useImgAlternative } from '../../../hook/useImgAlternative.jsx';
 
 import CarsSelect from '../../inputs/InputCar.jsx';
 import FieldInput from '../../inputs/FieldInput.jsx';
+import AddonField from '../../inputs/AddonField.jsx';
+import TimeTrack, { TrackNote, isClock } from '../../inputs/TimeTrack.jsx';
+import SwitchRow from '../../inputs/SwitchRow.jsx';
 import URL from '../../../libs/fetch_data/api_conexion.js';
 import { sendFailedDvr, removeFailedDvr } from '../../../libs/fetch_data/failedRequest.js';
 
@@ -164,7 +167,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
                 if (urlVideo) dataForRequest.videoUrl = urlVideo.data.url;
 
-                const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest);
+                const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest);
 
                 if (response.status === 200) {
 
@@ -389,69 +392,65 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
 
                         <div className='box-div-imputContain'>
 
+                            {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): la mesa y la cantidad con la
+                                 etiqueta pegada; «Sin número de mesa» es una casilla que dice lo que hace (antes un
+                                 interruptor cuyo texto cambiaba), y las horas, sobre el recorrido de la novedad.  */}
                             {
                                 title[0].table === true ?  //tableNeeded, setTableNeeded
-                                    <>
-                                        <FieldInput
-                                            type="checkbox"
-                                            value={tableNeeded}
-                                            onChange={checked => setTableNeeded(checked)}
-                                            trueLabel="Requiere número de mesa"
-                                            falseLabel="Sin número de mesa"
-                                        />
-
-                                        {
-                                            tableNeeded ?
-                                                <FieldInput
-                                                    type="text"
-                                                    label="Número de mesa"
-                                                    value={table}
-                                                    required
-                                                    onChange={v => setTable(table = v)}
-                                                />
-                                                :
-                                                null
-                                        }
-
-                                    </>
+                                    <div className='ff-row ff-row--two'>
+                                        <div className='ff-field'>
+                                            <AddonField
+                                                id='novedad-mesa'
+                                                label='Mesa'
+                                                value={table}
+                                                required
+                                                onChange={value => setTable(table = value)}
+                                                off={tableNeeded ? undefined : 'Sin mesa'}
+                                            />
+                                            <label className='ff-check'>
+                                                <input type='checkbox' checked={!tableNeeded} onChange={event => setTableNeeded(!event.target.checked)} />
+                                                Sin número de mesa
+                                            </label>
+                                        </div>
+                                    </div>
                                     :
 
                                     null
 
                             }
                             {
+                                //  Como el campo de número de FieldInput: solo cifras (con signo y decimales), y se guarda
+                                //  como número
                                 title[0].amountOfSomething ?
-                                    <FieldInput
-                                        type="number"
-                                        label="Cantidad total"
-                                        value={amountState}
-                                        required
-                                        onChange={v => setAmountState(v)}
-                                    />
+                                    <div className='ff-row ff-row--two'>
+                                        <AddonField
+                                            id='novedad-cantidad'
+                                            label='Cantidad total'
+                                            value={amountState}
+                                            required
+                                            onChange={raw => {
+                                                if (raw === '' || /^-?\d*\.?\d*$/.test(raw)) setAmountState(raw === '' ? '' : Number(raw));
+                                            }}
+                                        />
+                                    </div>
                                     :
                                     null
                             }
                             {
                                 title[0].time === true ?
                                     (
-                                        <>
-                                            <h2>Tiempo de la novedad</h2>
-                                            <FieldInput
-                                                type="hour"
-                                                label="Inició"
-                                                value={time1}
-                                                onChange={v => setTime1(v)}
-                                            />
-
-                                            <FieldInput
-                                                type="hour"
-                                                label="Finalizó"
-                                                value={time2}
-                                                onChange={v => setTime2(v)}
-                                            />
-
-                                            <p className='box-textHourResult' >Tiempo total: <span>{calculateTime(time1, time2)}</span></p>
-                                        </>
+                                        <TimeTrack
+                                            title='Tiempo de la novedad'
+                                            steps={[
+                                                { id: 'novedad-inicio', label: 'Inició', value: time1, onChange: setTime1, note: <TrackNote tone='pending'>Empieza a contar</TrackNote> },
+                                                {
+                                                    id: 'novedad-fin', label: 'Finalizó', value: time2, onChange: setTime2,
+                                                    note: isClock(time1) && isClock(time2)
+                                                        ? <TrackNote duration={calculateTime(time1, time2)}>en total</TrackNote>
+                                                        : <TrackNote tone='pending'>{isClock(time1) ? 'Falta esta hora' : 'Falta la hora de inicio'}</TrackNote>,
+                                                },
+                                            ]}
+                                        />
                                     )
                                     :
                                     (
@@ -461,18 +460,20 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                             {
                                 title.length > 0 && title[0].timeUnique === true ?
                                     (
-                                        <>
-                                            <h2>Tiempo de la novedad</h2>
-                                            <FieldInput
-                                                type="hour"
-                                                label={title[0].especial?.time?.timeUnique ? title[0].especial?.time?.timeUnique[LANG] : 'Hora'}
-                                                value={timeUniqueState}
-                                                onChange={v => {
-                                                    setTimeUniqueState(v);
-                                                    ref.current = v;
-                                                }}
-                                            />
-                                        </>
+                                        <TimeTrack
+                                            title='Tiempo de la novedad'
+                                            steps={[
+                                                {
+                                                    id: 'novedad-hora',
+                                                    label: title[0].especial?.time?.timeUnique ? title[0].especial?.time?.timeUnique[LANG] : 'Hora',
+                                                    value: timeUniqueState,
+                                                    onChange: value => {
+                                                        setTimeUniqueState(value);
+                                                        ref.current = value;
+                                                    },
+                                                },
+                                            ]}
+                                        />
                                     ) :
                                     (
                                         null
@@ -595,15 +596,15 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                                 Array.isArray(title) && title[0].doesItrequireVideo ?
 
                                     <>
-                                        <FieldInput
-                                            type="checkbox"
-                                            value={isRequieredVideoState}
+                                        <SwitchRow
+                                            id='novedad-video'
+                                            title='Adjuntar video'
+                                            description='El video va con la novedad, además de las imágenes'
+                                            checked={isRequieredVideoState}
                                             onChange={checked => {
                                                 if (!checked) setVideoState(null);
                                                 setIsRequieredVideo(checked);
                                             }}
-                                            trueLabel="Adjuntar video"
-                                            falseLabel="Sin video"
                                         />
 
                                         {

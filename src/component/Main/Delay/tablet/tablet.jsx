@@ -1,6 +1,6 @@
 //import './style.css';
 import { useState, useRef, useEffect } from 'react';
-import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../../libs/fetch_data/sessionAxios.js';
 import { isMobile } from 'react-device-detect';
 import { useSelector } from 'react-redux';
 import { useAlert } from '../../../../hook/useAlert';
@@ -15,8 +15,12 @@ import URL from '../../../../libs/fetch_data/api_conexion.js';
 
 import { TableInput, TikekInput } from '../../../keysInputs/tableNumber.jsx';
 import DishInputSelet from '../../../keysInputs/dishInput.jsx'
-import PrintErrorDish from '../../../print_error/PrintErrorDishTime.jsx';
 import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
+import TimeTrack, { TrackNote, isClock } from '../../../inputs/TimeTrack.jsx';
+import LimitBar from '../../../inputs/LimitBar.jsx';
+import SwitchRow from '../../../inputs/SwitchRow.jsx';
+import { dishLimit } from '../../../../libs/tickets/dishTypes.js';
+import { exceedsLimit } from '../../../../libs/date_time/timeLimit.js';
 
 import FormLayaut from '@/component/layaut/form_layaut';
 import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
@@ -74,6 +78,21 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig, datos
     //  Desde Mesas, con el turno de la rotación: el mismo tiempo con que se marcó la demora
     const timeDelaySubtraction = checkTime(dish, delayPreparationTable, datosIniciales?.shift);
     //PARA EL TEXTO DEL MENU
+
+    // shift / limitNow = «el turno y el tiempo de preparación del plato en él», los mismos con que mide checkTime: el de
+    // la rotación si viene de Mesas y, si no, el de la hora del equipo
+    const shift = datosIniciales?.shift ?? (new Date().getHours() >= 18 ? 'night' : 'day');
+    const limitNow = dishLimit(dish, shift);
+
+    // preparationLate = «de la toma de orden a listo en tablet pasó del tiempo del plato»: el tramo va en rojo
+    const preparationLate = isClock(time1) && isClock(time2) && exceedsLimit(delayPreparationTable, limitNow);
+
+    // sinceOrder = «la nota de una hora del recorrido: lo que tardó desde la toma de orden», o qué falta para saberlo
+    const sinceOrder = (time, duration, text, late = false) => (
+        isClock(time1) && isClock(time)
+            ? <TrackNote tone={late ? 'late' : 'plain'} duration={duration}>{text}</TrackNote>
+            : <TrackNote tone='pending'>{isClock(time1) ? 'Falta esta hora' : 'Falta la toma de orden'}</TrackNote>
+    );
 
 
 
@@ -152,42 +171,34 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig, datos
             };
 
 
-            axiosInstance.post(`${URL}/novelties`, dataForRequest)
-                .then(response => {
-                    console.log(response);
-                    if (response.status === 200) {
-                        saveNoveltie.save(`Demora de tablet - mesa ${table}`, data.userData);
+            //  Se ESPERA la respuesta: antes la petición iba suelta y el 'finally' de abajo cerraba el «Enviando…» en el
+            //  acto (se podía volver a enviar), y su error llegaba al aviso como objeto, que React no puede pintar y
+            //  tumbaba la pantalla. Ahora el «Enviando…» sigue abierto hasta el final —también mientras se vuelve a
+            //  entrar, si la sesión venció (sessionAxios)— y el error va por el 'catch' de siempre, con su texto.
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest);
+            console.log(response);
+            if (response.status === 200) {
+                saveNoveltie.save(`Demora de tablet - mesa ${table}`, data.userData);
 
-                        //  Abierto desde el icono de cocina de un proceso de Mesas: el ObjectId de la novedad vuelve a ESE
-                        //  proceso ('preparationDelay'), que pone la bandera de «Reportada» en lugar del icono
-                        //  (reportedDelay.js). Y si la tablet estaba en la ventana flotante, vuelve al frente, como en
-                        //  primera atención.
-                        if (datosIniciales?.recordId && datosIniciales?.processId) announceReportedDelay({ recordId: datosIniciales.recordId, processId: datosIniciales.processId, tipo: 'tablet', noveltieId: noveltieIdOf(response.data) });
-                        if (datosIniciales?.deLaVentanaFlotante) window.electronAPI?.openTabletWindow?.();
+                //  Abierto desde el icono de cocina de un proceso de Mesas: el ObjectId de la novedad vuelve a ESE
+                //  proceso ('preparationDelay'), que pone la bandera de «Reportada» en lugar del icono
+                //  (reportedDelay.js). Y si la tablet estaba en la ventana flotante, vuelve al frente, como en
+                //  primera atención.
+                if (datosIniciales?.recordId && datosIniciales?.processId) announceReportedDelay({ recordId: datosIniciales.recordId, processId: datosIniciales.processId, tipo: 'tablet', noveltieId: noveltieIdOf(response.data) });
+                if (datosIniciales?.deLaVentanaFlotante) window.electronAPI?.openTabletWindow?.();
 
-                        setNumberTable('');
-                        setFiles(files => files = []);
-                        setTime1(time1 = '');
-                        setTime2(time2 = '');
-                        setDish(null);
-                        boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
-                        reset();
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    const error = err;
-                    boxModal.open({ title: 'Error', description: error });
-                })
-                .finally(() => {
-                    awaitWindow.close();
-                });
+                setNumberTable('');
+                setFiles(files => files = []);
+                setTime1(time1 = '');
+                setTime2(time2 = '');
+                setDish(null);
+                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                reset();
+            }
         }
         catch (error) {
             console.log(error);
-            if (error.message) boxModal.open({ title: 'Error', description: error.message });
-
-            else boxModal.open('Error', error);
+            boxModal.open({ title: 'Error', description: error?.message || 'No se pudo enviar la novedad' });
         }
         finally {
             awaitWindow.close();
@@ -232,90 +243,53 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig, datos
 
 
 
-            <div className='box-inputContain box-div-imputContain'
-                style={{
-                    gap: '2rem',
-                    position: 'relative'
-                }}
-            >
+            {/*  Los campos, en la propuesta «C · Línea de tiempo» (elegida por el usuario): ticket, mesa y plato en una
+                 fila; las cuatro horas sobre el recorrido del pedido, con lo que tardó hasta cada una; lo de la tablet
+                 contra el límite del plato en una barra, y la pregunta de los tiempos como un interruptor.  */}
+            <div className='box-inputContain box-div-imputContain'>
 
-                <TikekInput
-                    value={tiket}
-                    onChangeEvent={(value) => setTiket(value)}
-                />
-
-                <TableInput
-                    value={table}
-                    onChangeEvent={(value) => setNumberTable(value)}
-                />
-
-
-                <DishInputSelet
-                    value={dish}
-                    onChangeEvent={(dish) => setDish(dish)}
-                    dishes={seletedEstableshment?.dishes}
-                />
-
-                <label className='box-label' htmlFor=""> Toma de orden
-                    <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime1(e.target.value)}
+                <div className='ff-row'>
+                    <TikekInput
+                        value={tiket}
+                        onChangeEvent={(value) => setTiket(value)}
                     />
-                </label>
 
-
-                <label className='box-label' htmlFor=""> Listo en tablet
-                    <input className='box-inputText' type="text" id="Listo-tablet" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime2(e.target.value)}
+                    <TableInput
+                        value={table}
+                        onChangeEvent={(value) => setNumberTable(value)}
                     />
-                </label>
 
-
-                <label htmlFor="" className='box-label'> Listo en cocina
-                    <input className='box-inputText' type="text" id="listo-cocina" value={time3} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime3(e.target.value)}
+                    <DishInputSelet
+                        value={dish}
+                        onChangeEvent={(dish) => setDish(dish)}
+                        dishes={seletedEstableshment?.dishes}
                     />
-                </label>
-
-
-                <label htmlFor="" className='box-label'> Entrega de plato
-                    <input className='box-inputText' type="text" id="entrega plato" value={time4} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                        onChange={e => setTime4(e.target.value)}
-                    />
-                </label>
-
-
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1rem 0', gap: '.5rem' }}>
-                    <p className='box-textHourResult'>Tiempo total en tablet: <span>{delayPreparationTable}</span></p>
-                    <p className='box-textHourResult'>Tiempo total en cocina: <span>{delayPreparationInKichen}</span></p>
-                    <p className='box-textHourResult'>Tiempo total en entrega de plato: <span>{timeTotalDelay}</span></p>
-
-                    <p className='box-textHourResult'>Tiempo excedido: {timeDelaySubtraction.timeExceeding}</p>
-                    {
-                        !(timeDelaySubtraction.approval) && timeDelaySubtraction.timeExceeding !== '00:00:00' ?
-                            <PrintErrorDish dish={dish} shift={datosIniciales?.shift} />
-                            :
-                            null
-                    }
                 </div>
 
+                <TimeTrack
+                    title='Recorrido del pedido'
+                    steps={[
+                        { id: 'toma-orden', label: 'Toma de orden', value: time1, onChange: setTime1, note: <TrackNote tone='pending'>Empieza a contar</TrackNote> },
+                        { id: 'listo-tablet', label: 'Listo en tablet', value: time2, onChange: setTime2, late: preparationLate, note: sinceOrder(time2, delayPreparationTable, preparationLate ? `en tablet · +${timeDelaySubtraction.timeExceeding}` : 'en tablet', preparationLate) },
+                        { id: 'listo-cocina', label: 'Listo en cocina', value: time3, onChange: setTime3, note: sinceOrder(time3, delayPreparationInKichen, 'desde la toma de orden') },
+                        { id: 'entrega-plato', label: 'Entrega de plato', value: time4, onChange: setTime4, note: sinceOrder(time4, timeTotalDelay, 'en total') },
+                    ]}
+                />
 
-                <label htmlFor="" className='box-label' style={{ textAlign: 'center' }}>¿estuvo dentro de los tiempos correspondientes?
-                    <br />
-                    <p style={{ textAlign: 'center' }}>('no fue marcada en pantalla')</p>
-                    <input className='box-inputText' type="checkbox" value={correspondingTimesState}
-                        onChange={e => setCorrespondingTimesState(e.target.checked)}
-                    />
-                </label>
-                {
-                    correspondingTimesState ?
-                        <h1 style={{ color: '#000' }}>Si</h1>
-                        :
-                        <h1 style={{ color: '#000' }}>No</h1>
-                }
+                <LimitBar
+                    title={`En tablet, contra el límite ${shift === 'night' ? 'de noche' : 'de día'}`}
+                    elapsed={isClock(time1) && isClock(time2) ? delayPreparationTable : ''}
+                    limit={limitNow}
+                    inTimeNote={`No pasa del tiempo de preparación de ${dish?.nameDishe ?? 'este plato'}: así no es una demora. Revisa las horas antes de enviarla.`}
+                />
 
-
-
-                <br />
+                <SwitchRow
+                    id='tablet-en-tiempo'
+                    title='Estuvo dentro de los tiempos, pero no se marcó en pantalla'
+                    description='El mensaje lleva la nota para el cliente'
+                    checked={correspondingTimesState}
+                    onChange={setCorrespondingTimesState}
+                />
 
                 <label className='box-label' htmlFor="">Nota
                     <textarea className='box-textArea' spellCheck="true" autoComplete='true' placeholder='en caso que lo amerite' cols="30" rows="10" value={description} onChange={e => setDescription(description = e.target.value)}></textarea>

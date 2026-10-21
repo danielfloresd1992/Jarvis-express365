@@ -7,11 +7,12 @@ import { useSaveNoveltie } from '../../../../hook/useSaveNoveltie.jsx';
 import { isMobile } from 'react-device-detect';
 import { useDataUser } from '../../../../hook/useTextMenu.jsx';
 import { useImgAlternative } from '../../../../hook/useImgAlternative.jsx';
-import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../../libs/fetch_data/sessionAxios.js';
 import URL from '../../../../libs/fetch_data/api_conexion.js';
 import { useAlert } from '../../../../hook/useAlert.jsx';
 import { blobToFile } from '../../../../libs/script/64toFile.js';
 import { sendFile } from '../../../../libs/fetch_data/multimedia.Fetching.js';
+import AddonField from '../../../inputs/AddonField.jsx';
 
 
 
@@ -135,7 +136,7 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
             dataForRequest.numberTiket = ticket;
 
 
-            const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest)
 
             if (response.status === 200) {
                 saveNoveltie.save(`Demora de tablet - mesa ${table}`, data.userData);
@@ -166,20 +167,12 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
             {printImg()}
 
             <div className='box-inputContain box-div-imputContain'>
-                <label className='box-label' htmlFor=""> Número de tiket
-                    <input className='box-inputText' type="text" id="toma-orden" required value={ticket}
-                        onChange={e => setTiket(e.target.value)}
-                    />
-                </label>
-
-                <label className='box-label' htmlFor=""> Número de mesa
-                    <input className='box-inputText' type="text" id="table" value={table} required
-                        onChange={e => {
-                            setNumberTable(e.target.value);
-                        }}
-                    />
-                </label>
-                <br />
+                {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): ticket y mesa en una fila, con la
+                     etiqueta pegada al campo. Aquí los dos se piden siempre.  */}
+                <div className='ff-row ff-row--two'>
+                    <AddonField id='error-ticket' label='Ticket' value={ticket} onChange={setTiket} required />
+                    <AddonField id='error-mesa' label='Mesa' value={table} onChange={setNumberTable} required />
+                </div>
                 <label className='box-label' htmlFor="">Nota
                     {/*  `setDescription(e.target.value)` a secas. El resto de los
                          formularios escriben `setDescription(description = ...)`,

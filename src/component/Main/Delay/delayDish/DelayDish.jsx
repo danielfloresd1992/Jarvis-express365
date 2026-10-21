@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import axiosInstance from '../../../../libs/fetch_data/instanceAxios.js';
+import sessionAxios from '../../../../libs/fetch_data/sessionAxios.js';
 import { isMobile } from 'react-device-detect';
 import { useSelector } from 'react-redux';
 import { useDataUser } from '../../../../hook/useTextMenu.jsx';
@@ -21,6 +21,11 @@ import { blobToFile } from '../../../../libs/script/64toFile.js';
 
 import FormLayaut from '@/component/layaut/form_layaut';
 import DishInputSelet from '@/component/keysInputs/dishInput.jsx'
+import TimeTrack, { TrackNote, isClock } from '@/component/inputs/TimeTrack.jsx';
+import LimitBar from '@/component/inputs/LimitBar.jsx';
+import AddonField from '@/component/inputs/AddonField.jsx';
+import SwitchRow from '@/component/inputs/SwitchRow.jsx';
+import { exceedsLimit } from '@/libs/date_time/timeLimit.js';
 
 
 
@@ -166,7 +171,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
                 entregaPlato: time4
             };
 
-            const response = await axiosInstance.post(`${URL}/novelties`, dataForRequest)
+            const response = await sessionAxios.post(`${URL}/novelties`, dataForRequest)
             if (response.status === 200) {
                 saveNoveltie.save(`Demora entrega de plato - mesa ${table}`, data.userData);
                 
@@ -274,19 +279,38 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
         const isBocas = localData.name === 'Bocas House' || localData.name === 'Bocas Weston' || localData.name === 'Bocas Orlando';
 
+        // readySite = «dónde se pone listo»: en barra si el plato de la carta es una bebida (category 'drinks'), y en cocina
+        // todo lo demás, también antes de elegirlo. Es la misma regla que el mensaje ('awaitSite'). Antes la etiqueta
+        // comparaba con 'foods', que no es una categoría del modelo (food, drinks, desserts_and_sweets): cualquier plato
+        // salía «Listo en barra».
+        const readySite = dishState?.category === 'drinks' ? 'Listo en barra' : 'Listo en cocina';
+
+        // dishName = «el plato», el nombre que tiene en la carta del local (Local.dishes) o en el menú antiguo; hasta que se
+        // elige, «plato» (antes «¿?»)
+        const dishName = (containsPlateArrayState ? dishState?.nameDishe : dishLegaceState) || 'plato';
+
+        // deliveryLate = «la entrega pasó de su límite»: solo los locales de Mister01 lo tienen (TIME_EXCEDING)
+        const deliveryLate = localData.franchise === 'Mister01' && isClock(time3) && isClock(time4) && exceedsLimit(textResult.trim(), TIME_EXCEDING);
+
+        // sinceOrder = «la nota de una hora: lo que tardó desde la toma de orden», o qué falta para saberlo
+        const sinceOrder = (time, text) => (
+            isClock(time1) && isClock(time)
+                ? <TrackNote duration={returnTimeExceding(time, time1)}>{text}</TrackNote>
+                : <TrackNote tone='pending'>{isClock(time1) ? 'Falta esta hora' : 'Falta la toma de orden'}</TrackNote>
+        );
+
         return (
             <div className='boxDivInput box-div-imputContain'>
 
                 <div className='box-inputContain box-static'>
-                    <label className='box-label' htmlFor=""> Número de mesa
-                        <input className='box-inputText' type="text" id="numero-mesa" value={table} required
-                            onChange={e => {
-                                setNumberTable(table = e.target.value);
-                            }}
-                        />
-                    </label>
-                    <label htmlFor="" className='box-label'>Tipo de plato
-                        <select className='box-inputText' onChange={e => {
+                    {/*  Propuesta «C · Línea de tiempo» (elegida por el usuario): mesa y plato en una fila, con la etiqueta
+                         pegada. El plato sigue siendo su lista de siempre (la carta o el menú antiguo del local): solo
+                         cambia la caja.  */}
+                    <div className='ff-row ff-row--table-dish'>
+                    <AddonField id='entrega-mesa' label='Mesa' value={table} onChange={value => setNumberTable(table = value)} required />
+                    <div className='ff-addon ff-addon--select'>
+                        <label className='ff-addon__label' htmlFor='entrega-tipo-plato'>Plato</label>
+                        <select id='entrega-tipo-plato' className='ff-addon__control' onChange={e => {
                             if (containsPlateArrayState) {
                                 const dishSeleted = localData.dishes.filter(item => e.target.value === item._id);
                                 setDishState(dishSeleted[0]);
@@ -320,11 +344,11 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
                                             }
                                             {
-                                                localData.dishMenu.dishEvaluation === 'completo' ?
+                                                localData.dishMenu?.dishEvaluation === 'completo' ?
                                                     (
-                                                        <option style={optionStyles} value={localData.dishMenu.appetizer}>
+                                                        <option style={optionStyles} value={localData.dishMenu?.appetizer}>
                                                             {
-                                                                localData.dishMenu.appetizer
+                                                                localData.dishMenu?.appetizer
                                                             }
                                                         </option>
                                                     )
@@ -333,17 +357,17 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
                                                         null
                                                     )
                                             }
-                                            <option style={optionStyles} value={localData.dishMenu.mainDish}>
+                                            <option style={optionStyles} value={localData.dishMenu?.mainDish}>
                                                 {
-                                                    localData.dishMenu.mainDish
+                                                    localData.dishMenu?.mainDish
                                                 }
                                             </option>
                                             {
-                                                localData.dishMenu.dishEvaluation === 'completo' ?
+                                                localData.dishMenu?.dishEvaluation === 'completo' ?
                                                     (
-                                                        <option style={optionStyles} value={seletedEstableshment.dishMenu.dessert}>
+                                                        <option style={optionStyles} value={seletedEstableshment.dishMenu?.dessert}>
                                                             {
-                                                                localData.dishMenu.dessert
+                                                                localData.dishMenu?.dessert
                                                             }
                                                         </option>
                                                     )
@@ -371,64 +395,57 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
 
                         </select>
-                    </label>
+                        <svg className='ff-addon__chevron' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                            <path d='M6 9l6 6 6-6' />
+                        </svg>
+                    </div>
+                    </div>
 
-                    <label className='box-label' htmlFor=""> Toma de orden
-                        <input className='box-inputText' type="text" id="toma-orden" value={time1} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => recepHour(e.target)}
-                        />
-                    </label>
+                    {/*  Las cuatro horas sobre el recorrido del pedido, en el orden de siempre. 'recepHour' recibe el id y
+                         el valor, como recibía el campo: con ellos calcula la demora de la entrega (de listo a entrega).  */}
+                    <TimeTrack
+                        title='Recorrido del pedido'
+                        steps={[
+                            { id: 'toma-orden', label: 'Toma de orden', value: time1, onChange: value => recepHour({ id: 'toma-orden', value }), note: <TrackNote tone='pending'>Empieza a contar</TrackNote> },
+                            { id: 'listo-cocina', label: readySite, value: time3, onChange: value => recepHour({ id: 'listo-cocina', value }), note: sinceOrder(time3, 'desde la toma de orden') },
+                            { id: 'Listo-tablet', label: 'Listo en tablet', value: time2, onChange: value => recepHour({ id: 'Listo-tablet', value }), note: sinceOrder(time2, 'desde la toma de orden') },
+                            {
+                                id: 'entrega-plato',
+                                label: `Entrega de ${dishName}`,
+                                value: time4,
+                                onChange: value => recepHour({ id: 'entrega plato', value }),
+                                late: deliveryLate,
+                                note: isClock(time3) && isClock(time4)
+                                    ? <TrackNote tone={deliveryLate ? 'late' : 'plain'} duration={textResult.trim()}>{`desde ${readySite.toLowerCase()}`}{isClock(time1) ? ` · ${returnTimeExceding(time4, time1)} en total` : ''}</TrackNote>
+                                    : <TrackNote tone='pending'>{isClock(time3) ? 'Falta esta hora' : `Falta ${readySite.toLowerCase()}`}</TrackNote>,
+                            },
+                        ]}
+                    />
 
-
-                    <label htmlFor="" className='box-label'> {containsPlateArrayState ? (dishState?.category === "foods" ? 'Listo en cocina' : 'Listo en barra') : 'Listo en cocina'}
-                        <input className='box-inputText' type="text" id="listo-cocina" value={time3} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => recepHour(e.target)}
-                        />
-                    </label>
-
-
-                    <label className='box-label' htmlFor=""> Listo en tablet
-                        <input className='box-inputText' type="text" id="Listo-tablet" value={time2} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => recepHour(e.target)}
-                        />
-                    </label>
-                    <label htmlFor="" className='box-label'> Entrega de {containsPlateArrayState ? dishState?.nameDishe : dishLegaceState ? dishLegaceState : '¿?'}
-                        <input className='box-inputText' type="text" id="entrega plato" value={time4} pattern="^(([0-1]\d)|(2[0-3]))(:[0-5]\d){2}$" required maxLength="8"
-                            onChange={e => recepHour(e.target)}
-                        />
-                    </label>
-
-                    <p className='box-textHourResult'>Tiempo total: <span>{textResult}</span></p>
-
+                    {/*  Solo los locales de la franquicia Mister01 tienen un límite para la entrega (como antes, cuando solo
+                         ellos veían «Tiempo excedido»)  */}
                     {
-
-                        localData.franchise === 'Mister01' ?
-                            (
-                                <p className='box-textHourResult'>Tiempo excedido: <span>{returnTimeExceding(timeTotal, TIME_EXCEDING)}</span></p>
-                            )
-                            :
-                            (
-                                null
-                            )
-
+                        localData.franchise === 'Mister01' && (
+                            <LimitBar
+                                title='Entrega, contra el límite'
+                                elapsed={isClock(time3) && isClock(time4) ? textResult.trim() : ''}
+                                limit={TIME_EXCEDING}
+                            />
+                        )
                     }
 
 
                     <>
-                        <label className='vc-toggle' htmlFor='vc-requiere-video'>
-                            <input
-                                id='vc-requiere-video'
-                                className='vc-toggle__input'
-                                type='checkbox'
-                                checked={isRequieredVideoState}
-                                onChange={e => {
-                                    if (!e.target.checked) setVideoState(null);
-                                    setIsRequieredVideo(e.target.checked);
-                                }}
-                            />
-                            <span className='vc-toggle__switch' />
-                            <span className='vc-toggle__text'>Adjuntar video</span>
-                        </label>
+                        <SwitchRow
+                            id='vc-requiere-video'
+                            title='Adjuntar video'
+                            description='El video va con la novedad, además de las imágenes'
+                            checked={isRequieredVideoState}
+                            onChange={checked => {
+                                if (!checked) setVideoState(null);
+                                setIsRequieredVideo(checked);
+                            }}
+                        />
 
                         {
                             isRequieredVideoState ?
