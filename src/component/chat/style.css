@@ -77,6 +77,17 @@
     background: var(--color-jx-hundido);
 }
 
+/*  Sin conexión con el socket (useSocketConnected): el punto en ámbar y el texto en el ámbar de letra. Es el aviso de
+    que se perdió la conexión con Jarvis, en vez de un alert() que congelaba la ventana.  */
+.chat-banner--offline {
+    background: var(--color-jx-aviso-suave);
+    color: var(--color-jx-aviso-texto);
+}
+
+.chat-banner--offline::before {
+    background: var(--color-jx-ocre);
+}
+
 /* ── Popup del chat ── */
 .chat-boxText {
     position: absolute;

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { socketAppManager } from '../../store/slices/socketio.js';
+import { useSocketConnected } from '../../hook/useSocketConnected.js';
 import { getMessageForChat, setMessageForChat } from '../../libs/fetch_data/chatFetch.js';
 import { requestNotificationPermission, pushOSNotification } from '../../libs/osNotification.js';
 
@@ -47,6 +48,9 @@ function Chat() {
     const [pickerOpen, setPickerOpen] = useState(false);
     const [pickerTab, setPickerTab] = useState('emoji');
     const inputRef = useRef(null);
+
+    // socketConnected = «el socket del chat está conectado»: lo dice la franja de abajo
+    const socketConnected = useSocketConnected(socketAppManager);
     const local = JSON.parse(localStorage.getItem('local_appExpress'))[0];
     const refPaginate = useRef(0);
 
@@ -335,8 +339,14 @@ function Chat() {
                                     </form>
                                 </div>
 
-                                <div className='chat-banner' onClick={() => setWindowState(!hiddenWindowState)}>
-                                    Chat Jarvis activo
+                                {/*  Dice si el socket del chat está conectado: es el aviso, sin bloquear, de que se
+                                     perdió la conexión (antes un alert(), store/slices/socketio.js)  */}
+                                <div
+                                    className={`chat-banner ${socketConnected ? '' : 'chat-banner--offline'}`}
+                                    onClick={() => setWindowState(!hiddenWindowState)}
+                                    role='status'
+                                >
+                                    {socketConnected ? 'Chat Jarvis activo' : 'Chat Jarvis sin conexión · reintentando'}
                                 </div>
                             </div>
                             :

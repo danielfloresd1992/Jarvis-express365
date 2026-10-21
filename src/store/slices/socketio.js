@@ -20,8 +20,30 @@ socketAppManager.on('update-user-client-express', userId => {
 });
 
 
-socketAppManager.on('connect_error', err => {
-    alert('Error de certificados SSL en soket');
+/*  SIN CONEXIÓN CON EL SOCKET: SIN alert() (pedido del usuario)
+ *
+ *  Antes, cada 'connect_error' abría un alert('Error de certificados SSL en soket'). Un alert es un diálogo del
+ *  sistema que CONGELA la ventana entera —el espejo de la tablet y la lectura de la IA incluidos— hasta que alguien lo
+ *  cierra, y socket.io reintenta conectar sin parar: mientras la API no respondía, volvía una y otra vez. Y decía
+ *  «certificados SSL» de cualquier fallo, también de una red caída.
+ *
+ *  Ahora la caída se apunta en la consola UNA vez (no en cada reintento), y la vuelta también. En pantalla lo dice el
+ *  chat, que va por este socket: «Chat Jarvis sin conexión · reintentando» (useSocketConnected, en Chat.jsx).
+ *  socket.io sigue reintentando solo, como antes.
+ */
+
+// outageLogged = «la caída de ahora ya está en la consola»
+let outageLogged = false;
+
+socketAppManager.on('connect_error', error => {
+    if (outageLogged) return;
+    outageLogged = true;
+    console.warn('Sin conexión con el socket de Jarvis; se sigue reintentando:', error?.message ?? error);
+});
+
+socketAppManager.on('connect', () => {
+    if (outageLogged) console.info('Conexión con el socket de Jarvis recuperada');
+    outageLogged = false;
 });
 
 
