@@ -87,9 +87,10 @@ function savedShift() {
     }
 }
 
-// shiftByClock = «el turno que impone la hora del equipo» (shiftOfTime): 'day' de 08:00:00 a 17:30:00, 'night'
-// de 18:30:00 a 07:00:00 del día siguiente, y null en los dos cambios de turno —entre 07:00 y 08:00 y entre
-// 17:30 y 18:30—, que es cuando se elige con el toggle. toTimeString empieza por la hora local, 'HH:MM:SS'.
+// shiftByClock = «el turno que impone la hora del equipo» (shiftOfTime): 'day' de 08:00:00 hasta antes de las
+// 17:00:00, 'night' de 18:30:00 a 07:00:00 del día siguiente, y null en los dos cambios de turno —de 07:00 a 08:00 y
+// de 17:00 a 18:30—, que es cuando se elige con el toggle (SHIFT_TIMES, en operationalDay.js). toTimeString empieza
+// por la hora local, 'HH:MM:SS'.
 const shiftByClock = (now = new Date()) => shiftOfTime(now.toTimeString().slice(0, 8));
 
 

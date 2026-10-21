@@ -11,9 +11,12 @@
  *
  *  Es un 'switch' para los lectores de pantalla: encendido = nocturno.
  *
- *  La hora manda ('locked', de shiftByClock en useTabletSession): de 08:00 a 17:30 es diurno y de 18:30 a
- *  07:00 nocturno, y el interruptor va desactivado. Solo se mueve en los cambios de turno.
+ *  La hora manda ('locked', de shiftByClock en useTabletSession): de 08:00 a 17:00 es diurno y de 18:30 a
+ *  07:00 nocturno, y el interruptor va desactivado. Solo se mueve en los cambios de turno: de 17:00 a 18:30 (pedido
+ *  del usuario: desde las 17:00, antes las 17:30) y de 07:00 a 08:00. Las horas, en SHIFT_TIMES (operationalDay.js).
  */
+
+import { SHIFT_TIMES } from '../../../../libs/date_time/operationalDay.js';
 
 
 // Sun = «el sol»: el turno de día. También lo usa el menú de Exportar (ExportShiftMenu).
@@ -47,7 +50,7 @@ export default function ShiftToggle({ shift, locked, onToggle }) {
 
     // why = «lo que se lee al pasar el ratón»: por qué no se mueve, o qué pasa al moverlo
     const why = locked
-        ? `Turno ${name.toLowerCase()}, fijo por la hora: de 08:00 a 17:30 es diurno y de 18:30 a 07:00 nocturno. Solo se cambia entre esos tramos.`
+        ? `Turno ${name.toLowerCase()}, fijo por la hora: de ${SHIFT_TIMES.dayStarts} a ${SHIFT_TIMES.dayEnds} es diurno y de ${SHIFT_TIMES.nightStarts} a ${SHIFT_TIMES.nightEnds} nocturno. Se puede cambiar de ${SHIFT_TIMES.dayEnds} a ${SHIFT_TIMES.nightStarts} y de ${SHIFT_TIMES.nightEnds} a ${SHIFT_TIMES.dayStarts}.`
         : `Turno ${name.toLowerCase()}: las rotaciones nuevas nacen con este turno. Clic para cambiar a ${other}.`;
 
     return (

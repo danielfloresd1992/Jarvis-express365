@@ -54,16 +54,28 @@ export function atOperationalTime(day, time) {
 }
 
 
-// shiftOfTime = «el turno que corresponde a una hora 'HH:MM:SS'»: 'day' de 08:00:00 a 17:30:00, 'night' de
-// 18:30:00 a 07:00:00 del día siguiente, y null en los dos cambios de turno —entre 07:00 y 08:00 y entre 17:30
-// y 18:30—, que se eligen a mano. También null si no es una hora.
+// SHIFT_TIMES = «las horas de los turnos», 'HH:MM': cuándo empieza el diurno, cuándo deja de estar fijo (desde ahí se
+// puede pasar al nocturno con el toggle de Mesas; pedido del usuario: desde las 17:00, antes las 17:30), cuándo
+// empieza el nocturno fijo y cuándo termina. Las lee también el toggle (ShiftToggle) para explicarlo.
+export const SHIFT_TIMES = { dayStarts: '08:00', dayEnds: '17:00', nightStarts: '18:30', nightEnds: '07:00' };
+
+// secondsOfClock = «una hora 'HH:MM' en segundos desde las 00:00»
+const secondsOfClock = (clock) => {
+    const [hours, minutes] = clock.split(':').map(Number);
+    return hours * 3600 + minutes * 60;
+};
+
+
+// shiftOfTime = «el turno que corresponde a una hora 'HH:MM:SS'»: 'day' de las 08:00:00 hasta antes de las 17:00:00,
+// 'night' de 18:30:00 a 07:00:00 del día siguiente, y null en los dos cambios de turno —de 07:00 a 08:00 y de 17:00 a
+// 18:30—, que se eligen a mano (SHIFT_TIMES). También null si no es una hora.
 export function shiftOfTime(time) {
     const [hours, minutes, seconds = 0] = String(time ?? '').split(':').map(Number);
     if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
 
     const value = hours * 3600 + minutes * 60 + (seconds || 0);
-    if (value >= 8 * 3600 && value <= 17.5 * 3600) return 'day';
-    if (value >= 18.5 * 3600 || value <= 7 * 3600) return 'night';
+    if (value >= secondsOfClock(SHIFT_TIMES.dayStarts) && value < secondsOfClock(SHIFT_TIMES.dayEnds)) return 'day';
+    if (value >= secondsOfClock(SHIFT_TIMES.nightStarts) || value <= secondsOfClock(SHIFT_TIMES.nightEnds)) return 'night';
     return null;
 }
 
