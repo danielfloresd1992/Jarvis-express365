@@ -1,5 +1,6 @@
 import IP from './api_conexion';
 import axiosInstance from './instanceAxios';
+import sessionAxios from './sessionAxios.js';
 
 
 /*  LAS PETICIONES DEL CICLO DE LA ROTACIÓN
@@ -16,6 +17,10 @@ import axiosInstance from './instanceAxios';
  *  rotación va a seguir creciendo, y un campo nuevo no debe obligar a tocar este archivo. Lo que sobre
  *  —lo interno de esta app, como 'key' y 'edited' de los procesos— lo descarta la API, que valida con
  *  `stripUnknown`; lo que sí tiene que guardar, tiene que estar en su esquema y su modelo.
+ *
+ *  Lo que GUARDA —la rotación, sus correcciones y sus toques— va por sessionAxios (pedido del usuario): si la sesión
+ *  venció, se abre el formulario de volver a entrar y el guardado se repite solo al entrar el mismo usuario. Lo que
+ *  solo LEE sigue por instanceAxios: una lectura de fondo no debe abrir un formulario por su cuenta.
  */
 
 
@@ -34,7 +39,7 @@ function rotationError(error, fallback, conflict = 'Esta rotación ya estaba gua
     //  Un 404 CON texto es de la API («No existe un establecimiento llamado…»); SIN texto es que la
     //  ruta no existe: la API todavía no tiene el recurso desplegado.
     const message = status === 0 ? 'No hay conexión con el servidor'
-        : status === 401 ? 'La sesión expiró: vuelve a iniciar sesión'
+        : status === 401 ? (error?.code === 'SESSION_EXPIRED' ? error.message : 'La sesión expiró: vuelve a iniciar sesión')
         : status === 409 ? conflict
         : fromApi || (status === 404 ? 'El servidor todavía no tiene las rotaciones: falta actualizar la API' : fallback);
 
@@ -48,7 +53,7 @@ function rotationError(error, fallback, conflict = 'Esta rotación ya estaba gua
 // Recibe: body, el cuerpo tal cual se envía —la rotación con `establishment` y `clientId`—.
 export const saveRotation = (body) => {
     return new Promise((resolve, reject) => {
-        axiosInstance.post(`${IP}/rotation`, body)
+        sessionAxios.post(`${IP}/rotation`, body)
             .then(response => resolve(response.data))
             .catch(error => reject(rotationError(error, 'No se pudo guardar la rotación')));
     });
@@ -68,7 +73,7 @@ export const saveRecord = (record, establishmentId) => saveRotation({ ...record,
 // de lo que cambia: la rotación, uno de sus procesos o uno de sus toques.
 export const updateRotation = (data, id) => {
     return new Promise((resolve, reject) => {
-        axiosInstance.put(`${IP}/rotation/id=${id}`, data)
+        sessionAxios.put(`${IP}/rotation/id=${id}`, data)
             .then(response => resolve(response.data))
             .catch(error => reject(rotationError(error, 'No se pudo guardar el cambio', 'Alguien la corrigió al mismo tiempo: vuelve a intentarlo')));
     });
@@ -81,7 +86,7 @@ export const updateRotation = (data, id) => {
 // Recibe: id, el _id de la rotación, y touch, el toque tal cual ({ ref, name, hourTouch, hourTouchFinish, createdAt, recovered }).
 export const addRotationTouch = (id, touch) => {
     return new Promise((resolve, reject) => {
-        axiosInstance.post(`${IP}/rotation/id=${id}/touch`, touch)
+        sessionAxios.post(`${IP}/rotation/id=${id}/touch`, touch)
             .then(response => resolve(response.data))
             .catch(error => reject(rotationError(error, 'No se pudo apuntar el toque')));
     });
@@ -94,7 +99,7 @@ export const addRotationTouch = (id, touch) => {
 // Recibe: id, el _id del TOQUE (no el de la rotación).
 export const deleteRotationTouch = (id) => {
     return new Promise((resolve, reject) => {
-        axiosInstance.delete(`${IP}/rotation/touch/id=${id}`)
+        sessionAxios.delete(`${IP}/rotation/touch/id=${id}`)
             .then(response => resolve(response.data))
             .catch(error => reject(rotationError(error, 'No se pudo quitar el toque')));
     });

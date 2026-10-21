@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 
-const config = { withCredentials: true, headers: {
+// API_CONFIG = «cómo se habla con jarvis_api»: con la cookie de la sesión (otro dominio) y las dos cabeceras sin las
+// que POST /novelties responde 400. La comparte sessionAxios.js.
+export const API_CONFIG = { withCredentials: true, headers: {
         'Source-Application': 'Reporte Express',
         'Version-App': '1.1'
     }
@@ -9,7 +11,7 @@ const config = { withCredentials: true, headers: {
 
 
 
-const axiosInstance = axios.create(config);
+const axiosInstance = axios.create(API_CONFIG);
 
 
 // ══════════════════════════════════════════════════════════════════════
@@ -42,25 +44,28 @@ const axiosInstance = axios.create(config);
 // más que mostrar el texto —resaltar el local, ofrecer la alerta de
 // restablecimiento—, sin tener que adivinarlo leyendo el mensaje.
 
+// explainApiError = «el error, con el texto que mandó jarvis_api en su 'message'». Lo usan las dos instancias (esta y
+// sessionAxios.js). Devuelve el MISMO error, retocado.
+export function explainApiError(error) {
+    const datos = error?.response?.data;
+
+    if (datos?.message) {
+        error.message = datos.message;
+
+        // Lo que el servidor haya dicho de más, a mano y sin re-leer la
+        // respuesta.
+        if (datos.code) error.code = datos.code;
+        if (datos.dvrFailure) error.dvrFailure = datos.dvrFailure;
+    }
+
+    return error;
+}
+
+// Se REPROPAGA: el interceptor traduce el mensaje, no decide qué hacer con el
+// fallo. Eso sigue siendo de cada formulario.
 axiosInstance.interceptors.response.use(
     response => response,
-
-    error => {
-        const datos = error?.response?.data;
-
-        if (datos?.message) {
-            error.message = datos.message;
-
-            // Lo que el servidor haya dicho de más, a mano y sin re-leer la
-            // respuesta.
-            if (datos.code) error.code = datos.code;
-            if (datos.dvrFailure) error.dvrFailure = datos.dvrFailure;
-        }
-
-        // Se REPROPAGA: el interceptor traduce el mensaje, no decide qué hacer
-        // con el fallo. Eso sigue siendo de cada formulario.
-        return Promise.reject(error);
-    },
+    error => Promise.reject(explainApiError(error)),
 );
 
 

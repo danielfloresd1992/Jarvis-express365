@@ -13,6 +13,9 @@ import './style.css';
  *  durante el día. Cómo se hace el cambio, sin recargar ni perder las mesas, lo cuenta useSwitchUser.
  *
  *  El formulario se queda abierto aunque el local deje de tener Mesas a medio escribir: lo que se quita es la tecla.
+ *
+ *  Y es también el formulario de VOLVER A ENTRAR cuando la sesión vence (modo 'expired', useSwitchUser): ese se abre
+ *  en cualquier local, tenga Mesas o no, porque lo pide una petición (sessionAxios.js) y no la tecla.
  */
 export default function SwitchUserController() {
 
@@ -39,6 +42,7 @@ export default function SwitchUserController() {
             {
                 session.open && (
                     <SwitchUserDialog
+                        mode={session.mode}
                         currentUser={session.currentUser}
                         sending={session.sending}
                         failure={session.failure}

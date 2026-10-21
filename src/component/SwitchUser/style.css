@@ -82,6 +82,12 @@
     animation: switch-user-fade 0.16s ease-out;
 }
 
+/*  VOLVER A ENTRAR (la sesión venció, useSwitchUser): lo abre una petición que está esperando, así que tiene que
+    quedar ENCIMA de su «Enviando…» (AwaitComponent, 10000), que sigue abierto debajo.  */
+.switch-user-backdrop--expired {
+    z-index: 10500;
+}
+
 .switch-user-dialog {
     width: min(440px, 100%);
     max-height: calc(100vh - 32px);
@@ -210,6 +216,16 @@
     height: 6px;
     border-radius: 50%;
     background: var(--color-jx-verde-barra);
+}
+
+/*  La sesión venció: «Vencida», en ámbar  */
+.switch-user-current__state--expired {
+    background: var(--color-jx-aviso-suave);
+    color: var(--color-jx-aviso-texto);
+}
+
+.switch-user-current__state--expired::before {
+    background: var(--color-jx-ocre);
 }
 
 .switch-user-current__note {

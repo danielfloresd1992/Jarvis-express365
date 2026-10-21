@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../../store/slices/user.js';
 import { showBoxModal } from '../../../store/slices/boxModal.js';
 import { logIn } from '../../../libs/fetch_data/authFetch.js';
+import { onSessionExpired } from '../../../libs/fetch_data/sessionGate.js';
 
 
 /*  CAMBIAR DE USUARIO SIN SALIR DE LA PANTALLA
@@ -20,6 +21,12 @@ import { logIn } from '../../../libs/fetch_data/authFetch.js';
  *
  *  Por qué no se cierra antes la sesión vieja (GET /auth/logout): si la clave nueva está mal, el operador se
  *  quedaría sin sesión y con la pantalla a medias. Así, un fallo deja la sesión de antes intacta y se puede cancelar.
+ *
+ *  EL MODO «LA SESIÓN VENCIÓ» (pedido del usuario): el mismo formulario se abre solo cuando una petición de
+ *  sessionAxios.js recibe 401. Se apunta en sessionGate.js al montarse. Entrar hace lo mismo que el cambio —Redux,
+ *  sessionStorage, sin recargar—, pero no avisa con el BoxModal: contesta a la petición que espera ({ entered,
+ *  sameUser }), que se repite sola si entró el mismo usuario, y el formulario que la hizo dice cómo acabó. Cancelar
+ *  le contesta que no.
  */
 
 
@@ -70,18 +77,49 @@ export default function useSwitchUser() {
     // failure = «el último error», { field, text }; null = sin error
     const [failure, setFailure] = useState(null);
 
+    // mode = «para qué está abierto»: 'switch' (la tecla de la barra) o 'expired' (una petición recibió 401)
+    const [mode, setMode] = useState('switch');
+
+    // finishRef = «a quién se le contesta» en el modo 'expired' (sessionGate.js); null si nadie espera
+    const finishRef = useRef(null);
+
+    // answer = «contestar a la petición que espera», una vez. Sin nadie esperando, no hace nada.
+    const answer = useCallback((outcome) => {
+        const finish = finishRef.current;
+        finishRef.current = null;
+        finish?.(outcome);
+    }, []);
+
+    //  Abrirse solo cuando la sesión venza (sessionAxios.js). Al desmontarse, a quien espere se le contesta que no:
+    //  si no, su petición se quedaría esperando un formulario que ya no está.
+    useEffect(() => {
+        const stopListening = onSessionExpired((finish) => {
+            finishRef.current = finish;
+            setFailure(null);
+            setMode('expired');
+            setOpen(true);
+        });
+        return () => {
+            stopListening();
+            answer({ entered: false });
+        };
+    }, [answer]);
+
 
     const openDialog = useCallback(() => {
         setFailure(null);
+        setMode('switch');
         setOpen(true);
     }, []);
 
-    // Mientras se envía no se cierra: la respuesta llegaría con el formulario ya fuera.
+    // Mientras se envía no se cierra: la respuesta llegaría con el formulario ya fuera. Cerrar sin entrar, en el modo
+    // 'expired', es contestar que no.
     const closeDialog = useCallback(() => {
         if (sending) return;
         setFailure(null);
         setOpen(false);
-    }, [sending]);
+        answer({ entered: false });
+    }, [sending, answer]);
 
     // Al volver a escribir en el campo que falló, el aviso sobra.
     const clearFailure = useCallback(() => setFailure(null), []);
@@ -112,9 +150,17 @@ export default function useSwitchUser() {
 
             setOpen(false);
 
+            const sameUser = String(nextUser._id) === String(currentUser?._id);
+
+            // La sesión había vencido: se le contesta a la petición que espera, que se repite si es el mismo usuario.
+            // Sin BoxModal: el formulario que la hizo dice cómo acabó.
+            if (finishRef.current) {
+                answer({ entered: true, sameUser });
+                return true;
+            }
+
             // El aviso de que salió bien (pedido del usuario). Si se volvió a entrar con el mismo usuario, no se
             // dice que se cerró la sesión de nadie.
-            const sameUser = String(nextUser._id) === String(currentUser?._id);
             dispatch(showBoxModal({
                 tone: 'success',
                 title: 'Cambio de usuario exitoso',
@@ -131,8 +177,8 @@ export default function useSwitchUser() {
         finally {
             setSending(false);
         }
-    }, [dispatch, currentUser]);
+    }, [dispatch, currentUser, answer]);
 
 
-    return { currentUser, open, sending, failure, openDialog, closeDialog, clearFailure, switchTo };
+    return { currentUser, open, mode, sending, failure, openDialog, closeDialog, clearFailure, switchTo };
 }

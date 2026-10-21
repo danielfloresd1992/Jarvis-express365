@@ -1,11 +1,15 @@
 import axiosInstance from './instanceAxios';
+import sessionAxios from './sessionAxios.js';
 import IP from './dataFetch';
 
 
 
+// setNovelty y saveVideo, las de los formularios, van por sessionAxios: si la sesión venció, se vuelve a entrar sin
+// recargar y la petición se repite. Las de la bandeja del Toast POS siguen por instanceAxios: las usa también la
+// ventana flotante, que no tiene ese formulario.
 export const setNovelty = dataForRequest => {
     return new Promise((resolve, reject) => {
-        axiosInstance.post(`${IP}/novelties`, dataForRequest)
+        sessionAxios.post(`${IP}/novelties`, dataForRequest)
             .then(response => resolve(response))
             .catch(error => reject(error));
     });
@@ -21,7 +25,7 @@ export const saveVideo = (file) => {
         if (!file) return resolve(null);
         const formData = new FormData();
         formData.append('video', file);
-        axiosInstance.post(`${IP}/novelty/video`, formData)
+        sessionAxios.post(`${IP}/novelty/video`, formData)
             .then(response => resolve(response))
             .catch(error => reject(error));
     });

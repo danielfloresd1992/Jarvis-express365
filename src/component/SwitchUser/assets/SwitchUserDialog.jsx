@@ -31,16 +31,39 @@ function EyeIcon({ crossed }) {
 }
 
 
-/*  @param {object}   currentUser  quién tiene la sesión ahora
+// WORDS = «lo que dice el formulario en cada modo»: cambiar de usuario (la tecla) o volver a entrar (la sesión venció,
+// useSwitchUser). En el segundo, el usuario ya va escrito: lo normal es que vuelva a entrar el mismo.
+const WORDS = {
+    switch: {
+        title: 'Cambiar de usuario',
+        subtitle: 'Las mesas y lo que tengas abierto se quedan como están.',
+        eyebrow: 'Usuario nuevo',
+    },
+    expired: {
+        title: 'Tu sesión venció',
+        subtitle: 'Vuelve a entrar para seguir. Lo que estabas enviando se manda solo al entrar, y lo demás se queda como está.',
+        eyebrow: 'Entrar de nuevo',
+    },
+};
+
+// loginNameOf = «el usuario con que se entra», si la sesión lo trae (el campo 'user' del usuario); '' si no
+const loginNameOf = (user) => (typeof user?.user === 'string' ? user.user : '');
+
+
+/*  @param {string}   mode         'switch' (por defecto) o 'expired' (la sesión venció: volver a entrar)
+ *  @param {object}   currentUser  quién tiene la sesión ahora
  *  @param {boolean}  sending      se está entrando: los campos y las teclas quedan quietos
  *  @param {object}   failure      el último error, { field, text } (null = ninguno)
  *  @param {function} onSubmit     entrar con { user, password }
  *  @param {function} onCancel     cerrar sin cambiar nada
  *  @param {function} onEdit       se volvió a escribir: el aviso de error sobra
  */
-export default function SwitchUserDialog({ currentUser, sending, failure, onSubmit, onCancel, onEdit }) {
+export default function SwitchUserDialog({ mode = 'switch', currentUser, sending, failure, onSubmit, onCancel, onEdit }) {
 
-    const [userName, setUserName] = useState('');
+    const expired = mode === 'expired';
+    const words = WORDS[expired ? 'expired' : 'switch'];
+
+    const [userName, setUserName] = useState(() => (expired ? loginNameOf(currentUser) : ''));
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
@@ -83,8 +106,11 @@ export default function SwitchUserDialog({ currentUser, sending, failure, onSubm
         if (failure) onEdit();
     };
 
+    // passwordFirst = «el usuario ya va escrito»: el cursor empieza en la clave
+    const passwordFirst = expired && loginNameOf(currentUser) !== '';
+
     return createPortal(
-        <div className='switch-user-backdrop'>
+        <div className={`switch-user-backdrop ${expired ? 'switch-user-backdrop--expired' : ''}`}>
             <div className='switch-user-dialog' role='dialog' aria-modal='true' aria-labelledby={ids.title}>
 
                 <header className='switch-user-dialog__header'>
@@ -98,15 +124,15 @@ export default function SwitchUserDialog({ currentUser, sending, failure, onSubm
                         </svg>
                     </span>
                     <div>
-                        <h2 id={ids.title} className='switch-user-dialog__title'>Cambiar de usuario</h2>
-                        <p className='switch-user-dialog__subtitle'>Las mesas y lo que tengas abierto se quedan como están.</p>
+                        <h2 id={ids.title} className='switch-user-dialog__title'>{words.title}</h2>
+                        <p className='switch-user-dialog__subtitle'>{words.subtitle}</p>
                     </div>
                 </header>
 
-                <CurrentUserCard user={currentUser} />
+                <CurrentUserCard user={currentUser} expired={expired} />
 
                 <form className='switch-user-form' onSubmit={submit} noValidate>
-                    <span className='switch-user-eyebrow'>Usuario nuevo</span>
+                    <span className='switch-user-eyebrow'>{words.eyebrow}</span>
 
                     <div className='switch-user-field'>
                         <label className='switch-user-field__label' htmlFor={ids.user}>Usuario</label>
@@ -124,7 +150,7 @@ export default function SwitchUserDialog({ currentUser, sending, failure, onSubm
                                 autoComplete='off'
                                 autoCapitalize='off'
                                 spellCheck='false'
-                                autoFocus
+                                autoFocus={!passwordFirst}
                                 placeholder='Ingresa el usuario'
                                 value={userName}
                                 onChange={edit(setUserName)}
@@ -149,6 +175,7 @@ export default function SwitchUserDialog({ currentUser, sending, failure, onSubm
                                 id={ids.password}
                                 className='switch-user-field__input'
                                 type={showPassword ? 'text' : 'password'}
+                                autoFocus={passwordFirst}
                                 autoComplete='new-password'
                                 placeholder='Ingresa la contraseña'
                                 value={password}
