@@ -7,6 +7,7 @@ import { socketAppManager } from '../../store/slices/socketio.js';
 import { useSocketConnected } from '../../hook/useSocketConnected.js';
 import { getMessageForChat, setMessageForChat } from '../../libs/fetch_data/chatFetch.js';
 import { requestNotificationPermission, pushOSNotification } from '../../libs/osNotification.js';
+import StampCards from '../StampCards/stampCards.controller.jsx';
 
 
 
@@ -339,19 +340,26 @@ function Chat() {
                                     </form>
                                 </div>
 
-                                {/*  Dice si el socket del chat está conectado: es el aviso, sin bloquear, de que se
-                                     perdió la conexión (antes un alert(), store/slices/socketio.js)  */}
-                                <div
+                                {/*  El botón del chat, pequeño (pedido del usuario: el resto de la barra es de las tarjetas
+                                     de sellos). Dice si el socket del chat está conectado: es el aviso, sin bloquear, de
+                                     que se perdió la conexión (antes un alert(), store/slices/socketio.js)  */}
+                                <button
+                                    type='button'
                                     className={`chat-banner ${socketConnected ? '' : 'chat-banner--offline'}`}
                                     onClick={() => setWindowState(!hiddenWindowState)}
-                                    role='status'
+                                    aria-expanded={hiddenWindowState}
+                                    title={socketConnected ? 'Chat Jarvis activo' : 'Chat Jarvis sin conexión · reintentando'}
                                 >
-                                    {socketConnected ? 'Chat Jarvis activo' : 'Chat Jarvis sin conexión · reintentando'}
-                                </div>
+                                    <span role='status'>{socketConnected ? 'Chat Jarvis' : 'Chat sin conexión'}</span>
+                                </button>
                             </div>
                             :
                             null
                     }
+
+                    {/*  Las tarjetas de sellos: las novedades de hoy con su validación. Con 'row-reverse', lo que va
+                         después en el código queda a la IZQUIERDA del chat  */}
+                    <StampCards />
 
                 </div>
             </>

@@ -1,0 +1,587 @@
+/* ============================================
+   LAS TARJETAS DE SELLOS (stampCards.controller.jsx)
+
+   La franja va en la barra de abajo (.chat-component, 32px), a la
+   izquierda del chat; el panel y el aviso suben desde ella.
+
+   Tinta verde para lo aprobado (el sello), ámbar a trazos para lo
+   que espera validación (el lápiz), punteado para lo vacío. Los
+   colores son los de la casa (index.css, --color-jx-*).
+   ============================================ */
+
+.stamp-cards {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 0.75rem;
+}
+
+
+/* ── La franja ── */
+.stamp-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    height: 100%;
+}
+
+.stamp-strip__toggle {
+    flex: none;
+    height: 24px;
+    padding: 0 0.6rem 0 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--color-jx-tinta);
+    border-radius: 12px;
+    background: var(--color-jx-tinta);
+    color: #fbf8f0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.stamp-strip__toggle svg {
+    color: #9be08a;
+}
+
+.stamp-strip__toggle:hover {
+    background: #463f2f;
+}
+
+.stamp-strip__toggle:focus-visible {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: 2px;
+}
+
+.stamp-strip__bonus {
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+}
+
+.stamp-strip__note {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-strip__note--warning {
+    color: var(--color-jx-aviso-texto);
+    font-weight: 600;
+}
+
+.stamp-strip__chips {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+}
+
+.stamp-strip__counts {
+    flex: none;
+    font-size: 0.75rem;
+    color: var(--color-jx-tinta2);
+    white-space: nowrap;
+}
+
+.stamp-strip__pending {
+    color: var(--color-jx-aviso-texto);
+}
+
+.stamp-strip__rejected {
+    color: var(--color-jx-critico-texto);
+}
+
+
+/* ── Una tarjeta en la barra ── */
+.stamp-chip {
+    flex: none;
+    height: 22px;
+    max-width: 14rem;
+    padding: 0 0.55rem;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 11px;
+    background: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-jx-tinta);
+}
+
+.stamp-chip__name {
+    min-width: 0;
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stamp-chip__dots {
+    display: inline-flex;
+    gap: 3px;
+}
+
+.stamp-chip__count {
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.stamp-chip--full {
+    border-color: var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-suave);
+    color: var(--color-jx-verde-texto);
+}
+
+.stamp-chip--fresh {
+    animation: stamp-chip-blink 2.2s ease-out;
+}
+
+.stamp-chip--more {
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-dot {
+    width: 9px;
+    height: 9px;
+    box-sizing: border-box;
+    border-radius: 50%;
+}
+
+.stamp-dot--approved {
+    background: var(--color-jx-verde-barra);
+}
+
+.stamp-dot--pending {
+    border: 2px dashed #a8770f;
+    animation: stamp-waiting 1.8s ease-in-out infinite;
+}
+
+.stamp-dot--empty {
+    border: 1.5px dotted var(--color-jx-tinta4);
+}
+
+
+/* ── El panel ── */
+.stamp-panel {
+    position: absolute;
+    left: 0.75rem;
+    bottom: calc(100% + 8px);
+    width: min(580px, calc(100vw - 2rem));
+    max-height: calc(100vh - var(--titlebar-h, 32px) - 32px - 5rem);
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    background: #ffffff;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(47, 42, 30, 0.16);
+    color: var(--color-jx-tinta);
+}
+
+.stamp-panel__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.stamp-panel__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.stamp-panel__hint {
+    margin: 0.15rem 0 0;
+    font-size: 0.75rem;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-panel__total {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.stamp-panel__number {
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stamp-panel__unit {
+    font-size: 0.72rem;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-panel__cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+}
+
+.stamp-panel__empty {
+    margin: 0;
+    padding: 0.75rem;
+    border-radius: 10px;
+    background: var(--color-jx-lienzo);
+    font-size: 0.8rem;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-panel__empty--warning {
+    background: var(--color-jx-aviso-suave);
+    color: var(--color-jx-aviso-texto);
+    font-weight: 600;
+}
+
+.stamp-panel__note {
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--color-jx-tinta2);
+}
+
+
+/* ── Una tarjeta ── */
+.stamp-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 12px;
+    background: var(--color-jx-lienzo);
+}
+
+.stamp-card--full {
+    border: 1.5px solid var(--color-jx-verde-barra);
+    background: var(--color-jx-verde-suave);
+}
+
+.stamp-card--celebrate {
+    animation: stamp-glow 2.2s ease-out;
+}
+
+.stamp-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.stamp-card__title {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.stamp-card__rule {
+    flex: none;
+    padding: 1px 0.45rem;
+    border-radius: 999px;
+    background: var(--color-jx-panel);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-card__slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.stamp-card__foot,
+.stamp-card__today {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-card__foot b {
+    color: var(--color-jx-tinta);
+}
+
+.stamp-card__foot .stamp-card__done {
+    color: var(--color-jx-verde-texto);
+}
+
+.stamp-card__waiting {
+    color: var(--color-jx-aviso-texto);
+    font-weight: 700;
+}
+
+
+/* ── Una casilla ── */
+.stamp {
+    width: 46px;
+    height: 46px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.66rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.stamp__table {
+    font-size: 0.56rem;
+}
+
+.stamp--approved {
+    border: 2.5px solid var(--color-jx-verde-barra);
+    box-shadow: inset 0 0 0 3px #ffffff, inset 0 0 0 4.5px var(--color-jx-verde-barra);
+    color: var(--color-jx-verde-texto);
+    background: #ffffff;
+    transform: rotate(-8deg);
+}
+
+.stamp--pending {
+    border: 2px dashed #a8770f;
+    color: var(--color-jx-aviso-texto);
+    font-weight: 700;
+    animation: stamp-waiting 1.8s ease-in-out infinite;
+}
+
+.stamp--empty {
+    border: 2px dotted var(--color-jx-tinta4);
+}
+
+.stamp--fresh {
+    animation: stamp-slam 0.9s ease-out;
+}
+
+.stamp-card__slots--many .stamp {
+    width: 34px;
+    height: 34px;
+    font-size: 0.55rem;
+}
+
+.stamp-card__slots--many .stamp__table {
+    display: none;
+}
+
+
+/* ── Las listas sin sello ── */
+.stamp-list__title {
+    margin: 0 0 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-list--rejected .stamp-list__title {
+    color: var(--color-jx-critico-texto);
+}
+
+.stamp-list__hint {
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.stamp-list__rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.stamp-list__row {
+    display: grid;
+    grid-template-columns: 2.8rem minmax(0, 1fr);
+    column-gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.stamp-list__time {
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-variant-numeric: tabular-nums;
+}
+
+.stamp-list__why {
+    grid-column: 2;
+    color: var(--color-jx-tinta2);
+}
+
+.stamp-list--rejected .stamp-list__row {
+    padding: 0.35rem 0.5rem;
+    border-radius: 8px;
+    background: var(--color-jx-critico-suave);
+}
+
+.stamp-list--rejected .stamp-list__why {
+    color: var(--color-jx-tinta);
+    font-weight: 600;
+}
+
+
+/* ── ¡Tarjeta llena! ── */
+.stamp-toast {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%);
+    width: min(380px, calc(100vw - 2rem));
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: var(--color-jx-tinta);
+    color: #fbf8f0;
+    box-shadow: 0 14px 34px rgba(47, 42, 30, 0.3);
+    animation: stamp-pop 0.45s ease-out both;
+}
+
+.stamp-toast__seal {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 3px solid #9be08a;
+    box-shadow: inset 0 0 0 4px var(--color-jx-tinta), inset 0 0 0 6px #9be08a;
+    color: #9be08a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    line-height: 1.1;
+    transform: rotate(-8deg);
+    animation: stamp-slam 0.9s ease-out 0.2s both;
+}
+
+.stamp-toast__amount {
+    font-size: 1.05rem;
+}
+
+.stamp-toast__word {
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.stamp-toast__text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.stamp-toast__kicker {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #f2d18a;
+}
+
+.stamp-toast__title {
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.stamp-toast__detail {
+    font-size: 0.78rem;
+    color: #e6dcc8;
+}
+
+.stamp-toast__close {
+    align-self: flex-start;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: #e6dcc8;
+    cursor: pointer;
+}
+
+.stamp-toast__close:hover {
+    background: rgba(251, 248, 240, 0.12);
+}
+
+
+/* ── Animaciones ── */
+@keyframes stamp-slam {
+    0% { transform: scale(2.2) rotate(-24deg); opacity: 0; }
+    45% { transform: scale(0.92) rotate(-6deg); opacity: 1; }
+    65% { transform: scale(1.04) rotate(-9deg); }
+    100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+
+@keyframes stamp-waiting {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+@keyframes stamp-glow {
+    0% { box-shadow: 0 0 0 0 rgba(28, 140, 8, 0); }
+    40% { box-shadow: 0 0 0 6px rgba(28, 140, 8, 0.28); }
+    100% { box-shadow: 0 0 0 12px rgba(28, 140, 8, 0); }
+}
+
+@keyframes stamp-chip-blink {
+    0%, 50% { background: #d9f0d2; }
+    100% { background: var(--color-jx-verde-suave); }
+}
+
+@keyframes stamp-pop {
+    0% { transform: translateX(-50%) scale(0.7); opacity: 0; }
+    60% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stamp--fresh,
+    .stamp--pending,
+    .stamp-dot--pending,
+    .stamp-chip--fresh,
+    .stamp-card--celebrate,
+    .stamp-toast,
+    .stamp-toast__seal {
+        animation: none;
+    }
+}
