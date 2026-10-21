@@ -1768,6 +1768,104 @@
     white-space: nowrap;
 }
 
+/*  LA DEMORA DE PREPARACIÓN (PreparationAlert, pedido del usuario): un plato de cocina tapado, blanco sobre un círculo
+    rojo, que titila en la Duración de la tablet de un proceso. Mismo latido que el marco de la demora —solo opacidad,
+    1,1 s— pero más hondo, y nunca del todo apagado: es un botón. Al pasar el ratón se queda quieto y más oscuro.  */
+.register-kitchen {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-jx-critico-texto);
+    color: #ffffff;
+    animation: register-kitchen 1.1s ease-in-out infinite;
+    transition: background-color 0.15s ease;
+}
+
+.register-kitchen:hover { animation: none; background: color-mix(in srgb, var(--color-jx-critico-texto) 75%, #000000); }
+.register-kitchen:focus-visible { outline: 2px solid var(--color-jx-critico); outline-offset: 1px; animation: none; }
+
+@keyframes register-kitchen {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .register-kitchen { animation: none; }
+}
+
+/*  EL AVISO DE UNA FILA (noticeBanner en RegisterRecordRow; pedido del usuario: dentro de la Duración de la primera
+    atención no se veía). Una franja ámbar con 'absolute' encima de TODA la fila de la rotación: el triángulo, la
+    frase en tinta y negrita y, a la derecha, la ✕. Por encima de las celdas y de su marco que late, y por debajo de
+    lo que flota (los toques, el aviso de limpiar). Entra con un fundido corto, solo de opacidad; quieta para quien
+    pide menos movimiento. Toda ella cierra el aviso al pulsarla.  */
+.register-notice {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 36px 0 14px;
+    background: var(--color-jx-ocre-suave);
+    box-shadow: inset 4px 0 0 var(--color-jx-ocre), inset 0 0 0 1px var(--color-jx-ocre);
+    color: var(--color-jx-tinta);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    animation: register-notice-in 0.15s ease-out;
+}
+
+.register-notice__icon { flex: none; color: var(--color-jx-ocre-texto); }
+
+.register-notice__text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.register-notice__close {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-jx-tinta2);
+    transform: translateY(-50%);
+}
+
+.register-notice__close:hover { background: color-mix(in srgb, var(--color-jx-tinta) 10%, transparent); color: var(--color-jx-tinta); }
+.register-notice__close:focus-visible { outline: 2px solid var(--color-jx-ocre-texto); outline-offset: 1px; }
+
+@keyframes register-notice-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .register-notice { animation: none; }
+}
+
+/*  En la Duración de un proceso no cabe «Reportada» al lado de la hora: solo la bandera (el 'title' dice lo demás).  */
+.register-process-line .register-reported__label { display: none; }
+.register-process-line .register-reported { width: 18px; padding: 0; justify-content: center; }
+
 /*  En una tabla estrecha no caben la hora y la palabra: se queda el icono (el 'title' dice lo demás). Mide la
     tabla, no la ventana: es el contenedor de RegisterTable ('@container').  */
 @container (max-width: 1000px) {

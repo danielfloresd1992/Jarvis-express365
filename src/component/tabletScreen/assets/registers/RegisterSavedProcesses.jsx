@@ -1,5 +1,5 @@
 import { WrapperText } from '../../../cells/GridCells.jsx';
-import { DISH_TYPES } from '../../../../libs/tickets/tableRecords.js';
+import { DISH_TYPES, optionsWith } from '../../../../libs/tickets/dishTypes.js';
 import SavedTextInput from './SavedTextInput.jsx';
 
 
@@ -26,8 +26,9 @@ const HOURS = [
 
 /*  @param {Array}    processes  los procesos de la rotación, como los devuelve la API
  *  @param {function} onEdit     corrige un dato: (data, id) — ver editSaved en Registers
+ *  @param {Array}    dishOptions  las opciones del tipo de plato: la carta del local o, sin ella, la lista de siempre (dishTypes.js)
  */
-export default function RegisterSavedProcesses({ processes, onEdit }) {
+export default function RegisterSavedProcesses({ processes, onEdit, dishOptions = DISH_TYPES }) {
     return (
         <div className='register-saved-processes' aria-label='Procesos de esta mesa'>
 
@@ -52,10 +53,11 @@ export default function RegisterSavedProcesses({ processes, onEdit }) {
                                 value={process.dishType}
                                 disabled={!edit}
                                 onChange={event => edit('dishType')(event.target.value)}
+                                title={process.dishType || undefined}
                                 aria-label='Tipo de plato'
                             >
                                 <option value=''>-</option>
-                                {DISH_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                                {optionsWith(dishOptions, process.dishType).map(type => <option key={type} value={type}>{type}</option>)}
                             </select>
 
                             {HOURS.map(hour => <WrapperText key={hour.id} value={process[hour.id]} updateValue={edit?.(hour.id)} compact />)}

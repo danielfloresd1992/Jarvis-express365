@@ -33,6 +33,43 @@ export function reportDescription(kind, { table, start, end, total, limit }) {
 }
 
 
+// SHIFT_WORDS = «cómo se dice cada turno»
+const SHIFT_WORDS = { day: 'de día', night: 'de noche' };
+
+
+/*  preparationDescription = «la descripción de una demora de preparación» (pedido del usuario)
+ *
+ *  Para el formulario «Tablet» abierto desde el icono de cocina de un proceso en Mesas: el ticket, la mesa (si la
+ *  tiene: un pedido para llevar no), el plato, de la toma de orden a listo en tablet, listo en cocina, lo que tardó y
+ *  el tiempo de preparación del plato en el turno con que Mesas la marcó.
+ *
+ *      Ticket #21 · mesa 20 · Cheeseburger: se tomó la orden a las 11:00:00 y se marcó listo en tablet a las
+ *      11:14:30; listo en cocina a las 11:16:00. Tardó 00:14:30, más que el tiempo de preparación del plato de día
+ *      (00:12:00). Adjunta la captura y envía la alerta.
+ *
+ *  @param {object} fields  { ticket, table, dish, start, end, kitchen, total, limit, shift, photos }: el ticket, la mesa,
+ *                          el nombre del plato, la toma de orden, listo en tablet, listo en cocina, lo que tardó, el
+ *                          tiempo del plato, el turno ('day' | 'night') y cuántas capturas pide la alerta. Pueden
+ *                          faltar todos menos las dos primeras horas.
+ */
+export function preparationDescription({ ticket, table, dish, start, end, kitchen, total, limit, shift, photos = 1 }) {
+    const who = [
+        `Ticket #${String(ticket ?? '').trim() || '?'}`,
+        String(table ?? '').trim() && `mesa ${String(table).trim()}`,
+        String(dish ?? '').trim(),
+    ].filter(Boolean).join(' · ');
+
+    const kitchenPart = String(kitchen ?? '').trim() ? `; listo en cocina a las ${String(kitchen).trim()}` : '';
+
+    const limitPart = limit ? `, más que el tiempo de preparación del plato${SHIFT_WORDS[shift] ? ` ${SHIFT_WORDS[shift]}` : ''} (${limit})` : '';
+    const tookPart = String(total ?? '').trim() ? ` Tardó ${String(total).trim()}${limitPart}.` : '';
+
+    const capturesPart = photos > 1 ? `las ${photos} capturas` : 'la captura';
+
+    return `${who}: se tomó la orden a las ${start || '?'} y se marcó listo en tablet a las ${end || '?'}${kitchenPart}.${tookPart} Adjunta ${capturesPart} y envía la alerta.`;
+}
+
+
 // WAITING = «cómo se cuenta cada espera que sigue abierta»: desde qué y qué le falta todavía
 const WAITING = {
     'primera atención': { start: 'se ocupó', missing: 'sigue sin primera atención' },

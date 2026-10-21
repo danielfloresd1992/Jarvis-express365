@@ -51,8 +51,9 @@ function secondsOf(time) {
  *                                       (addRecovered, en useSavedRotations). Sin ella no se ofrece agregar.
  *  @param {string}   defaultShift       el turno de la barra: con él empieza la rotación nueva, y a su carpeta del NAS va
  *                                       el Excel de «Todas»
+ *  @param {Array}    dishOptions        las opciones del tipo de plato de los procesos (dishTypes.js)
  */
-export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport, onDownload, onAddRotation, defaultShift }) {
+export default function RegisterSaved({ saved, establishmentName, attentionLimit, cleaningLimit, onRetry, onEdit, onAddTouch, onDeleteTouch, editNotice, managers, onExport, onDownload, onAddRotation, defaultShift, dishOptions }) {
 
     const { status, day, documents, message } = saved;
 
@@ -171,6 +172,7 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
                                     onAddTouch={onAddTouch}
                                     onDeleteTouch={onDeleteTouch}
                                     managers={managers}
+                                    dishOptions={dishOptions}
                                 />
                             ))}
                         </div>

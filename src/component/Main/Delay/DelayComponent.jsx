@@ -23,7 +23,8 @@ import NoComanda from './no_comanda/NoComanda.jsx'
 /*  @param {object} reporteDemora  un reporte que llegó del register de la tablet (su reloj rojo).
  *                                 Cuando viene, se abre directamente SU formulario con sus
  *                                 datos ya puestos: el de primera atención o, si su 'tipo' es
- *                                 'limpieza', el de limpieza (ver tipoDe).
+ *                                 'limpieza', el de limpieza (ver tipoDe). Si es 'tablet', el de
+ *                                 la demora de preparación de un pedido (el icono de cocina).
  *
  *                                 Mientras ese reporte está abierto, el menú de botones
  *                                 NO se enseña (pedido del usuario): se viene a reportar
@@ -36,7 +37,7 @@ import NoComanda from './no_comanda/NoComanda.jsx'
  */
 
 
-// tipoDe = «qué formulario pide un reporte»: su 'tipo' ('primera atención' o 'limpieza', los mismos 'id' de los
+// tipoDe = «qué formulario pide un reporte»: su 'tipo' ('primera atención', 'limpieza' o 'tablet', los mismos 'id' de los
 // botones de abajo). Sin 'tipo' es de primera atención: así llegaban todos antes de existir la limpieza, también
 // los de una ventana flotante sin actualizar.
 const tipoDe = (reporte) => reporte?.tipo ?? 'primera atención';
@@ -122,7 +123,7 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
             case 'limpieza': return <Divclear key={datosPara('limpieza')?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[1]} datosIniciales={datosPara('limpieza')} />;
             case 'servicio': return <Servises awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[2]} />;
             case 'plato': return <DelayDish awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[3]} />;
-            case 'tablet': return <TabletDelay awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[4]} />;
+            case 'tablet': return <TabletDelay key={datosPara('tablet')?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[4]} datosIniciales={datosPara('tablet')} />;
             case 'tablet-touch': return <TabletTouch awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '67893e1e35aa90710e005d09')} />
             case 'tablet-tiket': return <ErrorTiket awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '67fe7590e3a4f498308de7e1')} />;
             case 'tablet-no-comanda': return <NoComanda awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '6a70d377003e6d1c9effbc76')} />;

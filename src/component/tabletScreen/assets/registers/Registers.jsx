@@ -44,7 +44,7 @@ import useStaleRotations from '../../hook/useStaleRotations.jsx';
  */
 export default function Registers({ session, establishment = session.establishment }) {
 
-    const { reading, tracking, store, savedRotations, attention, cleaning, attentionOrigin, cleaningOrigin, clearRegister, reportDelay, shift, shiftLocked, toggleShift } = session;
+    const { reading, tracking, store, savedRotations, attention, cleaning, attentionOrigin, cleaningOrigin, clearRegister, reportDelay, shift, shiftLocked, toggleShift, dishTypes } = session;
     const { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, addRecovered, exportSaved } = savedRotations;
 
     // managers = «los botones de los gerentes del local» (managers.js). Se arman una vez por local: un
@@ -119,6 +119,7 @@ export default function Registers({ session, establishment = session.establishme
                     onDownload={downloadWithManagers}
                     onAddRotation={addRecoveredHere}
                     defaultShift={shift}
+                    dishOptions={dishTypes.options}
                 />
             </RegisterTabPanel>
 
@@ -156,6 +157,7 @@ export default function Registers({ session, establishment = session.establishme
                     establishmentId={establishment?._id}
                     onSaved={rememberSaved}
                     stale={stale}
+                    dishTypes={dishTypes}
                 />
             </RegisterTabPanel>
         </>

@@ -23,3 +23,17 @@ export const getTimeServices = (id) => {
             .catch(error => reject(error));
     });
 };
+
+
+// getDishes = «la carta del local»: sus platos ({ _id, nameDishe, category… }), o [] si no tiene. Solo con 'dishes'
+// poblado: la versión ligera del local los trae como simples _id.
+export const getDishes = (id) => {
+    return new Promise((resolve, reject) => {
+        axiosInstance.get(`${IP}/local/id=${id}?populate=dishes`)
+            .then(response => {
+                const dishes = response.data?.dishes;
+                resolve(Array.isArray(dishes) ? dishes.filter(dish => dish && typeof dish === 'object') : []);
+            })
+            .catch(error => reject(error));
+    });
+};

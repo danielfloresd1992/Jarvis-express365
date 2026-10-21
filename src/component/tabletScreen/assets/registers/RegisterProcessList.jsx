@@ -32,8 +32,14 @@ const BRANCH_INDENT = 28;
  *  @param {function} writeProcess  anota (id de la rotación, id del proceso, campo, valor)
  *  @param {function} deleteProcess borra un proceso (id de la rotación, id del proceso)
  *  @param {number}   widthOfManagers  lo que mide la columna de los gerentes (0 = no hay)
+ *  @param {object}   dishTypes     el tipo de plato del local (createDishTypes, en dishTypes.js): sus opciones y el
+ *                                  tiempo de preparación de cada plato
+ *  @param {string}   shift         el turno con que se mide la preparación: 'day' o 'night'
+ *  @param {object}   overdue       lo que dice el bucle de la rotación (useRotationLoop): 'prep:<id del proceso>' es
+ *                                  true si ese pedido pasó de su tiempo sin estar listo en tablet
+ *  @param {function} onReportPreparation  pedir el reporte de la demora de preparación de un proceso: (proceso)
  */
-export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers }) {
+export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers, dishTypes, shift, overdue, onReportPreparation }) {
     return (
         <div
             className='register-rotation__processes'
@@ -74,6 +80,10 @@ export default function RegisterProcessList({ record, liveByKey, writeProcess, d
                             key={process.id}
                             process={process}
                             live={process.key ? liveByKey.get(process.key) : undefined}
+                            dishOptions={dishTypes?.options}
+                            limit={dishTypes?.limitOf(process.dishType, shift) ?? ''}
+                            waitingTooLong={overdue?.[`prep:${process.id}`] === true}
+                            onReportPreparation={() => onReportPreparation?.(process)}
                             onWrite={(field, value) => writeProcess(record.id, process.id, field, value)}
                             onDelete={() => deleteProcess(record.id, process.id)}
                         />

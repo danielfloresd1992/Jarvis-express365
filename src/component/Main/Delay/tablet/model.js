@@ -8,7 +8,10 @@ const TABLET_RULES = [
 ];
 
 
-function checkTime(rule, timeTotalResult) {
+// checkTime = «la preparación pasó del tiempo del plato ('rule', un plato de la carta) en su turno»
+// 'shift' ('day' | 'night') es opcional: lo manda Mesas, el turno de la rotación con que marcó la demora. Sin él, la
+// hora del equipo: de noche desde las 18:00.
+function checkTime(rule, timeTotalResult, shift) {
 
     const resultData = {
         approval: false,
@@ -24,7 +27,8 @@ function checkTime(rule, timeTotalResult) {
     const calendar = new Date();
     const hour = calendar.getHours();
 
-    const timeSelkectShift = hour >= 18 ? rule.timeLimit.night : rule.timeLimit.day;
+    const night = shift ? shift === 'night' : hour >= 18;
+    const timeSelkectShift = night ? rule.timeLimit.night : rule.timeLimit.day;
 
 
     resultData.approval = isTimeGreaterThanOther(timeTotalResult, timeSelkectShift);

@@ -15,7 +15,11 @@ import RegisterProcessList from './RegisterProcessList.jsx';
 import RegisterTouchList from './RegisterTouchList.jsx';
 import TouchToggle from './TouchToggle.jsx';
 import SaveRecordButton from './SaveRecordButton.jsx';
+import { missingForPreparation, isPreparationLate } from './PreparationAlert.jsx';
 import { saveRecord } from '../../../../libs/fetch_data/rotationFetching.js';
+import { SHIFTS } from '../../../../libs/tickets/tableRecords.js';
+import { shiftOfTime } from '../../../../libs/date_time/operationalDay.js';
+import { clockNow } from '../../../../libs/date_time/waitingTime.js';
 
 
 /*  UNA ROTACIÓN DEL REGISTER: una mesa, desde que se ocupa hasta que se limpia
@@ -92,8 +96,10 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {number}   widthOfManagers lo que mide su columna, para que los procesos la dejen libre
  *  @param {string}   establishmentId el _id del local: a cuál se guarda la rotación (el disquete)
  *  @param {function} onSaved         opcional. La API guardó la rotación: (la rotación guardada)
+ *  @param {object}   dishTypes       el tipo de plato del local (createDishTypes, en dishTypes.js): las opciones del
+ *                                    select y el tiempo de preparación de cada plato
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved, dishTypes }) {
 
     // open = «los procesos están desplegados»; touchesOpen = «los toques de gerente están desplegados».
     // Salen de la rotación y no de un estado de la fila: así se guardan en el equipo con ella.
@@ -160,12 +166,13 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
 
 
     //  Aviso de la propia fila, no un alert() del sistema: en la aplicación de escritorio un alert es un
-    //  diálogo nativo que CONGELA la ventana entera, incluido el espejo de la tablet.
+    //  diálogo nativo que CONGELA la ventana entera, incluido el espejo de la tablet. Sale encima de toda la
+    //  fila (noticeBanner) y se va solo a los 4 s —una frase entera no se leía en 2,5—, o antes al pulsarlo.
     const [notice, setNotice] = useState('');
 
     useEffect(() => {
         if (!notice) return;
-        const timer = setTimeout(() => setNotice(''), 2500);
+        const timer = setTimeout(() => setNotice(''), 4000);
         return () => clearTimeout(timer);
     }, [notice]);
 
@@ -206,18 +213,25 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     // saving = «se está guardando esta rotación»: el disquete se desactiva hasta que conteste la API
     const [saving, setSaving] = useState(false);
 
+    // shift = «el turno con que se mide la preparación de sus platos»: el de la rotación (stampShift) o, en una de antes
+    // de existir el turno, el que dice la hora del equipo. En los cambios de turno, sin ninguno de los dos, el de día.
+    const shift = SHIFTS.includes(record.shift) ? record.shift : shiftOfTime(clockNow()) ?? 'day';
+
     // loop = «el bucle de la rotación» (useRotationLoop, pedido del usuario): un setInterval que arranca al activarse
     // la rotación —la fila se usa por primera vez y toma fecha— y se para con clearInterval al guardarla (saveOne).
-    // Cada segundo mira sus dos esperas: si lleva demasiado sin primera atención desde Ocupa, sale el triángulo en
-    // Ocupa; si lleva demasiado sin limpiar desde Desocupa, en Desocupa. Un pedido para llevar no lleva ninguna de las
-    // dos horas: no lo necesita.
-    const loop = useRotationLoop({
-        active: Boolean(record.date) && !takeOut,
-        waits: {
-            attention: { since: record.hourOccupies, done: record.hourFirstAttention !== '', limit: attentionLimit },
-            cleaning: { since: record.breakUp, done: record.tableCleaning !== '', limit: cleaningLimit },
-        },
-    });
+    // Cada segundo mira sus esperas: si lleva demasiado sin primera atención desde Ocupa, sale el triángulo en
+    // Ocupa; si lleva demasiado sin limpiar desde Desocupa, en Desocupa. Y por cada pedido ('prep:<id>'), si lleva más
+    // que el tiempo de su plato desde la toma de orden sin estar listo en tablet: el icono de cocina de su proceso. Un
+    // pedido para llevar no tiene Ocupa ni Desocupa, pero sí pedidos: el bucle corre también para él.
+    const waits = {
+        attention: { since: record.hourOccupies, done: record.hourFirstAttention !== '', limit: attentionLimit },
+        cleaning: { since: record.breakUp, done: record.tableCleaning !== '', limit: cleaningLimit },
+    };
+    for (const process of record.process) {
+        waits[`prep:${process.id}`] = { since: process.orderTaking, done: process.markedReadyOnTablet !== '', limit: dishTypes?.limitOf(process.dishType, shift) ?? '' };
+    }
+
+    const loop = useRotationLoop({ active: Boolean(record.date), waits });
 
     // clearRow = «limpiar la fila entera»: la rotación queda en blanco en su sitio, con un id nuevo.
     // Se llama cuando la API confirma que la guardó; con un error la fila se queda como estaba.
@@ -264,8 +278,16 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
             .finally(() => setSaving(false));
     };
 
+    // preparationPending = «algún pedido pasó de su tiempo de preparación y no se ha reportado»: con la lista cerrada, el
+    // icono de cocina no se ve, así que la flecha se pone en rojo
+    const preparationPending = record.process.some(process => !process.preparationDelay
+        && isPreparationLate(process, dishTypes?.limitOf(process.dishType, shift) ?? '', loop.overdue[`prep:${process.id}`]));
+
     // alarm = «la peor alarma de sus procesos», para la cuenta de la flecha cuando está cerrada
-    const alarm = worstAlarm(record.process.map(process => (process.key ? liveByKey.get(process.key)?.color ?? '' : '')));
+    const alarm = worstAlarm([
+        ...record.process.map(process => (process.key ? liveByKey.get(process.key)?.color ?? '' : '')),
+        preparationPending ? 'rojo' : '',
+    ]);
 
 
     // attention = «la duración de la primera atención»: lo que pasa entre que se ocupa la mesa y se la atiende
@@ -350,6 +372,31 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
             : { tipo, aviso: true, recordId: record.id, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: now, demora: waited, limit: attentionLimit });
     };
 
+    // askForPreparation = «pedir el reporte de la demora de preparación de un pedido» (pedido del usuario). Lo pide el
+    // icono de cocina de su proceso (PreparationAlert), y se abre «Demoras» en el formulario «Tablet» (tipo 'tablet', el
+    // id de su botón) con el ticket, la mesa, el plato y sus horas. Hacen falta todas hasta listo en cocina: si falta
+    // alguna, la fila dice cuál. 'processId' es este proceso: al enviar la alerta, el ObjectId de la novedad vuelve a él
+    // ('preparationDelay', reportedDelay.js). 'shift' y 'limit', el turno y el tiempo con que se midió.
+    const askForPreparation = (process) => {
+        const missing = missingForPreparation(process);
+        if (missing) return setNotice(`Para reportarla falta ${missing}`);
+
+        deliver({
+            tipo: 'tablet',
+            recordId: record.id,
+            processId: process.id,
+            tableNumber: takeOut ? '' : record.tableNumber,
+            ticketNumber: process.ticketNumber,
+            dish: dishTypes?.dishOf(process.dishType) ?? null,
+            orderTaking: process.orderTaking,
+            markedReadyOnTablet: process.markedReadyOnTablet,
+            readyInTheKitchen: process.readyInTheKitchen,
+            dishDelivery: process.dishDelivery,
+            shift,
+            limit: dishTypes?.limitOf(process.dishType, shift) ?? '',
+        });
+    };
+
     // deliver = «mandar el reporte a Demoras», y decir en la fila si no se pudo
     const deliver = (report) => {
         if (record.tableNumber === '') return setNotice('Indica el número de mesa');
@@ -386,15 +433,24 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         ? record.process.length > 0 && record.process.every(process => process.dishDelivery !== '')
         : record.tableCleaning !== '';
 
-    // noticeBadge = «el aviso de la fila», en la celda de la Duración de la primera atención: también cuando
-    // esa celda va tachada, porque el aviso de guardar un pedido para llevar sale ahí
-    const noticeBadge = notice && (
-        <span
-            className='min-w-0 truncate rounded font-bold text-jx-tinta bg-jx-ocre'
-            style={{ padding: '2px 6px', fontSize: '9px' }}
-            title={notice}
-        >
-            {notice}
+    // noticeBanner = «el aviso de la fila» (pedido del usuario: dentro de la Duración de la primera atención no se
+    // veía). Una franja ámbar encima de TODA la rotación, con 'absolute' sobre su fila ('relative'), que no ocupa
+    // sitio en la rejilla. Es un <span> y no un <div>: las reglas de las celdas ('register-rotation__row > div', en
+    // registers.css) no la tocan. Al pulsarla se cierra.
+    const noticeBanner = notice && (
+        <span className='register-notice' role='alert' title={notice} onClick={() => setNotice('')}>
+            <svg className='register-notice__icon' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                <path d='M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z' />
+                <path d='M12 9v4' />
+                <path d='M12 17h.01' />
+            </svg>
+            <span className='register-notice__text'>{notice}</span>
+            <button type='button' className='register-notice__close' aria-label='Cerrar el aviso' title='Cerrar'>
+                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.6' strokeLinecap='round' aria-hidden='true'>
+                    <path d='M6 6l12 12' />
+                    <path d='M18 6L6 18' />
+                </svg>
+            </button>
         </span>
     );
 
@@ -469,13 +525,13 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                 </WrapperCell>
 
                 {/*  UN PEDIDO PARA LLEVAR no lleva ninguna de las seis celdas de la mesa: van tachadas
-                     (NotApplicableCell), y la de la Duración conserva el aviso de la fila.  */}
+                     (NotApplicableCell).  */}
                 {
                     takeOut ? (
                         <>
                             <NotApplicableCell />
                             <NotApplicableCell />
-                            <NotApplicableCell title='Pedido para llevar: no lleva primera atención'>{noticeBadge}</NotApplicableCell>
+                            <NotApplicableCell title='Pedido para llevar: no lleva primera atención' />
                             <NotApplicableCell />
                             <NotApplicableCell />
                             <NotApplicableCell title='Pedido para llevar: no lleva limpieza' />
@@ -513,8 +569,6 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                 {attentionReported
                                     ? <ReportedFlag kind='primera atención' />
                                     : attentionLate && <ReportDelayButton table={record.tableNumber} kind='primera atención' onReport={() => askForReport('primera atención')} />}
-
-                                {noticeBadge}
                             </WrapperCell>
 
                             {/*  DESOCUPA. Como Ocupa: si la mesa espera la limpieza más de lo que dice el local, sale el
@@ -594,12 +648,15 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                     )
                 }
 
+                {/*  El aviso de la fila, encima de toda ella  */}
+                {noticeBanner}
+
             </div>
 
             {/*  Los procesos, desplegados debajo  */}
             {
                 open && record.process.length > 0 && (
-                    <RegisterProcessList record={record} liveByKey={liveByKey} writeProcess={writeProcess} deleteProcess={deleteProcess} widthOfManagers={widthOfManagers} />
+                    <RegisterProcessList record={record} liveByKey={liveByKey} writeProcess={writeProcess} deleteProcess={deleteProcess} widthOfManagers={widthOfManagers} dishTypes={dishTypes} shift={shift} overdue={loop.overdue} onReportPreparation={askForPreparation} />
                 )
             }
 

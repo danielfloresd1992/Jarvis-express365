@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useContext } from 'react';
+import { useState, useCallback, useEffect, useContext, useMemo } from 'react';
 import { ReactReduxContext } from 'react-redux';
 import { SHIFTS } from '../../../libs/tickets/tableRecords.js';
 import { showBoxModal } from '../../../store/slices/boxModal.js';
@@ -17,6 +17,8 @@ import { useImageDrag } from './useImageDrag.jsx';
 
 import { limitesDelLocal } from '../../../libs/limites/limitesDelLocal.js';
 import { useTimeServices } from './useTimeServices.jsx';
+import { useDishes } from './useDishes.jsx';
+import { createDishTypes } from '../../../libs/tickets/dishTypes.js';
 import { shiftOfTime } from '../../../libs/date_time/operationalDay.js';
 
 
@@ -64,6 +66,8 @@ import { shiftOfTime } from '../../../libs/date_time/operationalDay.js';
  *      savedRotations, zoom, drag, capture
  *      shift, shiftLocked, toggleShift               el turno con que nacen las rotaciones, si la hora deja
  *                                                    cambiarlo, y cambiarlo
+ *      dishTypes                                     el tipo de plato del local: sus opciones y cómo elige la IA
+ *                                                    (createDishTypes, en libs/tickets/dishTypes.js)
  *      disconnectTablet, clearRegister,              lo que pasa cuando se pulsa algo (ver abajo)
  *      reportDelay
  */
@@ -108,6 +112,11 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
     const limits = limitesDelLocal(name, timeServices);
     const attention = attentionLimit ?? limits.atencion;
     const cleaning = limits.limpieza;
+
+    //  La carta del local (useDishes): de ella salen las opciones del «Tipo de plato» de Mesas y Registros, y con
+    //  ella elige la IA el de cada pedido. Sin platos, la lista de siempre (dishTypes.js).
+    const dishes = useDishes(establishment?._id);
+    const dishTypes = useMemo(() => createDishTypes(dishes), [dishes]);
 
     // attentionOrigin / cleaningOrigin = «de dónde sale cada tiempo de referencia»: 'local' (lo configurado en el
     // local), 'lista' (la lista de nombres, porque el local no lo tiene) o 'fijo' (lo pasó quien monta la sesión).
@@ -184,6 +193,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
         orders: tracking.orders,
         simulating: tablet.simulated,
         shift,
+        dishTypeOf: dishTypes.fromOrder,
     });
 
     //  Las rotaciones ya guardadas en la API (la pestaña «Registros») y la pregunta por los tickets que la IA
@@ -301,7 +311,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
         name, attention, cleaning, attentionOrigin, cleaningOrigin, establishment,
         tablet, ai, reading, tracking, store, savedRotations,
         zoom, drag, capture,
-        shift, shiftLocked, toggleShift,
+        shift, shiftLocked, toggleShift, dishTypes,
         disconnectTablet, clearRegister, reportDelay,
     };
 }

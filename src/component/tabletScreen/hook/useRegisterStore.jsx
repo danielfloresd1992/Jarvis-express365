@@ -29,7 +29,8 @@ import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
 // Recibe: { establishmentId   el _id del local: de quién es lo que se guarda
 //           orders            los pedidos que se están siguiendo ahora (useProcessTracking)
 //           simulating        hay una simulación en marcha
-//           shift }           el turno del toggle de la barra: con él nacen las rotaciones (stampShift)
+//           shift             el turno del toggle de la barra: con él nacen las rotaciones (stampShift)
+//           dishTypeOf }      el tipo de plato de un pedido de la IA, con la carta del local (dishTypes.js). Opcional
 // Devuelve: { records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders }
 //   records                                          las rotaciones, con las filas en blanco del final
 //   writeRecord(recordId, field, value)              anota un dato de una rotación
@@ -44,7 +45,7 @@ import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
 //   clear()                                          vacía el registro entero
 //   setOrderGuard(guard)                             quién decide si entra un pedido nuevo de la IA: (pedido) => boolean
 //   reapplyOrders()                                  vuelve a pasar los últimos pedidos (tras cambiar lo que decide quien decide)
-function useRegisterStore({ establishmentId, orders, simulating, shift }) {
+function useRegisterStore({ establishmentId, orders, simulating, shift, dishTypeOf }) {
 
     const [records, setRecords] = useState(() => withBlankRows([]));
 
@@ -118,19 +119,24 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
     const ordersRef = useRef(orders);
     ordersRef.current = orders;
 
+    // dishTypeOfRef = «cómo se elige el tipo de plato de un pedido», el de la carta del local
+    const dishTypeOfRef = useRef(dishTypeOf);
+    dishTypeOfRef.current = dishTypeOf;
+
     // applyOrders = «cada pedido a su mesa», preguntando a quien decide (orderGuardRef) por cada pedido nuevo.
     // También al simular: lo que se guarda con el disquete durante una simulación va a la API de verdad y
     // sale en «Registros», y el simulador repite números de ticket de una sesión a otra.
     const applyOrders = useCallback(() => {
-        commit(applyTabletOrders(recordsRef.current, ordersRef.current, new Date(), orderGuardRef.current ?? undefined));
+        commit(applyTabletOrders(recordsRef.current, ordersRef.current, new Date(), orderGuardRef.current ?? undefined, dishTypeOfRef.current ?? undefined));
     }, [commit]);
 
     //  2. LO QUE LEE LA IA: cada vez que el seguimiento publica pedidos. Y también cuando lo pide quien
     //     decide (reapplyOrders): al aceptar un ticket ya guardado, entra en ese momento, sin esperar a la
-    //     lectura siguiente.
+    //     lectura siguiente. Y cuando llega la carta del local (dishTypeOf): los pedidos que ya estaban toman su
+    //     plato sin esperar a la lectura siguiente.
     useEffect(() => {
         applyOrders();
-    }, [orders, applyOrders]);
+    }, [orders, applyOrders, dishTypeOf]);
 
     // setOrderGuard = «poner (o quitar, con null) quién decide si entra un pedido nuevo»
     const setOrderGuard = useCallback((guard) => {
@@ -211,8 +217,11 @@ function useRegisterStore({ establishmentId, orders, simulating, shift }) {
     //     el ObjectId de la novedad creada se apunta en su rotación ('firstAttentionDelay' o 'cleaningDelay'), y
     //     viaja a la API con ella al guardarla. El aviso llega por libs/tickets/reportedDelay.js, también desde la
     //     ventana principal cuando esta es la flotante. Si la fila ya no está (se guardó y se limpió), no pasa nada.
-    useEffect(() => onReportedDelay(({ recordId, field, noveltieId }) => {
-        commit(setRecordField(recordsRef.current, recordId, field, noveltieId, new Date()));
+    //     La demora de preparación es de un pedido: trae 'processId' y va a ese proceso ('preparationDelay').
+    useEffect(() => onReportedDelay(({ recordId, processId, field, noveltieId }) => {
+        commit(processId
+            ? setProcessField(recordsRef.current, recordId, processId, field, noveltieId, new Date())
+            : setRecordField(recordsRef.current, recordId, field, noveltieId, new Date()));
     }), [commit]);
 
 

@@ -86,8 +86,9 @@ const abandonedText = (abandoned) => {
  *  @param {function} onAddTouch      apunta un toque: (id de la rotación, gerente) — ver addSavedTouch en Registers
  *  @param {function} onDeleteTouch   quita un toque: (id del toque) — ver deleteSavedTouch en Registers
  *  @param {Array}    managers        los botones de los gerentes del local, para la placa de cada toque
+ *  @param {Array}    dishOptions     las opciones del tipo de plato de sus procesos (dishTypes.js)
  */
-export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLimit, onEdit, onAddTouch, onDeleteTouch, managers }) {
+export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLimit, onEdit, onAddTouch, onDeleteTouch, managers, dishOptions }) {
 
     // open = «qué lista está desplegada»: 'procesos', 'toques', 'cambios' o ninguna ('')
     const [open, setOpen] = useState('');
@@ -263,7 +264,7 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
             {
                 open && (
                     <div ref={drawerRef} className='register-saved-drawer' style={DRAWER_AREA}>
-                        {open === 'procesos' && <RegisterSavedProcesses processes={rotation.process} onEdit={onEdit} />}
+                        {open === 'procesos' && <RegisterSavedProcesses processes={rotation.process} onEdit={onEdit} dishOptions={dishOptions} />}
                         {
                             open === 'toques' && (
                                 <RegisterSavedTouches

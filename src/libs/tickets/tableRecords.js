@@ -18,11 +18,12 @@
  *          hourFirstAttention,   'HH:MM:SS'  primera atención
  *          process: [{
  *              ticketNumber,         número de ticket ('102')             ┐
- *              dishType,             tipo de plato: una de DISH_TYPES     │
+ *              dishType,             tipo de plato (dishTypes.js)         │
  *              orderTaking,          'HH:MM:SS'  toma de orden            ├ las lee la IA
  *              markedReadyOnTablet,  'HH:MM:SS'  marcado listo en tablet  ┘
  *              readyInTheKitchen,    'HH:MM:SS'  listo en cocina          ┐ a mano: la tablet
  *              dishDelivery,         'HH:MM:SS'  entrega del plato        ┘ no las muestra
+ *              preparationDelay,     la demora de preparación reportada: el ObjectId de su novedad, o null
  *          }],
  *          breakUp,              'HH:MM:SS'  se desocupa
  *          tableCleaning,        'HH:MM:SS'  se limpia
@@ -46,6 +47,7 @@ import { esMesaDeVerdad } from './claveDeTicket.js';
 import { DELAY_FIELDS, WARNING_FIELDS, isObjectId } from './reportedDelay.js';
 import { isStaleRecord } from './staleRecords.js';
 import { operationalDay } from '../date_time/operationalDay.js';
+import { createDishTypes } from './dishTypes.js';
 
 
 
@@ -73,22 +75,8 @@ export const TABLET_FIELDS = ['ticketNumber', 'dishType', 'orderTaking', 'marked
 const NEVER_RETRACTED = ['ticketNumber', 'dishType'];
 
 
-// DISH_TYPES = «los tipos de plato», las opciones del select. Son las del formato del Excel (FORMATO NUEVO 2.3).
-export const DISH_TYPES = ['APPETIZER', 'ENTREE', 'DESSER', 'SALAD', 'ENTRADA 6', 'ENTRADA 7', 'ENTRADA 8', 'ENTRADA 9', 'PF', 'POSTRE', 'DRINKS', 'DRINKS BAR', 'TAKE OUT', 'PICK UP', 'UBER EATS', 'DOORDASH'];
-
-// DISH_TYPE_FROM_READING = «el tipo que resuelve la lectura (libs/tickets/tipoDePlato.js), en su opción de la lista»
-// Lo que no tiene opción en la lista —'Online Ordering', 'Delivery', 'Grubhub' o un tipo sin resolver— se queda
-// vacío para elegirlo a mano.
-const DISH_TYPE_FROM_READING = {
-    'Entrada': 'APPETIZER',
-    'Plato fuerte': 'PF',
-    'Postre': 'POSTRE',
-    'Bebida': 'DRINKS',
-    'Take Out': 'TAKE OUT',
-    'Pick Up': 'PICK UP',
-    'Uber Eats': 'UBER EATS',
-    'DoorDash': 'DOORDASH',
-};
+// FIXED_DISH_TYPE = «el tipo de plato de un pedido con la lista de siempre» (dishTypes.js), el de un local sin carta
+const FIXED_DISH_TYPE = createDishTypes([]).fromOrder;
 
 
 // BLANK_RECORDS = «cuántas mesas en blanco quedan siempre al final», para anotar a mano.
@@ -123,6 +111,7 @@ export function createProcess(fields = {}) {
         markedReadyOnTablet: '',
         readyInTheKitchen: '',
         dishDelivery: '',
+        preparationDelay: null,
         ...fields,
     };
 }
@@ -321,8 +310,11 @@ export function setProcessField(records, recordId, processId, field, value, now 
  *  acceptNewOrder (opcional) decide si un pedido NUEVO entra: recibe el pedido y devuelve true o false. Lo
  *  pone la ventana para preguntar por los tickets que ya se guardaron hoy (ver Registers). Sin él, entran
  *  todos. A los que ya están en una mesa no se les pregunta: solo se ponen al día.
+ *
+ *  dishTypeOf (opcional) da el tipo de plato de un pedido: el de la carta del local (createDishTypes, en
+ *  dishTypes.js). Sin él, el de la lista de siempre.
  */
-export function applyTabletOrders(records, orders, now = new Date(), acceptNewOrder = () => true) {
+export function applyTabletOrders(records, orders, now = new Date(), acceptNewOrder = () => true, dishTypeOf = FIXED_DISH_TYPE) {
 
     if (!orders || orders.length === 0) return records;
 
@@ -377,7 +369,7 @@ export function applyTabletOrders(records, orders, now = new Date(), acceptNewOr
         // fromTablet = «lo que lee la tablet ahora»: el número de ticket, el tipo de plato y las dos horas
         const fromTablet = {
             ticketNumber: order.ticket ?? '',
-            dishType: DISH_TYPE_FROM_READING[order.tipo] ?? '',
+            dishType: dishTypeOf(order),
             orderTaking: order.tomaOrden ?? '',
             markedReadyOnTablet: order.listoTablet ?? '',
         };
@@ -670,5 +662,8 @@ function reviveProcess(saved) {
     process.edited = Array.isArray(saved?.edited) ? saved.edited.filter(field => TABLET_FIELDS.includes(field)) : [];
 
     for (const field of PROCESS_FIELDS) process[field] = String(saved?.[field] ?? '');
+
+    //  La demora de preparación ya reportada: el ObjectId de su novedad, si es uno de verdad
+    process.preparationDelay = isObjectId(saved?.preparationDelay) ? saved.preparationDelay : null;
     return process;
 }

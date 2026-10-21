@@ -84,9 +84,12 @@ function Main({ value, selectNovelty, closeNovelty, awaitWindow, boxModal, menu,
 
 
     //  Con una demora del register abierta en «Demoras» (su reloj rojo), la cabecera dice cuál: su tipo y su mesa.
+    //  La de preparación (el icono de cocina de un pedido, tipo 'tablet') dice su ticket, y su mesa si la tiene.
     //  Al enviarla o cerrarla, Home suelta el reporte y vuelve a decir «Demoras».
     const reportTitle = value === 'imagen-3' && reporteDemora
-        ? `Demora de ${reporteDemora.tipo === 'limpieza' ? 'limpieza' : 'primera atención'} · mesa ${reporteDemora.tableNumber || '?'}`
+        ? (reporteDemora.tipo === 'tablet'
+            ? `Demora de preparación · ticket #${reporteDemora.ticketNumber || '?'}${reporteDemora.tableNumber ? ` · mesa ${reporteDemora.tableNumber}` : ''}`
+            : `Demora de ${reporteDemora.tipo === 'limpieza' ? 'limpieza' : 'primera atención'} · mesa ${reporteDemora.tableNumber || '?'}`)
         : null;
     const sidebarTitle = reportTitle ?? SIDEBAR_TITLES[value];
 

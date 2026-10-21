@@ -312,7 +312,8 @@ const MANAGER_GRID = [
 
 /*  DISH_GROUPS = «las seis líneas de platos», en la fila del original, con los tipos de la aplicación que
  *  cuentan en cada una. El original solo miraba 'entrada*', 'pf', 'postre', 'drinks', 'take out' y 'pick
- *  up'; aquí entran también los demás tipos de la lista (DISH_TYPES), cada uno en la línea que le toca.  */
+ *  up'; aquí entran también los demás tipos de la lista (DISH_TYPES, en libs/tickets/dishTypes.js), cada uno en la
+ *  línea que le toca. Los platos de la carta de un local (dishes) no están en ninguna.  */
 const DISH_GROUPS = [
     { row: 2, label: 'Entrada', types: ['APPETIZER', 'ENTRADA 6', 'ENTRADA 7', 'ENTRADA 8', 'ENTRADA 9', 'SALAD'] },
     { row: 3, label: 'Plato Fuerte', types: ['PF', 'ENTREE'] },

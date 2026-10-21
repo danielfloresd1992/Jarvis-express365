@@ -46,8 +46,9 @@ import './registers.css';
  *  @param {function} onSaved         opcional. La API guardó una rotación: (la rotación guardada), para la lista de Registros
  *  @param {object}   stale           opcional. Las rotaciones de días anteriores (useStaleRotations): salen de su fila
  *                                    y van arriba, aparte y bloqueadas (RegisterStaleBlock)
+ *  @param {object}   dishTypes       el tipo de plato del local (createDishTypes, en dishTypes.js): las opciones y el tiempo de cada plato
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved, stale }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved, stale, dishTypes }) {
 
     // current = «las rotaciones de hoy, y las filas en blanco»: las de días anteriores van aparte, en su bloque
     const current = useMemo(() => (stale?.ids.size > 0 ? records.filter(record => !stale.ids.has(record.id)) : records), [records, stale]);
@@ -141,6 +142,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                             widthOfManagers={widthOfManagers}
                             establishmentId={establishmentId}
                             onSaved={onSaved}
+                            dishTypes={dishTypes}
                         />
                     ))
                 }

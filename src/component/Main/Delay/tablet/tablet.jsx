@@ -19,10 +19,18 @@ import PrintErrorDish from '../../../print_error/PrintErrorDishTime.jsx';
 import ErrorWithoutMenu from '../../../print_error/error_without_menu.jsx'
 
 import FormLayaut from '@/component/layaut/form_layaut';
+import { announceReportedDelay, noveltieIdOf } from '../../../../libs/tickets/reportedDelay.js';
+import { preparationDescription } from '../reportDescription.js';
 
 
 
-function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
+/*  @param {object} datosIniciales  cuando el formulario se abre desde el icono de cocina de un proceso de Mesas (su
+ *                                  demora de preparación; askForPreparation en RegisterRecordRow): el ticket, la mesa, el
+ *                                  plato de la carta, sus horas, el turno con que se midió ('shift') y de qué fila y
+ *                                  proceso viene ('recordId', 'processId'), para apuntarle la novedad al enviarla. Sin él,
+ *                                  el formulario en blanco de siempre.
+ */
+function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig, datosIniciales }) {
 
 
     const seletedEstableshment = useSelector(state => state.establishment);
@@ -37,18 +45,18 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
     const saveNoveltie = useSaveNoveltie();
 
     const user = useRef(null);
-    const [dish, setDish] = useState(null);
+    const [dish, setDish] = useState(datosIniciales?.dish ?? null);
 
-    let [tiket, setTiket] = useState('');
+    let [tiket, setTiket] = useState(datosIniciales?.ticketNumber ?? '');
     let [local, setLocal] = useState(null);
 
     let [files, setFiles] = useState([null]);
-    let [table, setNumberTable] = useState('');
+    let [table, setNumberTable] = useState(datosIniciales?.tableNumber ?? '');
 
-    let [time1, setTime1] = useState(''); //TOMA DE ORDEN
-    let [time2, setTime2] = useState(''); //LISTO EN TABLET
-    let [time3, setTime3] = useState(''); //LISTO EN COCINA
-    let [time4, setTime4] = useState(''); //ENTREGA DE PLATO
+    let [time1, setTime1] = useState(datosIniciales?.orderTaking ?? ''); //TOMA DE ORDEN
+    let [time2, setTime2] = useState(datosIniciales?.markedReadyOnTablet ?? ''); //LISTO EN TABLET
+    let [time3, setTime3] = useState(datosIniciales?.readyInTheKitchen ?? ''); //LISTO EN COCINA
+    let [time4, setTime4] = useState(datosIniciales?.dishDelivery ?? ''); //ENTREGA DE PLATO
 
 
 
@@ -63,7 +71,8 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
     // TOTAL HASTA LA ENTREGA
     const timeTotalDelay = returnTimeExceding(time4, time1);
     //CALCULO PARA VALIDAR TIEMPO
-    const timeDelaySubtraction = checkTime(dish, delayPreparationTable);
+    //  Desde Mesas, con el turno de la rotación: el mismo tiempo con que se marcó la demora
+    const timeDelaySubtraction = checkTime(dish, delayPreparationTable, datosIniciales?.shift);
     //PARA EL TEXTO DEL MENU
 
 
@@ -113,7 +122,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
             let dataForRequest = {};
 
-            files.forEach((data) => {
+            files.forEach((data, index) => {
                 if (!data) throw new Error(`Debe ingresas las imagenes correspondiente, imagen: ${index + 1}`)
                 if (!dataForRequest.imageUrl) dataForRequest.imageUrl = [];
                 dataForRequest.imageUrl.push({ url: data.url, caption: data.caption });
@@ -148,6 +157,14 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                     console.log(response);
                     if (response.status === 200) {
                         saveNoveltie.save(`Demora de tablet - mesa ${table}`, data.userData);
+
+                        //  Abierto desde el icono de cocina de un proceso de Mesas: el ObjectId de la novedad vuelve a ESE
+                        //  proceso ('preparationDelay'), que pone la bandera de «Reportada» en lugar del icono
+                        //  (reportedDelay.js). Y si la tablet estaba en la ventana flotante, vuelve al frente, como en
+                        //  primera atención.
+                        if (datosIniciales?.recordId && datosIniciales?.processId) announceReportedDelay({ recordId: datosIniciales.recordId, processId: datosIniciales.processId, tipo: 'tablet', noveltieId: noveltieIdOf(response.data) });
+                        if (datosIniciales?.deLaVentanaFlotante) window.electronAPI?.openTabletWindow?.();
+
                         setNumberTable('');
                         setFiles(files => files = []);
                         setTime1(time1 = '');
@@ -181,7 +198,27 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
 
 
     return (
-        <FormLayaut title='Demora de tablet' event={e => sendImgForm(e)} >
+        <FormLayaut
+            title='Demora de tablet'
+            //  Abierto desde el icono de cocina de Mesas, encabeza el formulario la descripción de la demora de
+            //  preparación, como en primera atención y limpieza. Sale de lo que tiene el formulario en cada momento:
+            //  si se corrige una hora o el plato, la descripción la sigue.
+            description={datosIniciales
+                ? preparationDescription({
+                    ticket: tiket,
+                    table,
+                    dish: dish?.nameDishe,
+                    start: time1,
+                    end: time2,
+                    kitchen: time3,
+                    total: delayPreparationTable,
+                    limit: datosIniciales.limit,
+                    shift: datosIniciales.shift,
+                    photos: noveltyConfig?.photos?.caption?.length ?? 1,
+                })
+                : undefined}
+            event={e => sendImgForm(e)}
+        >
 
 
             <div className='box-imgComponenContent gridx4' ref={htmlAdapterRef}>
@@ -255,7 +292,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig }) {
                     <p className='box-textHourResult'>Tiempo excedido: {timeDelaySubtraction.timeExceeding}</p>
                     {
                         !(timeDelaySubtraction.approval) && timeDelaySubtraction.timeExceeding !== '00:00:00' ?
-                            <PrintErrorDish dish={dish} />
+                            <PrintErrorDish dish={dish} shift={datosIniciales?.shift} />
                             :
                             null
                     }

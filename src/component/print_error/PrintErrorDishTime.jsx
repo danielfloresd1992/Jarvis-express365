@@ -1,7 +1,10 @@
-export default function PrintErrorDish({ dish }) {
+// 'shift' ('day' | 'night') es opcional: lo manda el formulario abierto desde Mesas, con el turno de la rotación, para
+// decir el mismo tiempo con que se midió (checkTime, en Delay/tablet/model.js). Sin él, la hora del equipo.
+export default function PrintErrorDish({ dish, shift }) {
 
     const HOUR_NOW = new Date().getHours();
-    const timeSelkectShift = HOUR_NOW >= 18 ? dish.timeLimit.night : dish.timeLimit.day;
+    const night = shift ? shift === 'night' : HOUR_NOW >= 18;
+    const timeSelkectShift = night ? dish.timeLimit.night : dish.timeLimit.day;
 
 
     return (

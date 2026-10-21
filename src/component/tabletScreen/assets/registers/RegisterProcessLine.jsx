@@ -2,7 +2,9 @@ import { WrapperCell, WrapperText } from '../../../cells/GridCells.jsx';
 import { getTimeReport } from '../../../../libs/date_time/calculate_time.js';
 import { PROCESS_GRID } from './columns.js';
 import { ALARM_COLOR } from './alarm.js';
-import { DISH_TYPES } from '../../../../libs/tickets/tableRecords.js';
+import { DISH_TYPES, optionsWith } from '../../../../libs/tickets/dishTypes.js';
+import PreparationAlert, { missingForPreparation, isPreparationLate } from './PreparationAlert.jsx';
+import ReportedFlag from './ReportedFlag.jsx';
 
 
 /*  UNA LÍNEA DE PROCESO: un pedido de la rotación
@@ -26,6 +28,12 @@ import { DISH_TYPES } from '../../../../libs/tickets/tableRecords.js';
  *  ilegible), y la toma de orden va en ámbar cuando es una
  *  estimación. Un proceso anotado a mano, o uno de una sesión anterior, no tiene lectura en vivo y se
  *  pinta sin nada de eso.
+ *
+ *  LA DEMORA DE PREPARACIÓN (pedido del usuario), en la primera Duración: si el plato tiene tiempo en la carta del
+ *  local para el turno de la rotación ('limit'), la duración se compara con él, como las de primera atención y
+ *  limpieza: en tiempo va en verde; pasada —o pasado el tiempo sin estar listo en tablet todavía ('waitingTooLong',
+ *  del bucle de la rotación)—, la celda va en rojo con el marco que late y el icono de cocina que titila
+ *  (PreparationAlert); reportada ('preparationDelay'), en rojo claro con la bandera de «Reportada».
  */
 
 
@@ -37,8 +45,12 @@ const durationBetween = (from, to) => (from && to ? getTimeReport(from, to).time
  *  @param {object}   live     lo que dice ahora mismo el seguimiento de ese pedido, o undefined
  *  @param {function} onWrite  anota (campo, valor)
  *  @param {function} onDelete borra este proceso
+ *  @param {Array}    dishOptions     las opciones del tipo de plato: la carta del local o, sin ella, la lista de siempre (dishTypes.js)
+ *  @param {string}   limit           lo que puede tardar su plato en cocina en el turno de la rotación, 'HH:MM:SS'; '' = sin tiempo
+ *  @param {boolean}  waitingTooLong  sin listo en tablet todavía, y desde la toma de orden ya pasó 'limit' (useRotationLoop)
+ *  @param {function} onReportPreparation  pedir el reporte de su demora de preparación
  */
-export default function RegisterProcessLine({ process, live, onWrite, onDelete }) {
+export default function RegisterProcessLine({ process, live, onWrite, onDelete, dishOptions = DISH_TYPES, limit = '', waitingTooLong = false, onReportPreparation }) {
 
     // write = «anotar un dato de esta línea»
     const write = (field) => (value) => onWrite(field, value);
@@ -53,6 +65,19 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
     // tabletDuration / deliveryDuration = «las dos duraciones de la línea» (null = falta alguna de sus horas)
     const tabletDuration = durationBetween(process.orderTaking, process.markedReadyOnTablet);
     const deliveryDuration = durationBetween(process.readyInTheKitchen, process.dishDelivery);
+
+    // preparationReported = «su demora de preparación ya se reportó» (la novedad, en 'preparationDelay')
+    const preparationReported = Boolean(process.preparationDelay);
+
+    // preparationLate = «pasó de su tiempo de preparación»: con las dos horas, la duración; sin listo en tablet, el bucle
+    const preparationLate = isPreparationLate(process, limit, waitingTooLong);
+
+    // tabletLook / tabletText = «cómo va la primera Duración»: como las de la rotación (durationLook en RegisterRecordRow)
+    const tabletLook = preparationReported ? 'register-cell--reported' : preparationLate ? 'register-cell--late register-cell--alert' : '';
+    const tabletText = !tabletDuration ? 'text-jx-tinta3'
+        : preparationReported ? 'text-jx-tinta font-bold'
+            : preparationLate ? 'text-jx-critico-texto font-bold'
+                : limit ? 'text-jx-verde-texto' : 'text-jx-tinta';
 
     return (
         <div
@@ -71,16 +96,18 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
                 />
             </WrapperCell>
 
-            {/*  El tipo de plato, con las opciones del formato del Excel (DISH_TYPES)  */}
+            {/*  El tipo de plato: los platos de la carta del local o, si no tiene, los del formato del Excel (dishTypes.js).
+                 Uno que ya no esté entre ellos se sigue viendo (optionsWith).  */}
             <WrapperCell classStyles='text-jx-tinta'>
                 <select
                     className='w-full h-full text-center bg-transparent cursor-pointer'
                     value={process.dishType}
                     onChange={event => write('dishType')(event.target.value)}
+                    title={process.dishType || undefined}
                     aria-label='Tipo de plato'
                 >
                     <option value=''>-</option>
-                    {DISH_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                    {optionsWith(dishOptions, process.dishType).map(type => <option key={type} value={type}>{type}</option>)}
                 </select>
             </WrapperCell>
 
@@ -95,9 +122,26 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete }
                 <WrapperText value={process.markedReadyOnTablet} updateValue={write('markedReadyOnTablet')} />
             </WrapperCell>
 
-            {/*  DURACIÓN en la tablet: de la toma de orden a «listo en tablet». Calculada: sin 'updateValue'.  */}
-            <WrapperCell>
-                <WrapperText classStyles={tabletDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={tabletDuration ?? '—'} />
+            {/*  DURACIÓN en la tablet: de la toma de orden a «listo en tablet». Calculada: sin 'updateValue'. Contra el
+                 tiempo de su plato: el icono de cocina si se pasó, la bandera si ya se reportó.  */}
+            <WrapperCell
+                classStyles={`gap-1.5 px-1 ${tabletLook}`}
+                titulo={preparationReported ? 'Demora de preparación reportada' : limit ? `Tiempo de preparación de ${process.dishType}: ${limit}` : undefined}
+            >
+                <WrapperText classStyles={tabletText} value={tabletDuration ?? '—'} />
+                {
+                    preparationReported
+                        ? <ReportedFlag kind='preparación' />
+                        : preparationLate && (
+                            <PreparationAlert
+                                dish={process.dishType}
+                                limit={limit}
+                                waiting={!tabletDuration}
+                                missing={missingForPreparation(process)}
+                                onReport={onReportPreparation}
+                            />
+                        )
+                }
             </WrapperCell>
 
             <WrapperCell classStyles='text-jx-tinta'>
