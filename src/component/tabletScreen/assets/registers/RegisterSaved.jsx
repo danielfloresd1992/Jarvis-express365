@@ -72,6 +72,9 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
     // toques de gerente del día». La cuenta vive en libs (rotationTotals): la barra la repite sumando Mesas.
     const { rotations: rotationCount, takeOut: takeOutCount, touches: totalTouches } = rotationTotals(rotations);
 
+    // abandonedCount = «cuántas se guardaron fuera de su día» ('abandoned', lo marca la API)
+    const abandonedCount = rotations.filter(rotation => rotation.abandoned).length;
+
     return (
         <div className='flex-1 min-h-0 flex flex-col bg-jx-lienzo'>
 
@@ -82,6 +85,7 @@ export default function RegisterSaved({ saved, establishmentName, attentionLimit
                 {status === 'ready' && <span className='register-saved-chip register-saved-chip--count'>{rotationCount} {rotationCount === 1 ? 'rotación' : 'rotaciones'}</span>}
                 {status === 'ready' && takeOutCount > 0 && <span className='register-saved-chip register-saved-chip--process' title='Pedidos sin mesa: su mesa es el #ticket. No cuentan como rotación.'>{takeOutCount} para llevar</span>}
                 {status === 'ready' && <span className='register-saved-chip register-saved-chip--touches-total'>{totalTouches} {totalTouches === 1 ? 'toque' : 'toques'} en total</span>}
+                {status === 'ready' && abandonedCount > 0 && <span className='register-saved-chip register-saved-chip--abandoned' title='Se quedaron en Mesas sin guardar y se guardaron en un día posterior: su hora va en amarillo'>{abandonedCount} {abandonedCount === 1 ? 'abandonada' : 'abandonadas'}</span>}
                 {status === 'loading' && rotations.length > 0 && <span className='text-[12px] text-jx-tinta3'>actualizando…</span>}
                 {editNotice && <span className='register-saved-chip register-saved-chip--late' role='alert'>No se guardó el cambio: {editNotice}</span>}
 

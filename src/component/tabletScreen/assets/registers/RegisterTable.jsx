@@ -4,6 +4,7 @@ import { isBlankRecord } from '../../../../libs/tickets/tableRecords.js';
 import { COLUMNS, tableGrid, columnStripes, headerTint, managersWidth, columnDescription } from './columns.js';
 import RegisterRecordRow from './RegisterRecordRow.jsx';
 import RegisterEmptyNotice from './RegisterEmptyNotice.jsx';
+import RegisterStaleBlock from './RegisterStaleBlock.jsx';
 import './registers.css';
 
 
@@ -43,8 +44,13 @@ import './registers.css';
  *  @param {Array}    managers        los botones de los gerentes del local (managers.js): una columna a la derecha
  *  @param {string}   establishmentId el _id del local, para guardar cada rotación (el disquete)
  *  @param {function} onSaved         opcional. La API guardó una rotación: (la rotación guardada), para la lista de Registros
+ *  @param {object}   stale           opcional. Las rotaciones de días anteriores (useStaleRotations): salen de su fila
+ *                                    y van arriba, aparte y bloqueadas (RegisterStaleBlock)
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved, stale }) {
+
+    // current = «las rotaciones de hoy, y las filas en blanco»: las de días anteriores van aparte, en su bloque
+    const current = useMemo(() => (stale?.ids.size > 0 ? records.filter(record => !stale.ids.has(record.id)) : records), [records, stale]);
 
     // liveByKey = «lo que dice ahora mismo el seguimiento de cada pedido», por su key
     const liveByKey = useMemo(() => new Map((liveOrders ?? []).map(order => [order.clave, order])), [liveOrders]);
@@ -107,8 +113,11 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                     )
                 }
 
+                {/*  LAS DE DÍAS ANTERIORES, arriba y aparte: bloqueadas, solo guardar o eliminar  */}
+                {stale && <RegisterStaleBlock stale={stale} grid={grid} hasManagers={managers.length > 0} />}
+
                 {
-                    records.map(record => (
+                    current.map(record => (
                         <RegisterRecordRow
                             key={record.id}
                             record={record}

@@ -9,6 +9,8 @@ import RegisterEstablishment from './RegisterEstablishment.jsx';
 import RegisterTable from './RegisterTable.jsx';
 import RegisterSaved from './RegisterSaved.jsx';
 import RegisterTabPanel from './RegisterTabPanel.jsx';
+import useOperationalDay from '../../hook/useOperationalDay.jsx';
+import useStaleRotations from '../../hook/useStaleRotations.jsx';
 
 
 /*  EL REGISTRO, CON SU BARRA
@@ -71,6 +73,11 @@ export default function Registers({ session, establishment = session.establishme
 
     // addRecoveredHere = «guardar una rotación anotada a mano en Registros», en este local (su _id, como el disquete de Mesas)
     const establishmentId = establishment?._id;
+
+    // stale = «las rotaciones de Mesas de días operativos anteriores»: bloqueadas, arriba y aparte, solo para guardarlas
+    // o eliminarlas (useStaleRotations; la tabla las pinta en RegisterStaleBlock). 'today' cambia solo a las 08:00.
+    const today = useOperationalDay();
+    const stale = useStaleRotations({ records: store.records, today, establishmentId, onSaved: rememberSaved, clearRecord: store.clearRecord });
     const addRecoveredHere = useCallback((fields) => addRecovered(fields, establishmentId), [addRecovered, establishmentId]);
 
     return (
@@ -148,6 +155,7 @@ export default function Registers({ session, establishment = session.establishme
                     managers={managers}
                     establishmentId={establishment?._id}
                     onSaved={rememberSaved}
+                    stale={stale}
                 />
             </RegisterTabPanel>
         </>

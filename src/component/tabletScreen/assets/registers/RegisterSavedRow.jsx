@@ -3,6 +3,7 @@ import { getTimeReport } from '../../../../libs/date_time/calculate_time.js';
 import { exceedsLimit } from '../../../../libs/date_time/timeLimit.js';
 import { WrapperText } from '../../../cells/GridCells.jsx';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
+import { dayText } from '../../../../libs/tickets/staleRecords.js';
 import { COLUMNS, tintPercent } from './columns.js';
 import SavedTextInput from './SavedTextInput.jsx';
 import SavedPerson, { fullName } from './SavedPerson.jsx';
@@ -68,6 +69,14 @@ export const cellTint = (column) => `color-mix(in srgb, ${column.color} ${tintPe
 
 // clock = «una fecha como hora HH:MM de este equipo»
 const clock = (date) => new Date(date).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+// abandonedText = «lo que se lee de una rotación abandonada»: se quedó en Mesas sin guardar y se guardó días después
+// ('abandoned', de la API: rotation.lib.js). El día del guardado es su día operativo, a medianoche UTC.
+const abandonedText = (abandoned) => {
+    const savedDay = abandoned.savedOperationalDate ? dayText(String(abandoned.savedOperationalDate).slice(0, 10)) : 'otro día';
+    const who = fullName(abandoned.savedBy);
+    return `Abandonada: se quedó en Mesas sin guardar y se guardó el ${savedDay}, ${abandoned.daysLate} ${abandoned.daysLate === 1 ? 'día' : 'días'} tarde${who ? `, por ${who}` : ''}`;
+};
 
 
 /*  @param {object}   rotation        la rotación tal como la devuelve la API (GET /rotation)
@@ -155,7 +164,12 @@ export default function RegisterSavedRow({ rotation, attentionLimit, cleaningLim
     return (
         <div ref={rowRef} className={`register-saved-row ${open ? 'register-saved-row--open' : ''} ${recovered ? 'register-saved-row--recovered' : ''}`} style={SAVED_GRID}>
 
-            <div className='register-saved-cell font-mono tabular-nums' title={recovered ? 'Hora en que se guardó · rotación recuperada: se anotó a mano, en Registros' : 'Hora en que se guardó'}>
+            {/*  ABANDONADA: se quedó en Mesas sin guardar y se guardó en un día posterior ('abandoned', lo marca la
+                 API). La hora va en amarillo, con el reloj, y dice cuántos días tarde y quién la guardó.  */}
+            <div
+                className={`register-saved-cell font-mono tabular-nums ${rotation.abandoned ? 'register-saved-cell--abandoned' : ''}`}
+                title={rotation.abandoned ? abandonedText(rotation.abandoned) : recovered ? 'Hora en que se guardó · rotación recuperada: se anotó a mano, en Registros' : 'Hora en que se guardó'}
+            >
                 {rotation.createdAt ? clock(rotation.createdAt) : '-'}
             </div>
 

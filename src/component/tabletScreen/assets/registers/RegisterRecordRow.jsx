@@ -15,7 +15,7 @@ import RegisterProcessList from './RegisterProcessList.jsx';
 import RegisterTouchList from './RegisterTouchList.jsx';
 import TouchToggle from './TouchToggle.jsx';
 import SaveRecordButton from './SaveRecordButton.jsx';
-import { saveRotation } from '../../../../libs/fetch_data/rotationFetching.js';
+import { saveRecord } from '../../../../libs/fetch_data/rotationFetching.js';
 
 
 /*  UNA ROTACIÓN DEL REGISTER: una mesa, desde que se ocupa hasta que se limpia
@@ -249,11 +249,10 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
 
         setSaving(true);
 
-        //  La rotación entera, con su local y su id como `clientId` (la API reconoce así la misma
-        //  rotación). Sin lista de campos: lo que crezca el ciclo viaja solo.
-        //  Lo que devuelve la API entra en la lista de Registros ANTES de limpiar la fila: así, si la IA
-        //  vuelve a leer alguno de sus tickets, ya consta como guardado y se pregunta (ver Registers).
-        saveRotation({ ...record, establishment: establishmentId, clientId: record.id })
+        //  La rotación entera, con su local (saveRecord). Lo que devuelve la API entra en la lista de
+        //  Registros ANTES de limpiar la fila: así, si la IA vuelve a leer alguno de sus tickets, ya consta
+        //  como guardado y se pregunta (ver Registers).
+        saveRecord(record, establishmentId)
             .then(savedRotation => {
                 //  Guardada: el bucle de la rotación se para aquí, con clearInterval (useRotationLoop). Si la API
                 //  no la guarda, sigue corriendo: la rotación sigue abierta en la fila.

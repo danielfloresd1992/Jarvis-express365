@@ -1295,6 +1295,11 @@
 .register-saved-chip--late { background: var(--color-jx-critico-suave); color: var(--color-jx-critico-texto); }
 .register-saved-chip--open { background: var(--color-jx-aviso-suave); color: var(--color-jx-aviso-texto); }
 
+/*  Las ABANDONADAS (se guardaron fuera de su día, 'abandoned'): la cuenta en la cabecera y su hora, en el amarillo
+    de los avisos  */
+.register-saved-chip--abandoned { background: #f6c21a; color: var(--color-jx-tinta); }
+.register-saved-cell--abandoned { background-color: #fdf3dd; color: var(--color-jx-aviso-texto); font-weight: 700; }
+
 .register-saved-skeleton { height: 12px; border-radius: 6px; background: var(--color-jx-regla); }
 
 .register-saved-retry {
@@ -1770,4 +1775,180 @@
     .register-reported__label { display: none; }
     .register-report { width: 20px; padding: 0; justify-content: center; }
     .register-reported { width: 18px; padding: 0; justify-content: center; }
+}
+
+
+/* ═══════════════════════════════════════════════
+   LAS ROTACIONES DE DÍAS ANTERIORES (RegisterStaleBlock y RegisterStaleRow)
+   ═══════════════════════════════════════════════
+
+   Propuesta «B · Pendientes aparte», elegida por el usuario: arriba de Mesas, un bloque en amarillo pálido con
+   las rotaciones que se quedaron sin guardar en un día que ya pasó. De solo lectura; solo guardar o eliminar. El
+   amarillo es el de los avisos (el triángulo y la bandera): «esto espera algo de ti».                           */
+
+.register-stale {
+    --stale-paper: #f8eecf;
+}
+
+/*  La cabecera: el candado en un cuadro amarillo, cuántas son y de qué día, y las dos teclas para todas  */
+.register-stale__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 46px;
+    padding: 6px 12px 6px 14px;
+    background: #fdf3dd;
+    border-top: 2px solid #e0a800;
+    border-bottom: 1px solid #e8cf86;
+}
+
+.register-stale__badge {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f6c21a;
+    color: var(--color-jx-tinta);
+}
+
+.register-stale__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.register-stale__title { font-size: 14px; font-weight: 700; color: var(--color-jx-tinta); }
+.register-stale__sub { font-size: 12px; color: var(--color-jx-aviso-texto); }
+.register-stale__notice { font-size: 12px; font-weight: 600; color: var(--color-jx-critico-texto); }
+
+/*  Las dos teclas de la cabecera: guardar, amarilla con relieve; eliminar, blanca con borde rojo  */
+.register-stale-key {
+    flex: none;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.register-stale-key--save {
+    padding-bottom: 2px;
+    border: 1px solid #9a6b00;
+    border-bottom-width: 3px;
+    background: #f6c21a;
+    color: var(--color-jx-tinta);
+}
+
+.register-stale-key--save:hover:not(:disabled) { background: #e8b400; }
+.register-stale-key--save:active:not(:disabled) { padding-bottom: 0; border-bottom-width: 1px; transform: translateY(1px); }
+
+.register-stale-key--delete {
+    border: 1px solid color-mix(in srgb, var(--color-jx-critico) 50%, transparent);
+    background: #ffffff;
+    color: var(--color-jx-critico-texto);
+}
+
+.register-stale-key--delete:hover:not(:disabled) { background: var(--color-jx-critico-suave); }
+
+.register-stale-key:disabled { opacity: 0.55; cursor: default; }
+
+/*  Cada fila: amarilla pálida, el texto apagado, sin nada que se pueda tocar salvo sus dos teclas  */
+.register-stale-row {
+    border-bottom: 1px solid #e8cf86;
+}
+
+.register-stale-row > .register-stale-row__cell {
+    background: var(--stale-paper);
+    color: var(--color-jx-tinta2);
+    border-right-color: #ecdca8;
+    border-bottom: 0;
+}
+
+.register-stale-row__table {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--color-jx-tinta);
+}
+
+.register-stale-row > .register-stale-row__lock {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-jx-aviso-texto);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/*  El día de la rotación, en la mesa, cuando el bloque tiene varios días  */
+.register-stale-day {
+    padding: 2px 6px;
+    border-radius: 9px;
+    background: #fdf3dd;
+    color: var(--color-jx-aviso-texto);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/*  Las teclas de cada fila: el disquete amarillo y la papelera  */
+.register-stale-icon {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.register-stale-icon--save {
+    border: 1px solid #9a6b00;
+    border-bottom-width: 3px;
+    background: #f6c21a;
+    color: var(--color-jx-tinta);
+}
+
+.register-stale-icon--save:hover:not(:disabled) { background: #e8b400; }
+
+.register-stale-icon--delete {
+    border: 1px solid color-mix(in srgb, var(--color-jx-critico) 45%, transparent);
+    background: #ffffff;
+    color: var(--color-jx-critico-texto);
+}
+
+.register-stale-icon--delete:hover:not(:disabled) { background: var(--color-jx-critico-suave); }
+
+/*  Sin poder guardarse (le falta la mesa o la hora de Ocupa): el disquete apagado; su 'title' dice por qué  */
+.register-stale-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.register-stale-key:focus-visible,
+.register-stale-icon:focus-visible { outline: 2px solid #9a6b00; outline-offset: 1px; }
+
+/*  La raya de «Hoy», que separa el bloque de las rotaciones del turno  */
+.register-stale__today {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 26px;
+    padding: 0 14px;
+    background: var(--color-jx-gris-panel);
+    border-bottom: 1px solid var(--color-jx-regla2);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--color-jx-tinta3);
+}
+
+.register-stale__today-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-jx-verde-barra);
 }

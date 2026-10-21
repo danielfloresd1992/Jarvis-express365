@@ -54,6 +54,11 @@ export const saveRotation = (body) => {
     });
 };
 
+// saveRecord = «guardar una rotación de Mesas»: la rotación entera, con su local y su id como `clientId` (la API
+// reconoce así la misma rotación). Sin lista de campos: lo que crezca el ciclo viaja solo. La usan el disquete de
+// cada fila (RegisterRecordRow) y el bloque de las de días anteriores (useStaleRotations).
+export const saveRecord = (record, establishmentId) => saveRotation({ ...record, establishment: establishmentId, clientId: record.id });
+
 
 
 // updateRotation = «corregir una rotación ya guardada» (PUT /rotation/id=<id>)

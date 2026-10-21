@@ -44,6 +44,8 @@
 
 import { esMesaDeVerdad } from './claveDeTicket.js';
 import { DELAY_FIELDS, WARNING_FIELDS, isObjectId } from './reportedDelay.js';
+import { isStaleRecord } from './staleRecords.js';
+import { operationalDay } from '../date_time/operationalDay.js';
 
 
 
@@ -103,12 +105,6 @@ const MAX_RECORDS = 400;
 // MAX_ROW = «la fila más alta que se acepta al leer». Un número de fila roto (1e9) no puede crear millones de
 // filas en blanco: lo que pase de aquí va detrás, como si no trajera fila.
 const MAX_ROW = 2000;
-
-// RECORD_HOURS = «cuántas horas vale una mesa guardada»
-// Lo bastante para un turno entero, incluido uno que cruce la medianoche, y no tanto como para
-// mezclar las mesas de ayer con las de hoy.
-const RECORD_HOURS = 16;
-
 
 
 // isEmpty = «no tiene nada escrito»
@@ -330,6 +326,12 @@ export function applyTabletOrders(records, orders, now = new Date(), acceptNewOr
 
     if (!orders || orders.length === 0) return records;
 
+    // isOpenToday = «la rotación sigue abierta para recibir pedidos»: no se ha desocupado y es de HOY. Una de un día
+    // operativo anterior está bloqueada (staleRecords.js): sin esto, una mesa 30 abandonada hace días se tragaba
+    // los pedidos de hoy de la mesa 30.
+    const today = operationalDay(now);
+    const isOpenToday = (record) => isEmpty(record.breakUp) && !isStaleRecord(record, today);
+
     // next = «la lista que se devuelve». Se copia la primera vez que algo cambia, no antes.
     let next = records;
     const change = (index, record) => {
@@ -353,7 +355,7 @@ export function applyTabletOrders(records, orders, now = new Date(), acceptNewOr
         // openIndex = «la otra rotación abierta de esa mesa»
         let openIndex = -1;
         for (let i = next.length - 1; i >= 0 && openIndex === -1; i--) {
-            if (i !== index && sameTable(next[i].tableNumber, table) && isEmpty(next[i].breakUp)) openIndex = i;
+            if (i !== index && sameTable(next[i].tableNumber, table) && isOpenToday(next[i])) openIndex = i;
         }
 
         // onlyProcesses = «no tiene nada anotado aparte de sus procesos»
@@ -399,14 +401,14 @@ export function applyTabletOrders(records, orders, now = new Date(), acceptNewOr
 
         const process = createProcess({ key: order.clave, ...fromTablet });
         const tableNumber = table
-            || tableOfTicket(next, fromTablet.ticketNumber)
+            || tableOfTicket(next, fromTablet.ticketNumber, isOpenToday)
             || order.mesa
             || (order.ticket ? `#${order.ticket}` : '');
 
-        // openIndex = «la mesa abierta con ese número»
+        // openIndex = «la mesa abierta con ese número», de hoy
         let openIndex = -1;
         for (let index = next.length - 1; index >= 0 && openIndex === -1; index--) {
-            if (sameTable(next[index].tableNumber, tableNumber) && isEmpty(next[index].breakUp)) openIndex = index;
+            if (sameTable(next[index].tableNumber, tableNumber) && isOpenToday(next[index])) openIndex = index;
         }
 
         if (openIndex !== -1) {
@@ -426,15 +428,16 @@ export function applyTabletOrders(records, orders, now = new Date(), acceptNewOr
 
 
 // tableOfTicket = «la mesa de verdad donde ya está ese ticket», o '' si no está en ninguna
-// El número de ticket es único: otro curso del mismo ticket es la misma mesa. Solo cuenta una rotación abierta.
-function tableOfTicket(records, ticketNumber) {
+// El número de ticket es único: otro curso del mismo ticket es la misma mesa. Solo cuenta una rotación abierta
+// (isOpen: la de applyTabletOrders, que además deja fuera las de días anteriores).
+function tableOfTicket(records, ticketNumber, isOpen) {
 
     const ticket = String(ticketNumber ?? '').trim();
     if (ticket === '') return '';
 
     for (let index = records.length - 1; index >= 0; index--) {
         const record = records[index];
-        if (!isEmpty(record.breakUp) || !esMesaDeVerdad(record.tableNumber)) continue;
+        if (!isOpen(record) || !esMesaDeVerdad(record.tableNumber)) continue;
         if (record.process.some(process => String(process.ticketNumber).trim() === ticket)) return String(record.tableNumber).trim();
     }
     return '';
@@ -533,7 +536,8 @@ const storageKey = (localId) => (localId ? `${STORAGE_PREFIX}:${localId}` : '');
 
 // readRecords = «leer las mesas guardadas de un local», cada una en la fila que ocupaba (placeInRows)
 // NUNCA lanza: sin nada guardado, o con el almacenamiento bloqueado, devuelve una lista vacía.
-// Las mesas de más de RECORD_HOURS no vuelven: son de otro turno, y su fila queda en blanco.
+// Vuelven TODAS, también las de días anteriores: antes, las de más de 16 horas desaparecían sin guardarse. Ahora
+// Mesas las bloquea y las sube a un bloque aparte, hasta que alguien las guarde o las elimine (staleRecords.js).
 export function readRecords(localId, now = new Date()) {
 
     const key = storageKey(localId);
@@ -545,9 +549,7 @@ export function readRecords(localId, now = new Date()) {
 
         //  La fila va aparte y no dentro de la rotación: en memoria la fila es su sitio en la lista, y así
         //  tampoco viaja a la API al guardarla con el disquete.
-        const rows = saved
-            .map(item => ({ record: reviveRecord(item, now), row: item?.row }))
-            .filter(({ record }) => now - record.date < RECORD_HOURS * 3600 * 1000);
+        const rows = saved.map(item => ({ record: reviveRecord(item, now), row: item?.row }));
 
         return placeInRows(rows);
     }
