@@ -183,7 +183,7 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
                 setTime4(time4 = '');
                 setTimeTotal(timeTotal = '');
                 setResult('00:00:00');
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title, table });
                 reset('');
             }
         }

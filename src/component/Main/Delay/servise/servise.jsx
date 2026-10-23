@@ -160,7 +160,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                 setDish(dish = '');
                 user.current = null;
                 setLocal(local = null);
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title, table: NONE_TABLE ? null : table });
                 reset();
             }
 

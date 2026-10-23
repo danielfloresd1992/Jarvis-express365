@@ -172,7 +172,7 @@ function Production({ awaitWindow, boxModal, reset, title }) {
             saveNoveltie.save(`Empleado realiza produción - ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}`, { userName: dataForRequest.userName });
             alert.request(`Producción en ${JSON.parse(localStorage.getItem('local_appExpress'))[0].name}. por validar`);
             console.log(response);
-            boxModal.open({ title: 'Aviso', description: 'Producción entregado.' });
+            boxModal.sent({ menu: title });
             setVerb1(verb1 = '');
             setVerb2(verb2 = '');
             setVerb3(verb3 = '');

@@ -234,7 +234,7 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
                 setTime2(time2 = '');
                 setTimeTotal(timeTotal = '');
                 setResult('00:00:00');
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title, table });
                 user.current = null;
                 setHasFinishedState(true);
 

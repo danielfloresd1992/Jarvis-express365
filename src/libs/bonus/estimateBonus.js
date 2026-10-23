@@ -117,7 +117,9 @@ const findOverride = (rule, establishment) => {
  *  @param {object} establishment  el local de la novedad, con franchiseReference
  *  @param {Date}   at             cuándo se reportó
  *  @returns {object}  como el sello de la API: { applies: true, rule, alertsRequired, bonusAwarded, bonusPerAlert,
- *           workShift } o { applies: false, reason }
+ *           workShift, appliedFrom } o { applies: false, reason }. Lleva además lo que la API no guarda y el aviso de
+ *           «Entregada con éxito» sí enseña: 'awarded' ({ day, night }, lo que paga cada turno, con la excepción del
+ *           local si la hay) y, con excepción ('override'), 'general' (lo que pide la regla sin ella).
  */
 export function estimateBonus({ menu, rulesById, user, establishment, at }) {
     if (!menu) return { applies: false, reason: 'sin-alerta' };
@@ -138,7 +140,25 @@ export function estimateBonus({ menu, rulesById, user, establishment, at }) {
     const workShift = workShiftOf(user, at);
     const override = findOverride(rule, establishment);
     const alertsRequired = Math.max(1, numberOr(override?.alertsRequired, numberOr(rule.alertsRequired, 1)));
-    const bonusAwarded = numberOr(override?.bonusAwarded?.[workShift], numberOr(rule.bonusAwarded?.[workShift], 1));
 
-    return { applies: true, rule: idOf(rule._id), alertsRequired, bonusAwarded, bonusPerAlert: bonusAwarded / alertsRequired, workShift };
+    // awarded = «lo que paga cada turno»: la excepción del local pisa la regla solo en lo que declara
+    const awarded = {
+        day: numberOr(override?.bonusAwarded?.day, numberOr(rule.bonusAwarded?.day, 1)),
+        night: numberOr(override?.bonusAwarded?.night, numberOr(rule.bonusAwarded?.night, 1)),
+    };
+    const bonusAwarded = awarded[workShift];
+
+    return {
+        applies: true,
+        rule: idOf(rule._id),
+        alertsRequired,
+        bonusAwarded,
+        bonusPerAlert: bonusAwarded / alertsRequired,
+        workShift,
+        appliedFrom: override ? 'override' : 'rule',
+        awarded,
+        general: override
+            ? { alertsRequired: Math.max(1, numberOr(rule.alertsRequired, 1)), bonusAwarded: numberOr(rule.bonusAwarded?.[workShift], 1) }
+            : null,
+    };
 }

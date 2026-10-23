@@ -215,7 +215,7 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                     user.current = null;
                     setLocal(local = null);
                     ref.current = null;
-                    boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                    boxModal.sent({ menu: title[0], table });
                     keySubmit.current = true;
                     reset('');
                 }

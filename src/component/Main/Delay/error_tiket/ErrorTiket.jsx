@@ -143,7 +143,7 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
                 setNumberTable('');
                 setTiket('');
                 setFiles(files => files = []);
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title[0], table });
                 reset();
             }
 

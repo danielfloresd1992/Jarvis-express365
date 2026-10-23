@@ -137,7 +137,7 @@ export default function TabletTouch({ awaitWindow, boxModal, reset, title }) {
                 const response = await setNovelty(dataForRequest);
 
                 saveNoveltie.save(`Demora de tablet - mesa ${table}`, user.surName);
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title[0], table });
                 reset();
             }
         }

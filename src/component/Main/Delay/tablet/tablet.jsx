@@ -192,7 +192,7 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig, datos
                 setTime1(time1 = '');
                 setTime2(time2 = '');
                 setDish(null);
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: noveltyConfig, table });
                 reset();
             }
         }

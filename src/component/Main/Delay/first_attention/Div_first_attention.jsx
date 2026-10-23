@@ -239,7 +239,7 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
                 setNumberTable('');
                 setTime1(time1 = '');
                 setTime2(time2 = '');
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title, table });
 
                 /*  DEVOLVER LA TABLET AL FRENTE
                  *

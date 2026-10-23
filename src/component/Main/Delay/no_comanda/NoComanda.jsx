@@ -148,7 +148,7 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
                 setNumberTable('');
                 setDescription('');
                 setFiles([]);
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title[0], table });
                 reset();
             }
 

@@ -180,7 +180,7 @@ export default function FormTablet({ awaitWindow, boxModal, reset, title }) {
                 if (err) throw err;
                 const response = await axiosInstance.post(`${IP}/novelties`, body);
                 alert.request(`demora de tablet en ${local.name}. por validar`);
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title, table: noveltyState.numberTable });
                 reset('');
             }
             catch (error) {

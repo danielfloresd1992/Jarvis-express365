@@ -15,6 +15,7 @@ import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
 import { limpiarReporteDemora } from '../../store/slices/reporteDemora.js';
 import { BoxModal } from '../../component/Main/boxModal/BoxModal.jsx';
+import SentNovelty from '../../component/SentNovelty/sentNovelty.controller.jsx';
 import Notifications from '../../component/notifications/notifications.jsx'
 import { TabletProvider } from '../../component/tabletScreen/tablet.provider.jsx';
 
@@ -36,6 +37,8 @@ export default function Home() {
 
     let [openAwaitWindow, setOpenAwait] = useState({ text: '', open: false });
     let [openModal, setOpenModal] = useState({ text: '', open: false });
+    // sentNovelty = «la novedad recién enviada, para su aviso» (SentNovelty): { id, menu, table, at }, o null
+    let [sentNovelty, setSentNovelty] = useState(null);
     let [render, setRender] = useState(JSON.parse(localStorage.getItem('local_appExpress')));
     let [renderValue, setRenderValue] = useState(String);
     let [openSideBar, setOpenSideBar] = useState(false);
@@ -137,6 +140,11 @@ export default function Home() {
         },
         close: () => {
             setOpenModal(openModal = { text: { title: '', description: '' }, open: false });
+        },
+        // sent = «se envió una novedad»: abre el aviso de «Entregada con éxito» (SentNovelty), que reacciona según la
+        // alerta, en vez del «Novedad enviada» de siempre. Recibe la alerta (Menu) y la mesa.
+        sent: ({ menu, table = '' }) => {
+            setSentNovelty(sentNovelty = { id: Date.now(), menu, table, at: new Date() });
         }
     };
 
@@ -295,6 +303,7 @@ export default function Home() {
                             <Notifications />
                             <Await config={openAwaitWindow} close={configAwait.close} />
                             <BoxModal config={openModal} close={configBoxModal.close} />
+                            <SentNovelty sent={sentNovelty} onClose={() => setSentNovelty(sentNovelty = null)} />
                         </div>
                     )
                     :

@@ -115,7 +115,7 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
                 alert.request(`Calidad de pizza en ${data.localData.name}. por validar`);
                 user.current = null;
                 setLocal(local = null);
-                boxModal.open({ title: 'Aviso', description: 'Novedad enviada' });
+                boxModal.sent({ menu: title, table: menuRef.current.table });
                 reset('');
             }
         }

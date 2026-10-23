@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getAlert, getBonusRules } from '../../../libs/fetch_data/stampFetching.js';
+import { getAlert } from '../../../libs/fetch_data/stampFetching.js';
+import { loadBonusRules, cachedBonusRules } from '../../../libs/bonus/rulesCache.js';
 import { idOf } from '../../../libs/bonus/estimateBonus.js';
 
 
@@ -10,9 +11,9 @@ import { idOf } from '../../../libs/bonus/estimateBonus.js';
  *      las alertas   las de las novedades del día, una por una (GET /menu/id=…), con sus bonusRules
  *      las reglas    todas (GET /bonus/rules), una vez
  *
- *  Se guardan fuera del componente (alertCache, rulesCache): cambian muy poco y así no se vuelven a pedir al cambiar de
- *  usuario o de día. Una alerta que no existe se guarda como null; una que falló por la red no se guarda, y se vuelve a
- *  pedir cuando cambie la lista.
+ *  Se guardan fuera del componente (alertCache aquí; las reglas en libs/bonus/rulesCache.js, que también usa el aviso
+ *  de «Entregada con éxito»): cambian muy poco y así no se vuelven a pedir al cambiar de usuario o de día. Una alerta
+ *  que no existe se guarda como null; una que falló por la red no se guarda, y se vuelve a pedir cuando cambie la lista.
  *
  *  @param {Array} novelties  las del día (useMyNovelties): de ahí salen qué alertas pedir
  *  @returns {{ menus: Map, rulesById: Map }}  las alertas y las reglas, por su _id
@@ -22,14 +23,11 @@ import { idOf } from '../../../libs/bonus/estimateBonus.js';
 // alertCache = «las alertas ya pedidas», por _id (null = no existe)
 const alertCache = new Map();
 
-// rulesCache = «las reglas de bono», por _id; null mientras no se tienen
-let rulesCache = null;
-
 
 export default function useBonusCatalog(novelties) {
 
     const [menus, setMenus] = useState(() => new Map(alertCache));
-    const [rulesById, setRulesById] = useState(() => rulesCache ?? new Map());
+    const [rulesById, setRulesById] = useState(() => cachedBonusRules() ?? new Map());
 
     // missing = «las alertas de hoy que todavía no se tienen», como texto para que el efecto no corra en cada pintado
     const missing = useMemo(
@@ -39,13 +37,10 @@ export default function useBonusCatalog(novelties) {
 
     //  Las reglas: una vez. Si fallaron, se reintenta cuando llegue otra novedad (cambia 'novelties.length').
     useEffect(() => {
-        if (rulesCache) return undefined;
+        if (cachedBonusRules()) return undefined;
         let alive = true;
-        getBonusRules()
-            .then(rules => {
-                rulesCache = new Map(rules.map(rule => [idOf(rule._id), rule]));
-                if (alive) setRulesById(rulesCache);
-            })
+        loadBonusRules()
+            .then(rules => { if (alive) setRulesById(rules); })
             .catch(error => console.log(error));
         return () => { alive = false; };
     }, [novelties.length]);
