@@ -1,0 +1,285 @@
+/* ============================================
+   EL MENÚ CONTEXTUAL (ContextMenu.jsx)
+
+   Propuesta «C · Barra rápida», elegida por el usuario:
+
+     ┌──────────────────────────────┐
+     │ [✎]   [⏱]   [⧉]   [📋]       │  la barra: lo que se pulsó, en botones
+     │ Editar Ahora Copiar Pegar    │  grandes (54 px, se aciertan en la tableta)
+     │ ──────────────────────────── │
+     │ ⌫ Borrar la hora   Retroceso │  la lista: lo demás, y lo que destruye
+     │ ──────────────────────────── │  al final y en rojo
+     │ ● Mesa 12 · Ocupa · 13:58:04 │  el pie: dónde se abrió
+     └──────────────────────────────┘
+
+   Una tarjeta del color de las de la casa. Los iconos van en la
+   tinta secundaria; los de reportar, en ocre; los de borrar, en rojo.
+   ============================================ */
+
+.context-menu {
+    z-index: 9500;
+    min-width: 240px;
+    max-width: 300px;
+    overflow-y: auto;
+    padding: 6px;
+    box-sizing: border-box;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 12px;
+    background: var(--color-jx-tarjeta);
+    color: var(--color-jx-tinta);
+    box-shadow: 0 14px 36px rgb(47 42 30 / 0.18), 0 2px 6px rgb(47 42 30 / 0.12);
+    font-size: 13px;
+    outline: none;
+    user-select: none;
+}
+
+/*  Entra creciendo desde la esquina pegada al puntero (transform-origin lo pone useContextMenu)  */
+.context-menu--placed {
+    animation: context-menu-in 110ms ease-out;
+}
+
+.context-menu__header {
+    padding: 6px 10px 6px;
+    margin: 0 0 4px;
+    border-bottom: 1px solid var(--color-jx-regla);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-jx-tinta2);
+}
+
+
+/* --------------------------------------------
+   LA BARRA RÁPIDA: tantas columnas como botones
+   (las pone el componente en --quick-count)
+   -------------------------------------------- */
+
+.context-menu__quick {
+    display: grid;
+    grid-template-columns: repeat(var(--quick-count, 4), minmax(0, 1fr));
+    gap: 4px;
+}
+
+/*  Relleno, borde y letra van aquí porque la regla global 'button {}' gana a Tailwind  */
+.context-menu__quick-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    min-height: 54px;
+    padding: 6px 2px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-jx-tinta);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: center;
+    cursor: pointer;
+}
+
+.context-menu__quick-item:focus,
+.context-menu__quick-item:hover {
+    outline: none;
+    background: var(--color-jx-hundido);
+}
+
+.context-menu__quick-item:disabled {
+    cursor: default;
+    color: var(--color-jx-tinta4);
+    background: transparent;
+}
+
+.context-menu__quick-icon {
+    position: relative;
+    display: inline-flex;
+    color: var(--color-jx-tinta2);
+}
+
+.context-menu__quick-item:disabled .context-menu__quick-icon {
+    color: var(--color-jx-tinta4);
+}
+
+.context-menu__quick-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/*  El punto rojo: algo pide atención (una demora pasada sin reportar)  */
+.context-menu__dot {
+    position: absolute;
+    top: -3px;
+    right: -5px;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--color-jx-critico);
+    box-shadow: 0 0 0 2px var(--color-jx-tarjeta);
+}
+
+
+/* --------------------------------------------
+   LA LISTA
+   -------------------------------------------- */
+
+.context-menu__section {
+    padding: 6px 10px 3px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-jx-tinta3);
+}
+
+.context-menu__separator {
+    height: 1px;
+    margin: 6px 4px;
+    background: var(--color-jx-regla);
+}
+
+.context-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.context-menu__item:focus,
+.context-menu__item:hover {
+    outline: none;
+    background: var(--color-jx-hundido);
+}
+
+.context-menu__item:disabled {
+    cursor: default;
+    color: var(--color-jx-tinta4);
+    background: transparent;
+}
+
+.context-menu__icon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-jx-tinta2);
+}
+
+.context-menu__item:disabled .context-menu__icon {
+    color: var(--color-jx-tinta4);
+}
+
+.context-menu__label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*  Una nota corta a la derecha: por qué está apagada («reportada», «en tiempo»)  */
+.context-menu__note {
+    flex: none;
+    font-size: 11px;
+}
+
+.context-menu__shortcut {
+    flex: none;
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-size: 11px;
+    color: var(--color-jx-tinta3);
+}
+
+
+/* --------------------------------------------
+   LOS TONOS: reportar en ocre, borrar en rojo
+   -------------------------------------------- */
+
+.context-menu__quick-item--report:not(:disabled),
+.context-menu__quick-item--report:not(:disabled) .context-menu__quick-icon,
+.context-menu__item--report:not(:disabled) .context-menu__icon {
+    color: var(--color-jx-ocre-texto);
+}
+
+.context-menu__quick-item--go:not(:disabled) .context-menu__quick-icon {
+    color: var(--color-jx-verde-texto);
+}
+
+.context-menu__item--danger:not(:disabled),
+.context-menu__item--danger:not(:disabled) .context-menu__icon,
+.context-menu__item--danger:not(:disabled) .context-menu__shortcut {
+    color: var(--color-jx-critico-texto);
+}
+
+.context-menu__item--danger:not(:disabled):focus,
+.context-menu__item--danger:not(:disabled):hover {
+    background: var(--color-jx-critico-suave);
+}
+
+/*  Lo que no se puede deshacer pide un segundo clic: la opción cambia de texto y se queda en rojo lleno  */
+.context-menu__item--confirming,
+.context-menu__item--confirming:focus,
+.context-menu__item--confirming:hover {
+    background: var(--color-jx-critico-suave);
+    color: var(--color-jx-critico-texto);
+    font-weight: 700;
+}
+
+
+/* --------------------------------------------
+   EL PIE: dónde se abrió, con el color de su columna
+   -------------------------------------------- */
+
+.context-menu__footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 8px 8px 3px;
+    border-top: 1px solid var(--color-jx-regla);
+    font-size: 11.5px;
+    color: var(--color-jx-tinta3);
+    font-variant-numeric: tabular-nums;
+}
+
+.context-menu__footer-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+}
+
+.context-menu__footer-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@keyframes context-menu-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .context-menu--placed {
+        animation: none;
+    }
+}

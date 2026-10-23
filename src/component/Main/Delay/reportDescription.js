@@ -10,6 +10,25 @@
  */
 
 
+/*  delayReportTitle = «cómo se llama un reporte que llega de Mesas», en una línea
+ *
+ *  Lo dicen la cabecera del panel de Demoras mientras está abierto (Main) y el botón rojo que lo abre cuando el panel
+ *  no puede abrirse solo (Home). Los dos con la misma función, para que no digan cosas distintas.
+ *
+ *      Demora de primera atención · mesa 12          (tipo 'primera atención', o sin tipo)
+ *      Demora de limpieza · mesa 12                  ('limpieza')
+ *      Demora de preparación · ticket #4821 · mesa 12        ('tablet': el icono de cocina de un proceso)
+ *      Marcada antes de estar listo · ticket #4821 · mesa 12 ('tablet-touch': el menú contextual de un proceso)
+ */
+export function delayReportTitle(reporte) {
+    if (!reporte) return '';
+    const ticket = `ticket #${reporte.ticketNumber || '?'}${reporte.tableNumber ? ` · mesa ${reporte.tableNumber}` : ''}`;
+    if (reporte.tipo === 'tablet') return `Demora de preparación · ${ticket}`;
+    if (reporte.tipo === 'tablet-touch') return `Marcada antes de estar listo · ${ticket}`;
+    return `Demora de ${reporte.tipo === 'limpieza' ? 'limpieza' : 'primera atención'} · mesa ${reporte.tableNumber || '?'}`;
+}
+
+
 // KINDS = «cómo se cuenta cada demora»: qué pasa a la primera hora y qué a la segunda
 const KINDS = {
     'primera atención': { start: 'se ocupó', end: 'recibió la primera atención', took: 'Tardó' },

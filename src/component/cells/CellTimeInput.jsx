@@ -22,13 +22,22 @@ import { timeReducer, initialState, formatTime, SEGMENT_MAX, SEGMENT_LABELS } fr
  */
 
 
-/*  @param {string}   value     la hora de la celda: 'HH:MM:SS', o '' si no tiene
- *  @param {function} onCommit  recibe la hora nueva ('' si se dejó sin ninguna cifra)
- *  @param {function} onCancel  se descartó con Escape
+/*  @param {string}   value       la hora de la celda: 'HH:MM:SS', o '' si no tiene
+ *  @param {function} onCommit    recibe la hora nueva ('' si se dejó sin ninguna cifra) y por qué se guardó:
+ *                                'enter' o 'blur'. La celda baja a la siguiente solo con Enter (como en Excel)
+ *  @param {function} onCancel    se descartó con Escape
+ *  @param {string}   initialKey  una cifra con la que se abrió el campo (se escribió sobre la celda elegida, como en
+ *                                Excel): entra como primera cifra, reemplazando lo que había
  */
-export default function CellTimeInput({ value, onCommit, onCancel }) {
+export default function CellTimeInput({ value, onCommit, onCancel, initialKey = '' }) {
 
     const [state, dispatch] = useReducer(timeReducer, value, initialState);
+
+    //  Abierto escribiendo una cifra: esa cifra ya cuenta, y reemplaza lo que había en el primer bloque
+    useEffect(() => {
+        if (/^\d$/.test(initialKey)) dispatch({ type: 'digit', digit: initialKey });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // inputsRef = «los campos de los tres bloques», para llevar el foco al activo
     const inputsRef = useRef([]);
@@ -46,12 +55,13 @@ export default function CellTimeInput({ value, onCommit, onCancel }) {
         if (state.fresh) input.select();
     });
 
-    // finish = «cerrar el campo», guardando o no. Una sola vez.
-    const finish = (save) => {
+    // finish = «cerrar el campo», guardando o no. Una sola vez. 'reason' dice por qué se cerró ('enter' | 'blur' |
+    // 'escape'): la celda lo usa para decidir si baja a la siguiente.
+    const finish = (save, reason) => {
         if (doneRef.current) return;
         doneRef.current = true;
-        if (save) onCommit(formatTime(state.segments));
-        else onCancel();
+        if (save) onCommit(formatTime(state.segments), reason);
+        else onCancel(reason);
     };
 
     // keyAction = «lo que pide una tecla al reductor». null = no es del campo: Tab y las demás hacen lo de siempre.
@@ -65,10 +75,13 @@ export default function CellTimeInput({ value, onCommit, onCancel }) {
         return null;
     };
 
+    //  Las teclas del campo no suben a la tabla: sus flechas cambian de bloque, no de celda (GridNav.jsx)
     const handleKeyDown = (event) => {
+        event.stopPropagation();
+
         if (event.key === 'Enter' || event.key === 'Escape') {
             event.preventDefault();
-            return finish(event.key === 'Enter');
+            return finish(event.key === 'Enter', event.key === 'Enter' ? 'enter' : 'escape');
         }
 
         const action = keyAction(event.key);
@@ -79,7 +92,7 @@ export default function CellTimeInput({ value, onCommit, onCancel }) {
 
     //  Salir del campo guarda; pasar de un bloque a otro no es salir.
     const handleBlur = (event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) finish(true);
+        if (!event.currentTarget.contains(event.relatedTarget)) finish(true, 'blur');
     };
 
     const handlePaste = (event) => {

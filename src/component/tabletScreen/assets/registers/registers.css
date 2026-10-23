@@ -1725,6 +1725,27 @@
     background-color: var(--color-jx-critico-suave);
 }
 
+/*  «Marcada antes de estar listo» reportada (EarlyMarkFlag): la bandera pirata, NEGRA (pedido del usuario), con la
+    calavera y los huesos en blanco. Va en la primera Duración del proceso, junto a lo que ya hubiera en ella.  */
+.register-pirate {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    cursor: default;
+}
+
+/*  Y su celda: fondo blanco y borde negro (pedido del usuario), quieta. Pisa el rojo de la demora de preparación, que
+    con esta alerta ya no se pide.  */
+.register-cell--early-mark {
+    background-color: #ffffff;
+    box-shadow: inset 0 0 0 2px #000000;
+}
+
+.register-pirate__mark { fill: #ffffff; }
+.register-pirate__bones { fill: none; stroke: #ffffff; }
+
 /*  «Reportar» (ReportDelayButton): píldora roja con el reloj y la palabra. Blanco sobre 'critico-texto', 5,2 : 1.  */
 .register-report {
     flex: none;

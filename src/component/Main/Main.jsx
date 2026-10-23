@@ -4,6 +4,7 @@ import { isTablet } from 'react-device-detect';
 import { RenderDefault } from './Default/Default.jsx';
 import { SendNoveltie } from './SendNovelties/SendNoveltie.jsx';
 import { Delay } from './Delay/DelayComponent.jsx';
+import { delayReportTitle } from './Delay/reportDescription.js';
 import { Production } from './production/Producction.jsx';
 import { ConfigIA } from './configIA/ConfigIA.jsx';
 import Pizza from './pizzaComponent/Pizza.jsx';
@@ -84,13 +85,10 @@ function Main({ value, selectNovelty, closeNovelty, awaitWindow, boxModal, menu,
 
 
     //  Con una demora del register abierta en «Demoras» (su reloj rojo), la cabecera dice cuál: su tipo y su mesa.
-    //  La de preparación (el icono de cocina de un pedido, tipo 'tablet') dice su ticket, y su mesa si la tiene.
+    //  Las de un pedido —la de preparación (el icono de cocina, tipo 'tablet') y la de «marcada antes de estar listo»
+    //  (el menú contextual, 'tablet-touch')— dicen su ticket, y su mesa si la tiene (delayReportTitle).
     //  Al enviarla o cerrarla, Home suelta el reporte y vuelve a decir «Demoras».
-    const reportTitle = value === 'imagen-3' && reporteDemora
-        ? (reporteDemora.tipo === 'tablet'
-            ? `Demora de preparación · ticket #${reporteDemora.ticketNumber || '?'}${reporteDemora.tableNumber ? ` · mesa ${reporteDemora.tableNumber}` : ''}`
-            : `Demora de ${reporteDemora.tipo === 'limpieza' ? 'limpieza' : 'primera atención'} · mesa ${reporteDemora.tableNumber || '?'}`)
-        : null;
+    const reportTitle = value === 'imagen-3' && reporteDemora ? delayReportTitle(reporteDemora) : null;
     const sidebarTitle = reportTitle ?? SIDEBAR_TITLES[value];
 
     return (

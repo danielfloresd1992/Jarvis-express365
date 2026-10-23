@@ -10,7 +10,9 @@
  *
  *  Y con la demora de PREPARACIÓN, que no es de la mesa sino de uno de sus pedidos: el icono de cocina de un
  *  proceso abre el formulario «Tablet», y su novedad queda en ESE proceso, en 'preparationDelay'
- *  (PROCESS_DELAY_FIELDS). Por eso su aviso lleva también el 'processId'.
+ *  (PROCESS_DELAY_FIELDS). Por eso su aviso lleva también el 'processId'. Igual «Marcada antes de estar listo» (se
+ *  sacó de la pantalla de la tablet antes de estar listo en cocina), que se pide desde el menú contextual del proceso
+ *  y queda en 'earlyMarkDelay'.
  *
  *  La rotación todavía está en Mesas, sin guardar: lo normal es reportar la demora mientras pasa. Así que el id
  *  se apunta en su fila (useRegisterStore) y viaja a la API con ella al pulsar el disquete.
@@ -40,9 +42,10 @@ export const DELAY_FIELDS = { 'primera atención': 'firstAttentionDelay', limpie
 // demora: va a su propia propiedad y deja la de la demora libre para cuando llegue.
 export const WARNING_FIELDS = { 'primera atención': 'firstAttentionWarning', limpieza: 'cleaningWarning' };
 
-// PROCESS_DELAY_FIELDS = «en qué propiedad DEL PROCESO va cada demora»: la de preparación, que se reporta con el
-// formulario «Tablet» (su 'tipo' es el id de ese botón de Demoras) desde el icono de cocina del proceso en Mesas
-export const PROCESS_DELAY_FIELDS = { tablet: 'preparationDelay' };
+// PROCESS_DELAY_FIELDS = «en qué propiedad DEL PROCESO va cada demora», por el 'tipo' (el id de su botón de Demoras):
+//   tablet         la de preparación: el formulario «Tablet», desde el icono de cocina del proceso en Mesas
+//   tablet-touch   «Marcada antes de estar listo»: su formulario, desde el menú contextual del proceso
+export const PROCESS_DELAY_FIELDS = { tablet: 'preparationDelay', 'tablet-touch': 'earlyMarkDelay' };
 
 // fieldOf = «la propiedad de un aviso o una demora»: de la rotación o, con 'processId', del proceso. undefined si el
 // tipo no es conocido
@@ -63,7 +66,7 @@ export const noveltieIdOf = (publication) => {
  *
  *  @param {string}  recordId    el id de la fila de Mesas (el 'id' de la rotación, que el reloj manda en el reporte)
  *  @param {string}  processId   opcional. El id del proceso, si la demora es de un pedido: la de preparación
- *  @param {string}  tipo        'primera atención' | 'limpieza' | 'tablet' (con processId)
+ *  @param {string}  tipo        'primera atención' | 'limpieza' | 'tablet' o 'tablet-touch' (con processId)
  *  @param {string}  noveltieId  el ObjectId de la novedad creada
  *  @param {boolean} aviso       es el aviso de que la mesa sigue esperando, no la demora (va a WARNING_FIELDS)
  *  @returns {boolean} si se avisó: sin fila, sin tipo conocido o sin un id válido no hay nada que avisar

@@ -11,6 +11,14 @@
     position: relative;
 }
 
+/*  LA CELDA ELEGIDA (gridNav.js): la que tiene el foco lleva el marco verde por dentro, como la celda activa de
+    Excel. Vale para las de hora (el div), el número de mesa, el ticket y el select del tipo de plato.  */
+[data-grid-cell]:focus {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: -2px;
+    border-radius: 2px;
+}
+
 /*  LA VISTA PREVIA: con el ratón sobre una celda vacía, la hora de ahora en gris y subrayada a puntos, corriendo
     (GridCells.jsx). Con el ratón sobre el reloj se oscurece y pasa a negrita: es la que se va a poner.            */
 .cell-time__preview {

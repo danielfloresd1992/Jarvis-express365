@@ -24,7 +24,9 @@ import NoComanda from './no_comanda/NoComanda.jsx'
  *                                 Cuando viene, se abre directamente SU formulario con sus
  *                                 datos ya puestos: el de primera atención o, si su 'tipo' es
  *                                 'limpieza', el de limpieza (ver tipoDe). Si es 'tablet', el de
- *                                 la demora de preparación de un pedido (el icono de cocina).
+ *                                 la demora de preparación de un pedido (el icono de cocina). Si
+ *                                 es 'tablet-touch', el de «Marcada antes de estar listo», que se
+ *                                 pide desde el menú contextual de un proceso de Mesas.
  *
  *                                 Mientras ese reporte está abierto, el menú de botones
  *                                 NO se enseña (pedido del usuario): se viene a reportar
@@ -38,20 +40,23 @@ import NoComanda from './no_comanda/NoComanda.jsx'
  */
 
 
-// tipoDe = «qué formulario pide un reporte»: su 'tipo' ('primera atención', 'limpieza' o 'tablet', los mismos 'id' de los
-// botones de abajo). Sin 'tipo' es de primera atención: así llegaban todos antes de existir la limpieza, también
+// tipoDe = «qué formulario pide un reporte»: su 'tipo' ('primera atención', 'limpieza', 'tablet' o 'tablet-touch', los
+// mismos 'id' de los botones de abajo). Sin 'tipo' es de primera atención: así llegaban todos antes de existir la limpieza, también
 // los de una ventana flotante sin actualizar.
 const tipoDe = (reporte) => reporte?.tipo ?? 'primera atención';
 
 
-/*  CON EL REGISTRO DE PROCESOS ACTIVO, PRIMERA ATENCIÓN, LIMPIEZA Y TABLET SE REPORTAN DESDE MESAS (pedido del usuario)
+/*  CON EL REGISTRO DE PROCESOS ACTIVO, PRIMERA ATENCIÓN, LIMPIEZA, TABLET Y «MARCADA ANTES DE ESTAR LISTO» SE REPORTAN
+ *  DESDE MESAS (pedido del usuario)
  *
  *  Allí cada demora sale de su fila: la de primera atención y la de limpieza, con el reloj rojo de su duración; la de
- *  preparación (el formulario «Tablet»), con el icono de cocina de su proceso. El formulario llega con la mesa y las
+ *  preparación (el formulario «Tablet»), con el icono de cocina de su proceso; y «Marcada antes de estar listo», con el
+ *  clic derecho sobre el pedido (su menú contextual, rowMenu.js). El formulario llega con la mesa, el ticket y las
  *  horas puestas, y la novedad queda apuntada en su rotación (firstAttentionDelay / cleaningDelay) o en su proceso
- *  (preparationDelay). Reportarla a mano desde aquí la dejaría suelta. Así que, con el registro activo, esos tres
- *  botones del menú van apagados —con un candado y la nota «Desde Mesas»— y al pulsarlos solo dicen dónde se hace. El
- *  reporte que llega de Mesas no pasa por estos botones: abre su formulario directamente, y sigue funcionando igual.
+ *  (preparationDelay / earlyMarkDelay). Reportarlas a mano desde aquí las dejaría sueltas. Así
+ *  que, con el registro activo, esos cuatro botones del menú van apagados —con un candado y la nota «Desde Mesas»— y al
+ *  pulsarlos solo dicen dónde se hace. El reporte que llega de Mesas no pasa por estos botones: abre su formulario
+ *  directamente, y sigue funcionando igual.
  */
 
 // FROM_TABLES = «los botones que, con el registro de procesos activo, se reportan desde Mesas», y desde dónde de la fila
@@ -59,10 +64,11 @@ const FROM_TABLES = {
     'primera atención': 'con el reloj rojo de la fila',
     limpieza: 'con el reloj rojo de la fila',
     tablet: 'con el icono de cocina del pedido',
+    'tablet-touch': 'con el clic derecho sobre el pedido',
 };
 
 // FROM_TABLES_MESSAGE = «lo que se le dice a quien pulsa uno de ellos»
-const FROM_TABLES_MESSAGE = 'Con el registro de procesos activo, estas demoras se reportan desde Mesas:\n\n· Primera atención y limpieza, en la fila de la mesa, con el reloj rojo de su duración.\n· Tablet (la demora de preparación), en el pedido, con el icono de cocina de su duración.\n\nAsí el reporte lleva la mesa y las horas ya puestas, y queda unido a su rotación.';
+const FROM_TABLES_MESSAGE = 'Con el registro de procesos activo, estas demoras se reportan desde Mesas:\n\n· Primera atención y limpieza, en la fila de la mesa, con el reloj rojo de su duración.\n· Tablet (la demora de preparación), en el pedido, con el icono de cocina de su duración.\n· Marcada antes de estar listo, en el pedido: clic derecho sobre él (o la tecla Menú con su celda elegida) y «Marcada antes de estar listo».\n\nAsí el reporte lleva la mesa, el ticket y las horas ya puestas, y queda unido a su rotación.';
 
 
 function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onReporteCerrado }) {
@@ -130,7 +136,7 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
             case 'servicio': return <Servises awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[2]} />;
             case 'plato': return <DelayDish awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[3]} />;
             case 'tablet': return <TabletDelay key={datosPara('tablet')?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson[4]} datosIniciales={datosPara('tablet')} />;
-            case 'tablet-touch': return <TabletTouch awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '67893e1e35aa90710e005d09')} />
+            case 'tablet-touch': return <TabletTouch key={datosPara('tablet-touch')?.id ?? 'manual'} awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '67893e1e35aa90710e005d09')} datosIniciales={datosPara('tablet-touch')} />
             case 'tablet-tiket': return <ErrorTiket awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '67fe7590e3a4f498308de7e1')} />;
             case 'tablet-no-comanda': return <NoComanda awaitWindow={awaitWindow} boxModal={boxModal} reset={resetTitle} title={titlesJson.filter(item => item._id === '6a70d377003e6d1c9effbc76')} />;
             default: null;
@@ -169,7 +175,7 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
                         <BottonSelection title='Servicio'                      ico={food}        id='servicio'           event={elegirAMano} />
                         <BottonSelection title='Entrega de plato'              ico={plate}       id='plato'              event={elegirAMano} />
                         <BottonSelection title='Tablet'                        ico={tablet}      id='tablet'             event={elegirAMano} locked={fromTables('tablet')} />
-                        <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={elegirAMano} />
+                        <BottonSelection title='Marcada antes de estar listo'  ico={touchTablet} id='tablet-touch'       event={elegirAMano} locked={fromTables('tablet-touch')} />
                         <BottonSelection title='Error de tiket'                ico={tiketIco}    id='tablet-tiket'       event={elegirAMano} />
                         <BottonSelection title='Plato no comandado'            ico='/ico/icons8-transaccion-rechazada-100.png' id='tablet-no-comanda' event={elegirAMano} />
                     </div>

@@ -11,6 +11,8 @@ import ReportedFlag from './ReportedFlag.jsx';
 import WaitingAlert from './WaitingAlert.jsx';
 import WarnedFlag from './WarnedFlag.jsx';
 import useRotationLoop from '../../hook/useRotationLoop.jsx';
+import useRowMenu from '../../hook/useRowMenu.jsx';
+import ContextMenu from '../../../contextMenu/ContextMenu.jsx';
 import RegisterProcessList from './RegisterProcessList.jsx';
 import RegisterTouchList from './RegisterTouchList.jsx';
 import TouchToggle from './TouchToggle.jsx';
@@ -279,8 +281,9 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     };
 
     // preparationPending = «algún pedido pasó de su tiempo de preparación y no se ha reportado»: con la lista cerrada, el
-    // icono de cocina no se ve, así que la flecha se pone en rojo
-    const preparationPending = record.process.some(process => !process.preparationDelay
+    // icono de cocina no se ve, así que la flecha se pone en rojo. Uno con «Marcada antes de estar listo» reportada no
+    // cuenta (pedido del usuario): su tiempo en la tablet no es el real, y su demora de preparación ya no se pide.
+    const preparationPending = record.process.some(process => !process.preparationDelay && !process.earlyMarkDelay
         && isPreparationLate(process, dishTypes?.limitOf(process.dishType, shift) ?? '', loop.overdue[`prep:${process.id}`]));
 
     // alarm = «la peor alarma de sus procesos», para la cuenta de la flecha cuando está cerrada
@@ -397,6 +400,30 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         });
     };
 
+    // askForEarlyMark = «pedir el reporte de "Marcada antes de estar listo" de un pedido» (pedido del usuario): se sacó
+    // de la pantalla de la tablet antes de estar listo en cocina. Lo pide el menú contextual del proceso, y se abre
+    // «Demoras» en ese formulario (tipo 'tablet-touch', el id de su botón) con el ticket, la mesa, el plato y las cuatro
+    // horas que tenga el proceso. No exige ninguna: las que falten se escriben en el formulario. El plato va como el de
+    // la carta si el local la tiene ('dish') y, si no, por su nombre ('dishName'). 'processId' es este proceso: al
+    // enviar la alerta, el ObjectId de la novedad vuelve a él ('earlyMarkDelay', reportedDelay.js) y su duración lleva
+    // la bandera pirata negra.
+    const askForEarlyMark = (process) => {
+        deliver({
+            tipo: 'tablet-touch',
+            recordId: record.id,
+            processId: process.id,
+            tableNumber: takeOut ? '' : record.tableNumber,
+            ticketNumber: process.ticketNumber,
+            dish: dishTypes?.dishOf(process.dishType) ?? null,
+            dishName: process.dishType,
+            orderTaking: process.orderTaking,
+            markedReadyOnTablet: process.markedReadyOnTablet,
+            readyInTheKitchen: process.readyInTheKitchen,
+            dishDelivery: process.dishDelivery,
+            shift,
+        });
+    };
+
     // deliver = «mandar el reporte a Demoras», y decir en la fila si no se pudo
     const deliver = (report) => {
         if (record.tableNumber === '') return setNotice('Indica el número de mesa');
@@ -433,6 +460,45 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         ? record.process.length > 0 && record.process.every(process => process.dishDelivery !== '')
         : record.tableCleaning !== '';
 
+
+    //  EL CLIC DERECHO (pedido del usuario; propuesta «C · Barra rápida»): el menú de esta fila (useRowMenu). Lo que
+    //  ofrece según dónde se pulse está en rowMenu.js; aquí se le da lo que la fila ya sabe y lo que ya sabe hacer,
+    //  con los mismos avisos que sus botones.
+    const rowMenu = useRowMenu({
+        record,
+        writeRecord,
+        writeProcess,
+        setNotice,
+        facts: {
+            free,
+            noTable,
+            takeOut,
+            finished,
+            processesOpen: open,
+            hasManagers: managers.length > 0,
+            attention: { duration: noAttentionYet ? '' : attention.timeTotal, late: attentionLate, reported: attentionReported },
+            cleaning: { duration: noCleaningYet ? '' : cleaning.timeTotal, late: cleaningLate, reported: cleaningReported },
+            //  Con «Marcada antes de estar listo» reportada ('earlyMark'), la demora de preparación ya no se pide
+            preparationOf: (process) => {
+                const limit = dishTypes?.limitOf(process.dishType, shift) ?? '';
+                const earlyMark = Boolean(process.earlyMarkDelay);
+                return { limit, earlyMark, late: !earlyMark && isPreparationLate(process, limit, loop.overdue[`prep:${process.id}`]), reported: Boolean(process.preparationDelay) };
+            },
+        },
+        actions: {
+            addProcess: addOne,
+            toggleProcesses: () => setOpen(!open),
+            openTouches: () => setTouchesOpen(true),
+            save: saveOne,
+            reportAttention: () => askForReport('primera atención'),
+            reportCleaning: () => askForReport('limpieza'),
+            clearRow,
+            reportPreparation: askForPreparation,
+            reportEarlyMark: askForEarlyMark,
+            deleteProcess: (process) => deleteProcess(record.id, process.id),
+        },
+    });
+
     // noticeBanner = «el aviso de la fila» (pedido del usuario: dentro de la Duración de la primera atención no se
     // veía). Una franja ámbar encima de TODA la rotación, con 'absolute' sobre su fila ('relative'), que no ocupa
     // sitio en la rejilla. Es un <span> y no un <div>: las reglas de las celdas ('register-rotation__row > div', en
@@ -455,7 +521,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     );
 
     return (
-        <div className={`register-rotation ${open ? 'register-rotation--open' : ''} ${free ? 'register-rotation--free' : ''}`}>
+        <div className={`register-rotation ${open ? 'register-rotation--open' : ''} ${free ? 'register-rotation--free' : ''}`} data-record-id={record.id} onContextMenu={rowMenu.onContextMenu}>
 
             {/*  'relative': los toques de gerente flotan justo debajo de esta fila (RegisterTouchList)  */}
             <div className='register-rotation__row relative w-full transition-colors hover:bg-jx-tinta/5' style={grid}>
@@ -487,6 +553,9 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                     </span>
                     <input
                         ref={tableInputRef}
+                        data-grid-cell='true'
+                        data-row={record.id}
+                        data-col='tableNumber'
                         className='register-mesa-input w-full h-full text-center bg-transparent placeholder:text-jx-ocre-texto placeholder:font-normal'
                         style={{
                             paddingLeft: record.process.length > 0 ? 'max(0px, calc(80px + 3ch - 100%))' : undefined,
@@ -542,7 +611,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                  bucle de la rotación, 'loop'), sale el triángulo de aviso a la derecha. Enviado el
                                  aviso ('firstAttentionWarning'), en su lugar queda la bandera amarilla.  */}
                             <WrapperCell classStyles={`text-jx-tinta relative ${waitingLook(attentionWaiting, Boolean(record.firstAttentionWarning))}`}>
-                                <WrapperText value={record.hourOccupies} updateValue={write('hourOccupies')} />
+                                <WrapperText value={record.hourOccupies} updateValue={write('hourOccupies')} row={record.id} col='hourOccupies' />
                                 {
                                     record.firstAttentionWarning
                                         ? <WarnedFlag kind='primera atención' />
@@ -553,7 +622,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             </WrapperCell>
 
                             <WrapperCell classStyles='text-jx-tinta'>
-                                <WrapperText value={record.hourFirstAttention} updateValue={write('hourFirstAttention')} />
+                                <WrapperText value={record.hourFirstAttention} updateValue={write('hourFirstAttention')} row={record.id} col='hourFirstAttention' />
                             </WrapperCell>
 
                             {/*  DURACIÓN de la primera atención. Es un valor calculado, así que no se toca: va sin
@@ -564,6 +633,8 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                 <WrapperText
                                     classStyles={durationText(noAttentionYet, attentionLate, attentionReported)}
                                     value={noAttentionYet ? '—' : attention.timeTotal}
+                                    row={record.id}
+                                    col='attentionDuration'
                                 />
 
                                 {attentionReported
@@ -575,7 +646,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                  triángulo de aviso a la derecha (lo mira el bucle de la rotación, 'loop'). Enviado el
                                  aviso ('cleaningWarning'), en su lugar queda la bandera amarilla.  */}
                             <WrapperCell classStyles={`text-jx-tinta relative ${waitingLook(cleaningWaiting, Boolean(record.cleaningWarning))}`}>
-                                <WrapperText value={record.breakUp} updateValue={write('breakUp')} />
+                                <WrapperText value={record.breakUp} updateValue={write('breakUp')} row={record.id} col='breakUp' />
                                 {
                                     record.cleaningWarning
                                         ? <WarnedFlag kind='limpieza' />
@@ -586,7 +657,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             </WrapperCell>
 
                             <WrapperCell classStyles='text-jx-tinta'>
-                                <WrapperText value={record.tableCleaning} updateValue={write('tableCleaning')} />
+                                <WrapperText value={record.tableCleaning} updateValue={write('tableCleaning')} row={record.id} col='tableCleaning' />
                             </WrapperCell>
 
                             {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'. Igual que la de
@@ -595,6 +666,8 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                                 <WrapperText
                                     classStyles={durationText(noCleaningYet, cleaningLate, cleaningReported)}
                                     value={noCleaningYet ? '—' : cleaning.timeTotal}
+                                    row={record.id}
+                                    col='cleaningDuration'
                                 />
 
                                 {cleaningReported
@@ -659,6 +732,9 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                     <RegisterProcessList record={record} liveByKey={liveByKey} writeProcess={writeProcess} deleteProcess={deleteProcess} widthOfManagers={widthOfManagers} dishTypes={dishTypes} shift={shift} overdue={loop.overdue} onReportPreparation={askForPreparation} />
                 )
             }
+
+            {/*  El menú del clic derecho: va con un portal a <body>, fijo a la ventana (ContextMenu)  */}
+            <ContextMenu menu={rowMenu.menu} {...rowMenu.content} />
 
         </div>
     );

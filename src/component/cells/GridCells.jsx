@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CellTimeInput from './CellTimeInput.jsx';
+import { useGridNav } from './GridNav.jsx';
+import { EDIT_EVENT } from '../../libs/tickets/gridNav.js';
+import { copyText, readText, toTime } from '../../libs/tickets/cellClipboard.js';
 import './cells.css';
 
 
@@ -68,13 +71,125 @@ export function WrapperCell({ classStyles = '', estilo, titulo, tall = false, ch
  *
  *  Con `compact`, para las celdas estrechas (los toques, Registros), ni la vista previa ni el borrar: no caben junto
  *  a la hora. Queda el reloj sobre el guion, y el doble clic.
+ *
+ *  CON EL TECLADO, COMO EN EXCEL (pedido del usuario). Con `row` y `col` la celda entra en la navegación de su
+ *  tabla (gridNav.js): un clic la elige (marco verde), las flechas la mueven, y en la elegida:
+ *
+ *      Enter           en una celda vacía pone la hora de ahora (lo mismo que el reloj); en una con hora abre el
+ *                      campo para corregirla (lo mismo que el doble clic). Al guardar con Enter la celda sigue
+ *                      elegida: no baja sola, para que un Enter de más no ponga una hora en la de abajo
+ *      0-9             abre el campo con esa cifra ya escrita, reemplazando la hora
+ *      Supr / Retroceso  deja la celda en blanco (pedido del usuario)
+ *      Escape          con el campo abierto, lo cierra sin cambiar nada y la celda sigue elegida; con la celda
+ *                      elegida y cerrada, la deselecciona (lo hace la tabla, gridNav.js)
+ *      Ctrl+C          copia su hora (también en una de solo lectura, como una duración)
+ *      Ctrl+V          pega una hora copiada ('13:58:04', '9:05', '135804'; cellClipboard.js). Lo que no sea una
+ *                      hora no se pega
+ *
+ *  Una celda de solo lectura también se elige (se pasa por ella), pero no abre nada.
+ *
+ *  Y se abre cuando se lo pide el menú contextual («Editar»): el aviso EDIT_EVENT (gridNav.js), como un doble clic.
  */
-export function WrapperText({ classStyles = '', value, updateValue, stampNow = true, compact = false }) {
+export function WrapperText({ classStyles = '', value, updateValue, stampNow = true, compact = false, row, col }) {
 
 
     const [editing, setEditing] = useState(false);
 
+    // initialKey = «la cifra con la que se abrió el campo», si se abrió escribiendo
+    const [initialKey, setInitialKey] = useState('');
+
+    // rootRef = «la celda cerrada», para devolverle el foco al cerrar el campo con el teclado
+    const rootRef = useRef(null);
+
+    // afterCloseRef = «qué hacer con el foco al cerrar el campo»: null nada (se cerró con el ratón), 'stay' se queda
+    // en la celda, 'down' baja a la siguiente (hoy no se usa: Enter guarda y se queda, ver arriba)
+    const afterCloseRef = useRef(null);
+
+    const nav = useGridNav();
+
+    // navigable = «la celda está en una tabla con navegación por teclado»
+    const navigable = row !== undefined && col !== undefined;
+
     const readOnly = typeof updateValue !== 'function';
+
+    //  Al cerrarse el campo con el teclado, el foco vuelve a la celda (y con Enter baja a la siguiente): si no, se
+    //  quedaría en ningún sitio y las flechas dejarían de funcionar
+    useEffect(() => {
+        if (editing || !afterCloseRef.current) return;
+        const after = afterCloseRef.current;
+        afterCloseRef.current = null;
+        if (after === 'down') nav.move(rootRef.current, 'down');
+        else rootRef.current?.focus({ preventScroll: true });
+    }, [editing, nav]);
+
+    // open = «abrir el campo», con una cifra ya escrita o sin ella
+    const open = (key = '') => {
+        if (readOnly) return;
+        setHovered(false);
+        setInitialKey(key);
+        setEditing(true);
+    };
+
+    // openRef = «abrir el campo», siempre la de este pintado: la usa el aviso del menú contextual
+    const openRef = useRef(open);
+    openRef.current = open;
+
+    //  «Editar», desde el menú contextual: el aviso EDIT_EVENT llega a la celda cerrada y la abre
+    useEffect(() => {
+        const root = rootRef.current;
+        if (editing || !root) return undefined;
+        const onEdit = () => openRef.current();
+        root.addEventListener(EDIT_EVENT, onEdit);
+        return () => root.removeEventListener(EDIT_EVENT, onEdit);
+    }, [editing]);
+
+    // copyable = «tiene algo que copiar»: una hora, o una duración calculada (las vacías dicen '—')
+    const copyable = () => !empty && value !== '—';
+
+    //  Las teclas de la celda elegida. Las flechas no se tocan: las maneja la tabla (GridNav.jsx).
+    const handleKeyDown = (event) => {
+
+        //  Ctrl+C y Ctrl+V (Cmd en un Mac): copiar su hora, y pegar una
+        if ((event.ctrlKey || event.metaKey) && !event.altKey && event.target === rootRef.current) {
+            const letter = event.key.toLowerCase();
+            if (letter === 'c' && copyable()) {
+                event.preventDefault();
+                copyText(value);
+            }
+            if (letter === 'v' && !readOnly) {
+                event.preventDefault();
+                readText().then(text => {
+                    const time = toTime(text);
+                    if (time && time !== value) updateValue(time);
+                });
+            }
+            return;
+        }
+
+        if (event.altKey || event.ctrlKey || event.metaKey || event.target !== rootRef.current) return;
+
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            if (readOnly) return;
+            //  Vacía: se pone la hora de ahora, como con el reloj. Con hora: se abre para corregirla, como con el
+            //  doble clic (pedido del usuario). Donde «ahora» no tiene sentido (stampNow en false), siempre se abre.
+            if (empty && stampNow) updateValue(getCurrentTime());
+            else open();
+            return;
+        }
+        if (/^\d$/.test(event.key)) {
+            event.preventDefault();
+            event.stopPropagation();
+            open(event.key);
+            return;
+        }
+        if ((event.key === 'Delete' || event.key === 'Backspace') && !readOnly) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (value !== '') updateValue('');
+        }
+    };
 
     // empty = «la hora todavía no está puesta»
     const empty = value === '' || value === undefined || value === null;
@@ -125,11 +240,7 @@ export function WrapperText({ classStyles = '', value, updateValue, stampNow = t
     };
 
 
-    const handleDoubleClick = () => {
-        if (readOnly) return;
-        setHovered(false);
-        setEditing(true);
-    };
+    const handleDoubleClick = () => open();
 
 
 
@@ -144,21 +255,32 @@ export function WrapperText({ classStyles = '', value, updateValue, stampNow = t
     if (editing) return (
         <CellTimeInput
             value={value}
-            onCommit={time => {
+            initialKey={initialKey}
+            onCommit={(time, reason) => {
+                afterCloseRef.current = reason === 'blur' ? null : 'stay';
                 setEditing(false);
                 if (time !== value) updateValue(time);
             }}
-            onCancel={() => setEditing(false)}
+            onCancel={() => {
+                afterCloseRef.current = 'stay';
+                setEditing(false);
+            }}
         />
     );
 
 
     return (
         <div
+            ref={rootRef}
             className='cell-time w-full h-full flex items-center justify-center'
             onDoubleClick={handleDoubleClick}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
+            onKeyDown={navigable ? handleKeyDown : undefined}
+            tabIndex={navigable ? (readOnly ? -1 : 0) : undefined}
+            data-grid-cell={navigable ? 'true' : undefined}
+            data-row={navigable ? row : undefined}
+            data-col={navigable ? col : undefined}
         >
             {/*  'data-empty': la hora todavía no pasó. Así se la puede apagar desde fuera (registers.css). Con el
                  ratón encima de una celda vacía, en lugar del guion va la vista previa (cells.css).  */}

@@ -5,6 +5,7 @@ import { ALARM_COLOR } from './alarm.js';
 import { DISH_TYPES, optionsWith } from '../../../../libs/tickets/dishTypes.js';
 import PreparationAlert, { missingForPreparation, isPreparationLate } from './PreparationAlert.jsx';
 import ReportedFlag from './ReportedFlag.jsx';
+import EarlyMarkFlag from './EarlyMarkFlag.jsx';
 
 
 /*  UNA LÍNEA DE PROCESO: un pedido de la rotación
@@ -34,6 +35,11 @@ import ReportedFlag from './ReportedFlag.jsx';
  *  limpieza: en tiempo va en verde; pasada —o pasado el tiempo sin estar listo en tablet todavía ('waitingTooLong',
  *  del bucle de la rotación)—, la celda va en rojo con el marco que late y el icono de cocina que titila
  *  (PreparationAlert); reportada ('preparationDelay'), en rojo claro con la bandera de «Reportada».
+ *
+ *  «MARCADA ANTES DE ESTAR LISTO» (pedido del usuario), también en la primera Duración: una vez reportada desde el menú
+ *  contextual del proceso ('earlyMarkDelay'), la bandera pirata negra (EarlyMarkFlag), y la celda en blanco con el borde
+ *  negro. La demora de preparación deja de pedirse: lo que dice la tablet no es el tiempo real. Si ya estaba reportada,
+ *  su bandera se queda junto a la pirata.
  */
 
 
@@ -69,18 +75,34 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
     // preparationReported = «su demora de preparación ya se reportó» (la novedad, en 'preparationDelay')
     const preparationReported = Boolean(process.preparationDelay);
 
-    // preparationLate = «pasó de su tiempo de preparación»: con las dos horas, la duración; sin listo en tablet, el bucle
-    const preparationLate = isPreparationLate(process, limit, waitingTooLong);
+    // earlyMarkReported = «ya se reportó que se marcó en la tablet antes de estar listo» (la novedad, en 'earlyMarkDelay'):
+    // la bandera pirata negra en esta misma Duración (pedido del usuario)
+    const earlyMarkReported = Boolean(process.earlyMarkDelay);
 
-    // tabletLook / tabletText = «cómo va la primera Duración»: como las de la rotación (durationLook en RegisterRecordRow)
-    const tabletLook = preparationReported ? 'register-cell--reported' : preparationLate ? 'register-cell--late register-cell--alert' : '';
+    // preparationLate = «pasó de su tiempo de preparación»: con las dos horas, la duración; sin listo en tablet, el bucle.
+    // Con «Marcada antes de estar listo» reportada, no (pedido del usuario): se sacó de la pantalla antes de tiempo, así
+    // que lo que dice la tablet no es el tiempo real, y la demora de preparación ya no se pide: ni el icono de cocina, ni
+    // el rojo, ni el marco que late
+    const preparationLate = !earlyMarkReported && isPreparationLate(process, limit, waitingTooLong);
+
+    // tabletLook / tabletText = «cómo va la primera Duración»: como las de la rotación (durationLook en RegisterRecordRow).
+    // Con la bandera pirata, fondo blanco y borde negro (pedido del usuario; 'register-cell--early-mark', registers.css).
+    const tabletLook = earlyMarkReported ? 'register-cell--early-mark'
+        : preparationReported ? 'register-cell--reported'
+            : preparationLate ? 'register-cell--late register-cell--alert' : '';
     const tabletText = !tabletDuration ? 'text-jx-tinta3'
-        : preparationReported ? 'text-jx-tinta font-bold'
+        : earlyMarkReported || preparationReported ? 'text-jx-tinta font-bold'
             : preparationLate ? 'text-jx-critico-texto font-bold'
                 : limit ? 'text-jx-verde-texto' : 'text-jx-tinta';
 
+    // tabletTitle = «lo que dice la primera Duración al pasar el ratón»
+    const tabletTitle = earlyMarkReported ? '«Marcada antes de estar listo» reportada: se sacó de la pantalla antes de tiempo, y esta duración no es la real'
+        : preparationReported ? 'Demora de preparación reportada'
+            : limit ? `Tiempo de preparación de ${process.dishType}: ${limit}` : undefined;
+
     return (
         <div
+            data-process-id={process.id}
             className={`register-process-line w-full ${live?.cerrado ? 'opacity-75' : ''}`}
             style={stripe ? { ...PROCESS_GRID, boxShadow: `inset 3px 0 0 ${stripe}` } : PROCESS_GRID}
         >
@@ -89,6 +111,9 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
                 <input
                     className='w-full h-full text-center bg-transparent tabular-nums'
                     type='text'
+                    data-grid-cell='true'
+                    data-row={`p:${process.id}`}
+                    data-col='ticketNumber'
                     value={process.ticketNumber}
                     onChange={event => write('ticketNumber')(event.target.value)}
                     placeholder='-'
@@ -101,6 +126,9 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
             <WrapperCell classStyles='text-jx-tinta'>
                 <select
                     className='w-full h-full text-center bg-transparent cursor-pointer'
+                    data-grid-cell='true'
+                    data-row={`p:${process.id}`}
+                    data-col='dishType'
                     value={process.dishType}
                     onChange={event => write('dishType')(event.target.value)}
                     title={process.dishType || undefined}
@@ -115,20 +143,18 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
                 classStyles={estimated ? 'text-jx-ocre-texto italic' : 'text-jx-tinta'}
                 titulo={estimated ? 'Hora estimada: el ticket ya estaba despachado cuando se le vio, y su contador podía estar parado' : undefined}
             >
-                <WrapperText value={process.orderTaking} updateValue={write('orderTaking')} />
+                <WrapperText value={process.orderTaking} updateValue={write('orderTaking')} row={`p:${process.id}`} col='orderTaking' />
             </WrapperCell>
 
             <WrapperCell classStyles='text-jx-tinta'>
-                <WrapperText value={process.markedReadyOnTablet} updateValue={write('markedReadyOnTablet')} />
+                <WrapperText value={process.markedReadyOnTablet} updateValue={write('markedReadyOnTablet')} row={`p:${process.id}`} col='markedReadyOnTablet' />
             </WrapperCell>
 
             {/*  DURACIÓN en la tablet: de la toma de orden a «listo en tablet». Calculada: sin 'updateValue'. Contra el
-                 tiempo de su plato: el icono de cocina si se pasó, la bandera si ya se reportó.  */}
-            <WrapperCell
-                classStyles={`gap-1.5 px-1 ${tabletLook}`}
-                titulo={preparationReported ? 'Demora de preparación reportada' : limit ? `Tiempo de preparación de ${process.dishType}: ${limit}` : undefined}
-            >
-                <WrapperText classStyles={tabletText} value={tabletDuration ?? '—'} />
+                 tiempo de su plato: el icono de cocina si se pasó, la bandera si ya se reportó. Con «Marcada antes de
+                 estar listo» reportada, la bandera pirata, y ya sin el icono de cocina.  */}
+            <WrapperCell classStyles={`gap-1.5 px-1 ${tabletLook}`} titulo={tabletTitle}>
+                <WrapperText classStyles={tabletText} value={tabletDuration ?? '—'} row={`p:${process.id}`} col='tabletDuration' />
                 {
                     preparationReported
                         ? <ReportedFlag kind='preparación' />
@@ -142,19 +168,21 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
                             />
                         )
                 }
+                {/*  «Marcada antes de estar listo» ya reportada: la bandera pirata negra (EarlyMarkFlag)  */}
+                {earlyMarkReported && <EarlyMarkFlag />}
             </WrapperCell>
 
             <WrapperCell classStyles='text-jx-tinta'>
-                <WrapperText value={process.readyInTheKitchen} updateValue={write('readyInTheKitchen')} />
+                <WrapperText value={process.readyInTheKitchen} updateValue={write('readyInTheKitchen')} row={`p:${process.id}`} col='readyInTheKitchen' />
             </WrapperCell>
 
             <WrapperCell classStyles='text-jx-tinta'>
-                <WrapperText value={process.dishDelivery} updateValue={write('dishDelivery')} />
+                <WrapperText value={process.dishDelivery} updateValue={write('dishDelivery')} row={`p:${process.id}`} col='dishDelivery' />
             </WrapperCell>
 
             {/*  DURACIÓN de la entrega: de «listo en cocina» a la mesa. Calculada: sin 'updateValue'.  */}
             <WrapperCell>
-                <WrapperText classStyles={deliveryDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={deliveryDuration ?? '—'} />
+                <WrapperText classStyles={deliveryDuration ? 'text-jx-tinta' : 'text-jx-tinta3'} value={deliveryDuration ?? '—'} row={`p:${process.id}`} col='deliveryDuration' />
             </WrapperCell>
 
             {/*  Borrar el proceso: la papelera, en rojo (pedido del usuario: la ✕ gris no se veía ni se entendía).

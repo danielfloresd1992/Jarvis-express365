@@ -24,6 +24,7 @@
  *              readyInTheKitchen,    'HH:MM:SS'  listo en cocina          ┐ a mano: la tablet
  *              dishDelivery,         'HH:MM:SS'  entrega del plato        ┘ no las muestra
  *              preparationDelay,     la demora de preparación reportada: el ObjectId de su novedad, o null
+ *              earlyMarkDelay,       «marcada antes de estar listo» reportada: el ObjectId de su novedad, o null
  *          }],
  *          breakUp,              'HH:MM:SS'  se desocupa
  *          tableCleaning,        'HH:MM:SS'  se limpia
@@ -44,7 +45,7 @@
  *  ══════════════════════════════════════════════════════════════════════════════════════ */
 
 import { esMesaDeVerdad } from './claveDeTicket.js';
-import { DELAY_FIELDS, WARNING_FIELDS, isObjectId } from './reportedDelay.js';
+import { DELAY_FIELDS, WARNING_FIELDS, PROCESS_DELAY_FIELDS, isObjectId } from './reportedDelay.js';
 import { isStaleRecord } from './staleRecords.js';
 import { operationalDay } from '../date_time/operationalDay.js';
 import { createDishTypes } from './dishTypes.js';
@@ -112,6 +113,7 @@ export function createProcess(fields = {}) {
         readyInTheKitchen: '',
         dishDelivery: '',
         preparationDelay: null,
+        earlyMarkDelay: null,
         ...fields,
     };
 }
@@ -663,7 +665,8 @@ function reviveProcess(saved) {
 
     for (const field of PROCESS_FIELDS) process[field] = String(saved?.[field] ?? '');
 
-    //  La demora de preparación ya reportada: el ObjectId de su novedad, si es uno de verdad
-    process.preparationDelay = isObjectId(saved?.preparationDelay) ? saved.preparationDelay : null;
+    //  Las demoras del pedido ya reportadas (la de preparación, «marcada antes de estar listo»): el ObjectId de su
+    //  novedad, si es uno de verdad
+    for (const field of Object.values(PROCESS_DELAY_FIELDS)) process[field] = isObjectId(saved?.[field]) ? saved[field] : null;
     return process;
 }

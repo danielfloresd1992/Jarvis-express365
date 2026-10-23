@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
 import { WrapperCell } from '../../../cells/GridCells.jsx';
+import { GridNavProvider, useGridNavigation } from '../../../cells/GridNav.jsx';
 import { isBlankRecord } from '../../../../libs/tickets/tableRecords.js';
 import { COLUMNS, tableGrid, columnStripes, headerTint, managersWidth, columnDescription } from './columns.js';
 import RegisterRecordRow from './RegisterRecordRow.jsx';
@@ -68,6 +69,10 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
     // empty = «no hay ninguna rotación con algo»
     const empty = records.every(isBlankRecord);
 
+    // La navegación por teclado entre celdas, como en Excel (GridNav.jsx, gridNav.js): el contenedor escucha las
+    // flechas y cada celda con 'data-grid-cell' entra en el recorrido
+    const { containerRef, onKeyDown, nav } = useGridNavigation();
+
     // headerCell = «el estilo de las celdas de la cabecera». Las de las columnas van además teñidas de su color.
     // La letra, la misma que la cabecera de los procesos (10 px, RegisterProcessList; pedido del usuario): 'register-header-cell'
     // fija los 10 px en registers.css, porque la de WrapperCell, que crece con el ancho, gana a una utilidad de tamaño.
@@ -79,7 +84,8 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
             {/*  Se desplaza hacia abajo, nunca hacia los lados: las columnas se reparten el ancho que
                  haya. '@container' deja a las celdas medir la letra por él. Su fondo son las franjas de
                  color de las columnas (columnStripes).  */}
-            <div className='@container flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden' style={stripes}>
+            <div ref={containerRef} onKeyDown={onKeyDown} className='@container flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden' style={stripes}>
+              <GridNavProvider nav={nav}>
 
                 {/*  CABECERA FIJA. 'z-10' no es decorativo: sin él las filas que pasan por debajo al
                      desplazarse se dibujan ENCIMA de la cabecera. La celda sin título es la del «+».  */}
@@ -147,6 +153,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                     ))
                 }
 
+              </GridNavProvider>
             </div>
 
         </div>

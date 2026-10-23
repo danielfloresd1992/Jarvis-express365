@@ -14,6 +14,7 @@ import AsideBar from '../../component/AsideBar/AsideBar.jsx';
 import { setEstablishment } from '../../store/slices/establishment.js';
 import { setLocals } from '../../store/slices/locals.js';
 import { limpiarReporteDemora } from '../../store/slices/reporteDemora.js';
+import { delayReportTitle } from '../../component/Main/Delay/reportDescription.js';
 import { BoxModal } from '../../component/Main/boxModal/BoxModal.jsx';
 import SentNovelty from '../../component/SentNovelty/sentNovelty.controller.jsx';
 import Notifications from '../../component/notifications/notifications.jsx'
@@ -293,7 +294,8 @@ export default function Home() {
                                         onClick={OpenSidebarNovelty}
                                     >
                                         <span className='relative inline-flex h-2 w-2 shrink-0 rounded-full bg-white' />
-                                        Demora de {reporteDemora.tipo === 'limpieza' ? 'limpieza' : 'primera atención'} de la mesa {reporteDemora.tableNumber || '?'} — abrir reporte
+                                        {/*  Lo mismo que dirá la cabecera de Demoras al abrirlo (delayReportTitle)  */}
+                                        {delayReportTitle(reporteDemora)} — abrir reporte
                                     </button>
                                 )
                             }
