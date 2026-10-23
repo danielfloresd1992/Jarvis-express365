@@ -28,8 +28,9 @@ import NoComanda from './no_comanda/NoComanda.jsx'
  *
  *                                 Mientras ese reporte está abierto, el menú de botones
  *                                 NO se enseña (pedido del usuario): se viene a reportar
- *                                 esa demora, y solo está su formulario. Al enviarlo o
- *                                 cerrarlo (resetTitle), el menú vuelve.
+ *                                 esa demora, y solo está su formulario. Al enviarlo
+ *                                 (resetTitle) el panel de Demoras se cierra entero; con
+ *                                 la ✕ de arriba, también.
  *
  *                                 Sin él —el caso de siempre, cuando alguien entra a
  *                                 Demoras a mano— esto se comporta exactamente igual
@@ -137,17 +138,22 @@ function Delay({ titlesJson, awaitWindow, boxModal, reset, reporteDemora, onRepo
         }
     };
 
-    /*  Cierra el formulario y vuelve al menú de botones.
+    /*  La novedad se envió (el servidor contestó 200): se cierra el panel de Demoras entero.
      *
-     *  Es el mismo 'resetTitle' de siempre; lo único añadido es avisar arriba de que el
-     *  reporte se consumió. Sin ese aviso, Home seguiría teniéndolo por abierto y el
-     *  formulario se volvería a precargar al entrar la próxima vez.
+     *  Lo llaman los formularios de abajo como 'reset', solo después de enviar. Antes volvía al
+     *  menú de botones; ahora cierra el panel, como la ✕ de arriba (pedido del usuario): se
+     *  vino a reportar una demora y ya está reportada. Lo que queda abierto es el aviso de
+     *  «Entregada con éxito» (boxModal.sent, SentNovelty), que vive fuera del panel.
+     *
+     *  Se avisa arriba de que el reporte se consumió: sin ese aviso, Home seguiría teniéndolo
+     *  por abierto y el formulario se volvería a precargar al entrar la próxima vez. Y 'reset'
+     *  (el selectNovelty de Home, por Main) con '' es lo que quita el panel.
      */
     const resetTitle = () => {
         setTitle(title = []);
         setReporteActivo(null);
         onReporteCerrado?.();
-        render('');
+        reset('');
     };
 
 
