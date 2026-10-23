@@ -46,14 +46,14 @@ import { deliverWorkbook, chooseDownloadTarget } from './deliverWorkbook.js';
  *    OT siempre sigue a un PT en la misma mesa (la 10: PT a las 12:20, OT a las 12:28 y a las 12:53).
  *    PT es el PRIMER toque de la rotación y OT cada uno de los siguientes, y así se escribe (touchRows).
  *
- *  · LOS RESALTADOS. En los datos se pinta lo que en el original pintaba a mano quien lo verificaba: el
- *    PT en amarillo, el OT en púrpura oscuro con la letra blanca, y en azul la «Ocupada» de la mesa que no
- *    tuvo ningún toque de gerente (TONES). Lo decide el STEP 1 ('tone' de cada fila) y lo pinta el STEP 4.
+ *  · EL RESALTADO. En los datos se pinta solo el PT: su «Toque» en amarillo, como lo pintaba a mano quien
+ *    verificaba el original (TONES). Lo decide el STEP 1 ('tone' de cada fila) y lo pinta el STEP 4. El OT
+ *    en púrpura y la «Ocupada» en azul de la mesa sin toques se pintaron un tiempo y se quitaron (pedido
+ *    del usuario, 2026-10-23): las celdas con datos llevan el relleno de su grupo y nada más.
  *
  *  · LO RECUPERADO. Lo que se anotó a mano después, en la pestaña Registros (la propiedad 'recovered' de la
- *    API), va en gris de punta a punta de la fila (RECOVERED_FILL): las filas de una rotación
- *    recuperada —la de la mesa, las de sus procesos y las de sus toques— y la de cada toque recuperado.
- *    Los resaltados van encima: un PT recuperado sigue con su «Toque» en amarillo.
+ *    API), sale igual que lo demás: iba en gris de punta a punta de la fila y se quitó (el mismo pedido).
+ *    Las filas lo siguen llevando ('recovered', STEP 1) por si hace falta distinguirlo en el Resumen.
  *
  *  · EN VIVO (pedido del usuario). El Resumen son fórmulas sobre la tabla, así que corregir un dato de
  *    «Datos» lo cambia al momento. Para que también cuente las filas que se AÑADEN a mano, «Fila» y las
@@ -172,24 +172,18 @@ const DATA_GROUPS = {
 /*  TONES = «los resaltados de la hoja de datos»: qué celda de la fila se pinta y de qué color
  *
  *      firstTouch   el primer toque de la mesa (PT)        «Toque» en amarillo
- *      otherTouch   cada toque después del primero (OT)    «Toque» en púrpura oscuro, con la letra blanca
- *      untouched    una mesa sin ningún toque de gerente   «Ocupada» en azul
  *
- *  Son los de la paleta estándar de Excel, y la celda conserva la fuente de su grupo: solo cambia el color.
- *  No son formatos condicionales: que una mesa no tuvo toques no se puede deducir de la tabla (una mesa
- *  puede tener varias rotaciones en el día, y un toque no dice de cuál es), así que se pinta al exportar.
+ *  Es el amarillo de la paleta estándar de Excel, y la celda conserva la fuente de su grupo: solo cambia el
+ *  color. No es un formato condicional: cuál es el primer toque de una rotación no se deduce de la tabla (una
+ *  mesa puede tener varias rotaciones en el día), así que se pinta al exportar.
+ *
+ *  Las filas llevan además 'otherTouch' (los OT) y 'untouched' (la mesa sin toques) en su 'tone' (STEP 1), que
+ *  iban en púrpura y en azul y ya no se pintan (pedido del usuario, 2026-10-23): un 'tone' que no está aquí
+ *  deja la celda con el relleno de su grupo.
  */
 const TONES = {
     firstTouch: { column: 'Toque', fill: 'FFFF00', color: '000000' },
-    otherTouch: { column: 'Toque', fill: '7030A0', color: 'FFFFFF' },
-    untouched: { column: 'Ocupada', fill: '00B0F0', color: '000000' },
 };
-
-// RECOVERED_FILL = «el gris de lo recuperado»: la fila entera de una rotación o un toque que se anotó a mano
-// después, en Registros ('recovered'). Es el «Gris claro, Fondo 2, Oscuro 10 %» de la paleta de Excel, un tono más
-// oscuro que el «Fondo 2» (E7E6E6) que llevaba antes (pedido del usuario). Más oscuro que el gris de los procesos
-// (D9D9D9) y que el de las columnas nuevas (F2F2F2), y con la letra negra de siempre.
-const RECOVERED_FILL = 'D0CECE';
 
 // DATA_FIRST_COLUMN = «dónde empieza la tabla»: en la B, como en el original (la A queda vacía)
 const DATA_FIRST_COLUMN = 2;
@@ -474,9 +468,10 @@ function pickShift(rotations, shift) {
  *  Un pedido para llevar no es una rotación —no hubo mesa ocupada—: no lleva fila de mesa, solo las de
  *  sus procesos, con el '#ticket' en «Mesa».
  *
- *  Además de sus columnas, una fila puede llevar 'tone': cómo se resalta en la hoja (TONES). Lo llevan
- *  los toques (PT o OT) y la mesa que no tuvo ninguno. Y 'recovered': va en gris (RECOVERED_FILL).
- *  Lo llevan todas las filas de una rotación recuperada y la de cada toque recuperado.
+ *  Además de sus columnas, una fila puede llevar 'tone': qué es ('firstTouch', 'otherTouch' o 'untouched');
+ *  solo el primero se pinta (TONES). Lo llevan los toques (PT o OT) y la mesa que no tuvo ninguno. Y
+ *  'recovered', que ya no pinta nada: lo llevan todas las filas de una rotación recuperada y la de cada
+ *  toque recuperado.
  *
  *  @param {Array}  rotations  las rotaciones, tal como las devuelve la API (GET /rotation)
  *  @param {object} context    { day: 'AAAA-MM-DD', managers: los botones de gerentes del local }
@@ -531,7 +526,8 @@ const processRows = (rotation, shared) => (rotation.process ?? []).map(process =
 
 // touchRows = «una fila por toque de gerente», por hora: el primero de la rotación es PT («primer toque») y
 // los siguientes, OT («otro toque»), como en el original. Con la placa de su gerente (managerLabel), cada
-// uno con su resaltado ('firstTouch' o 'otherTouch') y, si se apuntó después en Registros, 'recovered'.
+// uno con su 'tone' ('firstTouch', que se pinta en amarillo, u 'otherTouch', que no) y, si se apuntó después en
+// Registros, 'recovered'.
 const touchRows = (rotation, shared, managers) => [...(rotation.touch ?? [])]
     .sort(byHour(touch => touch.hourTouch))
     .map((touch, position) => ({
@@ -863,16 +859,8 @@ function addDataSheet(workbook, table) {
         });
     });
 
-    //  Lo recuperado: la fila entera en gris (RECOVERED_FILL), con la letra de cada grupo. La fila 1
-    //  es la cabecera, así que la fila 'index' de la tabla es la index + 2 de la hoja.
-    table.forEach((cells, index) => {
-        if (!cells.recovered) return;
-        DATA_COLUMNS.forEach((column, position) => {
-            sheet.getCell(index + 2, DATA_FIRST_COLUMN + position).fill = solid(RECOVERED_FILL);
-        });
-    });
-
-    //  Los resaltados (TONES), DESPUÉS del gris: encima del aspecto del grupo, la celda de cada fila que lo lleva
+    //  El resaltado (TONES): encima del aspecto del grupo, la celda de cada fila que lo lleva. La fila 1 es la
+    //  cabecera, así que la fila 'index' de la tabla es la index + 2 de la hoja.
     table.forEach((cells, index) => {
         const tone = TONES[cells.tone];
         if (!tone) return;
