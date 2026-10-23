@@ -12,9 +12,12 @@ import useOperationalDay from '../../tabletScreen/hook/useOperationalDay.jsx';
  *  ponen al día solas:
  *
  *      'document_updated'   la API la emite al validar (PUT /novelties/id=…) con la novedad entera: si es de este
- *                           operador y de hoy, se cambia en la lista sin pedir nada. Es la que trae las aprobaciones.
+ *                           operador y de hoy, se cambia en la lista en el acto, sin pedir nada. Es la que trae las
+ *                           aprobaciones y los rechazos. Y además se vuelve a pedir la lista un momento después
+ *                           (RELOAD_DELAY_MS): si el documento del socket viniera de una API vieja, con otra forma
+ *                           (sin el usuario populado, sin createdAt…), la barra se pone al día igual.
  *      'created_Alert'      la emite al crear una, pero con el documento del muro (Publisher), no con la novedad: si es
- *                           de este operador, se vuelve a pedir la lista, un momento después (CREATED_DELAY_MS).
+ *                           de este operador, se vuelve a pedir la lista, un momento después.
  *      'connect'            al volver la conexión: lo que pasó mientras tanto no llegó por el socket.
  *      cada REFRESH_MS      por si se perdió algún aviso.
  *
@@ -28,8 +31,9 @@ import useOperationalDay from '../../tabletScreen/hook/useOperationalDay.jsx';
 // REFRESH_MS = «cada cuánto se vuelve a pedir la lista, por si acaso»
 const REFRESH_MS = 5 * 60 * 1000;
 
-// CREATED_DELAY_MS = «cuánto se espera a pedir la lista después de crear una»: para que una ráfaga sea una sola petición
-const CREATED_DELAY_MS = 1500;
+// RELOAD_DELAY_MS = «cuánto se espera a volver a pedir la lista tras un aviso del socket»: para que una ráfaga de avisos
+// sea una sola petición
+const RELOAD_DELAY_MS = 1500;
 
 // EMPTY = «la lista antes de pedirla»
 const EMPTY = { status: 'loading', day: '', novelties: [], message: '' };
@@ -73,13 +77,29 @@ export default function useMyNovelties(userId) {
     useEffect(() => {
         if (!userId) return undefined;
 
-        let createdTimer = null;
+        let reloadTimer = null;
 
-        // onUpdated = «validaron (o corrigieron) una novedad»: si es mía y de hoy, se cambia o se añade
+        // reloadSoon = «volver a pedir la lista en un momento»: varios avisos seguidos, una sola petición
+        const reloadSoon = () => {
+            clearTimeout(reloadTimer);
+            reloadTimer = setTimeout(load, RELOAD_DELAY_MS);
+        };
+
+        // isMine = «la novedad del aviso es de este operador»; null si el aviso no trae con qué saberlo
+        const isMine = (doc) => {
+            const owner = doc?.sharedByUser?.user?.id;
+            return owner ? idOf(owner) === String(userId) : null;
+        };
+
+        // onUpdated = «validaron (o corrigieron) una novedad»: si es mía y de hoy, se cambia o se añade en el acto; y en
+        // todo caso se vuelve a pedir la lista, por si el aviso vino con otra forma. Si no se sabe de quién es, se pide
+        // la lista y listo: una petición de más es más barata que una barra que no reacciona.
         const onUpdated = (data) => {
             const doc = data?.doc;
-            if (!doc || idOf(doc.sharedByUser?.user?.id) !== String(userId)) return;
-            if (operationalDay(new Date(doc.createdAt)) !== day) return;
+            const mine = isMine(doc);
+            if (mine === false) return;
+            reloadSoon();
+            if (mine === null || !doc.createdAt || operationalDay(new Date(doc.createdAt)) !== day) return;
 
             const novelty = leanNovelty(doc);
             setState(current => {
@@ -92,11 +112,11 @@ export default function useMyNovelties(userId) {
             });
         };
 
-        // onCreated = «alguien creó una novedad»: si fui yo, se pide la lista otra vez
+        // onCreated = «alguien creó una novedad»: si fui yo (o no se sabe), se pide la lista otra vez
         const onCreated = (data) => {
-            if (String(data?.user?.idUser ?? '') !== String(userId)) return;
-            clearTimeout(createdTimer);
-            createdTimer = setTimeout(load, CREATED_DELAY_MS);
+            const creator = data?.user?.idUser;
+            if (creator && String(creator) !== String(userId)) return;
+            reloadSoon();
         };
 
         socketAppManager.on('document_updated', onUpdated);
@@ -109,7 +129,7 @@ export default function useMyNovelties(userId) {
             socketAppManager.off('created_Alert', onCreated);
             socketAppManager.off('connect', load);
             clearInterval(refresh);
-            clearTimeout(createdTimer);
+            clearTimeout(reloadTimer);
         };
     }, [userId, day, load]);
 

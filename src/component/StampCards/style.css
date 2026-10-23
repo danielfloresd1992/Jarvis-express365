@@ -49,6 +49,18 @@
     color: #9be08a;
 }
 
+/*  De aquí sale el confeti (ConfettiBurst): el botón con su ráfaga encima  */
+.stamp-strip__origin {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+}
+
+/*  El saltito del botón cuando la aprobada trajo bono  */
+.stamp-strip__toggle--bump {
+    animation: stamp-bump 0.5s ease-out;
+}
+
 .stamp-strip__toggle:hover {
     background: #463f2f;
 }
@@ -101,7 +113,13 @@
 }
 
 .stamp-strip__rejected {
+    display: inline-block;
     color: var(--color-jx-critico-texto);
+}
+
+/*  Acaban de rechazar una: la cuenta tiembla y se enciende un momento (useStampNews). Sin más: se avisa, no se castiga  */
+.stamp-strip__rejected--fresh {
+    animation: stamp-shake 0.6s ease-out, stamp-flash-red 1.6s ease-out;
 }
 
 
@@ -451,6 +469,11 @@
     font-weight: 600;
 }
 
+/*  El renglón que acaba de llegar: entra deslizándose y queda encendido un momento  */
+.stamp-list__row--fresh {
+    animation: stamp-row-in 0.4s ease-out, stamp-row-glow 1.8s ease-out;
+}
+
 
 /* ── ¡Tarjeta llena! ── */
 .stamp-toast {
@@ -574,6 +597,90 @@
     100% { transform: translateX(-50%) scale(1); }
 }
 
+/* ── El confeti de una aprobada (ConfettiBurst) ──
+   Cada papelito sale del centro del botón con su recorrido en variables (--dx, --rise, --fall, --spin, --delay,
+   --duration): sube, se abre y cae un poco mientras se apaga. No recibe clics: no estorba aunque pase por encima. */
+.stamp-confetti {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.stamp-confetti__bit {
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    opacity: 0;
+    animation: stamp-confetti var(--duration) cubic-bezier(0.2, 0.7, 0.4, 1) var(--delay) forwards;
+}
+
+/*  Los bonos que trajo, subiendo despacio desde el botón  */
+.stamp-confetti__amount {
+    position: absolute;
+    left: 0;
+    bottom: 16px;
+    padding: 1px 0.5rem;
+    border: 1px solid #b9dcae;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--color-jx-verde-texto);
+    font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(47, 42, 30, 0.12);
+    animation: stamp-rise 1.7s ease-out forwards;
+}
+
+@keyframes stamp-confetti {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.6); opacity: 1; }
+    40% { transform: translate(calc(var(--dx) * 0.75), var(--rise)) rotate(calc(var(--spin) * 0.5)) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--fall)) rotate(var(--spin)) scale(0.9); opacity: 0; }
+}
+
+@keyframes stamp-rise {
+    0% { transform: translate(-50%, 8px); opacity: 0; }
+    20% { transform: translate(-50%, 0); opacity: 1; }
+    75% { transform: translate(-50%, -26px); opacity: 1; }
+    100% { transform: translate(-50%, -34px); opacity: 0; }
+}
+
+@keyframes stamp-bump {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes stamp-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+}
+
+@keyframes stamp-flash-red {
+    0% { color: var(--color-jx-critico-texto); text-shadow: 0 0 0 transparent; }
+    25% { color: var(--color-jx-critico); text-shadow: 0 0 10px rgba(208, 59, 59, 0.5); }
+    100% { color: var(--color-jx-critico-texto); text-shadow: 0 0 0 transparent; }
+}
+
+@keyframes stamp-row-in {
+    0% { transform: translateY(-8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes stamp-row-glow {
+    0% { box-shadow: 0 0 0 0 rgba(208, 59, 59, 0.45); }
+    30% { box-shadow: 0 0 0 4px rgba(208, 59, 59, 0.25); }
+    100% { box-shadow: 0 0 0 0 rgba(208, 59, 59, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .stamp--fresh,
     .stamp--pending,
@@ -581,7 +688,14 @@
     .stamp-chip--fresh,
     .stamp-card--celebrate,
     .stamp-toast,
-    .stamp-toast__seal {
+    .stamp-toast__seal,
+    .stamp-strip__toggle--bump,
+    .stamp-strip__rejected--fresh,
+    .stamp-list__row--fresh {
         animation: none;
+    }
+
+    .stamp-confetti {
+        display: none;
     }
 }

@@ -17,8 +17,9 @@ import { operationalDayLabel } from '../../../libs/date_time/operationalDay.js';
  *  @param {string} message   por qué falló
  *  @param {string} day       el día operativo, 'AAAA-MM-DD'
  *  @param {Set}    freshIds  los sellos que acaban de caer
+ *  @param {Set}    freshRejectedIds  las que acaban de rechazar: su renglón entra resaltado
  */
-export default function StampPanel({ result, status, message, day, freshIds }) {
+export default function StampPanel({ result, status, message, day, freshIds, freshRejectedIds = new Set() }) {
 
     const { cards, others, rejected, totals } = result;
 
@@ -50,7 +51,7 @@ export default function StampPanel({ result, status, message, day, freshIds }) {
             )}
 
             {others.length > 0 && <NoveltyList title={`Sin tarjeta · ${others.length}`} hint='no dan bono' items={others} kind='other' />}
-            {rejected.length > 0 && <NoveltyList title={`${rejected.length === 1 ? 'Rechazada' : 'Rechazadas'} · ${rejected.length}`} hint='no ocupan sello ni quitan ninguno' items={rejected} kind='rejected' />}
+            {rejected.length > 0 && <NoveltyList title={`${rejected.length === 1 ? 'Rechazada' : 'Rechazadas'} · ${rejected.length}`} hint='no ocupan sello ni quitan ninguno' items={rejected} kind='rejected' freshIds={freshRejectedIds} />}
 
             {totals.pending > 0 && (
                 <p className='stamp-panel__note'>Los sellos a lápiz esperan validación: su casilla es la que les tocaría si las aprueban.</p>

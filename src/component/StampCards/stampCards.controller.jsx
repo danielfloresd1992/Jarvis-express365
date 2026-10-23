@@ -20,7 +20,7 @@ import { buildStampCards } from '../../libs/bonus/stampCards.js';
  *      useMyNovelties     las novedades del día, al día por el socket
  *      useBonusCatalog    las alertas y las reglas, para adelantar dónde va el sello de las que esperan
  *      buildStampCards    las novedades → las tarjetas (libs/bonus/stampCards.js, pura)
- *      useStampNews       el sello que acaba de caer y la tarjeta que se acaba de llenar
+ *      useStampNews       la aprobada que acaba de llegar (su sello y el confeti) y la tarjeta que se acaba de llenar
  *      useStampPanel      el panel, abierto o cerrado
  *
  *  Va dentro de la barra del chat (Chat.jsx), a la izquierda del botón del chat. Sin usuario no pinta nada.
@@ -35,7 +35,7 @@ export default function StampCards() {
     // result = «las tarjetas de hoy»
     const result = useMemo(() => buildStampCards({ novelties, menus, rulesById, user }), [novelties, menus, rulesById, user]);
 
-    const { freshIds, celebration, dismissCelebration } = useStampNews({
+    const { freshIds, freshRejectedIds, celebration, dismissCelebration, burst } = useStampNews({
         novelties,
         cards: result.cards,
         ready: status === 'ready',
@@ -48,7 +48,7 @@ export default function StampCards() {
 
     return (
         <div ref={panel.wrapperRef} className='stamp-cards'>
-            {panel.open && <StampPanel result={result} status={status} message={message} day={day} freshIds={freshIds} />}
+            {panel.open && <StampPanel result={result} status={status} message={message} day={day} freshIds={freshIds} freshRejectedIds={freshRejectedIds} />}
             {celebration && <FullCardToast celebration={celebration} onClose={dismissCelebration} />}
             <StampStrip
                 result={result}
@@ -58,6 +58,8 @@ export default function StampCards() {
                 onToggle={panel.toggle}
                 buttonRef={panel.buttonRef}
                 freshIds={freshIds}
+                freshRejectedIds={freshRejectedIds}
+                burst={burst}
             />
         </div>
     );

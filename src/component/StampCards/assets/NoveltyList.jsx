@@ -12,8 +12,9 @@
  *  @param {string} hint   lo que va detrás del título, más claro (opcional)
  *  @param {Array}  items  renglones de buildStampCards (rejected u others)
  *  @param {string} kind   'rejected' | 'other'
+ *  @param {Set}    freshIds  las que acaban de llegar a esta lista: su renglón entra resaltado
  */
-export default function NoveltyList({ title, hint, items, kind }) {
+export default function NoveltyList({ title, hint, items, kind, freshIds = new Set() }) {
 
     // why = «lo que se dice a la derecha de cada una»
     const why = (item) => {
@@ -29,7 +30,7 @@ export default function NoveltyList({ title, hint, items, kind }) {
             </h3>
             <ul className='stamp-list__rows'>
                 {items.map(item => (
-                    <li key={item.id} className='stamp-list__row'>
+                    <li key={item.id} className={`stamp-list__row ${freshIds.has(item.id) ? 'stamp-list__row--fresh' : ''}`}>
                         <b className='stamp-list__time'>{item.time}</b>
                         <span className='stamp-list__what'>
                             {item.title}
