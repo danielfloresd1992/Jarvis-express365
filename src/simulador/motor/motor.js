@@ -1085,6 +1085,12 @@ export function crearMotor({ semilla = Date.now(), ajustes: ajustesIniciales = {
         tiempoCabecera: formatoCronometro((t.despachadaEn ?? simMs) - t.enviadaEn),
         segundosDeEspera: Math.floor(((t.despachadaEn ?? simMs) - t.enviadaEn) / 1000),
         tiempoFuego: t.disparadaEn === null ? '' : formatoCronometro(simMs - t.disparadaEn),
+
+        //  Lo que lleva DISPARADA, que es desde donde Toast cuenta los «Warning Colors»
+        //  («after it is fired»). Una retenida no se ha disparado: null, y sin color de
+        //  aviso. Se congela al despachar, como el contador de la cabecera: la que salió
+        //  a tiempo no se pone de aviso después, esperando en «recently fulfilled».
+        segundosDeFuego: t.disparadaEn === null ? null : Math.floor(((t.despachadaEn ?? simMs) - t.disparadaEn) / 1000),
         todosHechos: t.items.length > 0 && t.items.every(i => i.hecho),
     });
 

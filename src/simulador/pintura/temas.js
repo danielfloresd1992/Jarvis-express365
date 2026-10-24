@@ -82,8 +82,8 @@ export const TEMA_OSCURA = {
      *
      *      aviso     el verde de los «Warning Colors». En «Expediter - 1» sale a los 5 min
      *                del FIRE, no del contador de arriba: una mesa con 6:18 arriba y FIRE
-     *                1:16 seguía gris, y con FIRE 5:13 ya estaba verde. (El simulador lo
-     *                cuenta todavía desde el de arriba, con el umbral del panel.)
+     *                1:16 seguía gris, y con FIRE 5:13 ya estaba verde. Es lo que dice
+     *                Toast de sus «Warning Colors»: cuentan «after it is fired».
      *      titileo   «Flash Changes»: lo que no se ha despachado alterna su color con este
      *                amarillo, un segundo cada uno (ver estadoDeCabecera, en maquetar.js).
      *

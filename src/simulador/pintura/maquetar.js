@@ -87,12 +87,17 @@ const textoDelCurso = (curso, tema) =>
  *  lectura NO debe tomar por un «listo».
  *
  *      la EDAD      la alarma de Toast («Warning Colors»), con los umbrales que cada
- *                   restaurante configura.
+ *                   restaurante configura. Cuenta desde el FIRE, no desde que entró el
+ *                   ticket («after it is fired», dice Toast): una retenida (HOLD) no
+ *                   se ha disparado y no se pone nunca de aviso.
  *      el TITILEO   «Flash Changes»: un ticket nuevo o cambiado alterna su cabecera con
  *                   amarillo hasta que alguien lo reconoce. En el restaurante nadie lo
  *                   hace, así que titila hasta que lo despachan, por vieja que sea y esté
- *                   en HOLD o en fuego. Va por encima de la edad: una verde alterna con
- *                   el mismo amarillo que una gris.
+ *                   en HOLD o en fuego. Va por encima de la edad: una de aviso alterna
+ *                   el color del aviso con el mismo amarillo que una normal («flashes in
+ *                   the warning color rather than the default color», nota de Toast del
+ *                   17-09-2026). Por eso en la vista clara una vieja titila entre dos
+ *                   amarillos, el dorado del aviso y el del titileo.
  *
  *  'titileoEncendido' dice si ahora toca la fase amarilla. Es una sola para toda la
  *  pantalla: en la tablet titilan todas a la vez, y el cambio es seco, sin fundido. Lo
@@ -104,8 +109,9 @@ export function estadoDeCabecera(tarjeta, tema, umbrales, titileoEncendido = fal
 
     if (titileoEncendido && tema.cabecera.titileo && tarjeta.estado !== 'despachada') return 'titileo';
 
-    if (tarjeta.segundosDeEspera >= umbrales.rojoS) return 'peligro';
-    if (tarjeta.segundosDeEspera >= umbrales.amarilloS) return 'aviso';
+    if (tarjeta.segundosDeFuego === null || tarjeta.segundosDeFuego === undefined) return 'normal';
+    if (tarjeta.segundosDeFuego >= umbrales.rojoS) return 'peligro';
+    if (tarjeta.segundosDeFuego >= umbrales.amarilloS) return 'aviso';
     return 'normal';
 }
 
