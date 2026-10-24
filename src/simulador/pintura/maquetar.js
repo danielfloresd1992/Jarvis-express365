@@ -82,13 +82,27 @@ const textoDelCurso = (curso, tema) =>
     tema.cursoEnMayusculas ? curso.toUpperCase() : curso.charAt(0).toUpperCase() + curso.slice(1).toLowerCase();
 
 
-/*  El color de la cabecera según lo que lleva esperando: es la alarma de edad de Toast
- *  («Warning Colors»), con los umbrales que cada restaurante configura. No dice nada
- *  del estado del pedido — y precisamente por eso conviene simularla: es el cambio de
- *  color que la lectura NO debe tomar por un «listo».
+/*  El color de la cabecera. Lo deciden dos cosas, y ninguna dice nada del estado del
+ *  pedido — precisamente por eso conviene simularlas: son cambios de color que la
+ *  lectura NO debe tomar por un «listo».
+ *
+ *      la EDAD      la alarma de Toast («Warning Colors»), con los umbrales que cada
+ *                   restaurante configura.
+ *      el TITILEO   «Flash Changes»: un ticket nuevo o cambiado alterna su cabecera con
+ *                   amarillo hasta que alguien lo reconoce. En el restaurante nadie lo
+ *                   hace, así que titila hasta que lo despachan, por vieja que sea y esté
+ *                   en HOLD o en fuego. Va por encima de la edad: una verde alterna con
+ *                   el mismo amarillo que una gris.
+ *
+ *  'titileoEncendido' dice si ahora toca la fase amarilla. Es una sola para toda la
+ *  pantalla: en la tablet titilan todas a la vez, y el cambio es seco, sin fundido. Lo
+ *  único que no se imita: la tarjeta que acaba de llegar va desfasada menos de un
+ *  segundo, hasta el siguiente cambio.
  */
-export function estadoDeCabecera(tarjeta, tema, umbrales) {
+export function estadoDeCabecera(tarjeta, tema, umbrales, titileoEncendido = false) {
     if (tarjeta.estado === 'despachada' && tema.cabecera.despachada) return 'despachada';
+
+    if (titileoEncendido && tema.cabecera.titileo && tarjeta.estado !== 'despachada') return 'titileo';
 
     if (tarjeta.segundosDeEspera >= umbrales.rojoS) return 'peligro';
     if (tarjeta.segundosDeEspera >= umbrales.amarilloS) return 'aviso';

@@ -69,8 +69,9 @@ const INITIAL_SETTINGS = {
     alto: 768,
     escala: 1,              //  2 = captura a doble resolución, como una tablet más densa
     estacion: '',
-    amarilloS: 6 * 60,      //  a partir de cuánto la cabecera pasa a amarillo…
+    amarilloS: 6 * 60,      //  a partir de cuánto la cabecera pasa a aviso (verde en la oscura, amarillo en la clara)…
     rojoS: 15 * 60,         //  …y a rojo. Son los «Warning Colors» de Toast.
+    titileo: true,          //  «Flash Changes»: lo que no se ha despachado alterna su cabecera con amarillo
     avisos: 72,
     vistaTotal: false,
 

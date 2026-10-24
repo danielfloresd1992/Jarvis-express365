@@ -78,12 +78,25 @@ export const TEMA_OSCURA = {
 
     bordes: { mesa: '#00872e', llevar: '#7cb4ee' },
 
+    /*  LA CABECERA. El aviso y el titileo, medidos en la tablet el 24-10-2026:
+     *
+     *      aviso     el verde de los «Warning Colors». En «Expediter - 1» sale a los 5 min
+     *                del FIRE, no del contador de arriba: una mesa con 6:18 arriba y FIRE
+     *                1:16 seguía gris, y con FIRE 5:13 ya estaba verde. (El simulador lo
+     *                cuenta todavía desde el de arriba, con el umbral del panel.)
+     *      titileo   «Flash Changes»: lo que no se ha despachado alterna su color con este
+     *                amarillo, un segundo cada uno (ver estadoDeCabecera, en maquetar.js).
+     *
+     *  Antes el aviso era este mismo amarillo con su misma letra: salía de una captura
+     *  hecha en la fase amarilla del titileo, que no es ningún aviso por edad.
+     */
     cabecera: {
         alto: 64,
         normal:     { fondo: '#333333', texto: '#ffffff' },
-        aviso:      { fondo: '#f1e166', texto: '#333333' },
+        aviso:      { fondo: '#0ce055', texto: '#333333' },
         peligro:    { fondo: '#f53655', texto: '#ffffff' },
         despachada: { fondo: '#777a87', texto: '#ffffff' },
+        titileo:    { fondo: '#f1e166', texto: '#333333' },
     },
 
     cuerpo: {
@@ -183,6 +196,9 @@ const TEMA_CLARA_BASE = {
         peligro: { fondo: '#f07166', texto: '#252525' },
         //  Aquí lo despachado NO cambia de cabecera: se reconoce por el cuerpo verde.
         despachada: null,
+        //  El titileo, con el amarillo medido en «Expediter - 1»: en esta apariencia no se
+        //  ha medido, pero «Flash Changes» es una opción del restaurante, no de cada tablet.
+        titileo: { fondo: '#f1e166', texto: '#333333' },
     },
 
     cuerpo: {

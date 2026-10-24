@@ -64,9 +64,12 @@ export const ESCENAS = {
 
 
     //  «Expediter - 1», 20:10 — un Uber tan largo que sigue en la columna de al lado.
+    //  En la captura las dos tarjetas sin despachar llevan la cabecera amarilla, el Uber
+    //  con 27 s: no es un aviso por edad, es la fase amarilla del titileo. La escena
+    //  titila como la tablet (antes lo fingía con el aviso a los 0 s).
     'expediter-continued': {
         nombre: 'Expediter - 1 · ticket largo con «Continued…»',
-        ajustes: { tema: 'oscura', amarilloS: 0, rojoS: min(60) },
+        ajustes: { tema: 'oscura', amarilloS: min(30), rojoS: min(60) },
         tarjetas: [
             {
                 numero: 159, mesa: 4, comensales: 3, mesero: 'Edmily R', tipoOrden: 'mesa',

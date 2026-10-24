@@ -22,6 +22,11 @@ const REPAINT_MS = 250;
 // HEARTBEAT_MS = «cada cuánto late la ventana, en milisegundos»
 const HEARTBEAT_MS = 1000;
 
+// BLINK_PHASE_MS = «lo que dura cada color del titileo, en milisegundos»
+// Medido en la tablet: un periodo de 2,00 s, mitad amarillo y mitad el color de la cabecera. Va con la hora de verdad
+// y no con la de la simulación: es una animación de la pantalla, y con el reloj acelerado la tablet titilaría igual.
+const BLINK_PHASE_MS = 1000;
+
 // FONT_URL = «la letra de Toast»
 // Toast está hecho para Android y usa Roboto. Sin ella el lienzo pinta con la letra del sistema, que
 // es más ancha: los textos se parten por otro sitio y la pantalla deja de parecerse a la de verdad.
@@ -115,10 +120,14 @@ function useScreen({ engine, settings }) {
             }
         }
 
+        //  El titileo: la fase la da la hora, y es la misma para todas las tarjetas.
+        const blinkOn = currentSettings.titileo && Math.floor(Date.now() / BLINK_PHASE_MS) % 2 === 0;
+
         const barZones = pintarPantalla(ctx, {
             tema: theme,
             maqueta: layout,
             umbrales: { amarilloS: currentSettings.amarilloS, rojoS: currentSettings.rojoS },
+            titileo: blinkOn,
             estado: {
                 hora: engine.reloj(),
                 avisos: currentSettings.avisos,

@@ -652,7 +652,7 @@ function cabeceraClara(ctx, tema, tarjeta, x, y, ancho, fila, colores) {
 
 //  ── UNA TARJETA (O UN TROZO DE ELLA) ─────────────────────────────────────────
 
-function pintarFragmento(ctx, tema, fragmento, umbrales) {
+function pintarFragmento(ctx, tema, fragmento, umbrales, titileo) {
     const { tarjeta, x, y, ancho, alto, filas } = fragmento;
     const { columna, m, tinta, cuerpo } = tema;
 
@@ -694,7 +694,7 @@ function pintarFragmento(ctx, tema, fragmento, umbrales) {
     for (const fila of filas) {
 
         if (fila.tipo === 'cabecera') {
-            const colores = tema.cabecera[estadoDeCabecera(tarjeta, tema, umbrales)];
+            const colores = tema.cabecera[estadoDeCabecera(tarjeta, tema, umbrales, titileo)];
             (clara ? cabeceraClara : cabeceraOscura)(ctx, tema, tarjeta, ix, fila.y, iancho, fila, colores);
         }
 
@@ -807,11 +807,13 @@ function pintarProducto(ctx, tema, tarjeta, fila, ix, atenuar) {
  * @param {object} que.maqueta            lo que devolvió maquetar()
  * @param {object} que.estado             { hora, avisos, recientesVisibles, vistaTotal, totalTickets, conteo }
  * @param {object} que.umbrales           { amarilloS, rojoS }
+ * @param {boolean} [que.titileo]         si ahora toca la fase amarilla del titileo (ver
+ *                                        estadoDeCabecera); false con el titileo apagado
  * @returns {Array} las zonas de las barras que responden a un toque: { x, y, ancho, alto, accion },
  *                  con accion 'vistaTotal' | 'recientes' | 'recuperar' y, en la vista clara, las
  *                  dos flechas del contador: 'paginaAnterior' | 'paginaSiguiente' (con 'activa')
  */
-export function pintarPantalla(ctx, { tema, maqueta, estado, umbrales }) {
+export function pintarPantalla(ctx, { tema, maqueta, estado, umbrales, titileo = false }) {
     const zonas = [];
 
     ctx.fillStyle = tema.fondo;
@@ -819,7 +821,7 @@ export function pintarPantalla(ctx, { tema, maqueta, estado, umbrales }) {
 
     if (estado.vistaTotal) vistaTotal(ctx, tema, estado.conteo ?? []);
 
-    for (const fragmento of maqueta.fragmentos) pintarFragmento(ctx, tema, fragmento, umbrales);
+    for (const fragmento of maqueta.fragmentos) pintarFragmento(ctx, tema, fragmento, umbrales, titileo);
 
     //  Las barras van DESPUÉS de las tarjetas: nada las pisa.
     barraDeEstado(ctx, tema, estado.hora);

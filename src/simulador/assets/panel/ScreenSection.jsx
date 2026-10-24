@@ -8,8 +8,8 @@ import Toggle from './Toggle.jsx';
 /*  LA SECCIÓN «PANTALLA DE TOAST»
  *
  *  Cómo se ve la pantalla: en cuál de sus páginas se está, la apariencia, el idioma, el tamaño de la
- *  tablet, el nombre de la estación, lo despachado, la vista «All day», los colores de la cabecera y el
- *  reloj adelantado. Nace plegada: se ajusta una vez y se olvida.
+ *  tablet, el nombre de la estación, lo despachado, la vista «All day», los colores de la cabecera y su
+ *  titileo, y el reloj adelantado. Nace plegada: se ajusta una vez y se olvida.
  *
  *  El título avisa de que hay más pantallas aunque la sección esté plegada: con la barra oscura, que no
  *  lleva contador de tickets, es el único sitio donde se ve.
@@ -69,8 +69,9 @@ export default function ScreenSection({ settings, change, page, turnPage }) {
             <Slider label='Lo despachado se queda' value={settings.minutosRecientes} min={1} max={15} onChange={minutes => change({ minutosRecientes: minutes })} format={minutes => `${minutes} min`} />
             <Toggle label='Vista «All day» abierta' value={settings.vistaTotal} onChange={open => change({ vistaTotal: open })} help='Ocupa una columna a la izquierda y corre las tarjetas.' />
 
-            <Slider label='Cabecera amarilla a los' value={settings.amarilloS} min={0} max={3600} step={30} onChange={seconds => change({ amarilloS: seconds })} format={minSeg} help='Los «Warning Colors» de Toast: la cabecera cambia de color por la EDAD del ticket, no por su estado.' />
+            <Slider label='Cabecera de aviso a los' value={settings.amarilloS} min={0} max={3600} step={30} onChange={seconds => change({ amarilloS: seconds })} format={minSeg} help='Los «Warning Colors» de Toast: la cabecera cambia de color por la EDAD del ticket, no por su estado. Verde en la barra oscura («Expediter - 1» lo pone a los 5 min), amarilla en la de botones con borde.' />
             <Slider label='Cabecera roja a los' value={settings.rojoS} min={0} max={7200} step={60} onChange={seconds => change({ rojoS: seconds })} format={minSeg} />
+            <Toggle label='Titileo de las cabeceras' value={settings.titileo} onChange={on => change({ titileo: on })} help='«Flash Changes» de Toast: la cabecera de cada ticket sin despachar alterna con amarillo, un segundo cada color, todas a la vez. Así está «Expediter - 1», y de ahí sale el amarillo de las dos apariencias.' />
             <Slider label='Reloj adelantado' value={settings.desfaseRelojMin} min={-180} max={180} step={15} onChange={minutes => change({ desfaseRelojMin: minutes })} format={minutes => `${minutes > 0 ? '+' : ''}${minutes} min`} help='La tablet y el equipo no marcan la misma hora. Las horas inferidas tienen que salir en el reloj de la TABLET.' />
         </Section>
     );
