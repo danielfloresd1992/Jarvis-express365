@@ -82,7 +82,7 @@ export default function TitleBar({ appName = 'Reportes de alertas' }) {
             </div>
 
 
-            {/*  DERECHA: minimizar, maximizar y cerrar (WindowControls, que lleva el `no-drag`)  */}
+            {/*  DERECHA: consola, minimizar, maximizar y cerrar (WindowControls, que lleva el `no-drag`)  */}
             <WindowControls className='window-controls--title-bar' />
 
         </div>

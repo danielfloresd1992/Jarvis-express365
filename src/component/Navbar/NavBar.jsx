@@ -22,7 +22,7 @@ import SwitchUserController from '../SwitchUser/switchUser.controller.jsx';
  *
  *  Dentro de la aplicación de escritorio se FUNDE con la barra de título (component/titleBar): se arrastra
  *  para mover la ventana (`WebkitAppRegion: 'drag'`; los botones van con `no-drag`, en App.css), dice el
- *  nombre de la ventana junto al logo y lleva al final minimizar, maximizar y cerrar (WindowControls).
+ *  nombre de la ventana junto al logo y lleva al final la consola, minimizar, maximizar y cerrar (WindowControls).
  *  Mientras está montada pone `has-app-bar` en el <html>: la barra de título suelta se oculta (index.css).
  *
  *  En una ventana estrecha los accesos se quedan en su icono, con el nombre al pasar el ratón (App.css).

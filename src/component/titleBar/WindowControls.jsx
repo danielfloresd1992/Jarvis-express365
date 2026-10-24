@@ -8,6 +8,11 @@ import { useState, useEffect } from 'react';
  *  el inicio de sesión) y la barra de navegación de Home (NavBar), que la lleva dentro desde que las dos se
  *  fundieron en una (pedido del usuario).
  *
+ *  Delante de las tres va una cuarta, la CONSOLA del navegador (pedido del usuario): abre las DevTools de
+ *  esta ventana. La carcasa quita el menú de Electron, y con el menú se va el atajo Ctrl+Shift+I; esta
+ *  tecla es el camino que queda. Solo se pinta si el preload de la carcasa trae 'abrirConsola': con una
+ *  carcasa anterior no sale, en vez de salir y no hacer nada.
+ *
  *  Van con `no-drag`: dentro de una zona arrastrable de la ventana (`WebkitAppRegion: 'drag'`) ningún
  *  elemento responde al clic si no lo lleva. Su aspecto va en las clases 'window-controls…' de App.css.
  *
@@ -36,6 +41,16 @@ export default function WindowControls({ className = '' }) {
 
     return (
         <div className={`window-controls ${className}`} style={{ WebkitAppRegion: 'no-drag' }}>
+
+            {/*  La consola: un «>_» de terminal  */}
+            {api.abrirConsola && (
+                <button type='button' className='window-controls__key' onClick={() => api.abrirConsola()} aria-label='Consola del navegador' title='Consola del navegador (DevTools)'>
+                    <svg width='10' height='10' viewBox='0 0 10 10' fill='none' stroke='currentColor' strokeWidth='1.1' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                        <path d='M1 1.5l3 3-3 3' />
+                        <path d='M5.5 8.5h3.5' />
+                    </svg>
+                </button>
+            )}
 
             <button type='button' className='window-controls__key' onClick={() => api.minimize?.()} aria-label='Minimizar' title='Minimizar'>
                 <svg width='10' height='10' viewBox='0 0 10 10' fill='none' stroke='currentColor' strokeWidth='1' aria-hidden='true'>
