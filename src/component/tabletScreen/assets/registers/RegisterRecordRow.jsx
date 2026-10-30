@@ -20,6 +20,7 @@ import SaveRecordButton from './SaveRecordButton.jsx';
 import { missingForPreparation, isPreparationLate } from './PreparationAlert.jsx';
 import { saveRecord } from '../../../../libs/fetch_data/rotationFetching.js';
 import { SHIFTS } from '../../../../libs/tickets/tableRecords.js';
+import { isFinished } from '../../../../libs/tickets/tableView.js';
 import { shiftOfTime } from '../../../../libs/date_time/operationalDay.js';
 import { clockNow } from '../../../../libs/date_time/waitingTime.js';
 
@@ -100,8 +101,10 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {function} onSaved         opcional. La API guardó la rotación: (la rotación guardada)
  *  @param {object}   dishTypes       el tipo de plato del local (createDishTypes, en dishTypes.js): las opciones del
  *                                    select y el tiempo de preparación de cada plato
+ *  @param {string}   match           opcional. Cómo coincide su mesa con lo que se busca en la barra de herramientas
+ *                                    (matchOf, en tableView.js): 'exact' marca la celda Mesa; 'partial' o '', nada.
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved, dishTypes }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved, dishTypes, match = '' }) {
 
     // open = «los procesos están desplegados»; touchesOpen = «los toques de gerente están desplegados».
     // Salen de la rotación y no de un estado de la fila: así se guardan en el equipo con ella.
@@ -455,10 +458,9 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     const canTouchByHand = !noTable && !takeOut;
 
     // finished = «la rotación ya terminó»: la mesa se limpió; un pedido para llevar, cuando se entregaron todos
-    // sus platos. El disquete se pone en verde: es la que toca guardar (SaveRecordButton, 'done').
-    const finished = takeOut
-        ? record.process.length > 0 && record.process.every(process => process.dishDelivery !== '')
-        : record.tableCleaning !== '';
+    // sus platos. El disquete se pone en verde: es la que toca guardar (SaveRecordButton, 'done'). La regla está en
+    // tableView.js, la misma con que la barra de herramientas cuenta y muestra las «Terminadas».
+    const finished = isFinished(record);
 
 
     //  EL CLIC DERECHO (pedido del usuario; propuesta «C · Barra rápida»): el menú de esta fila (useRowMenu). Lo que
@@ -541,8 +543,9 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                      En ocre y con «Nº de mesa» mientras se pide el número (ver 'askingTable').
                      El número va grande y grueso, y a la derecha el estado de la rotación: terminada o en
                      curso (la propuesta «A · Ordenada», elegida por el usuario; 'register-mesa-…' en registers.css).
-                     Ese icono se aparta del número como la flecha, con el mismo cálculo.  */}
-                <WrapperCell classStyles={`register-mesa-cell relative ${askingTable && noTable ? 'bg-jx-ocre-suave' : ''}`}>
+                     Ese icono se aparta del número como la flecha, con el mismo cálculo.
+                     Si es justo la mesa que se busca en la barra de herramientas, va marcada en oro ('match').  */}
+                <WrapperCell classStyles={`register-mesa-cell relative ${askingTable && noTable ? 'bg-jx-ocre-suave' : ''} ${match === 'exact' ? 'register-mesa-cell--found' : ''}`}>
                     <span className='absolute left-1 top-1/2 -translate-y-1/2'>
                         <ProcessToggle
                             count={record.process.length}

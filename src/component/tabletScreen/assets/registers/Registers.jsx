@@ -9,8 +9,11 @@ import RegisterEstablishment from './RegisterEstablishment.jsx';
 import RegisterTable from './RegisterTable.jsx';
 import RegisterSaved from './RegisterSaved.jsx';
 import RegisterTabPanel from './RegisterTabPanel.jsx';
+import RegisterToolbar from './RegisterToolbar.jsx';
+import RegisterViewSummary from './RegisterViewSummary.jsx';
 import useOperationalDay from '../../hook/useOperationalDay.jsx';
 import useStaleRotations from '../../hook/useStaleRotations.jsx';
+import useTableView from '../../hook/useTableView.jsx';
 
 
 /*  EL REGISTRO, CON SU BARRA
@@ -80,6 +83,11 @@ export default function Registers({ session, establishment = session.establishme
     const stale = useStaleRotations({ records: store.records, today, establishmentId, onSaved: rememberSaved, clearRecord: store.clearRecord });
     const addRecoveredHere = useCallback((fields) => addRecovered(fields, establishmentId), [addRecovered, establishmentId]);
 
+    // tableView = «qué filas de Mesas se ven y en qué orden»: lo buscado, lo que se muestra y el orden de la barra de
+    // herramientas (useTableView; pedido del usuario, propuesta «A · Barra de herramientas»). Las de días anteriores
+    // no entran: van aparte, arriba.
+    const tableView = useTableView({ records: store.records, staleIds: stale?.ids, attentionLimit: attention, cleaningLimit: cleaning, dishTypes });
+
     return (
         <>
             {/*  Las pestañas a la izquierda; a la derecha los totales del día ('ml-auto' los empuja) y, tras
@@ -130,8 +138,24 @@ export default function Registers({ session, establishment = session.establishme
                  Los seis últimos datos son para cuando está VACÍA: con ellos dice por qué, en vez de
                  enseñar filas en blanco que lo mismo son «todo bien» que «no leo».  */}
             <RegisterTabPanel visible={view === 'mesas'}>
+                {/*  Buscar una mesa, qué mostrar y cómo ordenar (RegisterToolbar)  */}
+                <RegisterToolbar
+                    view={tableView.view}
+                    counts={tableView.counts}
+                    onQuery={tableView.setQuery}
+                    onClearQuery={tableView.clearQuery}
+                    onShow={tableView.setShow}
+                    onSort={tableView.setSort}
+                />
+
                 <RegisterTable
                     records={store.records}
+                    rows={tableView.rows}
+                    query={tableView.view.query}
+                    sort={tableView.view.sort}
+                    filtering={tableView.filtering}
+                    emptyText={tableView.emptyText}
+                    onResetFilters={tableView.resetFilters}
                     liveOrders={tracking.orders}
                     attentionLimit={attention}
                     cleaningLimit={cleaning}
@@ -159,6 +183,9 @@ export default function Registers({ session, establishment = session.establishme
                     stale={stale}
                     dishTypes={dishTypes}
                 />
+
+                {/*  Lo que se está viendo: cuántas filas y en qué orden  */}
+                <RegisterViewSummary view={tableView.view} shown={tableView.shown} inUse={tableView.inUse} filtering={tableView.filtering} />
             </RegisterTabPanel>
         </>
     );

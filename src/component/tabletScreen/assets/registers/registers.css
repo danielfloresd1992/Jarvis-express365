@@ -2071,3 +2071,265 @@
     border-radius: 50%;
     background: var(--color-jx-verde-barra);
 }
+
+
+/* ═══════════════════════════════════════════════
+   BUSCAR, MOSTRAR Y ORDENAR MESAS
+   ═══════════════════════════════════════════════ */
+
+/*  La propuesta «A · Barra de herramientas», elegida por el usuario: una franja clara entre la barra del register y
+    la tabla, con el buscador, las cápsulas de qué mostrar y el orden (RegisterToolbar); debajo de la tabla, el pie que
+    dice lo que se ve (RegisterViewSummary). Clases y no utilidades de Tailwind: la regla global 'button {}' de
+    index.css les gana en relleno, borde y letra.  */
+
+.register-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 6px 8px;
+    background: #fffdf8;
+    border-bottom: 1px solid var(--color-jx-regla);
+}
+
+/*  EL BUSCADOR: borde de campo, y en ocre con algo escrito, que es cuando la tabla deja de enseñarlo todo  */
+.register-search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 190px;
+    height: 30px;
+    box-sizing: border-box;
+    padding: 0 4px 0 9px;
+    background: #ffffff;
+    border: 1.5px solid var(--color-jx-borde-campo);
+    border-radius: 8px;
+    color: var(--color-jx-tinta2);
+}
+
+.register-search:focus-within {
+    outline: 2px solid var(--color-jx-verde-barra);
+    outline-offset: 1px;
+}
+
+.register-search--active {
+    border-color: var(--color-jx-ocre-texto);
+    background: var(--color-jx-ocre-suave);
+}
+
+.register-search__icon { flex-shrink: 0; }
+
+.register-search__input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-jx-tinta);
+}
+
+.register-search__input:focus { outline: none; }
+.register-search__input::placeholder { color: var(--color-jx-tinta3); font-weight: 500; }
+
+.register-search__clear {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 6px;
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta2);
+}
+
+.register-search__clear:hover { background: var(--color-jx-regla2); color: var(--color-jx-tinta); }
+
+/*  QUÉ MOSTRAR: cápsulas con su cuenta. La elegida, en tinta. Mientras se busca se apagan: no cuentan.  */
+.register-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+}
+
+.register-chips--muted { opacity: 0.5; }
+
+.register-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 6px 0 10px;
+    border: 1px solid var(--color-jx-regla2);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--color-jx-tinta);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.register-chip:hover { border-color: var(--color-jx-tinta3); }
+
+.register-chip[aria-pressed='true'] {
+    background: var(--color-jx-tinta);
+    border-color: var(--color-jx-tinta);
+    color: #ffffff;
+}
+
+.register-chip__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-jx-critico);
+}
+
+.register-chip__count {
+    min-width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--color-jx-hundido);
+    color: var(--color-jx-tinta2);
+    font-size: 10.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.register-chip[aria-pressed='true'] .register-chip__count {
+    background: rgb(255 255 255 / 0.22);
+    color: #ffffff;
+}
+
+/*  CÓMO ORDENAR: a la derecha, con el mismo aspecto que las pestañas Mesas / Registros  */
+.register-sort {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.register-sort__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-jx-tinta2);
+}
+
+.register-sort__options {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 7px;
+    background: var(--color-jx-regla);
+}
+
+.register-sort__option {
+    height: 26px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--color-jx-tinta2);
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.register-sort__option:hover { color: var(--color-jx-tinta); }
+
+.register-sort__option[aria-pressed='true'] {
+    background: #ffffff;
+    color: var(--color-jx-tinta);
+    box-shadow: 0 1px 2px rgb(47 42 30 / 0.18);
+}
+
+.register-chip:focus-visible,
+.register-search__clear:focus-visible,
+.register-sort__option:focus-visible,
+.register-filter-empty__reset:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }
+
+/*  LA FLECHA DE LA CABECERA MESA: ordenada por número, ↑ de menor a mayor y ↓ de mayor a menor  */
+.register-sort-arrow {
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/*  LA MESA BUSCADA: si lo escrito es justo su número, la celda va en oro, con el marco por dentro  */
+.register-mesa-cell--found {
+    background: var(--color-jx-ocre-suave);
+    box-shadow: inset 0 0 0 2px var(--color-jx-ocre);
+}
+
+/*  LO BUSCADO O LO MOSTRADO NO DEJA NINGUNA FILA  */
+.register-filter-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 40px 16px;
+    background: var(--color-jx-lienzo);
+}
+
+.register-filter-empty__text {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-jx-tinta);
+}
+
+.register-filter-empty__reset {
+    height: 32px;
+    padding: 0 14px;
+    border: 1px solid var(--color-jx-borde-campo);
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--color-jx-tinta);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.register-filter-empty__reset:hover { background: var(--color-jx-hundido); }
+
+/*  EL PIE: lo que se está viendo. El embudo, en ocre, solo mientras se busca o se muestra una parte.  */
+.register-view-summary {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 6px;
+    margin: 0;
+    padding: 4px 10px;
+    border-top: 1px solid var(--color-jx-regla);
+    background: var(--color-jx-tarjeta);
+    font-size: 11px;
+    color: var(--color-jx-tinta2);
+}
+
+.register-view-summary > svg { color: var(--color-jx-ocre-texto); }
+
+.register-view-summary__count {
+    font-weight: 600;
+    color: var(--color-jx-tinta);
+}
+
+.register-view-summary__dot { margin-right: 6px; }
+
+/*  Una celda llevada a la vista (el teclado, o la fila que salta a su sitio al ordenar) no queda debajo de la
+    cabecera fija, que mide 46 px  */
+.register-rotation [data-grid-cell] {
+    scroll-margin-top: 48px;
+}
