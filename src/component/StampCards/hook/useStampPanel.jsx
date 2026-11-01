@@ -20,7 +20,7 @@ export default function useStampPanel() {
     const toggle = useCallback(() => setOpen(current => !current), []);
     const close = useCallback(() => setOpen(false), []);
 
-    //  El pedido del aviso de «Entregada con éxito». El clic que lo pidió ya pasó: no cuenta como «clic fuera».
+    //  El pedido del aviso de «Entregada con éxito»
     useEffect(() => {
         const openOnRequest = () => setOpen(true);
         window.addEventListener(STAMP_CARDS_OPEN_EVENT, openOnRequest);
@@ -30,12 +30,22 @@ export default function useStampPanel() {
     useEffect(() => {
         if (!open) return undefined;
 
+        // openedAt = «cuándo se abrió», en el mismo reloj que 'event.timeStamp'.
+        //
+        // EL CLIC QUE LO ABRIÓ DESDE FUERA NO LO CIERRA. «Ver mis tarjetas» está fuera de la barra, y su clic sigue
+        // subiendo hacia 'document' después de pedir el panel. Con un clic de verdad, el navegador deja pintar a React
+        // entre un oyente y el siguiente: este efecto pone su oyente de «clic fuera» ANTES de que ese mismo clic llegue
+        // a 'document', y lo cerraba en el acto (el panel se abría y se cerraba sin llegar a verse). Un clic que
+        // empezó antes de abrirse no es un clic fuera.
+        const openedAt = performance.now();
+
         const closeOnEscape = (event) => {
             if (event.key !== 'Escape') return;
             setOpen(false);
             buttonRef.current?.focus();
         };
         const closeOnClickOutside = (event) => {
+            if (event.timeStamp <= openedAt) return;
             if (!wrapperRef.current?.contains(event.target)) setOpen(false);
         };
 

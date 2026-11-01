@@ -14,7 +14,7 @@ import { clockOf } from '../../../libs/bonus/stampCards.js';
  *      │   Un cuarto más: te faltan 2…        │
  *      │   ◌ A la espera de su validación     │
  *      │   ● ◔ ◌  Hoy: 1,25 · +0,25 en juego  │
- *      │          [Ver mis tarjetas] [Seguir] │
+ *      │       [Ver mis tarjetas] [Continuar] │
  *      └──────────────────────────────────────┘
  *
  *  Solo pinta: lo que dice sale de sentReaction y de useTodayBonus. Su aspecto, en 'sent-modal…' de style.css.
@@ -30,8 +30,8 @@ const BURST_BY_KIND = { full: 'full', override: 'full', night: 'full', step: 'bo
  *  @param {string}   localMark   las iniciales del local (moneda con excepción)
  *  @param {object}   today       { ready, totals } (useTodayBonus)
  *  @param {object}   primaryRef  el botón principal (el foco va ahí)
- *  @param {function} onClose     «Seguir vigilando»
- *  @param {function} onCards     «Ver mis tarjetas»
+ *  @param {function} onClose     «Continuar» (pedido del usuario; antes decía «Seguir vigilando»)
+ *  @param {function} onCards     «Ver mis tarjetas»: abre el panel de las tarjetas de la barra de abajo
  */
 export default function SentModal({ reaction, sent, localMark, today, primaryRef, onClose, onCards }) {
 
@@ -75,7 +75,7 @@ export default function SentModal({ reaction, sent, localMark, today, primaryRef
 
                 <div className='sent-modal__actions'>
                     <button type='button' className='sent-modal__button' onClick={onCards}>Ver mis tarjetas</button>
-                    <button ref={primaryRef} type='button' className='sent-modal__button sent-modal__button--primary' onClick={onClose}>Seguir vigilando</button>
+                    <button ref={primaryRef} type='button' className='sent-modal__button sent-modal__button--primary' onClick={onClose}>Continuar</button>
                 </div>
             </section>
         </div>

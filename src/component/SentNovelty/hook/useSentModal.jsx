@@ -3,11 +3,12 @@ import { useEffect, useRef } from 'react';
 
 /*  EL AVISO ABIERTO: el foco, Escape y el pedido de abrir las tarjetas
  *
- *  Al abrirse, el foco va al botón principal («Seguir vigilando»: Intro lo cierra). Escape también cierra. Pinchar el
+ *  Al abrirse, el foco va al botón principal («Continuar»: Intro lo cierra). Escape también cierra. Pinchar el
  *  velo no: como el BoxModal de la aplicación, un aviso se cierra con sus botones.
  *
  *  «Ver mis tarjetas» cierra el aviso y le pide a la barra de abajo que abra su panel (STAMP_CARDS_OPEN_EVENT, que
- *  escucha useStampPanel): no comparten estado, se avisan por la ventana.
+ *  escucha useStampPanel): no comparten estado, se avisan por la ventana. Que el clic de este botón no cierre el panel
+ *  recién abierto como un «clic fuera» lo resuelve useStampPanel.
  *
  *  @param {boolean}  open     hay un aviso a la vista
  *  @param {function} onClose  cerrarlo
