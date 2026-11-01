@@ -49,6 +49,8 @@ import './registers.css';
  *  @param {object}   stale           opcional. Las rotaciones de días anteriores (useStaleRotations): salen de su fila
  *                                    y van arriba, aparte y bloqueadas (RegisterStaleBlock)
  *  @param {object}   dishTypes       el tipo de plato del local (createDishTypes, en dishTypes.js): las opciones y el tiempo de cada plato
+ *  @param {Map}      novelties       opcional. Las novedades enlazadas a las rotaciones, enteras: _id → documento
+ *                                    (useLinkedNovelties, en la sesión). Con ellas cada bandera dice en qué quedó su alerta.
  *
  *  Lo que se ve, de la barra de herramientas (useTableView; propuesta «A · Barra de herramientas»):
  *  @param {Array}    rows            opcional. Las filas que se enseñan, ya buscadas, filtradas y ordenadas, sin las de días
@@ -59,7 +61,7 @@ import './registers.css';
  *  @param {string}   emptyText       qué decir si así no queda ninguna fila
  *  @param {function} onResetFilters  quitar la búsqueda y lo que se muestra (el botón de ese aviso)
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved, stale, dishTypes, rows, query = '', sort = 'arrival', filtering = false, emptyText = '', onResetFilters }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved, stale, dishTypes, novelties, rows, query = '', sort = 'arrival', filtering = false, emptyText = '', onResetFilters }) {
 
     // current = «las rotaciones de hoy, y las filas en blanco»: las de días anteriores van aparte, en su bloque
     const current = useMemo(() => (stale?.ids.size > 0 ? records.filter(record => !stale.ids.has(record.id)) : records), [records, stale]);
@@ -218,6 +220,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                             establishmentId={establishmentId}
                             onSaved={onSaved}
                             dishTypes={dishTypes}
+                            novelties={novelties}
                         />
                     ))
                 }

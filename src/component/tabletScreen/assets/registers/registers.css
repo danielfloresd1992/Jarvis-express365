@@ -1728,6 +1728,7 @@
 /*  «Marcada antes de estar listo» reportada (EarlyMarkFlag): la bandera pirata, NEGRA (pedido del usuario), con la
     calavera y los huesos en blanco. Va en la primera Duración del proceso, junto a lo que ya hubiera en ella.  */
 .register-pirate {
+    position: relative;
     flex: none;
     display: inline-flex;
     align-items: center;
@@ -1787,7 +1788,79 @@
     letter-spacing: 0.2px;
     line-height: 1;
     white-space: nowrap;
+    position: relative;
 }
+
+/*  LA ALERTA SE APROBÓ (pedido del usuario): la celda en verde, con el texto y la bandera en blanco. Es la celda de la
+    duración de una demora, la de Ocupa o Desocupa con su aviso, o la Duración de la tablet de un proceso. El verde de
+    texto con el blanco da 5,94 : 1, lo que pide la letra de la tabla. Pisa el rojo claro de la demora, el amarillo
+    pálido del aviso y el blanco con borde negro de la pirata (la fila pone esta clase EN LUGAR de esas).  */
+.register-cell--approved {
+    background-color: var(--color-jx-verde-texto);
+}
+
+/*  Sus banderas, en blanco: la de «Reportada» sin su píldora (ReportedFlag), la amarilla del aviso (WarnedFlag) y la
+    pirata (EarlyMarkFlag), con la calavera y los huesos del verde de la celda, como recortados.  */
+.register-reported--white { background: transparent; }
+.register-warned--white .register-warned__flag { fill: #ffffff; stroke: #ffffff; }
+.register-warned--white .register-warned__pole { stroke: #ffffff; }
+.register-pirate--white { color: #ffffff; }
+.register-pirate--white .register-pirate__mark { fill: var(--color-jx-verde-texto); }
+.register-pirate--white .register-pirate__bones { stroke: var(--color-jx-verde-texto); }
+
+/*  LA ALERTA SE INVALIDÓ (ResendAlertButton, pedido del usuario): en lugar de la bandera, una X blanca en un círculo
+    rojo, que envía otra alerta. Es un botón: al pasar el ratón, más oscura. Quieta, sin latir: no corre prisa como una
+    demora sin reportar. Con 'corner', en la esquina derecha de Ocupa o Desocupa, donde iba la bandera del aviso.
+    El rojo de texto con el blanco da 5,2 : 1.  */
+.register-resend {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-jx-critico-texto);
+    color: #ffffff;
+    transition: background-color 0.15s ease;
+}
+
+.register-resend:hover { background: color-mix(in srgb, var(--color-jx-critico-texto) 75%, #000000); }
+.register-resend:focus-visible { outline: 2px solid var(--color-jx-critico); outline-offset: 1px; }
+.register-resend:disabled { cursor: default; opacity: 0.6; }
+
+.register-resend--corner {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+}
+
+/*  EN QUÉ QUEDÓ LA ALERTA DE UNA BANDERA (NoveltyMarks): marcas de 11 px en la esquina de la bandera, con un aro blanco
+    que las separa de ella. Arriba la validación —verde aprobada (solo fuera de la celda verde), gris si ya no existe— y
+    abajo el lápiz ocre de modificada. No reciben el ratón: el 'title' es el de su bandera.  */
+.register-novelty-mark {
+    position: absolute;
+    right: -4px;
+    width: 11px;
+    height: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #ffffff;
+    box-shadow: 0 0 0 1.5px #ffffff;
+    pointer-events: none;
+}
+
+.register-novelty-mark--approved,
+.register-novelty-mark--missing { top: -4px; }
+.register-novelty-mark--edited { bottom: -4px; background: var(--color-jx-ocre-texto); }
+
+.register-novelty-mark--approved { background: var(--color-jx-verde); }
+.register-novelty-mark--missing { background: var(--color-jx-tinta3); }
 
 /*  LA DEMORA DE PREPARACIÓN (PreparationAlert, pedido del usuario): un plato de cocina tapado, blanco sobre un círculo
     rojo, que titila en la Duración de la tablet de un proceso. Mismo latido que el marco de la demora —solo opacidad,

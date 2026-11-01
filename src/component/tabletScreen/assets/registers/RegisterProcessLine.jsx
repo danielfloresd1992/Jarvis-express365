@@ -6,6 +6,7 @@ import { DISH_TYPES, optionsWith } from '../../../../libs/tickets/dishTypes.js';
 import PreparationAlert, { missingForPreparation, isPreparationLate } from './PreparationAlert.jsx';
 import ReportedFlag from './ReportedFlag.jsx';
 import EarlyMarkFlag from './EarlyMarkFlag.jsx';
+import { linkedNoveltiesOf, withNoveltyStatus, allApproved, PROCESS_FIELDS } from '../../../../libs/tickets/linkedNovelties.js';
 
 
 /*  UNA LÍNEA DE PROCESO: un pedido de la rotación
@@ -40,6 +41,10 @@ import EarlyMarkFlag from './EarlyMarkFlag.jsx';
  *  contextual del proceso ('earlyMarkDelay'), la bandera pirata negra (EarlyMarkFlag), y la celda en blanco con el borde
  *  negro. La demora de preparación deja de pedirse: lo que dice la tablet no es el tiempo real. Si ya estaba reportada,
  *  su bandera se queda junto a la pirata.
+ *
+ *  EN QUÉ QUEDARON (pedido del usuario), con sus novedades enteras ('linked'): aprobadas todas las que enseña la celda,
+ *  va en verde con el texto y las banderas en blanco (allApproved); una invalidada lleva, en lugar de su bandera, la X
+ *  para enviar otra (la pone la bandera).
  */
 
 
@@ -55,8 +60,10 @@ const durationBetween = (from, to) => (from && to ? getTimeReport(from, to).time
  *  @param {string}   limit           lo que puede tardar su plato en cocina en el turno de la rotación, 'HH:MM:SS'; '' = sin tiempo
  *  @param {boolean}  waitingTooLong  sin listo en tablet todavía, y desde la toma de orden ya pasó 'limit' (useRotationLoop)
  *  @param {function} onReportPreparation  pedir el reporte de su demora de preparación
+ *  @param {function} onReportEarlyMark    pedir el de «Marcada antes de estar listo»: la X de su bandera pirata
+ *  @param {Map}      novelties       opcional. Las novedades enlazadas, enteras (useLinkedNovelties): ver 'linked'
  */
-export default function RegisterProcessLine({ process, live, onWrite, onDelete, dishOptions = DISH_TYPES, limit = '', waitingTooLong = false, onReportPreparation }) {
+export default function RegisterProcessLine({ process, live, onWrite, onDelete, dishOptions = DISH_TYPES, limit = '', waitingTooLong = false, onReportPreparation, onReportEarlyMark, novelties }) {
 
     // write = «anotar un dato de esta línea»
     const write = (field) => (value) => onWrite(field, value);
@@ -79,6 +86,14 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
     // la bandera pirata negra en esta misma Duración (pedido del usuario)
     const earlyMarkReported = Boolean(process.earlyMarkDelay);
 
+    // linked = «las novedades de este proceso, enteras»: { preparationDelay, earlyMarkDelay }, cada una con su documento
+    // y en qué quedó (linkedNoveltiesOf, en linkedNovelties.js), o null si no hay. Sus banderas lo enseñan.
+    const linked = linkedNoveltiesOf(process, novelties, PROCESS_FIELDS);
+
+    // approved = «la celda va en verde»: aprobadas todas las novedades que enseña (allApproved). Si solo se aprobó una
+    // de las dos, la otra todavía tiene algo que decir, y la celda sigue como estaba.
+    const approved = allApproved(linked.preparationDelay, linked.earlyMarkDelay);
+
     // preparationLate = «pasó de su tiempo de preparación»: con las dos horas, la duración; sin listo en tablet, el bucle.
     // Con «Marcada antes de estar listo» reportada, no (pedido del usuario): se sacó de la pantalla antes de tiempo, así
     // que lo que dice la tablet no es el tiempo real, y la demora de preparación ya no se pide: ni el icono de cocina, ni
@@ -87,17 +102,20 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
 
     // tabletLook / tabletText = «cómo va la primera Duración»: como las de la rotación (durationLook en RegisterRecordRow).
     // Con la bandera pirata, fondo blanco y borde negro (pedido del usuario; 'register-cell--early-mark', registers.css).
-    const tabletLook = earlyMarkReported ? 'register-cell--early-mark'
-        : preparationReported ? 'register-cell--reported'
-            : preparationLate ? 'register-cell--late register-cell--alert' : '';
-    const tabletText = !tabletDuration ? 'text-jx-tinta3'
-        : earlyMarkReported || preparationReported ? 'text-jx-tinta font-bold'
-            : preparationLate ? 'text-jx-critico-texto font-bold'
-                : limit ? 'text-jx-verde-texto' : 'text-jx-tinta';
+    // Aprobada, en verde con el texto en blanco ('register-cell--approved').
+    const tabletLook = approved ? 'register-cell--approved'
+        : earlyMarkReported ? 'register-cell--early-mark'
+            : preparationReported ? 'register-cell--reported'
+                : preparationLate ? 'register-cell--late register-cell--alert' : '';
+    const tabletText = approved ? 'text-white font-bold'
+        : !tabletDuration ? 'text-jx-tinta3'
+            : earlyMarkReported || preparationReported ? 'text-jx-tinta font-bold'
+                : preparationLate ? 'text-jx-critico-texto font-bold'
+                    : limit ? 'text-jx-verde-texto' : 'text-jx-tinta';
 
     // tabletTitle = «lo que dice la primera Duración al pasar el ratón»
-    const tabletTitle = earlyMarkReported ? '«Marcada antes de estar listo» reportada: se sacó de la pantalla antes de tiempo, y esta duración no es la real'
-        : preparationReported ? 'Demora de preparación reportada'
+    const tabletTitle = earlyMarkReported ? withNoveltyStatus('«Marcada antes de estar listo» reportada: se sacó de la pantalla antes de tiempo, y esta duración no es la real', linked.earlyMarkDelay)
+        : preparationReported ? withNoveltyStatus('Demora de preparación reportada', linked.preparationDelay)
             : limit ? `Tiempo de preparación de ${process.dishType}: ${limit}` : undefined;
 
     return (
@@ -157,7 +175,7 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
                 <WrapperText classStyles={tabletText} value={tabletDuration ?? '—'} row={`p:${process.id}`} col='tabletDuration' />
                 {
                     preparationReported
-                        ? <ReportedFlag kind='preparación' />
+                        ? <ReportedFlag kind='preparación' novelty={linked.preparationDelay} white={approved} onResend={onReportPreparation} />
                         : preparationLate && (
                             <PreparationAlert
                                 dish={process.dishType}
@@ -169,7 +187,7 @@ export default function RegisterProcessLine({ process, live, onWrite, onDelete, 
                         )
                 }
                 {/*  «Marcada antes de estar listo» ya reportada: la bandera pirata negra (EarlyMarkFlag)  */}
-                {earlyMarkReported && <EarlyMarkFlag />}
+                {earlyMarkReported && <EarlyMarkFlag novelty={linked.earlyMarkDelay} white={approved} onResend={onReportEarlyMark} />}
             </WrapperCell>
 
             <WrapperCell classStyles='text-jx-tinta'>

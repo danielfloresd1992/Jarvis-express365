@@ -38,8 +38,11 @@ const BRANCH_INDENT = 28;
  *  @param {object}   overdue       lo que dice el bucle de la rotación (useRotationLoop): 'prep:<id del proceso>' es
  *                                  true si ese pedido pasó de su tiempo sin estar listo en tablet
  *  @param {function} onReportPreparation  pedir el reporte de la demora de preparación de un proceso: (proceso)
+ *  @param {function} onReportEarlyMark    pedir el de «Marcada antes de estar listo» de un proceso: (proceso). Lo usa la
+ *                                  X de su bandera pirata si la invalidaron
+ *  @param {Map}      novelties     opcional. Las novedades enlazadas, enteras (useLinkedNovelties): las de cada proceso
  */
-export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers, dishTypes, shift, overdue, onReportPreparation }) {
+export default function RegisterProcessList({ record, liveByKey, writeProcess, deleteProcess, widthOfManagers, dishTypes, shift, overdue, onReportPreparation, onReportEarlyMark, novelties }) {
     return (
         <div
             className='register-rotation__processes'
@@ -84,6 +87,8 @@ export default function RegisterProcessList({ record, liveByKey, writeProcess, d
                             limit={dishTypes?.limitOf(process.dishType, shift) ?? ''}
                             waitingTooLong={overdue?.[`prep:${process.id}`] === true}
                             onReportPreparation={() => onReportPreparation?.(process)}
+                            onReportEarlyMark={onReportEarlyMark ? () => onReportEarlyMark(process) : undefined}
+                            novelties={novelties}
                             onWrite={(field, value) => writeProcess(record.id, process.id, field, value)}
                             onDelete={() => deleteProcess(record.id, process.id)}
                         />

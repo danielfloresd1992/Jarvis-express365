@@ -10,6 +10,7 @@ import { useTicketReading } from './useTicketReading.jsx';
 import { useProcessTracking } from './useProcessTracking.jsx';
 import { useRegisterStore } from './useRegisterStore.jsx';
 import { useSavedRotations } from './useSavedRotations.jsx';
+import { useLinkedNovelties } from './useLinkedNovelties.jsx';
 import { useSimulatorFeedback } from './useSimulatorFeedback.jsx';
 import { useSendCapture } from './useSendCapture.jsx';
 import { useZoom } from './useZoom.jsx';
@@ -64,6 +65,8 @@ import { shiftOfTime } from '../../../libs/date_time/operationalDay.js';
  *      attentionOrigin, cleaningOrigin               de dónde salió cada límite: 'local', 'lista' o 'fijo'
  *      tablet, ai, reading, tracking, store,         lo que devuelve cada hook, tal cual
  *      savedRotations, zoom, drag, capture
+ *      linkedNovelties                               las novedades enlazadas a las rotaciones, enteras: un Map
+ *                                                    _id → documento (useLinkedNovelties)
  *      shift, shiftLocked, toggleShift               el turno con que nacen las rotaciones, si la hora deja
  *                                                    cambiarlo, y cambiarlo
  *      dishTypes                                     el tipo de plato del local: sus opciones y cómo elige la IA
@@ -202,6 +205,11 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
     //  que se vea en Home, y la pregunta tiene que estar siempre (ver useSavedRotations).
     const savedRotations = useSavedRotations({ establishmentName: name, attention, cleaning, store });
 
+    //  Las novedades que tienen enlazadas las rotaciones de Mesas —las demoras y los avisos que se reportaron desde
+    //  ellas—, enteras y al día: si se aprobaron, se invalidaron o se modificaron (useLinkedNovelties). Se piden al
+    //  abrir la app y se ponen al día con el socket. Una sola vez para toda la tabla.
+    const linkedNovelties = useLinkedNovelties(store.records);
+
     useSimulatorFeedback({
         simulating: tablet.simulated,
         orders: tracking.orders,
@@ -310,7 +318,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
     return {
         name, attention, cleaning, attentionOrigin, cleaningOrigin, establishment,
-        tablet, ai, reading, tracking, store, savedRotations,
+        tablet, ai, reading, tracking, store, savedRotations, linkedNovelties,
         zoom, drag, capture,
         shift, shiftLocked, toggleShift, dishTypes,
         disconnectTablet, clearRegister, reportDelay,

@@ -21,8 +21,9 @@ import { missingForPreparation, isPreparationLate } from './PreparationAlert.jsx
 import { saveRecord } from '../../../../libs/fetch_data/rotationFetching.js';
 import { SHIFTS } from '../../../../libs/tickets/tableRecords.js';
 import { isFinished } from '../../../../libs/tickets/tableView.js';
+import { linkedNoveltiesOf, withNoveltyStatus, isApproved, isRejected, RECORD_FIELDS, PROCESS_FIELDS } from '../../../../libs/tickets/linkedNovelties.js';
 import { shiftOfTime } from '../../../../libs/date_time/operationalDay.js';
-import { clockNow } from '../../../../libs/date_time/waitingTime.js';
+import { clockNow, clockDuration, waitingSeconds } from '../../../../libs/date_time/waitingTime.js';
 
 
 /*  UNA ROTACIÓN DEL REGISTER: una mesa, desde que se ocupa hasta que se limpia
@@ -103,8 +104,10 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *                                    select y el tiempo de preparación de cada plato
  *  @param {string}   match           opcional. Cómo coincide su mesa con lo que se busca en la barra de herramientas
  *                                    (matchOf, en tableView.js): 'exact' marca la celda Mesa; 'partial' o '', nada.
+ *  @param {Map}      novelties       opcional. Las novedades enlazadas a las rotaciones, enteras: _id → documento
+ *                                    (useLinkedNovelties, en la sesión). Ver 'linked'.
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved, dishTypes, match = '' }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved, dishTypes, match = '', novelties }) {
 
     // open = «los procesos están desplegados»; touchesOpen = «los toques de gerente están desplegados».
     // Salen de la rotación y no de un estado de la fila: así se guardan en el equipo con ella.
@@ -329,14 +332,31 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     const attentionReported = Boolean(record.firstAttentionDelay);
     const cleaningReported = Boolean(record.cleaningDelay);
 
+    // linked = «las novedades de esta rotación, enteras», campo a campo: { firstAttentionDelay, cleaningDelay,
+    // firstAttentionWarning, cleaningWarning } (linkedNoveltiesOf, en linkedNovelties.js). Cada una trae su documento
+    // de la API ('doc') y en qué quedó: 'status' (sin validar, aprobada, invalidada…) y 'edited' (modificada). null en
+    // los campos sin novedad. Las de sus procesos las arma cada línea (RegisterProcessLine).
+    // Las trae y las tiene al día la sesión (useLinkedNovelties): al abrir la app, y por el socket al validarse.
+    const linked = useMemo(() => linkedNoveltiesOf(record, novelties, RECORD_FIELDS), [record, novelties]);
+
+    // attentionApproved / cleaningApproved = «su demora se aprobó» y attentionWarningApproved / cleaningWarningApproved =
+    // «su aviso se aprobó»: la celda va en verde, con el texto y la bandera en blanco (pedido del usuario). Una
+    // invalidada se queda como reportada, con la X para enviar otra en lugar de la bandera (la pone la bandera).
+    const attentionApproved = isApproved(linked.firstAttentionDelay);
+    const cleaningApproved = isApproved(linked.cleaningDelay);
+    const attentionWarningApproved = isApproved(linked.firstAttentionWarning);
+    const cleaningWarningApproved = isApproved(linked.cleaningWarning);
+
     // durationLook = «cómo va la celda de una duración» (propuesta «C», elegida por el usuario; registers.css):
-    //   reportada              rojo claro y texto negro, quieta
+    //   aprobada               verde, con el texto y la bandera en blanco (pedido del usuario)
+    //   reportada              rojo claro y texto negro, quieta. También invalidada: lleva la X en lugar de la bandera
     //   pasada, sin reportar   rojo claro, con el marco rojo que late hasta que se reporte
     //   en tiempo              como siempre
-    const durationLook = (late, reported) => (reported ? 'register-cell--reported' : late ? 'register-cell--late register-cell--alert' : '');
+    const durationLook = (late, reported, approved) => (approved ? 'register-cell--approved' : reported ? 'register-cell--reported' : late ? 'register-cell--late register-cell--alert' : '');
 
-    // durationText = «el color del texto de una duración»: gris sin calcular, negro reportada, rojo pasada, verde en tiempo
-    const durationText = (empty, late, reported) => (empty ? 'text-jx-tinta3' : reported ? 'text-jx-tinta font-bold' : late ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto');
+    // durationText = «el color del texto de una duración»: blanco aprobada, gris sin calcular, negro reportada, rojo
+    // pasada, verde en tiempo
+    const durationText = (empty, late, reported, approved) => (approved ? 'text-white font-bold' : empty ? 'text-jx-tinta3' : reported ? 'text-jx-tinta font-bold' : late ? 'text-jx-critico-texto font-bold' : 'text-jx-verde-texto');
 
 
     // askForReport = «pedir el reporte de una demora»: 'primera atención' (de Ocupa a Primera atención) o 'limpieza'
@@ -363,10 +383,15 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     const attentionBadge = Boolean(record.firstAttentionWarning) || attentionWaiting;
     const cleaningBadge = Boolean(record.cleaningWarning) || cleaningWaiting;
 
-    // waitingLook = «cómo va la celda de Ocupa o Desocupa» (pedido del usuario; registers.css):
+    // waitingLook = «cómo va la celda de Ocupa o Desocupa» (pedido del usuario; registers.css), con el color de su hora:
     //   esperando, sin aviso   el marco amarillo que late, con el triángulo
-    //   aviso enviado          fondo amarillo pálido, quieta, con la bandera
-    const waitingLook = (waiting, warned) => `${waiting || warned ? 'register-cell--badge' : ''} ${waiting ? 'register-cell--waiting' : warned ? 'register-cell--warned' : ''}`;
+    //   aviso enviado          fondo amarillo pálido, quieta, con la bandera (o la X, si lo invalidaron)
+    //   aviso aprobado         verde, con la hora y la bandera en blanco
+    const waitingLook = (waiting, warned, approved) => [
+        approved ? 'text-white' : 'text-jx-tinta',
+        waiting || warned ? 'register-cell--badge' : '',
+        approved ? 'register-cell--approved' : waiting ? 'register-cell--waiting' : warned ? 'register-cell--warned' : '',
+    ].join(' ');
 
     // askForWarning = «pedir el aviso de que la mesa sigue esperando»: 'primera atención' (desde Ocupa) o 'limpieza'
     // (desde Desocupa). Lo pide el triángulo de su celda (WaitingAlert) con la hora del clic y lo que lleva esperando.
@@ -376,6 +401,16 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         deliver(tipo === 'limpieza'
             ? { tipo, aviso: true, recordId: record.id, tableNumber: record.tableNumber, breakUpTime: record.breakUp, cleaningTime: now, demora: waited, limit: cleaningLimit }
             : { tipo, aviso: true, recordId: record.id, tableNumber: record.tableNumber, customerSeatedTime: record.hourOccupies, firtAtenttionTime: now, demora: waited, limit: attentionLimit });
+    };
+
+    // resendWarning = «repetir un aviso que se invalidó» (la X de su bandera, WarnedFlag; pedido del usuario): como el
+    // triángulo, con la hora de ahora y lo que lleva esperando hasta ella. Si la espera ya terminó —llegó la primera
+    // atención o la limpieza—, con la hora en que terminó: el aviso dice que la mesa seguía esperando, y pasada esa hora
+    // ya no es verdad. La hora del primer aviso no se guarda en la rotación; el formulario deja corregirla.
+    const resendWarning = (tipo) => () => {
+        const [since, end] = tipo === 'limpieza' ? [record.breakUp, record.tableCleaning] : [record.hourOccupies, record.hourFirstAttention];
+        const until = end || clockNow();
+        askForWarning(tipo)(until, clockDuration(waitingSeconds(since, until) ?? 0));
     };
 
     // askForPreparation = «pedir el reporte de la demora de preparación de un pedido» (pedido del usuario). Lo pide el
@@ -478,13 +513,22 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
             finished,
             processesOpen: open,
             hasManagers: managers.length > 0,
-            attention: { duration: noAttentionYet ? '' : attention.timeTotal, late: attentionLate, reported: attentionReported },
-            cleaning: { duration: noCleaningYet ? '' : cleaning.timeTotal, late: cleaningLate, reported: cleaningReported },
+            //  'rejected': la invalidaron, y se puede enviar otra, como con la X de su bandera
+            attention: { duration: noAttentionYet ? '' : attention.timeTotal, late: attentionLate, reported: attentionReported, rejected: isRejected(linked.firstAttentionDelay) },
+            cleaning: { duration: noCleaningYet ? '' : cleaning.timeTotal, late: cleaningLate, reported: cleaningReported, rejected: isRejected(linked.cleaningDelay) },
             //  Con «Marcada antes de estar listo» reportada ('earlyMark'), la demora de preparación ya no se pide
             preparationOf: (process) => {
                 const limit = dishTypes?.limitOf(process.dishType, shift) ?? '';
                 const earlyMark = Boolean(process.earlyMarkDelay);
-                return { limit, earlyMark, late: !earlyMark && isPreparationLate(process, limit, loop.overdue[`prep:${process.id}`]), reported: Boolean(process.preparationDelay) };
+                const processLinked = linkedNoveltiesOf(process, novelties, PROCESS_FIELDS);
+                return {
+                    limit,
+                    earlyMark,
+                    late: !earlyMark && isPreparationLate(process, limit, loop.overdue[`prep:${process.id}`]),
+                    reported: Boolean(process.preparationDelay),
+                    rejected: isRejected(processLinked.preparationDelay),
+                    earlyMarkRejected: isRejected(processLinked.earlyMarkDelay),
+                };
             },
         },
         actions: {
@@ -612,12 +656,13 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                         <>
                             {/*  OCUPA. Si la mesa espera la primera atención más de lo que dice el local (lo mira el
                                  bucle de la rotación, 'loop'), sale el triángulo de aviso a la derecha. Enviado el
-                                 aviso ('firstAttentionWarning'), en su lugar queda la bandera amarilla.  */}
-                            <WrapperCell classStyles={`text-jx-tinta relative ${waitingLook(attentionWaiting, Boolean(record.firstAttentionWarning))}`}>
+                                 aviso ('firstAttentionWarning'), en su lugar queda la bandera amarilla: en blanco sobre
+                                 la celda verde si se aprobó, y la X para enviar otro si se invalidó.  */}
+                            <WrapperCell classStyles={`relative ${waitingLook(attentionWaiting, Boolean(record.firstAttentionWarning), attentionWarningApproved)}`}>
                                 <WrapperText value={record.hourOccupies} updateValue={write('hourOccupies')} row={record.id} col='hourOccupies' />
                                 {
                                     record.firstAttentionWarning
-                                        ? <WarnedFlag kind='primera atención' />
+                                        ? <WarnedFlag kind='primera atención' novelty={linked.firstAttentionWarning} white={attentionWarningApproved} onResend={resendWarning('primera atención')} />
                                         : attentionBadge && (
                                             <WaitingAlert kind='primera atención' since={record.hourOccupies} limit={attentionLimit} table={record.tableNumber} onReport={askForWarning('primera atención')} />
                                         )
@@ -631,28 +676,30 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             {/*  DURACIÓN de la primera atención. Es un valor calculado, así que no se toca: va sin
                                  'updateValue'. Si pasa del tiempo del local (attentionLate), la celda va en rojo con
                                  el marco que late y aparece «Reportar»; una vez reportada, queda en rojo claro con
-                                 la bandera de «Reportada» (durationLook).  */}
-                            <WrapperCell classStyles={`gap-1.5 px-1 ${durationLook(attentionLate, attentionReported)}`} titulo={attentionReported ? 'Demora de primera atención reportada' : attentionLate ? `Pasó del tiempo de referencia de primera atención: ${attentionLimit}, ${originText(attentionOrigin, 'firstAtenttion')}` : undefined}>
+                                 la bandera de «Reportada» (durationLook). Aprobada, en verde con la bandera en blanco;
+                                 invalidada, con la X para enviar otra.  */}
+                            <WrapperCell classStyles={`gap-1.5 px-1 ${durationLook(attentionLate, attentionReported, attentionApproved)}`} titulo={attentionReported ? withNoveltyStatus('Demora de primera atención reportada', linked.firstAttentionDelay) : attentionLate ? `Pasó del tiempo de referencia de primera atención: ${attentionLimit}, ${originText(attentionOrigin, 'firstAtenttion')}` : undefined}>
                                 <WrapperText
-                                    classStyles={durationText(noAttentionYet, attentionLate, attentionReported)}
+                                    classStyles={durationText(noAttentionYet, attentionLate, attentionReported, attentionApproved)}
                                     value={noAttentionYet ? '—' : attention.timeTotal}
                                     row={record.id}
                                     col='attentionDuration'
                                 />
 
                                 {attentionReported
-                                    ? <ReportedFlag kind='primera atención' />
+                                    ? <ReportedFlag kind='primera atención' novelty={linked.firstAttentionDelay} white={attentionApproved} onResend={() => askForReport('primera atención')} />
                                     : attentionLate && <ReportDelayButton table={record.tableNumber} kind='primera atención' onReport={() => askForReport('primera atención')} />}
                             </WrapperCell>
 
                             {/*  DESOCUPA. Como Ocupa: si la mesa espera la limpieza más de lo que dice el local, sale el
                                  triángulo de aviso a la derecha (lo mira el bucle de la rotación, 'loop'). Enviado el
-                                 aviso ('cleaningWarning'), en su lugar queda la bandera amarilla.  */}
-                            <WrapperCell classStyles={`text-jx-tinta relative ${waitingLook(cleaningWaiting, Boolean(record.cleaningWarning))}`}>
+                                 aviso ('cleaningWarning'), en su lugar queda la bandera amarilla, que también cambia
+                                 si se aprueba o se invalida.  */}
+                            <WrapperCell classStyles={`relative ${waitingLook(cleaningWaiting, Boolean(record.cleaningWarning), cleaningWarningApproved)}`}>
                                 <WrapperText value={record.breakUp} updateValue={write('breakUp')} row={record.id} col='breakUp' />
                                 {
                                     record.cleaningWarning
-                                        ? <WarnedFlag kind='limpieza' />
+                                        ? <WarnedFlag kind='limpieza' novelty={linked.cleaningWarning} white={cleaningWarningApproved} onResend={resendWarning('limpieza')} />
                                         : cleaningBadge && (
                                             <WaitingAlert kind='limpieza' since={record.breakUp} limit={cleaningLimit} table={record.tableNumber} onReport={askForWarning('limpieza')} />
                                         )
@@ -665,16 +712,16 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
 
                             {/*  Y la DURACIÓN de la limpieza. También calculada: sin 'updateValue'. Igual que la de
                                  primera atención, contra el tiempo de limpieza del local (cleaningLate).  */}
-                            <WrapperCell classStyles={`gap-1.5 px-1 ${durationLook(cleaningLate, cleaningReported)}`} titulo={cleaningReported ? 'Demora de limpieza reportada' : cleaningLate ? `Pasó del tiempo de referencia de limpieza: ${cleaningLimit}, ${originText(cleaningOrigin, 'TableCleaning')}` : undefined}>
+                            <WrapperCell classStyles={`gap-1.5 px-1 ${durationLook(cleaningLate, cleaningReported, cleaningApproved)}`} titulo={cleaningReported ? withNoveltyStatus('Demora de limpieza reportada', linked.cleaningDelay) : cleaningLate ? `Pasó del tiempo de referencia de limpieza: ${cleaningLimit}, ${originText(cleaningOrigin, 'TableCleaning')}` : undefined}>
                                 <WrapperText
-                                    classStyles={durationText(noCleaningYet, cleaningLate, cleaningReported)}
+                                    classStyles={durationText(noCleaningYet, cleaningLate, cleaningReported, cleaningApproved)}
                                     value={noCleaningYet ? '—' : cleaning.timeTotal}
                                     row={record.id}
                                     col='cleaningDuration'
                                 />
 
                                 {cleaningReported
-                                    ? <ReportedFlag kind='limpieza' />
+                                    ? <ReportedFlag kind='limpieza' novelty={linked.cleaningDelay} white={cleaningApproved} onResend={() => askForReport('limpieza')} />
                                     : cleaningLate && <ReportDelayButton table={record.tableNumber} kind='limpieza' onReport={() => askForReport('limpieza')} />}
                             </WrapperCell>
                         </>
@@ -732,7 +779,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
             {/*  Los procesos, desplegados debajo  */}
             {
                 open && record.process.length > 0 && (
-                    <RegisterProcessList record={record} liveByKey={liveByKey} writeProcess={writeProcess} deleteProcess={deleteProcess} widthOfManagers={widthOfManagers} dishTypes={dishTypes} shift={shift} overdue={loop.overdue} onReportPreparation={askForPreparation} />
+                    <RegisterProcessList record={record} liveByKey={liveByKey} writeProcess={writeProcess} deleteProcess={deleteProcess} widthOfManagers={widthOfManagers} dishTypes={dishTypes} shift={shift} overdue={loop.overdue} onReportPreparation={askForPreparation} onReportEarlyMark={askForEarlyMark} novelties={novelties} />
                 )
             }
 

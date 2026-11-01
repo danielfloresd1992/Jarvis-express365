@@ -92,9 +92,11 @@ const ticketName = (process) => (String(process.ticketNumber ?? '').trim() ? `Ti
  *  @param {object} record   la rotación
  *  @param {object} facts    lo que la fila ya calculó:
  *      free, noTable, takeOut, finished, processesOpen, hasManagers   (booleans)
- *      attention, cleaning   { duration ('' sin calcular), late, reported }: sus dos demoras
- *      preparationOf(proceso) → { late, reported, limit, earlyMark }: la demora de preparación de un proceso ('earlyMark':
- *                            ya se reportó «Marcada antes de estar listo», y la de preparación no se pide)
+ *      attention, cleaning   { duration ('' sin calcular), late, reported, rejected }: sus dos demoras ('rejected': la
+ *                            reportada se invalidó, y se puede enviar otra)
+ *      preparationOf(proceso) → { late, reported, rejected, limit, earlyMark, earlyMarkRejected }: la demora de
+ *                            preparación de un proceso ('earlyMark': ya se reportó «Marcada antes de estar listo», y la
+ *                            de preparación no se pide; 'earlyMarkRejected': esa se invalidó)
  *  @param {object} actions  lo que la fila sabe hacer:
  *      editCell(target) · stamp(target) · copy(texto) · paste(target, clase) · clearCell(target)
  *      addProcess() · toggleProcesses() · openTouches() · save() · reportAttention() · reportCleaning() · clearRow()
@@ -193,7 +195,7 @@ function processMenu({ process, facts, actions }) {
     ];
 
     const items = [
-        earlyMarkItem(process, actions),
+        earlyMarkItem(process, preparation, actions),
         { type: 'separator' },
         deleteProcessItem(process, actions),
     ];
@@ -217,12 +219,15 @@ function cellMenu({ target, record, process, facts, actions }) {
     const footer = { color: colorOf(target.column), text: join([where, cell.title, empty ? 'vacía' : value]) };
     const label = `Opciones de la celda: ${cell.title}`;
 
+    // preparation = «cómo va la demora de preparación de su proceso», si la celda es de uno
+    const preparation = process ? facts.preparationOf(process) : null;
+
     // processItems = «lo de su proceso», al final de la lista, si la celda es de uno
     const processItems = process ? [
         { type: 'separator' },
         { type: 'section', label: ticketName(process) },
-        preparationItem(process, facts.preparationOf(process), actions),
-        earlyMarkItem(process, actions),
+        preparationItem(process, preparation, actions),
+        earlyMarkItem(process, preparation, actions),
         deleteProcessItem(process, actions),
     ] : [];
 
@@ -292,14 +297,19 @@ function valueOf(column, record, process, facts) {
 }
 
 
-// reportItem = «reportar la demora de primera atención o de limpieza»: solo si pasó del tiempo y no se ha reportado
+// RESEND_HINT = «lo que dice una opción de reportar cuando la alerta se invalidó»: se puede enviar otra, como con la X
+// de su bandera (ResendAlertButton)
+const RESEND_HINT = 'La invalidaron: envía otra alerta con los datos de la fila';
+
+// reportItem = «reportar la demora de primera atención o de limpieza»: si pasó del tiempo y no se ha reportado, o si la
+// reportada se invalidó
 function reportItem(id, label, state = {}, action) {
-    const open = Boolean(state.late) && !state.reported;
+    const open = (Boolean(state.late) && !state.reported) || Boolean(state.rejected);
     return {
         id, label, icon: 'flag', tone: 'report',
         disabled: !open,
-        note: state.reported ? 'reportada' : state.late ? undefined : state.duration ? 'en tiempo' : 'sin duración',
-        hint: open ? `Pasó del tiempo de referencia: ${state.duration}` : undefined,
+        note: state.rejected ? 'invalidada' : state.reported ? 'reportada' : state.late ? undefined : state.duration ? 'en tiempo' : 'sin duración',
+        hint: state.rejected ? RESEND_HINT : open ? `Pasó del tiempo de referencia: ${state.duration}` : undefined,
         onSelect: () => action?.(),
     };
 }
@@ -316,35 +326,41 @@ function markItem(id, label, short, process, field, actions) {
     };
 }
 
-// preparationItem = «reportar la demora de preparación de un proceso»: solo si pasó de su tiempo y no se ha reportado.
-// Con «Marcada antes de estar listo» reportada ('earlyMark') ya no se pide: su tiempo en la tablet no es el real.
+// preparationItem = «reportar la demora de preparación de un proceso»: si pasó de su tiempo y no se ha reportado, o si
+// la reportada se invalidó. Con «Marcada antes de estar listo» reportada ('earlyMark') ya no se pide: su tiempo en la
+// tablet no es el real.
 function preparationItem(process, preparation, actions) {
-    const open = Boolean(preparation.late) && !preparation.reported;
+    const open = (Boolean(preparation.late) && !preparation.reported) || Boolean(preparation.rejected);
     return {
         id: 'report-preparation', label: 'Reportar demora de preparación', icon: 'cloche', tone: 'report',
         disabled: !open,
-        note: preparation.reported ? 'reportada'
-            : preparation.earlyMark ? 'marcada antes'
-                : preparation.late ? undefined : preparation.limit ? 'en tiempo' : 'sin tiempo',
-        hint: preparation.reported ? 'Ya está reportada'
-            : preparation.earlyMark ? 'Ya se reportó «Marcada antes de estar listo»: el tiempo de la tablet no es el real'
-                : open ? 'Pasó de su tiempo de preparación'
-                    : preparation.limit ? `Va en tiempo: su plato tiene ${preparation.limit}` : 'Su plato no tiene tiempo de preparación',
+        note: preparation.rejected ? 'invalidada'
+            : preparation.reported ? 'reportada'
+                : preparation.earlyMark ? 'marcada antes'
+                    : preparation.late ? undefined : preparation.limit ? 'en tiempo' : 'sin tiempo',
+        hint: preparation.rejected ? RESEND_HINT
+            : preparation.reported ? 'Ya está reportada'
+                : preparation.earlyMark ? 'Ya se reportó «Marcada antes de estar listo»: el tiempo de la tablet no es el real'
+                    : open ? 'Pasó de su tiempo de preparación'
+                        : preparation.limit ? `Va en tiempo: su plato tiene ${preparation.limit}` : 'Su plato no tiene tiempo de preparación',
         onSelect: () => actions.reportPreparation(process),
     };
 }
 
 // earlyMarkItem = «reportar que el pedido se marcó en la tablet antes de estar listo en cocina» (pedido del usuario): el
 // formulario «Marcada antes de estar listo» de Demoras, con el ticket, la mesa, el plato y las horas del proceso. Se
-// puede mientras no esté reportada ('earlyMarkDelay'): la hora que le falte se escribe en el formulario.
-function earlyMarkItem(process, actions) {
+// puede mientras no esté reportada ('earlyMarkDelay'), o si la reportada se invalidó ('earlyMarkRejected', de
+// 'preparation'): la hora que le falte se escribe en el formulario.
+function earlyMarkItem(process, preparation, actions) {
     const reported = Boolean(process.earlyMarkDelay);
+    const rejected = Boolean(preparation?.earlyMarkRejected);
     return {
         id: 'report-early-mark', label: 'Marcada antes de estar listo', icon: 'tap', tone: 'report',
-        disabled: reported,
-        note: reported ? 'reportada' : undefined,
-        hint: reported ? 'Ya está reportada: lleva la bandera pirata en su duración'
-            : 'Se sacó de la pantalla de la tablet antes de estar listo en cocina: abre su reporte con el ticket y las horas',
+        disabled: reported && !rejected,
+        note: rejected ? 'invalidada' : reported ? 'reportada' : undefined,
+        hint: rejected ? RESEND_HINT
+            : reported ? 'Ya está reportada: lleva la bandera pirata en su duración'
+                : 'Se sacó de la pantalla de la tablet antes de estar listo en cocina: abre su reporte con el ticket y las horas',
         onSelect: () => actions.reportEarlyMark(process),
     };
 }

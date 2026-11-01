@@ -47,7 +47,7 @@ import useTableView from '../../hook/useTableView.jsx';
  */
 export default function Registers({ session, establishment = session.establishment }) {
 
-    const { reading, tracking, store, savedRotations, attention, cleaning, attentionOrigin, cleaningOrigin, clearRegister, reportDelay, shift, shiftLocked, toggleShift, dishTypes } = session;
+    const { reading, tracking, store, savedRotations, linkedNovelties, attention, cleaning, attentionOrigin, cleaningOrigin, clearRegister, reportDelay, shift, shiftLocked, toggleShift, dishTypes } = session;
     const { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, addRecovered, exportSaved } = savedRotations;
 
     // managers = «los botones de los gerentes del local» (managers.js). Se arman una vez por local: un
@@ -182,6 +182,7 @@ export default function Registers({ session, establishment = session.establishme
                     onSaved={rememberSaved}
                     stale={stale}
                     dishTypes={dishTypes}
+                    novelties={linkedNovelties}
                 />
 
                 {/*  Lo que se está viendo: cuántas filas y en qué orden  */}
