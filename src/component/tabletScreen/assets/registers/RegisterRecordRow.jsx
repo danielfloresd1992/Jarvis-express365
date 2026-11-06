@@ -24,6 +24,7 @@ import { isFinished } from '../../../../libs/tickets/tableView.js';
 import { linkedNoveltiesOf, withNoveltyStatus, isApproved, isRejected, RECORD_FIELDS, PROCESS_FIELDS } from '../../../../libs/tickets/linkedNovelties.js';
 import { shiftOfTime } from '../../../../libs/date_time/operationalDay.js';
 import { clockNow, clockDuration, waitingSeconds } from '../../../../libs/date_time/waitingTime.js';
+import { serverNow } from '../../../../libs/date_time/serverClock.js';
 
 
 /*  UNA ROTACIÓN DEL REGISTER: una mesa, desde que se ocupa hasta que se limpia
@@ -145,7 +146,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         seenKeysRef.current = new Set(keys);
 
         if (seen === null) {
-            const fresh = record.date && Date.now() - new Date(record.date).getTime() < FRESH_MS;
+            const fresh = record.date && serverNow().getTime() - new Date(record.date).getTime() < FRESH_MS;
             if (keys.length > 0 && fresh) setOpen(true);
             return;
         }

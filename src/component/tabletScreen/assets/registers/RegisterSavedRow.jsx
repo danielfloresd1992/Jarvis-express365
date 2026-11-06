@@ -4,6 +4,7 @@ import { exceedsLimit } from '../../../../libs/date_time/timeLimit.js';
 import { WrapperText } from '../../../cells/GridCells.jsx';
 import { isTakeOut } from '../../../../libs/tickets/tableRecords.js';
 import { dayText } from '../../../../libs/tickets/staleRecords.js';
+import { caracasClock } from '../../../../libs/date_time/operationalDay.js';
 import { COLUMNS, tintPercent } from './columns.js';
 import SavedTextInput from './SavedTextInput.jsx';
 import SavedPerson, { fullName } from './SavedPerson.jsx';
@@ -67,8 +68,8 @@ export const CYCLE_TITLES = ['Tiempo de 1ra atención', 'Tiempo de limpieza', 'P
 // cellTint = «el fondo de una celda»: el color de su columna, suave (reforzado como los demás: tintPercent, en columns.js)
 export const cellTint = (column) => `color-mix(in srgb, ${column.color} ${tintPercent(16)}, var(--color-jx-lienzo))`;
 
-// clock = «una fecha como hora HH:MM de este equipo»
-const clock = (date) => new Date(date).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: false });
+// clock = «una fecha como hora HH:MM», en Caracas: la misma en cualquier equipo (caracasClock)
+const clock = caracasClock;
 
 // abandonedText = «lo que se lee de una rotación abandonada»: se quedó en Mesas sin guardar y se guardó días después
 // ('abandoned', de la API: rotation.lib.js). El día del guardado es su día operativo, a medianoche UTC.

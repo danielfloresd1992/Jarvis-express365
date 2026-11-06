@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, setListOpen, appendBlankProcess, applyTabletOrders, createRecord, stampShift } from '../../../libs/tickets/tableRecords.js';
 import { getCurrentTime } from '../../cells/GridCells.jsx';
 import { randomTouchFinish } from '../../../libs/date_time/touchFinish.js';
+import { serverNow } from '../../../libs/date_time/serverClock.js';
 import { useRotationSync } from './useRotationSync.jsx';
 
 // TOUCH_TIMES = «las horas de un toque que se corrigen a mano» (writeTouch): la del toque y la de su fin
@@ -139,7 +140,7 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
     // También al simular: lo que se guarda con el disquete durante una simulación va a la API de verdad y
     // sale en «Registros», y el simulador repite números de ticket de una sesión a otra.
     const applyOrders = useCallback(() => {
-        commit(applyTabletOrders(recordsRef.current, ordersRef.current, new Date(), orderGuardRef.current ?? undefined, dishTypeOfRef.current ?? undefined));
+        commit(applyTabletOrders(recordsRef.current, ordersRef.current, serverNow(), orderGuardRef.current ?? undefined, dishTypeOfRef.current ?? undefined));
     }, [commit]);
 
     //  2. LO QUE LEE LA IA: cada vez que el seguimiento publica pedidos. Y también cuando lo pide quien
@@ -158,11 +159,11 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
 
     //  3. LO QUE SE ESCRIBE A MANO. Con useCallback: son SIEMPRE las mismas funciones (ver arriba).
     const writeRecord = useCallback((recordId, field, value) => {
-        commit(setRecordField(recordsRef.current, recordId, field, value, new Date()));
+        commit(setRecordField(recordsRef.current, recordId, field, value, serverNow()));
     }, [commit]);
 
     const writeProcess = useCallback((recordId, processId, field, value) => {
-        commit(setProcessField(recordsRef.current, recordId, processId, field, value, new Date()));
+        commit(setProcessField(recordsRef.current, recordId, processId, field, value, serverNow()));
     }, [commit]);
 
     // writeListOpen = «desplegar o plegar una lista de la fila». Se guarda como lo demás: al volver a abrir
@@ -215,7 +216,7 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
     // changeTouches = «cambiar los toques de una rotación»: 'change' recibe su lista y devuelve la nueva
     const changeTouches = useCallback((recordId, change) => {
         commit(recordsRef.current.map(record => (
-            record.id === recordId ? { ...record, touch: change(record.touch), date: record.date ?? new Date() } : record
+            record.id === recordId ? { ...record, touch: change(record.touch), date: record.date ?? serverNow() } : record
         )));
     }, [commit]);
 
@@ -226,7 +227,7 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
     const addTouch = useCallback((recordId, manager, times) => {
         const hourTouch = times?.hourTouch || getCurrentTime();
         const hourTouchFinish = times?.hourTouchFinish || randomTouchFinish(hourTouch);
-        changeTouches(recordId, touches => [...touches, { id: crypto.randomUUID(), ref: manager.ref, name: manager.name, hourTouch, hourTouchFinish, createdAt: new Date().toISOString() }]);
+        changeTouches(recordId, touches => [...touches, { id: crypto.randomUUID(), ref: manager.ref, name: manager.name, hourTouch, hourTouchFinish, createdAt: serverNow().toISOString() }]);
     }, [changeTouches]);
 
     // writeTouch = «corregir una hora de un toque»: la del toque ('hourTouch') o la de su fin ('hourTouchFinish')
@@ -252,8 +253,8 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
     //     La demora de preparación es de un pedido: trae 'processId' y va a ese proceso ('preparationDelay').
     useEffect(() => onReportedDelay(({ recordId, processId, field, noveltieId }) => {
         commit(processId
-            ? setProcessField(recordsRef.current, recordId, processId, field, noveltieId, new Date())
-            : setRecordField(recordsRef.current, recordId, field, noveltieId, new Date()));
+            ? setProcessField(recordsRef.current, recordId, processId, field, noveltieId, serverNow())
+            : setRecordField(recordsRef.current, recordId, field, noveltieId, serverNow()));
     }), [commit]);
 
 

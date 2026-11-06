@@ -1,7 +1,8 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ReactReduxContext } from 'react-redux';
 import { getRotationsByEstablishment, saveRotation, updateRotation, addRotationTouch, deleteRotationTouch } from '../../../libs/fetch_data/rotationFetching.js';
-import { operationalDay } from '../../../libs/date_time/operationalDay.js';
+import { operationalDay, caracasClock } from '../../../libs/date_time/operationalDay.js';
+import { serverNow } from '../../../libs/date_time/serverClock.js';
 import { recoveredRotation } from '../../../libs/tickets/recoveredRotation.js';
 import { exportCustomerServiceWorkbook } from '../../../libs/export/customerServiceWorkbook.js';
 import { findSavedTicket } from '../../../libs/tickets/savedTickets.js';
@@ -72,8 +73,8 @@ const dayOf = (rotation) => String(rotation?.operationalDate ?? '').slice(0, 10)
 // byStart = «por la hora en que empezó», como las ordena el GET
 const byStart = (one, other) => new Date(one.date) - new Date(other.date);
 
-// clock = «una fecha como hora HH:MM de este equipo»
-const clock = (date) => new Date(date).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: false });
+// clock = «una fecha como hora HH:MM», en Caracas: la misma en cualquier equipo (caracasClock)
+const clock = caracasClock;
 
 
 // putSaved = «poner en la lista una rotación que llega en vivo»
@@ -227,7 +228,7 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
 
         setEditNotice('');
         const hourTouch = getCurrentTime();
-        addRotationTouch(rotationId, { ref: manager.ref, name: manager.name, hourTouch, hourTouchFinish: randomTouchFinish(hourTouch), createdAt: new Date().toISOString(), recovered: true })
+        addRotationTouch(rotationId, { ref: manager.ref, name: manager.name, hourTouch, hourTouchFinish: randomTouchFinish(hourTouch), createdAt: serverNow().toISOString(), recovered: true })
             .then(updated => setSaved(current => putSaved(current, updated, 'put')))
             .catch(failed);
     }, [failed]);

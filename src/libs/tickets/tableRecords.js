@@ -48,6 +48,7 @@ import { esMesaDeVerdad } from './claveDeTicket.js';
 import { DELAY_FIELDS, WARNING_FIELDS, PROCESS_DELAY_FIELDS, isObjectId } from './reportedDelay.js';
 import { isStaleRecord } from './staleRecords.js';
 import { operationalDay } from '../date_time/operationalDay.js';
+import { serverNow } from '../date_time/serverClock.js';
 import { createDishTypes } from './dishTypes.js';
 
 
@@ -246,7 +247,7 @@ function firstTrailingBlank(records) {
 // La mesa recibe su fecha la primera vez que se le escribe algo: hasta entonces era una fila en blanco.
 // Al escribir la mesa se decide también si es para llevar: con '#' delante, sí (withTable), y entonces su
 // ticket tiene su proceso (withTicketProcess).
-export function setRecordField(records, recordId, field, value, now = new Date()) {
+export function setRecordField(records, recordId, field, value, now = serverNow()) {
 
     const index = records.findIndex(record => record.id === recordId);
     if (index === -1 || records[index][field] === value) return records;
@@ -263,7 +264,7 @@ export function setRecordField(records, recordId, field, value, now = new Date()
 
 // setProcessField = «anotar un dato de un proceso»: su tipo de plato o una de sus horas
 // Si es una de las que lee la IA, queda marcada como corregida a mano: la IA ya no la vuelve a pisar.
-export function setProcessField(records, recordId, processId, field, value, now = new Date()) {
+export function setProcessField(records, recordId, processId, field, value, now = serverNow()) {
 
     const recordIndex = records.findIndex(record => record.id === recordId);
     if (recordIndex === -1) return records;
@@ -316,7 +317,7 @@ export function setProcessField(records, recordId, processId, field, value, now 
  *  dishTypeOf (opcional) da el tipo de plato de un pedido: el de la carta del local (createDishTypes, en
  *  dishTypes.js). Sin él, el de la lista de siempre.
  */
-export function applyTabletOrders(records, orders, now = new Date(), acceptNewOrder = () => true, dishTypeOf = FIXED_DISH_TYPE) {
+export function applyTabletOrders(records, orders, now = serverNow(), acceptNewOrder = () => true, dishTypeOf = FIXED_DISH_TYPE) {
 
     if (!orders || orders.length === 0) return records;
 
@@ -532,7 +533,7 @@ const storageKey = (localId) => (localId ? `${STORAGE_PREFIX}:${localId}` : '');
 // NUNCA lanza: sin nada guardado, o con el almacenamiento bloqueado, devuelve una lista vacía.
 // Vuelven TODAS, también las de días anteriores: antes, las de más de 16 horas desaparecían sin guardarse. Ahora
 // Mesas las bloquea y las sube a un bloque aparte, hasta que alguien las guarde o las elimine (staleRecords.js).
-export function readRecords(localId, now = new Date()) {
+export function readRecords(localId, now = serverNow()) {
 
     const key = storageKey(localId);
     if (!key) return [];

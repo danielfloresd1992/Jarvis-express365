@@ -27,6 +27,7 @@
 
 import { createRecord, createProcess, isBlankRecord, isBlankProcess, OPEN_LISTS, RECORD_TIMES, PROCESS_FIELDS, TABLET_FIELDS, SHIFTS } from './tableRecords.js';
 import { DELAY_FIELDS, WARNING_FIELDS, PROCESS_DELAY_FIELDS, isObjectId } from './reportedDelay.js';
+import { caracasClock } from '../date_time/operationalDay.js';
 
 
 // LOCAL_ONLY = «lo de una rotación que no viaja»: las listas desplegadas, que son de quien mira, y su fila en la tabla
@@ -239,7 +240,7 @@ export function authorshipTitle(authorship, pending = false) {
     const parts = [];
     if (authorship?.createdBy) parts.push(`Creó ${authorship.createdBy}`);
     if (authorship?.updatedBy) {
-        const time = authorship.changedAt ? new Date(authorship.changedAt).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+        const time = authorship.changedAt ? caracasClock(authorship.changedAt) : '';
         parts.push(`último cambio de ${authorship.updatedBy}${time ? ` a las ${time}` : ''}`);
     }
     if (pending) parts.push(parts.length > 0 ? 'con cambios sin subir todavía' : 'Todavía sin subir al servidor');

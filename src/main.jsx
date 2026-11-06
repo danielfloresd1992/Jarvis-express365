@@ -13,6 +13,7 @@ import { RegisterController } from "./component/tabletScreen/register.controller
 import { LimiteDeError } from "./component/LimiteDeError.jsx";
 import TitleBar from "./component/titleBar/TitleBar.jsx";
 import { SIMULACION_DISPONIBLE, VISTA_SIMULADOR } from "./simulador/disponible.js";
+import { startServerClock } from "./libs/date_time/serverClock.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -120,6 +121,10 @@ else if (esVistaTablet) {
     // index.css).
     document.documentElement.classList.add('vista-tablet');
 
+    // Mesas fecha cada rotación con la hora del servidor, no con la del equipo (libs/date_time/serverClock.js):
+    // se mide ya, antes de pintar nada.
+    startServerClock();
+
     //  El límite de error va DENTRO de StrictMode y envolviendo a la ventana: si el
     //  pintado revienta, se ve el motivo en el propio panel en vez de un rectángulo
     //  azul vacío, que es indistinguible de «la tablet no está conectada».
@@ -134,6 +139,9 @@ else if (esVistaTablet) {
 
 else {
     arrancarAhorroDeCpu();
+
+    // Lo mismo que en la flotante: la hora del servidor para los instantes de Mesas (serverClock.js)
+    startServerClock();
 
     // Marca para el CSS: dentro de la aplicación de escritorio la ventana no
     // tiene el marco de Windows, así que la barra de título la pinta la propia

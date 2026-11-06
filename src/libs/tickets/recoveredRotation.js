@@ -1,5 +1,6 @@
 import { createRecord, setRecordField, RECORD_TIMES, isTakeOut } from './tableRecords.js';
 import { atOperationalTime } from '../date_time/operationalDay.js';
+import { serverNow } from '../date_time/serverClock.js';
 
 
 /*  UNA ROTACIÓN ANOTADA A MANO EN «REGISTROS»: RECUPERADA
@@ -37,7 +38,7 @@ export function recoveredMissing({ tableNumber, times = {} }) {
  *  @param {string} day          el día operativo de Registros, 'AAAA-MM-DD'
  *  @param {Date}   now          ahora (para las pruebas). Es la fecha de un pedido para llevar, que no tiene Ocupa.
  */
-export function recoveredRotation({ tableNumber, times = {}, shift, day, now = new Date() }) {
+export function recoveredRotation({ tableNumber, times = {}, shift, day, now = serverNow() }) {
 
     const blank = createRecord();
 

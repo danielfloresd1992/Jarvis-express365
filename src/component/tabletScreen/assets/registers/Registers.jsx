@@ -6,6 +6,7 @@ import ShiftToggle from './ShiftToggle.jsx';
 import ClearButton from './ClearButton.jsx';
 import RegisterTotals from './RegisterTotals.jsx';
 import SyncStatus from './SyncStatus.jsx';
+import ClockStatus from './ClockStatus.jsx';
 import RegisterEstablishment from './RegisterEstablishment.jsx';
 import RegisterTable from './RegisterTable.jsx';
 import RegisterSaved from './RegisterSaved.jsx';
@@ -105,6 +106,9 @@ export default function Registers({ session, establishment = session.establishme
                 {/*  Rotaciones y toques de gerente del día, sumando Registros y Mesas (pedido del usuario: en el
                      sitio de cómo iba la lectura de la IA, que ya se ve en el «Registro de la inferencia»)  */}
                 <RegisterTotals records={store.records} saved={saved} managers={managers} />
+
+                {/*  El reloj del equipo, solo si va desfasado: Mesas ya usa la hora del servidor, pero el equipo hay que arreglarlo  */}
+                <ClockStatus />
 
                 {/*  Cómo va la subida en vivo de Mesas: en vivo, subiendo, o sin conexión con cuántas sin subir  */}
                 <SyncStatus status={store.sync.status} />
