@@ -28,8 +28,9 @@ import RegisterTouchTable from './RegisterTouchTable.jsx';
  *  @param {function} onClose      cierra la lista
  *  @param {function} onCreate     opcional. Apunta un toque escrito a mano: (gerente, { hourTouch, hourTouchFinish }).
  *                                 Sin él no sale la fila manual.
+ *  @param {string}   establishmentId  el _id del local: de quién es el gerente por defecto de la fila manual
  */
-export default function RegisterTouchList({ tableNumber, touches, managers, onWrite, onDelete, onClose, onCreate }) {
+export default function RegisterTouchList({ tableNumber, touches, managers, onWrite, onDelete, onClose, onCreate, establishmentId }) {
     return (
         <div className='register-process-card register-touch-card absolute right-0 top-full z-[5]' role='dialog' aria-label={`Toques de gerente de la mesa ${tableNumber}`}>
 
@@ -46,7 +47,7 @@ export default function RegisterTouchList({ tableNumber, touches, managers, onWr
 
             <RegisterTouchTable touches={touches} managers={managers} onWrite={onWrite} onDelete={onDelete}>
                 {/*  La primera fila: apuntar un toque a mano  */}
-                {onCreate && managers.length > 0 && <RegisterTouchManual managers={managers} onCreate={onCreate} />}
+                {onCreate && managers.length > 0 && <RegisterTouchManual managers={managers} onCreate={onCreate} establishmentId={establishmentId} />}
             </RegisterTouchTable>
 
         </div>

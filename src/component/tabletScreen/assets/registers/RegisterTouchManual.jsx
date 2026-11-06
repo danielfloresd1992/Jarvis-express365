@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import CellTimeInput from '../../../cells/CellTimeInput.jsx';
 import { randomTouchFinish, touchDurationSeconds } from '../../../../libs/date_time/touchFinish.js';
+import { readDefaultManager, writeDefaultManager, pickManager } from '../../../../libs/tickets/defaultManager.js';
 
 
 /*  APUNTAR UN TOQUE A MANO — la primera fila de la lista de toques (RegisterTouchList)
@@ -14,6 +15,10 @@ import { randomTouchFinish, touchDurationSeconds } from '../../../../libs/date_t
  *
  *  Las horas se escriben con el mismo campo de las celdas (CellTimeInput): un clic lo abre, y al salir de
  *  él la hora queda puesta. Al crear, las dos horas se vacían y el gerente se queda, por si hay otro.
+ *
+ *  EL GERENTE POR DEFECTO (pedido del usuario): la estrella junto al desplegable fija el gerente elegido como el de
+ *  por defecto del local, y la fila de cada mesa empieza con él. Pulsarla con ese mismo gerente lo quita. Se guarda en
+ *  el equipo (libs/tickets/defaultManager.js); en el desplegable lleva una estrella detrás.
  */
 
 
@@ -59,20 +64,34 @@ function TimeField({ value, onChange, placeholder, label, hint }) {
 }
 
 
-/*  @param {Array}    managers  los botones de los gerentes (managers.js)
- *  @param {function} onCreate  apunta el toque: (gerente, { hourTouch, hourTouchFinish })
+/*  @param {Array}    managers         los botones de los gerentes (managers.js)
+ *  @param {function} onCreate         apunta el toque: (gerente, { hourTouch, hourTouchFinish })
+ *  @param {string}   establishmentId  el _id del local: de quién es el gerente por defecto
  */
-export default function RegisterTouchManual({ managers, onCreate }) {
+export default function RegisterTouchManual({ managers, onCreate, establishmentId }) {
 
-    const [managerId, setManagerId] = useState(managers[0]?.id ?? '');
+    // defaultId = «el gerente por defecto del local» ('' si no hay); la fila empieza con él (pickManager)
+    const [defaultId, setDefaultId] = useState(() => readDefaultManager(establishmentId));
+    const [managerId, setManagerId] = useState(() => pickManager(managers, defaultId)?.id ?? '');
     const [start, setStart] = useState('');
     const [finish, setFinish] = useState('');
 
     // problem = «por qué no se pudo crear», o '' si nada
     const [problem, setProblem] = useState('');
 
-    // manager = «el gerente elegido»; si ya no está entre los botones, el primero
-    const manager = managers.find(button => button.id === managerId) ?? managers[0];
+    // manager = «el gerente elegido»; si ya no está entre los botones, el por defecto o el primero
+    const manager = managers.find(button => button.id === managerId) ?? pickManager(managers, defaultId);
+
+    // isDefault = «el elegido es el de por defecto»: la estrella va llena
+    const isDefault = Boolean(manager) && manager.id === defaultId;
+
+    // toggleDefault = «fijar el elegido como gerente por defecto, o quitarlo si ya lo es»
+    const toggleDefault = () => {
+        if (!manager) return;
+        const next = isDefault ? '' : manager.id;
+        writeDefaultManager(establishmentId, next);
+        setDefaultId(next);
+    };
 
     // create = «apuntar el toque». Valida, y la hora de fin vacía se pone sola (randomTouchFinish).
     const create = () => {
@@ -89,15 +108,37 @@ export default function RegisterTouchManual({ managers, onCreate }) {
     return (
         <>
             <div className='register-touch-grid register-touch-manual'>
-                <select
-                    className='register-touch-manual__manager'
-                    value={manager?.id ?? ''}
-                    onChange={event => setManagerId(event.target.value)}
-                    aria-label='Gerente del toque'
-                    title='El gerente del toque'
-                >
-                    {managers.map(button => <option key={button.id} value={button.id}>{button.label} · {optionName(button)}</option>)}
-                </select>
+                <span className='register-touch-manual__who'>
+                    <select
+                        className='register-touch-manual__manager'
+                        value={manager?.id ?? ''}
+                        onChange={event => setManagerId(event.target.value)}
+                        aria-label='Gerente del toque'
+                        title='El gerente del toque'
+                    >
+                        {managers.map(button => (
+                            <option key={button.id} value={button.id}>
+                                {button.label} · {optionName(button)}{button.id === defaultId ? ' ★' : ''}
+                            </option>
+                        ))}
+                    </select>
+
+                    {/*  La estrella: fijar el elegido como gerente por defecto del local, o quitarlo  */}
+                    <button
+                        type='button'
+                        className={`register-touch-manual__default ${isDefault ? 'register-touch-manual__default--on' : ''}`}
+                        onClick={toggleDefault}
+                        aria-pressed={isDefault}
+                        aria-label={isDefault ? 'Quitar el gerente por defecto' : 'Usar este gerente por defecto'}
+                        title={isDefault
+                            ? `${manager.label} es el gerente por defecto: cada mesa empieza con él. Pulsa para quitarlo`
+                            : `Usar ${manager?.label ?? 'este gerente'} por defecto: cada mesa empezará con él`}
+                    >
+                        <svg width='13' height='13' viewBox='0 0 24 24' fill={isDefault ? 'currentColor' : 'none'} stroke='currentColor' strokeWidth='2' strokeLinejoin='round' aria-hidden='true'>
+                            <path d='m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1-4.5-4.2 6.1-.8z' />
+                        </svg>
+                    </button>
+                </span>
 
                 <TimeField
                     value={start}

@@ -758,9 +758,12 @@
     Lleva también 'register-process-card' (la libra de las reglas de las celdas de la fila, de la que es
     hija); de ella se quita el recorte para que asome la flechita, y por eso el pie redondea sus esquinas.
     El borde se queda en 'regla2': es el que las reglas de la fila le ponen a la derecha y abajo.  */
+/*  364 px (antes 336): el desplegable del gerente de la fila manual se queda con lo que sobra de la primera columna, y
+    al ponerle al lado la estrella del gerente por defecto se quedaba en 74 px. El usuario lo pidió un 25 % más ancho
+    y luego otro 10 %: con 28 px más mide 102. Va pegada a la derecha (right-0), así que la flechita sigue en su sitio.  */
 .register-process-card.register-touch-card {
     --touch-card: color-mix(in srgb, var(--color-jx-lienzo) 45%, #ffffff);
-    width: 336px;
+    width: 364px;
     margin-top: 7px;
     overflow: visible;
     border-radius: 10px;
@@ -899,6 +902,32 @@
     cursor: pointer;
 }
 
+/*  El gerente y su estrella (el gerente por defecto) van juntos en la primera columna. La estrella vacía va en tinta
+    clara; llena, en ocre: ese es el que sale en cada mesa.  */
+.register-touch-manual__who { display: flex; align-items: center; gap: 4px; min-width: 0; }
+
+.register-touch-manual__default {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--color-jx-borde-campo);
+    border-radius: 5px;
+    background: var(--touch-card);
+    color: var(--color-jx-tinta3);
+    cursor: pointer;
+}
+
+.register-touch-manual__default:hover { background: var(--color-jx-hundido); color: var(--color-jx-ocre-texto); }
+
+.register-touch-manual__default--on {
+    border-color: color-mix(in srgb, var(--color-jx-ocre) 70%, #000000);
+    background: var(--color-jx-ocre-suave);
+    color: var(--color-jx-ocre-texto);
+}
+
 .register-touch-manual__slot { display: block; height: 24px; font-size: 12px; }
 
 .register-touch-manual__time {
@@ -1013,6 +1042,7 @@
 .register-touches:focus-visible,
 .register-save:focus-visible,
 .register-touch-manual__manager:focus-visible,
+.register-touch-manual__default:focus-visible,
 .register-touch-manual__time:focus-visible,
 .register-touch-manual__create:focus-visible,
 .register-touch-delete:focus-visible { outline: 2px solid var(--color-jx-verde-barra); outline-offset: 1px; }
