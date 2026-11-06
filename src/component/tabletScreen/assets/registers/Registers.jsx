@@ -5,6 +5,7 @@ import RegisterViewTabs from './RegisterViewTabs.jsx';
 import ShiftToggle from './ShiftToggle.jsx';
 import ClearButton from './ClearButton.jsx';
 import RegisterTotals from './RegisterTotals.jsx';
+import SyncStatus from './SyncStatus.jsx';
 import RegisterEstablishment from './RegisterEstablishment.jsx';
 import RegisterTable from './RegisterTable.jsx';
 import RegisterSaved from './RegisterSaved.jsx';
@@ -48,7 +49,7 @@ import useTableView from '../../hook/useTableView.jsx';
 export default function Registers({ session, establishment = session.establishment }) {
 
     const { reading, tracking, store, savedRotations, linkedNovelties, attention, cleaning, attentionOrigin, cleaningOrigin, clearRegister, reportDelay, shift, shiftLocked, toggleShift, dishTypes } = session;
-    const { saved, loadSaved, rememberSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, addRecovered, exportSaved } = savedRotations;
+    const { saved, loadSaved, editNotice, editSaved, addSavedTouch, deleteSavedTouch, addRecovered, exportSaved } = savedRotations;
 
     // managers = «los botones de los gerentes del local» (managers.js). Se arman una vez por local: un
     // array nuevo en cada pintado repintaría la tabla entera.
@@ -80,7 +81,7 @@ export default function Registers({ session, establishment = session.establishme
     // stale = «las rotaciones de Mesas de días operativos anteriores»: bloqueadas, arriba y aparte, solo para guardarlas
     // o eliminarlas (useStaleRotations; la tabla las pinta en RegisterStaleBlock). 'today' cambia solo a las 08:00.
     const today = useOperationalDay();
-    const stale = useStaleRotations({ records: store.records, today, establishmentId, onSaved: rememberSaved, clearRecord: store.clearRecord });
+    const stale = useStaleRotations({ records: store.records, today, establishmentId, closeRecord: store.closeRecord, clearRecord: store.clearRecord });
     const addRecoveredHere = useCallback((fields) => addRecovered(fields, establishmentId), [addRecovered, establishmentId]);
 
     // tableView = «qué filas de Mesas se ven y en qué orden»: lo buscado, lo que se muestra y el orden de la barra de
@@ -104,6 +105,9 @@ export default function Registers({ session, establishment = session.establishme
                 {/*  Rotaciones y toques de gerente del día, sumando Registros y Mesas (pedido del usuario: en el
                      sitio de cómo iba la lectura de la IA, que ya se ve en el «Registro de la inferencia»)  */}
                 <RegisterTotals records={store.records} saved={saved} managers={managers} />
+
+                {/*  Cómo va la subida en vivo de Mesas: en vivo, subiendo, o sin conexión con cuántas sin subir  */}
+                <SyncStatus status={store.sync.status} />
 
                 <span aria-hidden='true' className='shrink-0 w-px h-5 mx-1 bg-jx-regla2' />
 
@@ -167,6 +171,7 @@ export default function Registers({ session, establishment = session.establishme
                     addProcess={store.addProcess}
                     deleteProcess={store.deleteProcess}
                     clearRecord={store.clearRecord}
+                    closeRecord={store.closeRecord}
                     addTouch={store.addTouch}
                     writeTouch={store.writeTouch}
                     deleteTouch={store.deleteTouch}
@@ -179,7 +184,8 @@ export default function Registers({ session, establishment = session.establishme
                     alreadyThere={tracking.alreadyThere.size}
                     managers={managers}
                     establishmentId={establishment?._id}
-                    onSaved={rememberSaved}
+                    people={store.sync.people}
+                    pendingIds={store.sync.pendingIds}
                     stale={stale}
                     dishTypes={dishTypes}
                     novelties={linkedNovelties}

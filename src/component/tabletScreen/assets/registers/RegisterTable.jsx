@@ -45,7 +45,10 @@ import './registers.css';
  *
  *  @param {Array}    managers        los botones de los gerentes del local (managers.js): una columna a la derecha
  *  @param {string}   establishmentId el _id del local, para guardar cada rotación (el disquete)
- *  @param {function} onSaved         opcional. La API guardó una rotación: (la rotación guardada), para la lista de Registros
+ *  @param {function} closeRecord     el disquete de cada fila: la cierra en la API por la cola y limpia la fila ya
+ *  @param {Map}      people          opcional. Quién creó cada rotación y quién hizo su último cambio, en vivo: id → lo de
+ *                                    authorshipOf (rotationSync.js). El title de la celda Mesa.
+ *  @param {Set}      pendingIds      opcional. Las rotaciones con cambios esperando en la cola para subir
  *  @param {object}   stale           opcional. Las rotaciones de días anteriores (useStaleRotations): salen de su fila
  *                                    y van arriba, aparte y bloqueadas (RegisterStaleBlock)
  *  @param {object}   dishTypes       el tipo de plato del local (createDishTypes, en dishTypes.js): las opciones y el tiempo de cada plato
@@ -61,7 +64,7 @@ import './registers.css';
  *  @param {string}   emptyText       qué decir si así no queda ninguna fila
  *  @param {function} onResetFilters  quitar la búsqueda y lo que se muestra (el botón de ese aviso)
  */
-function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, onSaved, stale, dishTypes, novelties, rows, query = '', sort = 'arrival', filtering = false, emptyText = '', onResetFilters }) {
+function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, closeRecord, addTouch, writeTouch, deleteTouch, onReportDelay, hasReading, readingError, censusing, censusReadings, censusLength, alreadyThere, managers, establishmentId, people, pendingIds, stale, dishTypes, novelties, rows, query = '', sort = 'arrival', filtering = false, emptyText = '', onResetFilters }) {
 
     // current = «las rotaciones de hoy, y las filas en blanco»: las de días anteriores van aparte, en su bloque
     const current = useMemo(() => (stale?.ids.size > 0 ? records.filter(record => !stale.ids.has(record.id)) : records), [records, stale]);
@@ -210,6 +213,7 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                             addProcess={addProcess}
                             deleteProcess={deleteProcess}
                             clearRecord={clearRecord}
+                            closeRecord={closeRecord}
                             addTouch={addTouch}
                             writeTouch={writeTouch}
                             deleteTouch={deleteTouch}
@@ -218,7 +222,8 @@ function RegisterTable({ records, liveOrders, attentionLimit, cleaningLimit, att
                             managers={managers}
                             widthOfManagers={widthOfManagers}
                             establishmentId={establishmentId}
-                            onSaved={onSaved}
+                            authorship={people?.get(record.id) ?? null}
+                            pending={pendingIds?.has(record.id) ?? false}
                             dishTypes={dishTypes}
                             novelties={novelties}
                         />

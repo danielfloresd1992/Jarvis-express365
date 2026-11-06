@@ -149,7 +149,7 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
     useEffect(() => { loadSaved(); }, [loadSaved]);
 
     // rememberSaved = «la API acaba de guardar esta rotación con el disquete»: entra ya en la lista (keepSaved).
-    // La llama la fila de Mesas, antes de limpiarse.
+    // La llama la subida en vivo del registro (useRotationSync) cuando la API contesta el cierre: ver setOnClosed abajo.
     const rememberSaved = useCallback((rotation) => setSaved(current => keepSaved(current, rotation)), []);
 
     //  A LAS 08:00 EMPIEZA OTRO DÍA OPERATIVO. Cada minuto se mira si el día cambió y, si cambió, se traen
@@ -305,7 +305,14 @@ function useSavedRotations({ establishmentName, attention, cleaning, store }) {
         askingRef.current.clear();
     }, [establishmentName, saved.day]);
 
-    const { setOrderGuard, reapplyOrders } = store;
+    const { setOrderGuard, reapplyOrders, setOnClosed } = store;
+
+    //  Lo que la API acaba de cerrar con el disquete (la subida en vivo del registro) entra ya en la lista, sin
+    //  esperar al aviso del socket: así la pregunta por los tickets repetidos lo encuentra en el acto.
+    useEffect(() => {
+        setOnClosed(rememberSaved);
+        return () => setOnClosed(null);
+    }, [setOnClosed, rememberSaved]);
 
     // answerTicket = «contestar por un ticket»: se apunta y, si se aceptó, el ticket entra ya
     const answerTicket = useCallback((ticket, accepted) => {

@@ -1,7 +1,6 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { ReactReduxContext } from 'react-redux';
 import { showBoxModal } from '../../../store/slices/boxModal.js';
-import { saveRecord } from '../../../libs/fetch_data/rotationFetching.js';
 import { isStaleRecord, recordDay, staleSaveProblem, dayText, daysBetween } from '../../../libs/tickets/staleRecords.js';
 
 
@@ -11,8 +10,9 @@ import { isStaleRecord, recordDay, staleSaveProblem, dayText, daysBetween } from
  *  no se modifican, solo se guardan o se eliminan. Este hook dice cuáles son y hace las dos cosas, de una en una o
  *  todas a la vez; lo visible es RegisterStaleBlock.
  *
- *      guardar    POST /rotation, como el disquete (saveRecord). La API la guarda en SU día operativo y la marca
- *                 como abandonada ('abandoned'). Lo guardado entra en Registros (onSaved) y su fila se limpia.
+ *      guardar    como el disquete (store.closeRecord): sube CERRADA por la cola de la subida en vivo y su fila se
+ *                 limpia ya, también sin internet. La API la guarda en SU día operativo y la marca como abandonada
+ *                 ('abandoned'); cuando contesta, entra en Registros. Si no la acepta, vuelve a Mesas.
  *                 Una a la que le falta la mesa o la hora de Ocupa no se puede guardar: ya no se puede escribir.
  *      eliminar   su fila de Mesas queda en blanco, sin guardarse. Se pregunta antes: no se puede deshacer.
  *
@@ -27,10 +27,10 @@ const plural = (count) => (count === 1 ? 'la rotación' : `las ${count} rotacion
 /*  @param {Array}    records          las rotaciones de Mesas (store.records)
  *  @param {string}   today            el día operativo de hoy, 'AAAA-MM-DD' (useOperationalDay)
  *  @param {string}   establishmentId  el _id del local, para guardarlas
- *  @param {function} onSaved          lo guardado, a la lista de Registros (rememberSaved)
+ *  @param {function} closeRecord      guardarla, como el disquete (store.closeRecord): false si no se pudo
  *  @param {function} clearRecord      dejar una fila en blanco (store.clearRecord)
  */
-export default function useStaleRotations({ records, today, establishmentId, onSaved, clearRecord }) {
+export default function useStaleRotations({ records, today, establishmentId, closeRecord, clearRecord }) {
 
     const reduxStore = useContext(ReactReduxContext)?.store ?? null;
 
@@ -41,8 +41,9 @@ export default function useStaleRotations({ records, today, establishmentId, onS
     // days = «de qué días son», del más viejo al más nuevo
     const days = useMemo(() => [...new Set(stale.map(recordDay))].sort(), [stale]);
 
-    // busy = «se está guardando»: las teclas se quedan quietas; notice = «lo que no salió»
-    const [busy, setBusy] = useState(false);
+    // busy = «se está guardando»: con la cola no se espera a la API, así que las teclas nunca se quedan quietas.
+    // Se sigue devolviendo para RegisterStaleBlock. notice = «lo que no salió»
+    const busy = false;
     const [notice, setNotice] = useState('');
 
 
@@ -56,33 +57,20 @@ export default function useStaleRotations({ records, today, establishmentId, onS
     }, [reduxStore]);
 
 
-    // save = «guardar estas rotaciones», una tras otra. Las que no se pueden guardar se cuentan y se dicen.
-    const save = useCallback(async (list) => {
+    // save = «guardar estas rotaciones», como el disquete: se cierran por la cola y sus filas se limpian ya (optimista).
+    // Las que no se pueden guardar se cuentan y se dicen. Cómo va la subida lo dice la barra (SyncStatus).
+    const save = useCallback((list) => {
         if (!establishmentId) return setNotice('Elige primero el local');
 
         const savable = list.filter(record => !staleSaveProblem(record));
         const skipped = list.length - savable.length;
-        const failures = [];
-
-        setBusy(true);
-        setNotice('');
-        for (const record of savable) {
-            try {
-                const saved = await saveRecord(record, establishmentId);
-                onSaved?.(saved);
-                clearRecord(record.id);
-            }
-            catch (error) {
-                failures.push(`mesa ${record.tableNumber || '?'}: ${error.message}`);
-            }
-        }
-        setBusy(false);
+        const failed = savable.filter(record => !closeRecord(record)).length;
 
         setNotice([
-            failures.length > 0 ? `No se guardó ${failures.join('; ')}` : '',
+            failed > 0 ? `${failed === 1 ? 'Una no se pudo guardar' : `${failed} no se pudieron guardar`}: falta el local` : '',
             skipped > 0 ? `${skipped === 1 ? 'Una no se pudo guardar' : `${skipped} no se pudieron guardar`}: les falta la mesa o la hora de Ocupa, solo se pueden eliminar` : '',
         ].filter(Boolean).join(' · '));
-    }, [establishmentId, onSaved, clearRecord]);
+    }, [establishmentId, closeRecord]);
 
     // remove = «quitar estas rotaciones de Mesas, sin guardarlas»
     const remove = useCallback((list) => {

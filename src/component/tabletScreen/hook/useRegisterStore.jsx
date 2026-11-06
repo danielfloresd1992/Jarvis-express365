@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { readRecords, writeRecords, withBlankRows, setRecordField, setProcessField, setListOpen, appendBlankProcess, applyTabletOrders, createRecord, stampShift } from '../../../libs/tickets/tableRecords.js';
 import { getCurrentTime } from '../../cells/GridCells.jsx';
 import { randomTouchFinish } from '../../../libs/date_time/touchFinish.js';
+import { useRotationSync } from './useRotationSync.jsx';
 
 // TOUCH_TIMES = «las horas de un toque que se corrigen a mano» (writeTouch): la del toque y la de su fin
 const TOUCH_TIMES = ['hourTouch', 'hourTouchFinish'];
@@ -18,6 +19,8 @@ import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
  *         (applyTabletOrders).
  *      3. Lo que se escribe a mano se guarda en cada tecla, y no cada pocos segundos: lo que se quiere
  *         evitar es justo perder lo último que se escribió al cerrar la ventana.
+ *      4. Y se sube a la API en vivo, abierto, por una cola que aguanta sin internet (useRotationSync): otros
+ *         equipos del local lo ven al momento, y lo que suben ellos entra aquí. El disquete la cierra (closeRecord).
  *
  *  CON UNA SIMULACIÓN EN MARCHA se trabaja sobre una COPIA. Lo de la tablet de mentira se ve y se
  *  puede tocar, pero no se guarda nada, y al acabar la simulación vuelve el registro de verdad tal como
@@ -31,7 +34,7 @@ import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
 //           simulating        hay una simulación en marcha
 //           shift             el turno del toggle de la barra: con él nacen las rotaciones (stampShift)
 //           dishTypeOf }      el tipo de plato de un pedido de la IA, con la carta del local (dishTypes.js). Opcional
-// Devuelve: { records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders }
+// Devuelve: { records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, closeRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders, sync, setOnClosed }
 //   records                                          las rotaciones, con las filas en blanco del final
 //   writeRecord(recordId, field, value)              anota un dato de una rotación
 //   writeProcess(recordId, processId, field, value)  anota una hora de un proceso
@@ -39,6 +42,10 @@ import { onReportedDelay } from '../../../libs/tickets/reportedDelay.js';
 //   addProcess(recordId)                             añade a una rotación un proceso en blanco (el «+»)
 //   deleteProcess(recordId, processId)               borra un proceso de una rotación
 //   clearRecord(recordId)                            deja la rotación en blanco, en su sitio (ya guardada en la API)
+//   closeRecord(record)                              el disquete: la cierra en la API por la cola y la fila se limpia ya
+//   sync                                             { status, people, pendingIds }: cómo va la subida y quién creó y
+//                                                    cambió cada rotación (useRotationSync)
+//   setOnClosed(fn)                                  qué hacer con cada rotación que la API acaba de guardar
 //   addTouch(recordId, manager, times?)              apunta un toque de gerente, con la hora del clic o las escritas a mano
 //   writeTouch(recordId, touchId, field, value)      corrige una hora de un toque: 'hourTouch' o 'hourTouchFinish'
 //   deleteTouch(recordId, touchId)                   borra un toque
@@ -66,7 +73,10 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
     shiftRef.current = shift;
 
 
-    // commit = «dejar puestas unas mesas»: se pintan y, si no se simula, se guardan
+    // syncRef = «la subida en vivo» (useRotationSync, más abajo): commit le avisa de cada cambio
+    const syncRef = useRef(null);
+
+    // commit = «dejar puestas unas mesas»: se pintan y, si no se simula, se guardan y se suben
     // Por aquí pasa todo cambio, así que es aquí donde la rotación que acaba de nacer toma el turno (stampShift).
     const commit = useCallback((next) => {
         const withBlanks = withBlankRows(stampShift(recordsRef.current, next, shiftRef.current));
@@ -75,7 +85,9 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
         recordsRef.current = withBlanks;
         setRecords(withBlanks);
 
-        if (!simulatingRef.current) writeRecords(establishmentRef.current, withBlanks);
+        if (simulatingRef.current) return;
+        writeRecords(establishmentRef.current, withBlanks);
+        syncRef.current?.notify(withBlanks);
     }, []);
 
 
@@ -175,9 +187,29 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
 
     // clearRecord = «dejar en blanco una rotación», en su sitio: lo que tenía ya está guardado en la API.
     // Vuelve con un id nuevo: el viejo ya lo tiene la API, y repetirlo daría «ya estaba guardada».
+    // Si estaba subida abierta y no se cerró, se quita de la API (useRotationSync lo ve solo).
     const clearRecord = useCallback((recordId) => {
         commit(recordsRef.current.map(record => (record.id === recordId ? createRecord() : record)));
     }, [commit]);
+
+
+    //  4. EN VIVO: lo que cambia aquí se sube, y lo que suben otros equipos del local entra (useRotationSync).
+    //     'apply' es el mismo commit: lo que llega de fuera se pinta y se guarda en el equipo como lo escrito aquí.
+    const sync = useRotationSync({
+        establishmentId,
+        getRecords: () => recordsRef.current,
+        apply: (change) => commit(change(recordsRef.current)),
+        paused: simulating,
+    });
+    syncRef.current = sync;
+
+    // closeRecord = «el disquete»: la rotación sube CERRADA por la cola y su fila se limpia ya, sin esperar a la API
+    // (optimista). Si la API no la acepta, vuelve a su fila. Devuelve false si no hay local al que subirla.
+    const closeRecord = useCallback((record) => {
+        if (!syncRef.current?.close(record)) return false;
+        clearRecord(record.id);
+        return true;
+    }, [clearRecord]);
 
 
     // changeTouches = «cambiar los toques de una rotación»: 'change' recibe su lista y devuelve la nueva
@@ -225,7 +257,12 @@ function useRegisterStore({ establishmentId, orders, simulating, shift, dishType
     }), [commit]);
 
 
-    return { records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders: applyOrders };
+    return {
+        records, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, closeRecord,
+        addTouch, writeTouch, deleteTouch, clear, setOrderGuard, reapplyOrders: applyOrders,
+        sync: { status: sync.status, people: sync.people, pendingIds: sync.pendingIds },
+        setOnClosed: sync.setOnClosed,
+    };
 }
 
 

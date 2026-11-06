@@ -18,7 +18,7 @@ import RegisterTouchList from './RegisterTouchList.jsx';
 import TouchToggle from './TouchToggle.jsx';
 import SaveRecordButton from './SaveRecordButton.jsx';
 import { missingForPreparation, isPreparationLate } from './PreparationAlert.jsx';
-import { saveRecord } from '../../../../libs/fetch_data/rotationFetching.js';
+import { authorshipTitle } from '../../../../libs/tickets/rotationSync.js';
 import { SHIFTS } from '../../../../libs/tickets/tableRecords.js';
 import { isFinished } from '../../../../libs/tickets/tableView.js';
 import { linkedNoveltiesOf, withNoveltyStatus, isApproved, isRejected, RECORD_FIELDS, PROCESS_FIELDS } from '../../../../libs/tickets/linkedNovelties.js';
@@ -99,7 +99,10 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {Array}    managers        los botones de los gerentes del local (managers.js)
  *  @param {number}   widthOfManagers lo que mide su columna, para que los procesos la dejen libre
  *  @param {string}   establishmentId el _id del local: a cuál se guarda la rotación (el disquete)
- *  @param {function} onSaved         opcional. La API guardó la rotación: (la rotación guardada)
+ *  @param {function} closeRecord     el disquete: la cierra en la API por la cola y limpia la fila ya (store.closeRecord)
+ *  @param {object}   authorship      opcional. Quién la creó y quién hizo su último cambio, en vivo (authorshipOf, en
+ *                                    rotationSync.js): el title de la celda Mesa
+ *  @param {boolean}  pending         tiene cambios esperando en la cola para subir
  *  @param {object}   dishTypes       el tipo de plato del local (createDishTypes, en dishTypes.js): las opciones del
  *                                    select y el tiempo de preparación de cada plato
  *  @param {string}   match           opcional. Cómo coincide su mesa con lo que se busca en la barra de herramientas
@@ -107,7 +110,7 @@ function NotApplicableCell({ title = 'Pedido para llevar: no lleva esta hora', c
  *  @param {Map}      novelties       opcional. Las novedades enlazadas a las rotaciones, enteras: _id → documento
  *                                    (useLinkedNovelties, en la sesión). Ver 'linked'.
  */
-function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, onSaved, dishTypes, match = '', novelties }) {
+function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, attentionOrigin, cleaningOrigin, writeRecord, writeProcess, writeListOpen, addProcess, deleteProcess, clearRecord, closeRecord, addTouch, writeTouch, deleteTouch, onReportDelay, grid, managers, widthOfManagers, establishmentId, authorship = null, pending = false, dishTypes, match = '', novelties }) {
 
     // open = «los procesos están desplegados»; touchesOpen = «los toques de gerente están desplegados».
     // Salen de la rotación y no de un estado de la fila: así se guardan en el equipo con ella.
@@ -218,8 +221,8 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         addTouch(record.id, manager);
     };
 
-    // saving = «se está guardando esta rotación»: el disquete se desactiva hasta que conteste la API
-    const [saving, setSaving] = useState(false);
+    // authorshipText = «quién la creó y quién la cambia»: el title de la celda Mesa, en vivo (y si espera para subirse)
+    const authorshipText = authorshipTitle(authorship, pending);
 
     // shift = «el turno con que se mide la preparación de sus platos»: el de la rotación (stampShift) o, en una de antes
     // de existir el turno, el que dice la hora del equipo. En los cambios de turno, sin ninguno de los dos, el de día.
@@ -242,14 +245,14 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
     const loop = useRotationLoop({ active: Boolean(record.date), waits });
 
     // clearRow = «limpiar la fila entera»: la rotación queda en blanco en su sitio, con un id nuevo.
-    // Se llama cuando la API confirma que la guardó; con un error la fila se queda como estaba.
+    // Si estaba subida abierta, se quita de la API (la subida en vivo lo ve sola).
     const clearRow = () => clearRecord(record.id);
 
     // saveOne = «guardar esta rotación», el disquete. Primero valida: sin número de mesa o sin la hora
     // de Ocupa no se guarda, y se dice qué falta. Si es la mesa, el cursor va a su celda, como con el «+».
     // Un pedido para llevar no tiene Ocupa, así que a ese solo se le pide la mesa (su '#ticket').
-    // Luego la manda a la API (saveRotation): si la guardó, la fila se limpia (clearRow); si no, el
-    // aviso de la fila dice por qué.
+    // Luego la CIERRA (closeRecord), optimista: la fila se limpia ya y el cierre sube por la cola, también sin
+    // internet (se sube al volver). Cuando la API la guarda, entra en Registros; si no la acepta, vuelve a su fila.
     const saveOne = () => {
 
         // missing = «lo que falta para poder guardar»
@@ -267,23 +270,10 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
         }
 
         if (!establishmentId) return setNotice('Elige primero el local');
-        if (saving) return;
 
-        setSaving(true);
-
-        //  La rotación entera, con su local (saveRecord). Lo que devuelve la API entra en la lista de
-        //  Registros ANTES de limpiar la fila: así, si la IA vuelve a leer alguno de sus tickets, ya consta
-        //  como guardado y se pregunta (ver Registers).
-        saveRecord(record, establishmentId)
-            .then(savedRotation => {
-                //  Guardada: el bucle de la rotación se para aquí, con clearInterval (useRotationLoop). Si la API
-                //  no la guarda, sigue corriendo: la rotación sigue abierta en la fila.
-                loop.stop();
-                onSaved?.(savedRotation);
-                clearRow();
-            })
-            .catch(error => setNotice(error.message))
-            .finally(() => setSaving(false));
+        //  El bucle de la rotación se para aquí, con clearInterval (useRotationLoop): la fila se limpia ya
+        loop.stop();
+        if (!closeRecord(record)) setNotice('No se pudo guardar: falta el local');
     };
 
     // preparationPending = «algún pedido pasó de su tiempo de preparación y no se ha reportado»: con la lista cerrada, el
@@ -612,7 +602,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                         value={record.tableNumber}
                         onChange={event => write('tableNumber')(event.target.value)}
                         placeholder={askingTable && noTable ? 'Nº de mesa' : ''}
-                        title={askingTable && noTable ? 'Escribe primero el número de mesa: el proceso va dentro de la rotación de esa mesa' : undefined}
+                        title={askingTable && noTable ? 'Escribe primero el número de mesa: el proceso va dentro de la rotación de esa mesa' : (authorshipText || undefined)}
                         aria-label='Número de mesa'
                     />
                     {
@@ -752,7 +742,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
 
                 {/*  El disquete: guardar la rotación (ver 'saveOne')  */}
                 <WrapperCell classStyles='register-rail cursor-default'>
-                    <SaveRecordButton table={record.tableNumber} waiting={noTable} done={finished} busy={saving} onSave={saveOne} />
+                    <SaveRecordButton table={record.tableNumber} waiting={noTable} done={finished} busy={false} onSave={saveOne} />
                 </WrapperCell>
 
                 {/*  Los toques de gerente: flotan encima de las filas de abajo, sin empujarlas. Con mesa y sin
@@ -767,6 +757,7 @@ function RegisterRecordRow({ record, liveByKey, attentionLimit, cleaningLimit, a
                             onDelete={(touchId) => deleteTouch(record.id, touchId)}
                             onClose={() => setTouchesOpen(false)}
                             onCreate={canTouchByHand ? (manager, times) => addTouch(record.id, manager, times) : undefined}
+                            establishmentId={establishmentId}
                         />
                     )
                 }

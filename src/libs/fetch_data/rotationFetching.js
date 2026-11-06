@@ -59,10 +59,8 @@ export const saveRotation = (body) => {
     });
 };
 
-// saveRecord = «guardar una rotación de Mesas»: la rotación entera, con su local y su id como `clientId` (la API
-// reconoce así la misma rotación). Sin lista de campos: lo que crezca el ciclo viaja solo. La usan el disquete de
-// cada fila (RegisterRecordRow) y el bloque de las de días anteriores (useStaleRotations).
-export const saveRecord = (record, establishmentId) => saveRotation({ ...record, establishment: establishmentId, clientId: record.id });
+// El disquete de Mesas y el bloque de las de días anteriores ya no usan el POST: cierran por la cola de la subida en
+// vivo (syncRotation, más abajo; libs/tickets/rotationSync.js). El POST queda para las anotadas después en Registros.
 
 
 
@@ -102,6 +100,53 @@ export const deleteRotationTouch = (id) => {
         sessionAxios.delete(`${IP}/rotation/touch/id=${id}`)
             .then(response => resolve(response.data))
             .catch(error => reject(rotationError(error, 'No se pudo quitar el toque')));
+    });
+};
+
+
+
+//  ── MESAS EN VIVO (libs/tickets/rotationSync.js, hook/useRotationSync.jsx) ──────────────────
+//  Las tres van por instanceAxios y no por sessionAxios: las lanza la cola en segundo plano, y una sesión vencida no
+//  debe abrir el formulario de volver a entrar por su cuenta. Lo que no sube se queda en la cola y se reintenta.
+
+
+// syncRotation = «subir una rotación de Mesas, abierta o cerrándola» (PUT /rotation/client=<id>)
+// Resuelve con { outcome, rotation }: qué hizo la API ('create', 'update', 'stale' —tenía una más nueva, que es la que
+// devuelve—, 'repeated') y la rotación tal como quedó, con quién la creó y quién hizo el último cambio.
+// Rechaza con el error de rotationError; un 409 (ya está guardada: es de Registros) trae además `rotation`.
+// Recibe: body, el de toSyncBody (rotationSync.js).
+export const syncRotation = (body) => {
+    return new Promise((resolve, reject) => {
+        axiosInstance.put(`${IP}/rotation/client=${encodeURIComponent(body.clientId)}`, body)
+            .then(response => resolve(response.data))
+            .catch(error => reject(Object.assign(
+                rotationError(error, 'No se pudo subir la rotación', 'Esta rotación ya está guardada: ahora es de Registros'),
+                { rotation: error?.response?.data?.rotation ?? null },
+            )));
+    });
+};
+
+
+// removeOpenRotation = «quitar de la API una rotación abierta que se eliminó de Mesas» (DELETE /rotation/client=<id>)
+// Resuelve con { removed, clientId }: removed false si ya no estaba. Rechaza con el error de rotationError (409: ya
+// está guardada, y esas no se quitan desde Mesas).
+export const removeOpenRotation = (clientId, establishmentId) => {
+    return new Promise((resolve, reject) => {
+        axiosInstance.delete(`${IP}/rotation/client=${encodeURIComponent(clientId)}`, { params: { establishment: establishmentId } })
+            .then(response => resolve(response.data))
+            .catch(error => reject(rotationError(error, 'No se pudo quitar la rotación', 'Esta rotación ya está guardada')));
+    });
+};
+
+
+// getOpenRotations = «las rotaciones que siguen abiertas en Mesas de un local», de cualquier día (GET /rotation?status=open)
+// Resuelve con la lista, como el GET de siempre (con quién la creó y quién hizo el último cambio). Rechaza con el
+// error de rotationError.
+export const getOpenRotations = (establishmentId) => {
+    return new Promise((resolve, reject) => {
+        axiosInstance.get(`${IP}/rotation`, { params: { establishment: establishmentId, status: 'open' } })
+            .then(response => resolve(Array.isArray(response.data?.documents) ? response.data.documents : []))
+            .catch(error => reject(rotationError(error, 'No se pudieron traer las rotaciones abiertas')));
     });
 };
 
