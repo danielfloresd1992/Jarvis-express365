@@ -42,6 +42,7 @@ const ROTULO_DEL_TIPO = {
     [TIPO.RESPUESTA]: 'respuesta',
     [TIPO.RESULTADO]: 'resultado',
     [TIPO.FALLO]: 'fallo',
+    [TIPO.SEGUIMIENTO]: 'seguimiento',
 };
 
 

@@ -7,6 +7,7 @@ import { useEstablishment } from './useEstablishment.jsx';
 import { useTablet } from './useTablet.jsx';
 import { useAiServer } from './useAiServer.jsx';
 import { useTicketReading } from './useTicketReading.jsx';
+import { useCardTracking } from './useCardTracking.jsx';
 import { useProcessTracking } from './useProcessTracking.jsx';
 import { useRegisterStore } from './useRegisterStore.jsx';
 import { useSavedRotations } from './useSavedRotations.jsx';
@@ -142,7 +143,8 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
     const tablet = useTablet();                          //  conectar, simular, desconectar y el espejo
     const ai = useAiServer();                            //  el servidor de IA: si está activo y con qué modelo
-    const reading = useTicketReading({ tablet, ai });    //  el bucle que lee la pantalla
+    const cards = useCardTracking({ tablet });           //  las tarjetas por píxeles: identidad y momentos (y qué capturas no mandar)
+    const reading = useTicketReading({ tablet, ai, cards });   //  el bucle que lee la pantalla
 
 
     //  ── 3 · EL REGISTRO DE LAS MESAS ──────────────────────────────────────────────────
@@ -321,7 +323,7 @@ function useTabletSession({ onReportDelay, establishmentName, attentionLimit } =
 
     return {
         name, attention, cleaning, attentionOrigin, cleaningOrigin, establishment,
-        tablet, ai, reading, tracking, store, savedRotations, linkedNovelties,
+        tablet, ai, cards, reading, tracking, store, savedRotations, linkedNovelties,
         zoom, drag, capture,
         shift, shiftLocked, toggleShift, dishTypes,
         disconnectTablet, clearRegister, reportDelay,

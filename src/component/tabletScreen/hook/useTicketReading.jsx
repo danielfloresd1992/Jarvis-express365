@@ -90,9 +90,18 @@ function buildSilentTabletResult(capture, model) {
 
 
 
+// ANIMATION_RETRIES / ANIMATION_WAIT_MS = «cuántas veces, y cada cuánto, se espera otra captura cuando la que hay cayó a
+// mitad de una animación de Toast» (lo dice el seguimiento por píxeles, useCardTracking): el modelo lee mal esas
+// capturas, con tarjetas deslizándose y cortadas, y la siguiente llega en medio segundo
+const ANIMATION_RETRIES = 3;
+const ANIMATION_WAIT_MS = 600;
+
+
+
 // useTicketReading = «la lectura de tickets»
 // Recibe: { tablet   lo que devuelve useTablet (usa connected, hasCapture, captureRef y captureAtRef)
-//           ai }     lo que devuelve useAiServer (usa server, serverRef, settingsRef, requestRef, markInactive y clearRejections)
+//           ai       lo que devuelve useAiServer (usa server, serverRef, settingsRef, requestRef, markInactive y clearRejections)
+//           cards }  opcional. Lo que devuelve useCardTracking (usa isMidAnimation): sin él, se manda toda captura
 // Devuelve:
 //   modeIA, toggleModeIA   la lectura está activada · activarla o pausarla
 //   readingTime            la hora de la captura que se mandó al modelo en la última vuelta (null: ninguna)
@@ -102,7 +111,7 @@ function buildSilentTabletResult(capture, model) {
 //   fromReading            'tickets' sale de una lectura. false = no hubo lectura (el arranque, o una desconexión)
 //   diagnosis              cómo fue la última vuelta (ver buildDiagnosis). null = todavía ninguna
 //   clearSession           borra lo leído en esta sesión (al desconectar)
-function useTicketReading({ tablet, ai }) {
+function useTicketReading({ tablet, ai, cards = null }) {
 
     //  MODO IA. Es una de las cuatro condiciones del bucle: en pausa, el bucle se para. Con la IA en
     //  pausa el espejo sigue vivo y se puede enviar la captura; lo único que deja de hacerse es mandar
@@ -186,8 +195,15 @@ function useTicketReading({ tablet, ai }) {
 
         //  De la ÚLTIMA captura del espejo. No se le pide otra al ADB: dos 'screencap' a la vez lo atascan.
         // capture = «la captura que se va a leer»
-        const capture = tablet.captureRef.current;
+        let capture = tablet.captureRef.current;
         if (!capture) return { ok: false };
+
+        //  Una captura a mitad de una animación de Toast no se manda: se espera a la siguiente, unas pocas veces
+        for (let attempt = 0; attempt < ANIMATION_RETRIES && cards?.isMidAnimation(capture); attempt++) {
+            await new Promise(resolve => setTimeout(resolve, ANIMATION_WAIT_MS));
+            capture = tablet.captureRef.current;
+            if (!capture) return { ok: false };
+        }
 
         // server = «el servidor de IA, tal como contestó la última consulta»
         // Se lee UNA vez y se comprueba: al guardar ajustes en la otra ventana, la ref se pone a null

@@ -221,3 +221,4 @@
 .pi-apunte--respuesta { --pi-color: #1f5fa8; }                        /* azul */
 .pi-apunte--resultado { --pi-color: var(--color-jx-verde-texto); }    /* verde */
 .pi-apunte--fallo     { --pi-color: var(--color-jx-critico-texto); }  /* rojo */
+.pi-apunte--seguimiento { --pi-color: #8a5a28; }                      /* tabaco: lo que ven los píxeles */

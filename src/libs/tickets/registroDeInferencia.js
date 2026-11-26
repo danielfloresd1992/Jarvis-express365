@@ -41,6 +41,7 @@ export const TIPO = Object.freeze({
     RESPUESTA: 'respuesta',      //  vuelve lo que contestó el modelo, tal cual
     RESULTADO: 'resultado',      //  los tickets que se sacaron de esa respuesta
     FALLO: 'fallo',              //  algo salió mal, con su motivo
+    SEGUIMIENTO: 'seguimiento',  //  el rastreador de tarjetas por píxeles: una tarjeta aparece, se despacha, se va
 });
 
 
