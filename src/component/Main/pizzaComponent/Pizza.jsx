@@ -78,12 +78,12 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
 
         if (data.LANG === 'es') {
 
-            text = `*${data.localData.name}*\n_*${title.es}*_\nApariencia: ${menuRef.current.appearance}\nTamaño: ${menuRef.current.size}\nIngredientes: ${menuRef.current.ingredients}\nNumero de mesa: ${menuRef.current.table}\nEnvio por delivery: ${menuRef.current.delivery}\nNumero de ticket: ${menuRef.current.tiket}\nEs desechada: ${menuRef.current.thrown}\nTipo: ${menuRef.current.type}\nEnviamos imagen para su evaluación\n${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+            text = `*${data.localData.name}*\n_*${title.es}*_\nApariencia: ${menuRef.current.appearance}\nTamaño: ${menuRef.current.size}\nIngredientes: ${menuRef.current.ingredients}\nNumero de mesa: ${menuRef.current.table}\nEnvio por delivery: ${menuRef.current.delivery}\nNumero de ticket: ${menuRef.current.tiket}\nEs desechada: ${menuRef.current.thrown}\nTipo: ${menuRef.current.type}\nEnviamos imagen para su evaluación`;
 
         }
         else {
 
-            text = `*${data.localData.name}*\n_*${title.en}*_\nAppearance: ${menuRef.current.appearance}\nSize: ${menuRef.current.size}\nIngredients: ${menuRef.current.ingredients}\nSent to table: ${menuRef.current.table}\nSent to delivery: ${menuRef.current.delivery}\nTicket: ${menuRef.current.tiket}\nThrown away: ${menuRef.current.thrown}\nType: ${menuRef.current.type}\n\nWe send this image for your verification\n${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+            text = `*${data.localData.name}*\n_*${title.en}*_\nAppearance: ${menuRef.current.appearance}\nSize: ${menuRef.current.size}\nIngredients: ${menuRef.current.ingredients}\nSent to table: ${menuRef.current.table}\nSent to delivery: ${menuRef.current.delivery}\nTicket: ${menuRef.current.tiket}\nThrown away: ${menuRef.current.thrown}\nType: ${menuRef.current.type}\n\nWe send this image for your verification`;
         }
 
         const dataForRequest = {};
@@ -101,6 +101,8 @@ export default function Pizza({ awaitWindow, boxModal, title, reset }) {
         dataForRequest.localId = data.localData.localId;
         dataForRequest.description = descriptionMenu;
         dataForRequest.menu = text;
+        // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+        dataForRequest.operatorNote = description.trim();
         dataForRequest.alertId = title._id;
 
 

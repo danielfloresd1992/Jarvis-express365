@@ -100,7 +100,6 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
                 time1,
                 time2,
                 timeTotal,
-                note: description,
                 lang: data.LANG
             })
 
@@ -138,6 +137,8 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
             dataForRequest.localId = data.localData.localId;
             dataForRequest.description = descriptionMenu;
             dataForRequest.menu = text;
+            // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+            dataForRequest.operatorNote = description.trim();
 
             dataForRequest.rulesForBonus = title.rulesForBonus;
             dataForRequest.alertId = title._id;
@@ -244,7 +245,7 @@ function Servises({ awaitWindow, boxModal, reset, title }) {
 export { Servises }
 
 
-const textAssembly = ({ establishmentName, dish, table, alertLength, time1, time2, timeTotal, note, lang }) => {
+const textAssembly = ({ establishmentName, dish, table, alertLength, time1, time2, timeTotal, lang }) => {
 
 
     const headTitle = lang === 'es' ? `*${establishmentName}*\n` : `*${establishmentName}*\n`;
@@ -255,8 +256,7 @@ const textAssembly = ({ establishmentName, dish, table, alertLength, time1, time
 
 
 
-    const noteText = note !== '' ? lang === 'es' ? `\nNota: ${note.toLowerCase()}` : `\nNote: ${note.toLowerCase()}` : '';
 
 
-    return headTitle + title + tableText + orderTake + noteText;
+    return headTitle + title + tableText + orderTake;
 }

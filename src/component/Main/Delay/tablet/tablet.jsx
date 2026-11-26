@@ -160,6 +160,8 @@ function TabletDelay({ awaitWindow, boxModal, reset, title: noveltyConfig, datos
             dataForRequest.localId = data.localData.localId;
             dataForRequest.description = `Demora en preparación de ${dish.nameDishe}, tiempo total: ${timeTotalDelay}, ${timeDelaySubtraction.timeExceeding}`
             dataForRequest.menu = text;
+            // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+            dataForRequest.operatorNote = description.trim();
             dataForRequest.rulesForBonus = noveltyConfig.rulesForBonus;
             dataForRequest.alertId = noveltyConfig?._id;
             dataForRequest.numberTiket = tiket;

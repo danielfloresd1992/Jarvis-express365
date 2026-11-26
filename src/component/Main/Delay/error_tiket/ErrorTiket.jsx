@@ -84,24 +84,14 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
             let text;
 
 
-            //  La nota que escribe el operador, al final del mensaje.
-            //
-            //  Faltaba: el campo «en caso que lo amerite» se pintaba, se podía
-            //  escribir en él, y lo escrito NO llegaba a ninguna parte. El
-            //  `description` que se manda más abajo es un resumen fijo que arma
-            //  el propio formulario, así que la nota se perdía entera.
-            //
-            //  Se añade como en el resto de las demoras: solo si hay algo, en
-            //  minúsculas y precedida de «Nota:».
-            const nota = description !== ''
-                ? (data.LANG === 'es' ? `\nNota: ${description.toLowerCase()}` : `\nNote: ${description.toLowerCase()}`)
-                : '';
+            //  La nota que escribe el operador ya no va al final del mensaje: viaja aparte
+            //  (operatorNote), el coordinador la ve en Client365 y no se envía al cliente.
 
             if (data.LANG === 'es') {
-                text = `*${data.localData.name}*\nBuenas tardes, tenemos orden #${ticket} en la mesa ${table}, la cual no se encuentra ocupada\n*Enviamos imagen para su verificación, quedamos atentos a sus comentarios.*${nota}`;
+                text = `*${data.localData.name}*\nBuenas tardes, tenemos orden #${ticket} en la mesa ${table}, la cual no se encuentra ocupada\n*Enviamos imagen para su verificación, quedamos atentos a sus comentarios.*`;
             }
             else {
-                text = `*${data.localData.name}*\nGood afternoon, we have order #${ticket} at table ${table}, which is not currently occupied.\n*We are sending an image for verification and await your comments.*${nota}`;
+                text = `*${data.localData.name}*\nGood afternoon, we have order #${ticket} at table ${table}, which is not currently occupied.\n*We are sending an image for verification and await your comments.*`;
             }
 
 
@@ -130,6 +120,8 @@ export default function ErrorTiket({ awaitWindow, boxModal, reset, title }) {
             dataForRequest.localId = data.localData.localId;
             dataForRequest.description = `Error de tiket: mesa ${table}, tiket: ${ticket}`;
             dataForRequest.menu = text;
+            // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+            dataForRequest.operatorNote = description.trim();
 
             dataForRequest.rulesForBonus = title[0].rulesForBonus;
             dataForRequest.alertId = title[0]._id;

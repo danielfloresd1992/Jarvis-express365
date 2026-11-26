@@ -43,8 +43,7 @@ function useTextMenu({
 
     const personMenu = Boolean(person) ? LANG === 'es' ? `\nDescipción: ${person.gender} con ${person.garment} ${person.color}` : `\nDescription:  ${person.gender} with ${person.garment} ${person.color}` : '';
     const areaMenu = Boolean(area) ? LANG === 'es' ? `\nÁrea: ${area}` : `\nArea: ${area}` : '';
-    const note = description !== '' ? `\n${ LANG === 'es' ? 'Nota: ' : 'Note: '} ${description.toLowerCase()}` : '';
-    return `${localText}${headerText}${titleText}${tableText}${amountText}${timeSpecial}${clock}${totalTime}${Brand}${model}${color}${personMenu}${areaMenu}${note}`;
+    return `${localText}${headerText}${titleText}${tableText}${amountText}${timeSpecial}${clock}${totalTime}${Brand}${model}${color}${personMenu}${areaMenu}`;
 }
 
 

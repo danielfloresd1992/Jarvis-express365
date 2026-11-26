@@ -164,24 +164,24 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
             ];
 
             if (data.LANG === 'es' && hasFinishedState) {
-                text = `*${data.localData.name}*\n_*Demora de primera atención*_\nMesa: ${table}\n${local.alertLength === 'extended' ? `Ocupa: ${time1}\nPrimera atención: ${time2}\nTiempo total de demora: ${timeTotal}\n*Mesa no cumple protocolo de primera atención ❌*` : `Hora: ${time2}\nTiempo total: ${timeTotal}`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                text = `*${data.localData.name}*\n_*Demora de primera atención*_\nMesa: ${table}\n${local.alertLength === 'extended' ? `Ocupa: ${time1}\nPrimera atención: ${time2}\nTiempo total de demora: ${timeTotal}\n*Mesa no cumple protocolo de primera atención ❌*` : `Hora: ${time2}\nTiempo total: ${timeTotal}`}`;
             }
             else if (data.LANG === 'en' && hasFinishedState) {
                 if (data.localData.name === 'Mister Turtle Creek' || data.localData.name === 'Mister Grapevine' || data.localData.name === 'Mister Fort Lauderdale' || data.localData.name === 'Mister Wynwood' || data.localData.name === 'Mister Coconut' || data.localData.name === 'Mister Brickell P.' || data.localData.name === 'Mister Aventura' || data.localData.name === 'Mister Bay Harbor') {
 
-                    text = `*${data.localData.name}*\n_*First attention delay*_\nTable: ${table}\nOccupies: ${time1}\nFirst attention: ${time2}\nTime exceeding minutes: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\nTotal time: ${timeTotal}\n*The table does not follow the first attention protocol ❌*${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+                    text = `*${data.localData.name}*\n_*First attention delay*_\nTable: ${table}\nOccupies: ${time1}\nFirst attention: ${time2}\nTime exceeding minutes: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\nTotal time: ${timeTotal}\n*The table does not follow the first attention protocol ❌*`;
                 }
                 else {
 
 
-                    text = `*${data.localData.name}*\n_*First attention delay*_\nTable: ${table}\nTime exceeding: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\n*The table does not follow the first attention protocol ❌*${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+                    text = `*${data.localData.name}*\n_*First attention delay*_\nTable: ${table}\nTime exceeding: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\n*The table does not follow the first attention protocol ❌*`;
                 }
             }
             else {
                 data.LANG === 'es' ?
-                    text = `*${data.localData.name}*\nMesa: *${table}* fue ocupada a las *${time1}* tiene demora de primera atención de: *${returnTimeExceding(time2, time1)}*\nAún no cumple el protocolo de primera atención ❌${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`
+                    text = `*${data.localData.name}*\nMesa: *${table}* fue ocupada a las *${time1}* tiene demora de primera atención de: *${returnTimeExceding(time2, time1)}*\nAún no cumple el protocolo de primera atención ❌`
                     :
-                    text = `*${data.localData.name}*\nTable ${table} and has a first service delay of *${returnTimeExceding(time2, time1)}\n*, it still does not comply with the first service protocol ❌*${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+                    text = `*${data.localData.name}*\nTable ${table} and has a first service delay of *${returnTimeExceding(time2, time1)}\n*, it still does not comply with the first service protocol ❌*`;
             }
 
             let dataForRequest = {};
@@ -213,6 +213,8 @@ function DivAttention({ awaitWindow, boxModal, reset, title, datosIniciales }) {
             dataForRequest.localId = data.localData.localId;
             dataForRequest.description = `ocupa ${time1}, primera atención ${time2} total: ${timeTotal} ${FOR_MISTER01}`;
             dataForRequest.menu = text;
+            // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+            dataForRequest.operatorNote = description.trim();
             dataForRequest.rulesForBonus = title.rulesForBonus;
             dataForRequest.alertId = title._id;
             dataForRequest.for_the_report = hasFinishedState ? true : false;

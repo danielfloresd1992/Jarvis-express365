@@ -101,12 +101,11 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
             const data = useDataUser(null, local, sessionUser, localStorage.getItem('local_appExpress'));
 
             // Texto final armado por partes, como assemble_text en TabletDelay:
-            // local + encabezado + mesa (opcional) + cuerpo + cierre + nota
+            // local + encabezado + mesa (opcional) + cuerpo + cierre (la nota del operador va aparte)
             const text = assembleText({
                 localName: local?.name,
                 dish,
                 table,
-                description,
             }, data.LANG);
 
 
@@ -135,6 +134,8 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
             dataForRequest.localId = data.localData.localId;
             dataForRequest.description = `Plato no comandado: ${dish.nameDishe}${table !== '' ? `, mesa ${table}` : ''}`;
             dataForRequest.menu = text;
+            // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+            dataForRequest.operatorNote = description.trim();
 
             dataForRequest.rulesForBonus = title[0].rulesForBonus;
             dataForRequest.alertId = title[0]._id;
@@ -210,8 +211,8 @@ export default function NoComanda({ awaitWindow, boxModal, reset, title }) {
 
 
 // Texto final del mensaje (menu), armado por partes como assemble_text en
-// TabletDelay: la mesa solo aparece si se cargó y la nota si se escribió.
-function assembleText({ localName, dish, table, description }, lang) {
+// TabletDelay: la mesa solo aparece si se cargó. La nota del operador no va aquí: viaja aparte (operatorNote).
+function assembleText({ localName, dish, table }, lang) {
 
     const localNameText = `*${localName}*\n`;
     const headerText = lang === 'es' ? `_*Plato no comandado*_\n` : `_*Dish not on the order ticket*_\n`;
@@ -222,9 +223,5 @@ function assembleText({ localName, dish, table, description }, lang) {
     const footerText = lang === 'es'
         ? '*Enviamos imagen para su verificación, quedamos atentos.*'
         : '*We are sending an image for verification and await your comments.*';
-    const noteText = description !== ''
-        ? (lang === 'es' ? `\nNota: ${description.toLowerCase()}` : `\nNote: ${description.toLowerCase()}`)
-        : '';
-
-    return `${localNameText}${headerText}${tableText}${bodyText}${footerText}${noteText}`;
+    return `${localNameText}${headerText}${tableText}${bodyText}${footerText}`;
 }

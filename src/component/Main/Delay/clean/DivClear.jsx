@@ -158,21 +158,21 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
 
 
             if (data.LANG === 'es' && hasFinishedState) {
-                text = `*${data.localData.name}*\n_*Demora de limpieza*_\nMesa: ${table}\n${local?.alertLength === 'extended' ? `Desocupa: ${time1}\nLimpieza: ${time2}\nTiempo de limpieza: ${timeTotal}\n*Mesa no cumple protocolo de limpieza ❌*\n` : `Hora:${time2}\nTiempo total: ${timeTotal}\n`}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                text = `*${data.localData.name}*\n_*Demora de limpieza*_\nMesa: ${table}\n${local?.alertLength === 'extended' ? `Desocupa: ${time1}\nLimpieza: ${time2}\nTiempo de limpieza: ${timeTotal}\n*Mesa no cumple protocolo de limpieza ❌*\n` : `Hora:${time2}\nTiempo total: ${timeTotal}\n`}`;
             }
             else if (data.LANG === 'en' && hasFinishedState) {
                 if (data.localData.name === 'Mister Turtle Creek' || data.localData.name === 'Mister Grapevine' || data.localData.name === 'Mister Fort Lauderdale' || data.localData.name === 'Mister Wynwood' || data.localData.name === 'Mister Coconut' || data.localData.name === 'Mister Brickell P.' || data.localData.name === 'Mister Aventura' || data.localData.name === 'Mister Bay Harbor') {
-                    text = `*${data.localData.name}*\n_*Cleaning delay*_\nTable: ${table}\nClient leaves the table: ${time1}\nCleaning: ${time2}\nExceeding time: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\nTime total: ${timeTotal}\n*The table does not follow the cleaning protocol ❌*${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+                    text = `*${data.localData.name}*\n_*Cleaning delay*_\nTable: ${table}\nClient leaves the table: ${time1}\nCleaning: ${time2}\nExceeding time: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\nTime total: ${timeTotal}\n*The table does not follow the cleaning protocol ❌*`;
                 }
                 else {
-                    text = `*${data.localData.name}*\n_*Cleaning delay*_\nTable: ${table}\nTime exceeding three and half minute: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\n*The table does not follow the cleaning protocol ❌*${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`
+                    text = `*${data.localData.name}*\n_*Cleaning delay*_\nTable: ${table}\nTime exceeding three and half minute: ${returnTimeExceding(timeTotal, TIME_EXCEDING.current)}\n*The table does not follow the cleaning protocol ❌*`
                 }
             }
             else {
                 data.LANG === 'es' ?
-                    text = `*${data.localData.name}*\nMesa: *${table}* fue desocupada a las *${time1}* tiene una demora de limpieza de: *${returnTimeExceding(time2, time1)}*\nAún no cumple el protocolo de limpieza ❌${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`
+                    text = `*${data.localData.name}*\nMesa: *${table}* fue desocupada a las *${time1}* tiene una demora de limpieza de: *${returnTimeExceding(time2, time1)}*\nAún no cumple el protocolo de limpieza ❌`
                     :
-                    text = `*${data.localData.name}*\nTable ${table} was vacated at *${time1}* and has a cleaning delay of  *${returnTimeExceding(time2, time1)}\n*, it still does not comply with the cleaning protocol ❌*${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+                    text = `*${data.localData.name}*\nTable ${table} was vacated at *${time1}* and has a cleaning delay of  *${returnTimeExceding(time2, time1)}\n*, it still does not comply with the cleaning protocol ❌*`;
             }
 
             const dataForRequest = {};
@@ -209,6 +209,8 @@ function Divclear({ awaitWindow, boxModal, reset, title, datosIniciales }) {
             dataForRequest.localId = data.localData.localId;
             dataForRequest.description = `Desocupa ${time1}, Limpieza ${time2} total: ${timeTotal} ${FOR_MISTER01}`;
             dataForRequest.menu = text;
+            // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+            dataForRequest.operatorNote = description.trim();
 
             dataForRequest.rulesForBonus = title.rulesForBonus;
             dataForRequest.alertId = title._id;

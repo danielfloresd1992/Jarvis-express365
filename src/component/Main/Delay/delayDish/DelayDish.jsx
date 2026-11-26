@@ -112,21 +112,21 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
 
             if (data.LANG === 'es') {
                 if (seletedEstableshment.franchise === 'La Francisca') {
-                    text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en tablet: ${time2}\nListo en ${awaitSite}: ${time3}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                    text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en tablet: ${time2}\nListo en ${awaitSite}: ${time3}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}`;
                 }
 
                 else {
                     if (seletedEstableshment.name === 'Bocas Brickell') {
-                        text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en tablet: ${time2}\nListo en ${awaitSite}: ${time3}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                        text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en tablet: ${time2}\nListo en ${awaitSite}: ${time3}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}`;
                     }
                     else {
-                        text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en ${awaitSite}: ${time3}\nListo en tablet: ${time2}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}${description !== '' ? `\nNota: ${description.toLowerCase()}` : ''}`;
+                        text = `*${data.localData.name}*\n_*Demora en entrega de ${plateName}*_ \nMesa ${table}\nToma de orden: ${time1}\nListo en ${awaitSite}: ${time3}\nListo en tablet: ${time2}\nEntrega de ${typeFood}: ${time4}\ndemora en entrega de ${typeFood}: ${timeTotal}\nTiempo total: ${returnTimeExceding(time4, time1)}`;
                     }
 
                 }
             }
             else {
-                text = `*${data.localData.name}*\n_*${plateName} delivery delay*_\nTable: ${table}\nOrder take: ${time1}\nReady in tablet: ${time2}\nReady at ${awaitSite} ${time3}\n${plateName} delivery: ${time4}\nDelay in preparation ${returnTimeExceding(timeTotal, TIME_EXCEDING)}\nTotal time: ${timeTotal}${description !== '' ? `\nNote: ${description.toLowerCase()}` : ''}`;
+                text = `*${data.localData.name}*\n_*${plateName} delivery delay*_\nTable: ${table}\nOrder take: ${time1}\nReady in tablet: ${time2}\nReady at ${awaitSite} ${time3}\n${plateName} delivery: ${time4}\nDelay in preparation ${returnTimeExceding(timeTotal, TIME_EXCEDING)}\nTotal time: ${timeTotal}`;
             }
 
             const dataForRequest = {};
@@ -160,6 +160,8 @@ function DelayDish({ awaitWindow, boxModal, reset, title }) {
             dataForRequest.localId = data.localData.localId;
             dataForRequest.description = `Listo en cocina ${time3}, entrega de plato ${time4} ${FOR_MISTER01}`;
             dataForRequest.menu = text;
+            // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+            dataForRequest.operatorNote = description.trim();
             dataForRequest.rulesForBonus = title.rulesForBonus;
             dataForRequest.alertId = title._id;
             if (urlVideo) dataForRequest.videoUrl = urlVideo.data.url;

@@ -107,7 +107,6 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                     time2,
                     textResult: calculateTime(time1 ?? '', time2 ?? ''),
                     ref,
-                    description,
                     car,
                     person,
                     area,
@@ -157,6 +156,8 @@ function SendNoveltie({ titlesJson, awaitWindow, boxModal, reset }) {
                 dataForRequest.localId = data.localData.localId;
                 dataForRequest.description = description;
                 dataForRequest.menu = menu;
+                // La nota del operador va aparte: el coordinador la ve en Client365 y no se envía al cliente
+                dataForRequest.operatorNote = description.trim();
 
                 dataForRequest.rulesForBonus = title[0].rulesForBonus;
                 dataForRequest.alertId = title[0]._id;
